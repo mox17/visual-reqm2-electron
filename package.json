@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "0.97",
+  "version": "0.97.0",
   "description": "Visualize ReqM2 oreqm files.",
   "main": "main.js",
   "scripts": {
@@ -30,7 +30,7 @@
     "electron-settings": "^3.2.0",
     "split.js": "^1.5.10",
     "svg-pan-zoom": "^3.6.0",
-    "jsdiff": "^4.0.2",
+    "diff": "^4.0.2",
     "viz.js": "^2.1.2"
   },
   "build": {
@@ -42,11 +42,7 @@
     ],
     "fileAssociations": [
       {
-        "ext": "oreqm",
-        "name": "ReqM2 oreqm file",
-        "role": "Editor",
-        "perMachine": true
-      }
+        "ext": "oreqm"      }
     ],
     "win": {
       "target": {

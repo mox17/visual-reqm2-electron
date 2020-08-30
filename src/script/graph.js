@@ -20,9 +20,9 @@ const app_version = app.getVersion();
 let into_edit = () => {
     edit_state = true;
     if (current_file === undefined) {
-        mainWindow.setTitle('VizGraph (*)');
+        mainWindow.setTitle('Visual ReqM2 (*)');
     } else {
-        mainWindow.setTitle('VizGraph - ' + current_file + ' (*)');
+        mainWindow.setTitle('Visual ReqM2 - ' + current_file + ' (*)');
     }
     ipcRenderer.send('cannot_close');
 }
@@ -30,9 +30,9 @@ let into_edit = () => {
 let into_read = () => {
     edit_state = false;
     if (current_file === undefined) {
-        mainWindow.setTitle('VizGraph');
+        mainWindow.setTitle('Visual ReqM2');
     } else {
-        mainWindow.setTitle('VizGraph - ' + current_file);
+        mainWindow.setTitle('Visual ReqM2 - ' + current_file);
     }
     
     ipcRenderer.send('can_close');
@@ -477,7 +477,7 @@ document.addEventListener('dragover', (e) => {
 ipcRenderer.on('save_dot_file', () => {
     dialog.showMessageBox(mainWindow, {
         type: "question",
-        message: "VizGraph Exit && Save Current Dot File?",
+        message: "Visual ReqM2 Exit && Save Current Dot File?",
         buttons: ["Yes", "No", "Cancel"],
         title: "Save Dot File"
     }, (response) => {
@@ -677,10 +677,10 @@ const nativeImage = remote.nativeImage;
 
 let open_about_dialog = () => {
     dialog.showMessageBox(mainWindow, {
-        title: 'About VizGraph',
+        title: 'About Visual ReqM2',
         icon: nativeImage.createFromPath('src/img/ico.png'),
-        message: 'VizGraph',
-        detail: 'A simple tool for Using Graphviz.\nPowered by Viz.js & Electron.\n\n' +
+        message: 'Visual ReqM2',
+        detail: 'A tool for visualizing ReqM2 requirements.\nPowered by Viz.js & Electron.\n\n' +
         'App version: Beta ' + app_version
     }, () => {});
 }
