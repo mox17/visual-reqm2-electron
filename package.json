@@ -1,0 +1,75 @@
+{
+  "name": "visualreqm2",
+  "version": "0.97",
+  "description": "Visualize ReqM2 oreqm files.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --debug",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "electron-builder -lw --publish always",
+    "win": "electron-builder -w",
+    "linux": "electron-builder -l",
+    "mac": "electron-builder -m"
+  },
+  "author": {
+    "name": "Erling Stage",
+    "email": "erling.stage@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mox17/visual-reqm2-electron.git"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^4.0.0",
+    "electron-builder": "^20.38.4"
+  },
+  "dependencies": {
+    "ace-builds": "^1.4.2",
+    "electron-settings": "^3.2.0",
+    "split.js": "^1.5.10",
+    "svg-pan-zoom": "^3.6.0",
+    "jsdiff": "^4.0.2",
+    "viz.js": "^2.1.2"
+  },
+  "build": {
+    "appId": "com.mox17.visualreqm2",
+    "productName": "visualreqm2",
+    "extraFiles": [
+      "template/*",
+      "src/img/ico.png"
+    ],
+    "fileAssociations": [
+      {
+        "ext": "oreqm",
+        "name": "ReqM2 oreqm file",
+        "role": "Editor",
+        "perMachine": true
+      }
+    ],
+    "win": {
+      "target": {
+        "target": "portable",
+        "arch": [
+          "ia32",
+          "x64"
+        ]
+      },
+      "publisherName": "mox17",
+      "icon": "src/img/ico.ico"
+    },
+    "linux": {
+      "target": {
+        "target": "AppImage",
+        "arch": [
+          "ia32",
+          "x64"
+        ]
+      }
+    },
+    "mac": {
+      "icon": "src/img/ico.png"
+    }
+  }
+}
