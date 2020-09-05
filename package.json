@@ -2,7 +2,7 @@
   "name": "visualreqm2",
   "version": "0.97.0",
   "description": "Visualize ReqM2 oreqm files.",
-  "main": "main.js",
+  "main": "mainwin.mjs",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --debug",
@@ -27,22 +27,23 @@
   },
   "dependencies": {
     "ace-builds": "^1.4.2",
-    "electron-settings": "^3.2.0",
-    "split.js": "^1.5.10",
-    "svg-pan-zoom": "^3.6.0",
     "diff": "^4.0.2",
+    "electron-settings": "^3.2.0",
+    "import-export": "^1.0.1",
+    "split.js": "^1.6.2",
+    "svg-pan-zoom": "^3.6.0",
     "viz.js": "^2.1.2"
   },
   "build": {
     "appId": "com.mox17.visualreqm2",
     "productName": "visualreqm2",
     "extraFiles": [
-      "template/*",
       "src/img/ico.png"
     ],
     "fileAssociations": [
       {
-        "ext": "oreqm"      }
+        "ext": "oreqm"
+      }
     ],
     "win": {
       "target": {

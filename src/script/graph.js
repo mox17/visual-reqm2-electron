@@ -336,11 +336,16 @@ function updateOutput()
         graph.appendChild(svg);
 
         panZoom = svgPanZoom(svg, {
+            panEnabled: true,
             zoomEnabled: true,
+            dblClickZoomEnabled: false,
             controlIconsEnabled: true,
+            preventMouseEventsDefault: false,
             fit: true,
             center: true,
-            minZoom: 0.1
+            minZoom: 0.02,
+            maxZoom: 200,
+            zoomScaleSensitivity: 0.3
         });
 
         svg.addEventListener('paneresize', function(e) {

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Visual ReqM2</title>
+    <link rel = "stylesheet"
+      type = "text/css"
+      href = "./scripts/default.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!--
+      <div id="header">
+        <b>Visual ReqM2</b> Read more at <a href="https://example.com/">the web site</a>.
+      </div>
+      -->
+      <div id="panes" class="split split-horizontal">
+        <div id="oreqm_div" class="split">
+          <div id="drop_area_main" class="dropdiv">
+            <b>ReqM2 .oreqm file</b><br/>
+            <table class="oreqm_file_table" >
+              <tr><td width="1%">name</td><td id="name" class="absorbing-column"></td></tr>
+              <tr><td width="1%">size</td><td id="size"></td></tr>
+              <tr><td width="1%">date</td><td id="timestamp"></td></tr>
+            </table>
+            <p/>
+            <button type="button" onclick="window.get_main_oreqm_file()" >load or drop file</button>
+          </div>
+          <p/>
+          <div id="drop_area_ref"  class="dropdiv">
+            <b>Reference .oreqm file</b>
+            <button id="clear_ref_oreqm" type="button" disabled="true" onclick="window.clear_reference()">clear</button>
+            <table class="oreqm_file_table">
+              <tr><td width="1%">name</td><td id="ref_name" class="absorbing-column"></td></tr>
+              <tr><td width="1%">size</td><td id="ref_size"></td></tr>
+              <tr><td width="1%">date</td><td id="ref_timestamp"></td></tr>
+            </table>
+            <p/>
+            <button id="get_ref_oreqm" type="button" disabled="true" onclick="window.get_ref_oreqm_file()">load or drop file</button>
+          </div>
+          <p></p>
+          <hr>
+          <b>Selection criteria</b>
+          <button id="clear_filters" type="button" onclick="window.clear_search_regex()">clear</button>
+          <textarea class="search_terms" id="search_regex" rows="3" cols="34"
+                    wrap="off" placeholder="search regex&#13;&#10;newlines are ignored&#13;&#10;rem:|chg:|new: select changes"
+                    onchange="window.filter_change()"
+                    spellcheck="false"></textarea>
+          <br>
+          <label id="id_checkbox">
+            <input type="checkbox" onchange="window.filter_change()">Search &lt;id&gt; only
+          </label>
+          <p/>
+          <b>Excluded &lt;id&gt;s</b>
+          <button id="clear_filters" type="button" onclick="window.clear_excluded_ids()">clear</button>
+          <textarea class="search_terms" id="excluded_ids" rows="3" cols="25" spellcheck="false" onchange="window.filter_change()"
+          wrap="off" placeholder="excluded <id>s&#13;&#10;separate with ',' or newline" ></textarea>
+            <hr>
+            <button type="button" onclick="window.filter_graph()">update graph</button>
+            <input type="checkbox" id="auto_update" onchange="window.auto_update_click()">auto-update</button>
+          <p/>
+          <hr>
+          <b>Doctypes</b><br><p/>
+          <button type="button" onclick="window.show_doctypes()">hierarchy</button>
+          <button type="button" onclick="window.show_doctypes_safety()">safety</button>
+          <button type="button" onclick="window.invert_exclude()">invert exclude</button>
+          <p/>
+          <div id="doctype_table"></div>
+          <p/>
+          <button type="button" onclick="window.save_colors()">save colors</button>
+          <button type="button" onclick="window.load_color_scheme()">load colors</button>
+          <hr>
+          <button type="button" onclick="window.load_safety_rules()">load safety rules</button>
+        </div>
+        <div id="graph" class="split">
+          <div id="options">
+            <p class="alignleft">
+              <label id="format">
+                format:
+                <select>
+                  <option selected>svg</option>
+                  <option>png-image-element</option>
+                  <option>dot-source</option>
+                  <!-- <option>json</option> -->
+                  <!-- <option>xdot</option> -->
+                  <!-- <option>plain</option> -->
+                  <!-- <option>ps</option> -->
+                </select>
+              </label>
+              <label id="raw" style="visibility: hidden;">
+                <input type="checkbox" > raw
+              </label>
+              <select id="nodeSelect" style="width:25%;max-width:40%;" onChange="window.select_dropdown()">
+              </select>
+              <button type="button" onclick="window.prev_selected()">prev</button>
+              <button type="button" onclick="window.next_selected()">next</button>
+            </p>
+            <p class="alignright">
+              <label id="viz_working"></label>
+              <label id="download_image"></label>
+              <button id="issuesButton"><span id="issueCount"></span> issues</button>
+              <!-- Trigger/Open The modal "about" dialog -->
+              <button id="aboutButton">About</button>
+            </p>
+          </div>
+          <div style="clear: both;"></div>
+          <div id="output">
+            <div id="error"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The "about" modal dialog -->
+    <div id="aboutPane" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content row">
+        <span id="aboutPaneClose" class="close">&times;</span>
+        <div class="column">
+          <h1>Visual ReqM2</h1>
+          <p>Version 0.97.0<br/>
+          Copyright 2020 Erling Stage<br/>
+          Licensed under MIT license<br/>
+         <!-- <a href="https://github.com/mox17/visual-reqm2-js">https://github.com/mox17/visual-reqm2-js</a> -->
+        </p>
+          <h4>Dependencies</h4>
+          <p>Visual ReqM2 uses the following modules:
+              <p>Viz.js 1.8.2 (Graphviz 2.40.1, Expat 2.2.5, Emscripten 1.37.33)<br/>
+                Copyright 2014-2018 Michael Daines<br/>
+                Licensed under MIT license<br/>
+                <a href="https://github.com/mdaines/viz.js">https://github.com/mdaines/viz.js</a><br/>
+              </p>
+              <p>
+                svg-pan-zoom v3.6.1<br/>
+                Copyright 2009-2010 Andrea Leofreddi<br/>
+                BSD 2-Clause "Simplified" License<br/>
+                <a href="https://github.com/ariutta/svg-pan-zoom">https://github.com/ariutta/svg-pan-zoom</a><br/>
+              </p>
+              <p>
+                Split.js v1.3.5<br/>
+                Copyright 2018 Nathan Cahill<br/>
+                Licensed under MIT license<br/>
+                <a href="https://github.com/nathancahill/split">https://github.com/nathancahill/split</a><br/>
+              </p>
+              <p>
+                diff.js v4.0.1<br/>
+                Copyright (c) 2009-2015, Kevin Decker kpdecker@gmail.com<br/>
+                Licensed under BSD License<br/>
+                <a href="https://github.com/kpdecker/jsdiff"/>https://github.com/kpdecker/jsdiff</a><br/>
+              </p>
+          </p>
+        </div>
+        <div class="column">
+          <h4>Tips</h4>
+          <ul>
+            <li>Use mouse wheel (or scroll gesture) to zoom in and out around mouse position.</li>
+            <li>Use mouse-drag to pan diagram.</li>
+            <li>Select text in diagram with <b>alt</b>+drag or <b>ctrl</b>+drag (browser dependent).</li>
+            <li>Right-click menu on requirements to: <b>Select / De-select / Exclude / Copy &lt;id&gt; / Show XML</b>.</li>
+            <li>Find requirements with fulfilledby links using <b>ffb:</b> as prefix to &lt;id&gt; or alone for all such requirements. Only works in full text search.</li>
+            <li>When comparing oreqm files, use &lt;id&gt; prefixes <b>"rem:"</b>, <b>"chg:"</b> or <b>"new:"</b> in regex'es to select <b>removed</b>, <b>changed</b> or <b>new</b> requirements.</li>
+            <li>A XML diff is available for changed requirements under 'Show XML' right-click menu entry.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raw req display dialog -->
+    <div id="nodeSource" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content row">
+        <div><span id="nodeSourceClose" class="close">&times;</span></div>
+        <div id="req_src" style="overflow-y: auto; height:600px; ">
+        </div>
+      </div>
+    </div>
+
+    <!-- Problem display dialog -->
+    <div id="problemPopup" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content row">
+        <div><span id="problemPopupClose" class="close">&times;</span></div>
+        <div id="problem_list" style="overflow-y: auto; height:600px; ">
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- pop-up menu ---- -->
+    <ul class='custom-menu' id="node-menu">
+      <li id="menu_select"   onclick="window.select_node()">Select</li>
+      <li id="menu_deselect" onclick="window.deselect_node()">De-select</li>
+      <li id="menu_exclude"  onclick="window.exclude_node()">Exclude</li>
+      <li id="menu_copy_id"  onclick="window.copy_id_node(false)">Copy &lt;id&gt;</li>
+      <li id="menu_copy_ffb" onclick="window.copy_id_node(true)">Copy &lt;id&gt;:&lt;doctype&gt;:&lt;ver&gt;</li>
+      <!--<li id="menu_copy_svg" onclick="window.copy_svg()">Copy SVG</li>-->
+      <li id="menu_raw_txt"  onclick="window.show_source()">Show XML</li>
+    </ul>
+
+    <!--
+    <script src="./modules/viz.js/viz.js"></script>
+    <script src="./modules/Split.js/split.min.js"></script>
+    <script src="./modules/svg-pan-zoom/svg-pan-zoom-es.js"></script>
+    <script src="./modules/diff/dist/diff.js"></script> -->
+
+    <script type="module" src="./scripts/main.mjs" type="text/javascript" charset="utf-8" ></script> <!--  -->
+
+    <script type="module">
+      import {
+        select_node,
+        deselect_node,
+        exclude_node,
+        copy_id_node,
+        show_source,
+        show_doctypes,
+        show_doctypes_safety,
+        get_main_oreqm_file,
+        get_ref_oreqm_file,
+        clear_reference,
+        clear_search_regex,
+        clear_excluded_ids,
+        filter_graph,
+        filter_change,
+        invert_exclude,
+        prev_selected,
+        next_selected,
+        load_color_scheme,
+        auto_update_click,
+        select_dropdown,
+        clear_problems,
+        copy_svg
+      } from "./scripts/main.mjs";
+      import {load_safety_rules} from './scripts/reqm2oreqm.mjs'
+      import {load_colors, save_colors} from './scripts/color.mjs'
+
+      window.select_node          = select_node;
+      window.deselect_node        = deselect_node;
+      window.exclude_node         = exclude_node;
+      window.copy_id_node         = copy_id_node;
+      window.show_source          = show_source;
+      window.show_doctypes        = show_doctypes;
+      window.show_doctypes_safety = show_doctypes_safety;
+      window.get_main_oreqm_file  = get_main_oreqm_file;
+      window.get_ref_oreqm_file   = get_ref_oreqm_file;
+      window.clear_reference      = clear_reference;
+      window.clear_search_regex   = clear_search_regex;
+      window.clear_excluded_ids   = clear_excluded_ids;
+      window.filter_graph         = filter_graph;
+      window.filter_change        = filter_change;
+      window.invert_exclude       = invert_exclude;
+      window.prev_selected        = prev_selected;
+      window.next_selected        = next_selected;
+      window.auto_update_click    = auto_update_click;
+      window.clear_problems       = clear_problems;
+      window.select_dropdown      = select_dropdown;
+      window.load_safety_rules    = load_safety_rules;
+      window.save_colors          = save_colors;
+      window.load_colors          = load_colors;
+      window.load_color_scheme    = load_color_scheme;
+      window.copy_svg             = copy_svg;
+    </script>
+
+</body>
+</html>

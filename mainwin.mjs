@@ -1,3 +1,4 @@
+"use strict";
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
@@ -9,6 +10,16 @@ const path = require('path');
 const url = require('url');
 const settings = require('electron-settings');
 
+/*
+require('import-export');
+
+require('./scripts/main.mjs');
+require('./scripts/oreqm.mjs');
+require('./scripts/reqm2oreqm.mjs');
+require('./scripts/diagrams.mjs');
+require('./scripts/color.mjs');
+require('./scripts/doctypes.mjs');
+*/
 const debug = /--debug/.test(process.argv[2]);
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -29,6 +40,7 @@ ipcMain.on('can_close', () => {
     can_close = true;
 });
 
+/*
 let newwin;
 
 function open_module_select_window() {
@@ -63,6 +75,7 @@ ipcMain.on('open_module_select_window', () => {
 ipcMain.on('close_module_select_window', () => {
     newwin.close();
 });
+*/
 
 ipcMain.on('proxy_create_new_dot', (event, message) => {
     mainWindow.webContents.send('create_new_dot', message);
@@ -75,14 +88,18 @@ function createWindow() {
         height: mainWindow_height,
         icon: 'src/img/ico.png',
         webPreferences: {
-            nodeIntegrationInWorker: true
+            nodeIntegrationInWorker: true,
+            nodeIntegration: true
         }
     });
 
     // and load the index.html of the app.
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'src/index.html'),
-        protocol: 'file:',
+        //pathname: path.join(__dirname, 'src/index.html'),
+        //pathname: path.join(__dirname, 'index.html'),
+        //protocol: 'file:',
+        pathname: 'localhost:8000/index.html',
+        protocol: 'http:',
         slashes: true,
         backgroundColor: '#000000'
     }));
@@ -121,9 +138,11 @@ app.on('ready', () => {
     mainWindow_height = settings.get('mainWindow_height', 768);
     createWindow();
     mainWindow.webContents.on('did-finish-load', () => {
+        /*
         if (process.argv.length > 1) 
             mainWindow.webContents.send('argv', process.argv[1]);
         else open_module_select_window();
+        */
     });
 });
 
@@ -146,3 +165,4 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+//const main = require('./scripts/main.mjs')
