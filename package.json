@@ -4,9 +4,10 @@
   "description": "Visualize ReqM2 oreqm files.",
   "main": "mainwin.js",
   "scripts": {
-    "start": "electron --allow-file-access-from-file .",
+    "start": "electron .",
+    "start_w_args": "electron . asa asasa",
     "build": "babel scripts -d lib",
-    "dev": "electron --allow-file-access-from-file . --debug",
+    "dev": "electron . --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dist": "electron-builder -lw --publish always",
     "win": "electron-builder -w",

@@ -2,6 +2,9 @@
 
   import ReqM2Oreqm, { xml_escape, load_safety_rules } from './diagrams.js'
   import get_color, { save_colors, load_colors } from './color.js'
+  import { ipcRenderer, remote } from 'electron'
+  import fs from 'fs'
+  let mainWindow = remote.getCurrentWindow();
 
   // ------ utility functions and extensions --------
   String.prototype.format = function () {
@@ -47,6 +50,30 @@
       if (svgOutput != null) {
         svgOutput.dispatchEvent(resizeEvent);
       }
+    }
+  });
+
+  ipcRenderer.on('argv', (event, parameters) => {
+    let ok = true;
+    //console.log(parameters)
+    if (parameters.length <= 2) {
+      for (let filename of parameters) {
+        fs.stat(filename, (err, stat) => {
+            if (stat && stat.isFile()) {
+                console.log(filename);
+            } else {
+                console.log("Not a file.", filename);
+                ok = false;
+            }
+        })
+      }
+      /*
+      if (ok) {
+        load_file_main(parameters[0]);
+        if (parameters.length == 2) {
+          load_file_ref(parameters[1]);
+        }
+      }*/
     }
   });
 

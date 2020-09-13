@@ -170,5 +170,5 @@ if (typeof(Storage) !== "undefined") {
     _my_palette = colors
   }
 } else {
-  // Sorry! No Web Storage support..
+  //console.log('Sorry! No Web Storage support..')
 }
