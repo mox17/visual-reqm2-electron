@@ -2,7 +2,6 @@
 
   import ReqM2Oreqm, { xml_escape, load_safety_rules } from './diagrams.js'
   import get_color, { save_colors, load_colors } from './color.js'
-  import Split from 'split.js'
 
   // ------ utility functions and extensions --------
   String.prototype.format = function () {
