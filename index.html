@@ -224,12 +224,16 @@
       <li id="menu_xml_txt"  >Show XML</li>
     </ul>
 
+    <!--
     <script src="./modules/viz.js/viz.js"></script>
     <script src="./modules/Split.js/split.min.js"></script>
     <script src="./modules/svg-pan-zoom/svg-pan-zoom-es.js"></script>
     <script src="./modules/diff/dist/diff.js"></script>
 
-    <script type="module" src="./scripts/main.js"></script>
+    <script type="module" src="./lib/main.js"></script>
+    -->
+  <script>require('svg-pan-zoom')</script>
+  <script>require('./lib/main.js')</script>
 
 </body>
 </html>

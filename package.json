@@ -1,11 +1,12 @@
 {
   "name": "visualreqm2",
-  "version": "0.97.0",
+  "version": "0.97.2",
   "description": "Visualize ReqM2 oreqm files.",
-  "main": "index.js",
+  "main": "mainwin.js",
   "scripts": {
     "start": "electron --allow-file-access-from-file .",
-    "dev": "electron . --debug",
+    "build": "babel scripts -d lib",
+    "dev": "electron --allow-file-access-from-file . --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dist": "electron-builder -lw --publish always",
     "win": "electron-builder -w",
@@ -22,22 +23,22 @@
   },
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
     "electron": "^4.0.0",
     "electron-builder": "^20.38.4"
   },
   "dependencies": {
-    "ace-builds": "^1.4.2",
     "diff": "^4.0.2",
     "electron-settings": "^3.2.0",
-    "esm": "^3.2.25",
-    "import-export": "^1.0.1",
     "split.js": "^1.6.2",
     "svg-pan-zoom": "^3.6.0",
-    "viz.js": "^2.1.2"
+    "viz.js": "^1.8.2"
   },
   "build": {
     "appId": "com.mox17.visualreqm2",
-    "productName": "visualreqm2",
+    "productName": "Visual ReqM2",
     "extraFiles": [
       "src/img/ico.png"
     ],

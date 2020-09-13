@@ -1,0 +1,410 @@
+#app {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+    -webkit-flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #header {
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
+    line-height: 1.3;
+  }
+
+  #panes {
+    display: flex;
+    display: -webkit-flex;
+    flex: 1 1 auto;
+    -webkit-flex: 1 1 auto;
+  }
+
+  #graph {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+    -webkit-flex-direction: column;
+  }
+
+  #options {
+    flex: 0 0 auto;
+    -webkit-flex: 0 0 auto;
+  }
+
+  #output {
+    flex: 1 1 auto;
+    -webkit-flex: 1 1 auto;
+    position: relative;
+    overflow: auto;
+  }
+
+  #oreqm_div {
+    border-right: 1px solid #ccc;
+    background: #eee;
+  }
+
+  #header {
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+
+  #header b {
+    font-size: 18px;
+  }
+
+  #options {
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+    padding: 8px;
+  }
+
+  #options label {
+    margin-right: 8px;
+  }
+
+  #options #raw.disabled {
+    opacity: 0.5;
+  }
+
+  #output svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #output #text {
+    font-size: 12px;
+    font-family: monaco, courier, monospace;
+    white-space: pre;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+
+  #output img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  #output.working svg, #output.error svg,
+  /*#output.working #text, #output.error #text,*/
+  #output.working img, #output.error img {
+    opacity: 0.4;
+  }
+
+  #output.error #error {
+    display: inherit;
+  }
+
+  #output #error {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    margin-right: 20px;
+    background: red;
+    color: white;
+    z-index: 1;
+  }
+
+  .gutter {
+    background-color: #eee;
+    background-repeat: no-repeat;
+    background-position: 50%;
+  }
+
+  .gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: ew-resize;
+  }
+
+  .split {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .split.split-horizontal, .gutter.gutter-horizontal {
+    height: 100%;
+    float: left;
+  }
+
+  html, body {
+      font-family: arial;
+  }
+
+  #oreqm_div {
+    padding-right: 4px;
+    padding-left: 4px;
+    padding-top: 4px;
+  }
+
+  .dropdiv {
+    border: 4px;
+  }
+
+  .highlight {
+    border-color: purple;
+    border: 4px dashed #090;
+    border-radius: 10px;
+  }
+
+  table.oreqm_file_table {
+    font-family: Arial, Helvetica, sans-serif;
+    border: 1px solid #000000;
+    background-color: #FFFFFF;
+    width: 100%;
+    text-align: left;
+  }
+
+  table.oreqm_file_table td, table.oreqm_file_table th {
+    border: 0px solid #AAAAAA;
+    padding: 0px 0px;
+  }
+
+  table.oreqm_file_table tbody td {
+    font-size: 12px;
+  }
+  table.oreqm_file_table tr:nth-child(even) {
+    background: #DDDDDD;
+  }
+
+  table.doctype_table td,
+  table.doctype_table p
+  {
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+    margin:0px;
+  }
+
+  table.doctype_table
+  {
+    text-align: center;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  textarea.search_terms {
+    border-radius: 4px;
+    flex: 0 0 200px;
+    margin-right: 10px;
+    margin-top: 4px;
+    padding-right: 4px;
+    font-size: 12px;
+    width: 97%;
+  }
+
+  /* The Modal (background) */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    padding-right: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+  /* Modal Content */
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+
+  /* The Close Button */
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* Create two equal columns that floats next to each other */
+  .column {
+    float: left;
+    width: 50%;
+  }
+
+  /* Clear floats */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  /* Responsive layout - makes a two column-layout instead of four columns */
+  @media screen and (max-width: 900px) {
+    .column {
+      width: 50%;
+    }
+  }
+
+  /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+  @media screen and (max-width: 600px) {
+    .column {
+      width: 100%;
+    }
+  }
+  /* The Modal (background) - end */
+
+  /* svg context menu related */
+  .custom-menu {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #555;
+    white-space: nowrap;
+    font-family: sans-serif;
+    background: #000;
+    color: #FFF;
+    list-style: none;
+    border-radius:1px;
+    -moz-border-radius:1px;
+    box-shadow: 2px 2px 2px #aaa;
+  }
+
+  .custom-menu li {
+    padding: 4px 4px;
+    cursor: pointer;
+  }
+
+  .custom-menu li:hover {
+    background-color: #555;
+  }
+
+  .custom-menu_disabled  {
+    pointer-events: none; /* This makes it not clickable */
+    opacity: 0.6;         /* This grays it out to look disabled */
+  }
+  /* svg context menu related - end */
+
+  /* Status bar layout */
+  .alignleft {
+    float: left;
+    width:65%;
+    text-align:left;
+    margin:0;
+    padding:0;
+  }
+
+  /*
+  .aligncenter {
+    float: left;
+    width:25%;
+    text-align:center;
+    margin:0;
+    padding:0;
+  } */
+
+  .alignright {
+    float: right;
+    width:35%;
+    text-align:right;
+    margin:0;
+    padding:0;
+  }
+
+  /* spinner */
+  .loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;
+  }
+
+  /* Safari */
+  @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* tooltip support */
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: block;
+  /*border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  /*width: 200px;*/
+  background-color: #555;
+  color: #fff;
+  text-align: left;
+  font-size: 10px;
+  font-family: monaco, courier, monospace;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
