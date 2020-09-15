@@ -95,6 +95,10 @@ app.on('ready', () => {
     parser.add_argument('oreqm_main',  { help: 'main oreqm', nargs: '?' });
     parser.add_argument('oreqm_ref',  { help: 'ref. oreqm', nargs: '?' });
 
+    // Ugly work-around for command line difference when compiled to app
+    if (process.argv[1] != '.') {
+        process.argv.splice(1, 0, '.');
+    }
     let args = parser.parse_args()
     debug = args.debug
     //console.log(args);

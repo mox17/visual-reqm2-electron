@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "0.97.2",
+  "version": "0.98.0",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
@@ -8,10 +8,12 @@
     "start_w_args": "electron . ./testdata/oreqm_testdata_del_movement.oreqm",
     "start_w_args_1": "electron . --debug  ./testdata/oreqm_testdata_del_movement.oreqm",
     "start_w_args_2": "electron . --debug ./testdata/oreqm_testdata_del_movement.oreqm ./testdata/oreqm_testdata_no_ogre.oreqm",
+    "start_w_h": "electron . -h",
     "build": "babel scripts -d lib",
     "dev": "electron . --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dist": "electron-builder -lw --publish always",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
     "win": "electron-builder -w",
     "linux": "electron-builder -l",
     "mac": "electron-builder -m"
@@ -30,7 +32,7 @@
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
     "electron": "^4.0.0",
-    "electron-builder": "^20.38.4"
+    "electron-builder": "^20.44.4"
   },
   "dependencies": {
     "argparse": "^2.0.1",
@@ -48,12 +50,14 @@
     ],
     "fileAssociations": [
       {
-        "ext": "oreqm"
-      }
+        "ext": "oreqm",
+        "name": "OREQM File",
+        "role": "Viewer"
+        }
     ],
     "win": {
       "target": {
-        "target": "msi",
+        "target": "nsis",
         "arch": [
           "ia32",
           "x64"

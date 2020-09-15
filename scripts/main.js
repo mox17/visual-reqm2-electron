@@ -57,6 +57,13 @@
     let ok = true;
     let main = false;
     let ref = false;
+    /*
+    let c_args = ''
+    for (let i = 0; i < parameters.length; i++) {
+        c_args += parameters[i] + '  \n'
+    }
+    alert(c_args) */
+
     if (args.oreqm_main !== undefined) {
       //console.log(fs.statSync(args.oreqm_main));
       let main_stat = fs.statSync(args.oreqm_main);
