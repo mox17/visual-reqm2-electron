@@ -1,11 +1,13 @@
 {
   "name": "visualreqm2",
   "version": "0.97.2",
-  "description": "Visualize ReqM2 oreqm files.",
+  "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
     "start": "electron .",
-    "start_w_args": "electron . asa asasa",
+    "start_w_args": "electron . ./testdata/oreqm_testdata_del_movement.oreqm",
+    "start_w_args_1": "electron . --debug  ./testdata/oreqm_testdata_del_movement.oreqm",
+    "start_w_args_2": "electron . --debug ./testdata/oreqm_testdata_del_movement.oreqm ./testdata/oreqm_testdata_no_ogre.oreqm",
     "build": "babel scripts -d lib",
     "dev": "electron . --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -31,6 +33,7 @@
     "electron-builder": "^20.38.4"
   },
   "dependencies": {
+    "argparse": "^2.0.1",
     "diff": "^4.0.2",
     "electron-settings": "^3.2.0",
     "split.js": "^1.6.2",
@@ -50,7 +53,7 @@
     ],
     "win": {
       "target": {
-        "target": "portable",
+        "target": "msi",
         "arch": [
           "ia32",
           "x64"

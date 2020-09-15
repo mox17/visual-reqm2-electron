@@ -2,8 +2,6 @@
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
-//console.log(app)
-//import { app } from 'electron';
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 const ipcMain = electron.ipcMain;
@@ -11,8 +9,10 @@ const ipcMain = electron.ipcMain;
 const path = require('path');
 const url = require('url');
 const settings = require('electron-settings');
+const { ArgumentParser } = require('argparse');
+const { version } = require('./package.json');
 
-const debug = /--debug/.test(process.argv[2]);
+let debug = /--debug/.test(process.argv[2]);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -82,17 +82,29 @@ function createWindow() {
     });
 }
 
+const parser = new ArgumentParser({
+  description: 'Visual ReqM2\nShow specobjects as diagrams.'
+});
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+    parser.add_argument('-v', '--version', { action: 'version', version });
+    parser.add_argument('-d', '--debug', { help: 'Enable debug', action: 'store_true' });
+    parser.add_argument('oreqm_main',  { help: 'main oreqm', nargs: '?' });
+    parser.add_argument('oreqm_ref',  { help: 'ref. oreqm', nargs: '?' });
+
+    let args = parser.parse_args()
+    debug = args.debug
+    //console.log(args);
     mainWindow_width = settings.get('mainWindow_width', 1024);
     mainWindow_height = settings.get('mainWindow_height', 768);
     createWindow();
     mainWindow.webContents.on('did-finish-load', () => {
-        console.log("argv:", process.argv)
+        //console.log("argv:", process.argv, args)
         if (process.argv.length > 1) {
-            mainWindow.webContents.send('argv', process.argv);
+            mainWindow.webContents.send('argv', process.argv, args);
         }
     });
 });

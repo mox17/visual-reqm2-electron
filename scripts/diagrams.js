@@ -216,7 +216,7 @@ export function load_safety_rules()
     reader.readAsText(file,'UTF-8');
     reader.onload = readerEvent => {
       const new_rules = JSON.parse(readerEvent.target.result);
-      console.log(new_rules)
+      //console.log(new_rules)
       if (new_rules.length > 0) {
         for (let rule of new_rules) {
           if (!(typeof(rule)==='string')) {

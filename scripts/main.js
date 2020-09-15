@@ -53,27 +53,33 @@
     }
   });
 
-  ipcRenderer.on('argv', (event, parameters) => {
+  ipcRenderer.on('argv', (event, parameters, args) => {
     let ok = true;
-    //console.log(parameters)
-    if (parameters.length <= 2) {
-      for (let filename of parameters) {
-        fs.stat(filename, (err, stat) => {
-            if (stat && stat.isFile()) {
-                console.log(filename);
-            } else {
-                console.log("Not a file.", filename);
-                ok = false;
-            }
-        })
+    let main = false;
+    let ref = false;
+    if (args.oreqm_main !== undefined) {
+      //console.log(fs.statSync(args.oreqm_main));
+      let main_stat = fs.statSync(args.oreqm_main);
+      if (main_stat && main_stat.isFile()) {
+          //console.log(args.oreqm_main, main_stat);
+          main = true;
+      } else {
+          console.log("Not a file.", args.oreqm_main);
+          ok = false;
       }
-      /*
-      if (ok) {
-        load_file_main(parameters[0]);
-        if (parameters.length == 2) {
-          load_file_ref(parameters[1]);
-        }
-      }*/
+    }
+    if (args.oreqm_ref !== undefined) {
+      let ref_stat = fs.statSync(args.oreqm_main);
+      if (ref_stat && ref_stat.isFile()) {
+          //console.log(args.oreqm_ref, ref_stat);
+          ref = true;
+      } else {
+          console.log("Not a file.", args.oreqm_ref);
+          ok = false;
+      }
+    }
+    if (ok && main) {
+      load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null);
     }
   });
 
@@ -626,7 +632,36 @@
     auto_update = state
   }
 
+  function process_data_main(name, data) {
+    // Process the loaded data
+    viz_parsing_set()
+    oreqm_main = new ReqM2Oreqm(name, data, [], [])
+    document.getElementById('name').innerHTML = oreqm_main.filename
+    document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB"
+    document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
+    const node_count = oreqm_main.get_node_count()
+    if (auto_update && node_count > 500) {
+      set_auto_update(false)
+    }
+    if (oreqm_ref) { // if we have a reference do a compare
+      viz_comparing_set()
+      let gr = compare_oreqm(oreqm_main, oreqm_ref)
+      set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
+    }
+    viz_working_clear()
+    display_doctypes_with_count(oreqm_main.get_doctypes())
+    if (auto_update) {
+      filter_graph()
+    } else {
+      oreqm_main.set_svg_guide()
+      updateGraph()
+    }
+    document.getElementById('get_ref_oreqm_file').disabled = false
+    document.getElementById('clear_ref_oreqm').disabled = false
+  }
+
   function load_file_main(file) {
+    //console.log("load_file_main", file);
     clear_diagram()
     clear_doctypes_table()
     viz_loading_set()
@@ -634,32 +669,22 @@
     let reader = new FileReader();
     reader.readAsText(file,'UTF-8');
     reader.onload = readerEvent => {
-      //console.log( file );
-      viz_parsing_set()
-      oreqm_main = new ReqM2Oreqm(file.name, readerEvent.target.result, [], [])
-      document.getElementById('name').innerHTML = oreqm_main.filename
-      document.getElementById('size').innerHTML = (Math.round(file.size/1024))+" KiB"
-      document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
-      const node_count = oreqm_main.get_node_count()
-      if (auto_update && node_count > 500) {
-        set_auto_update(false)
-      }
-      if (oreqm_ref) { // if we have a reference do a compare
-        viz_comparing_set()
-        let gr = compare_oreqm(oreqm_main, oreqm_ref)
-        set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
-      }
-      viz_working_clear()
-      display_doctypes_with_count(oreqm_main.get_doctypes())
-      if (auto_update) {
-        filter_graph()
-      } else {
-        oreqm_main.set_svg_guide()
-        updateGraph()
-      }
-      document.getElementById('get_ref_oreqm_file').disabled = false
-      document.getElementById('clear_ref_oreqm').disabled = false
+      process_data_main(file.name, readerEvent.target.result)
     }
+  }
+
+  function load_file_main_fs(file, ref_file) {
+    //console.log("load_file_main", file);
+    clear_diagram()
+    clear_doctypes_table()
+    viz_loading_set()
+    // read file asynchronously
+    fs.readFile(file, 'UTF-8', (err, data) => {
+      process_data_main(file, data)
+      if (ref_file) {
+        load_file_ref_fs(ref_file);
+      }
+    });
   }
 
   document.getElementById('get_main_oreqm_file').addEventListener("click", function() {
@@ -680,6 +705,25 @@
     input.click();
   }
 
+  function process_data_ref(name, data) {
+    // Process the loaded data
+    oreqm_main.remove_ghost_requirements()
+    update_doctype_table()
+    viz_parsing_set()
+    oreqm_ref = new ReqM2Oreqm(name, data, [], [])
+    document.getElementById('ref_name').innerHTML = name
+    document.getElementById('ref_size').innerHTML = (Math.round(data.length/1024))+" KiB"
+    document.getElementById('ref_timestamp').innerHTML = oreqm_ref.get_time()
+    viz_comparing_set()
+    let gr = compare_oreqm(oreqm_main, oreqm_ref)
+    viz_working_clear();
+    set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
+    display_doctypes_with_count(oreqm_main.get_doctypes())
+    if (auto_update) {
+      filter_graph()
+    }
+  }
+
   function load_file_ref(file) {
     // Load reference file
     if (oreqm_main) {
@@ -687,27 +731,26 @@
       let reader = new FileReader();
       reader.readAsText(file,'UTF-8');
       reader.onload = readerEvent => {
-        //console.log( file );
-        oreqm_main.remove_ghost_requirements()
-        update_doctype_table()
-        viz_parsing_set()
-        oreqm_ref = new ReqM2Oreqm(file.name, readerEvent.target.result, [], [])
-        document.getElementById('ref_name').innerHTML = file.name
-        document.getElementById('ref_size').innerHTML = (Math.round(file.size/1024))+" KiB"
-        document.getElementById('ref_timestamp').innerHTML = oreqm_ref.get_time()
-        viz_comparing_set()
-        let gr = compare_oreqm(oreqm_main, oreqm_ref)
-        viz_working_clear();
-        set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
-        display_doctypes_with_count(oreqm_main.get_doctypes())
-        if (auto_update) {
-          filter_graph()
-        }
+        process_data_ref(file.name, readerEvent.target.result)
       }
     } else {
       alert("No main file selected")
     }
   }
+
+  function load_file_ref_fs(file) {
+    // Load reference file
+    if (oreqm_main) {
+      viz_loading_set();
+      // read file asynchronously
+      fs.readFile(file, 'UTF-8', (err, data) => {
+        process_data_ref(file, data)
+      });
+    } else {
+      alert("No main file selected")
+    }
+  }
+
 
   document.getElementById('get_ref_oreqm_file').addEventListener("click", function() {
     get_ref_oreqm_file()
