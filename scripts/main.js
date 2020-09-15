@@ -658,6 +658,12 @@
     }
     document.getElementById('get_ref_oreqm_file').disabled = false
     document.getElementById('clear_ref_oreqm').disabled = false
+    set_window_title(name)
+  }
+
+  function set_window_title(extra) {
+    let title = "Visual ReqM2 - {}".format(extra)
+    mainWindow.setTitle(title);
   }
 
   function load_file_main(file) {
@@ -722,6 +728,7 @@
     if (auto_update) {
       filter_graph()
     }
+    set_window_title("{} vs. {}".format(oreqm_main.filename, oreqm_ref.filename))
   }
 
   function load_file_ref(file) {
@@ -1024,6 +1031,7 @@
         filter_graph()
       }
     }
+    set_window_title(oreqm_main.filename)
   }
 
   // Setup for the "about" dialog
