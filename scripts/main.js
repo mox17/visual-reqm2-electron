@@ -106,6 +106,7 @@
   var dot_source = ''
   var panZoom = null
 
+  document.getElementById("prog_version").innerHTML = process.env.npm_package_version
   document.getElementById("auto_update").checked = auto_update
 
   function viz_working_set() {
