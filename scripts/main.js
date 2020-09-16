@@ -682,7 +682,7 @@
     let reader = new FileReader();
     reader.readAsText(file,'UTF-8');
     reader.onload = readerEvent => {
-      process_data_main(file.name, readerEvent.target.result)
+      process_data_main(file.path.length ? file.path : file.name, readerEvent.target.result)
     }
   }
 
@@ -745,7 +745,7 @@
       let reader = new FileReader();
       reader.readAsText(file,'UTF-8');
       reader.onload = readerEvent => {
-        process_data_ref(file.name, readerEvent.target.result)
+        process_data_ref(file.path.length ? file.path : file.name, readerEvent.target.result)
       }
     } else {
       alert("No main file selected")
