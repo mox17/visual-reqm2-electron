@@ -32,10 +32,6 @@ ipcMain.on('can_close', () => {
     can_close = true;
 });
 
-ipcMain.on('proxy_create_new_dot', (event, message) => {
-    mainWindow.webContents.send('create_new_dot', message);
-});
-
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -71,13 +67,11 @@ function createWindow() {
 
     mainWindow.on('close', (event) => {
         if (can_close === false) {
-            mainWindow.webContents.send('save_dot_file');
             event.preventDefault();
         } else {
             [mainWindow_width, mainWindow_height] = mainWindow.getSize();
             settings.set('mainWindow_width', mainWindow_width);
             settings.set('mainWindow_height', mainWindow_height);
-            //mainWindow.webContents.send('save_dot_file');
         }
     });
 }
