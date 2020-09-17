@@ -25,55 +25,124 @@ let mainWindow_x
 let mainWindow_y
 
 ipcMain.on('cannot_close', () => {
-    can_close = false;
+  can_close = false;
 });
 
 ipcMain.on('can_close', () => {
-    can_close = true;
+  can_close = true;
 });
 
 function createWindow() {
-    // Create the browser window.
-    mainWindow = new BrowserWindow({
-        width: mainWindow_width,
-        height: mainWindow_height,
-        icon: 'src/img/ico.png',
-        webPreferences: {
-            nodeIntegrationInWorker: true,
-            nodeIntegration: true
-        }
-    });
-
-    // and load the index.html of the app.
-    mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file:',
-        slashes: true,
-        backgroundColor: '#000000'
-    }));
-
-    // Open the DevTools.
-    if (debug) {
-        mainWindow.webContents.openDevTools();
+  // Create the browser window.
+  mainWindow = new BrowserWindow({
+    width: mainWindow_width,
+    height: mainWindow_height,
+    icon: 'src/img/ico.png',
+    webPreferences: {
+      nodeIntegrationInWorker: true,
+      nodeIntegration: true,
+      enableRemoteModule: true,
     }
+  });
 
-    // Emitted when the window is closed.
-    mainWindow.on('closed', function () {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
-        mainWindow = null;
-    });
+  // and load the index.html of the app.
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true,
+    backgroundColor: '#000000'
+  }));
 
-    mainWindow.on('close', (event) => {
-        if (can_close === false) {
-            event.preventDefault();
-        } else {
-            [mainWindow_width, mainWindow_height] = mainWindow.getSize();
-            settings.set('mainWindow_width', mainWindow_width);
-            settings.set('mainWindow_height', mainWindow_height);
+  // Open the DevTools.
+  if (debug) {
+    mainWindow.webContents.openDevTools();
+  }
+
+  var menu = electron.Menu.buildFromTemplate([
+    {
+      label: 'File',
+      submenu: [
+        {
+          label:'Save color scheme',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_colors')}
+        },
+        {
+          label:'Load color scheme',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('load_colors')}
+        },
+        {type: 'separator'},
+        {
+          label:'Load coverage rules',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('load_safety')}
+        },
+        {type: 'separator'},
+        {
+          label:'Save svg file',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_svg')}
+        },
+        {type: 'separator'},
+        {role:'quit'}
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {
+          label: 'Full screen',
+          role: 'togglefullscreen',
+        },
+        {
+          label: 'Toggle Developer Tools',
+          accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          click (item, focusedWindow) {
+            if (focusedWindow) focusedWindow.webContents.toggleDevTools()
+          }
+        },
+        {role: 'resetzoom'},
+        {role: 'zoomin'},
+        {role: 'zoomout'},
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label:'About',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('about')}
         }
-    });
+      ]
+    }
+  ])
+  electron.Menu.setApplicationMenu(menu);
+
+  // Emitted when the window is closed.
+  mainWindow.on('closed', function () {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    mainWindow = null;
+  });
+
+  mainWindow.on('close', (event) => {
+    if (can_close === false) {
+      event.preventDefault();
+    } else {
+      [mainWindow_width, mainWindow_height] = mainWindow.getSize();
+      settings.set('mainWindow_width', mainWindow_width);
+      settings.set('mainWindow_height', mainWindow_height);
+    }
+  });
 }
 
 const parser = new ArgumentParser({

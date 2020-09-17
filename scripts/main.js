@@ -54,6 +54,26 @@
     }
   });
 
+  ipcRenderer.on('about', (item, window, key_ev) => {
+    show_about()
+  });
+
+  ipcRenderer.on('save_colors', (item, window, key_ev) => {
+    save_colors()
+  });
+
+  ipcRenderer.on('load_colors', (item, window, key_ev) => {
+    load_color_scheme()
+  });
+
+  ipcRenderer.on('load_safety', (item, window, key_ev) => {
+    load_safety_rules()
+  });
+
+  ipcRenderer.on('save_svg', (item, window, key_ev) => {
+    save_svg()
+  });
+
   ipcRenderer.on('argv', (event, parameters, args) => {
     let ok = true;
     let main = false;
@@ -785,6 +805,21 @@
     input.click();
   }
 
+  function save_svg() {
+    if (oreqm_main) {
+      const save_options = {
+        defaultPath: remote.app.getPath('documents') + "/visual_reqm2.{}".format(image_type),
+      }
+      //remote.dialog.showSaveDialog(null, save_options, do_save_svg)
+      let savePath = remote.dialog.showSaveDialogSync(null, save_options)
+      do_save_svg(savePath)
+    }
+  }
+
+  function do_save_svg(savePath) {
+    fs.writeFileSync(savePath, image_data, 'utf8')
+  }
+
   function set_download_link() {
     let download = document.getElementById('download_image')
     let link = document.getElementById('a_link_id')
@@ -1052,9 +1087,13 @@
   // Get the <span> element that closes the modal
   var aboutPaneClose = document.getElementById("aboutPaneClose");
 
+  function show_about() {
+    aboutPane.style.display = "block";
+  }
+
   // When the user clicks the button, open the modal
   aboutButton.onclick = function() {
-    aboutPane.style.display = "block";
+    show_about()
   }
 
   // When the user clicks on <span> (x), close the modal
