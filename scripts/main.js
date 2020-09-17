@@ -1,7 +1,7 @@
   "use strict";
 
-  import ReqM2Oreqm, { xml_escape, load_safety_rules } from './diagrams.js'
-  import get_color, { save_colors, load_colors } from './color.js'
+  import ReqM2Oreqm, { xml_escape, load_safety_rules, load_safety_rules_fs } from './diagrams.js'
+  import get_color, { save_colors, save_colors_fs, load_colors, load_colors_fs } from './color.js'
   import Viz from 'viz.js'
   import { ipcRenderer, remote } from 'electron'
   import fs from 'fs'
@@ -59,15 +59,15 @@
   });
 
   ipcRenderer.on('save_colors', (item, window, key_ev) => {
-    save_colors()
+    save_colors_fs()
   });
 
   ipcRenderer.on('load_colors', (item, window, key_ev) => {
-    load_color_scheme()
+    load_colors_fs(update_doctype_table)
   });
 
   ipcRenderer.on('load_safety', (item, window, key_ev) => {
-    load_safety_rules()
+    load_safety_rules_fs()
   });
 
   ipcRenderer.on('save_svg', (item, window, key_ev) => {
@@ -808,11 +808,15 @@
   function save_svg() {
     if (oreqm_main) {
       const save_options = {
-        defaultPath: remote.app.getPath('documents') + "/visual_reqm2.{}".format(image_type),
-      }
+        defaultPath: "visual_reqm2.{}".format(image_type),
+        filters: [{ name: 'Image files', extensions: [image_type]}],
+        properties: ['openFile']
+        }
       //remote.dialog.showSaveDialog(null, save_options, do_save_svg)
       let savePath = remote.dialog.showSaveDialogSync(null, save_options)
-      do_save_svg(savePath)
+      if (typeof(savePath) !== 'undefined') {
+        do_save_svg(savePath)
+      }
     }
   }
 

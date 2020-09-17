@@ -4,6 +4,8 @@
 import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
 import Doctype from './doctypes.js'
+import { remote } from 'electron'
+import fs from 'fs'
 
 var accepted_safety_class_links_re = [
   /^\w+:>\w+:$/,           // no safetyclass -> no safetyclass
@@ -202,6 +204,55 @@ function dt_sc_str(doctype_with_safetyclass) {
   return sc_str(doctype_with_safetyclass.split(':')[1])
 }
 
+function process_rule_set(new_rules) {
+  let pass_test = true
+  let regex_array = []
+  if (new_rules.length > 0) {
+    for (let rule of new_rules) {
+      if (!(typeof(rule)==='string')) {
+        alert('Expected an array of rule regex strings')
+        pass_test = false
+        break;
+      }
+      if (!rule.includes('>')) {
+        alert('Expected ">" in regex')
+        pass_test = false
+        break
+      }
+      let regex_rule
+      try {
+        regex_rule = new RegExp(rule)
+      }
+      catch(err) {
+        alert('Malformed regex: {}'.format(err.message))
+        pass_test = false
+        break
+      }
+      regex_array.push(regex_rule)
+    }
+    if (pass_test) {
+      // Update tests
+      accepted_safety_class_links_re = regex_array
+      //console.log(accepted_safety_class_links_re)
+    }
+  } else {
+    alert('Expected array of rule regex strings')
+  }
+}
+
+export function load_safety_rules_fs() {
+  let LoadPath = remote.dialog.showOpenDialogSync(
+    {
+      filters: [{ name: 'JSON files', extensions: ['json']}],
+      properties: ['openFile']
+    })
+  if (typeof(LoadPath) !== 'undefined' && (LoadPath.length === 1)) {
+    let new_rules = JSON.parse(fs.readFileSync(LoadPath[0], {encoding: 'utf8', flag: 'r'}))
+    process_rule_set(new_rules)
+  }
+}
+
+
 export function load_safety_rules()
 {
   let input = document.createElement('input');
@@ -211,46 +262,13 @@ export function load_safety_rules()
   input.onchange = e => {
     const file = e.target.files[0];
     let reader = new FileReader();
-    let pass_test = true
-    let regex_array = []
     reader.readAsText(file,'UTF-8');
     reader.onload = readerEvent => {
       const new_rules = JSON.parse(readerEvent.target.result);
       //console.log(new_rules)
-      if (new_rules.length > 0) {
-        for (let rule of new_rules) {
-          if (!(typeof(rule)==='string')) {
-            alert('Expected an array of rule regex strings')
-            pass_test = false
-            break;
-          }
-          if (!rule.includes('>')) {
-            alert('Expected ">" in regex')
-            pass_test = false
-            break
-          }
-          let regex_rule
-          try {
-            regex_rule = new RegExp(rule)
-          }
-          catch(err) {
-            alert('Malformed regex: {}'.format(err.message))
-            pass_test = false
-            break
-          }
-          regex_array.push(regex_rule)
-        }
-        if (pass_test) {
-          // Update tests
-          accepted_safety_class_links_re = regex_array
-          //console.log(accepted_safety_class_links_re)
-        }
-      } else {
-        alert('Expected array of rule regex strings')
-      }
+      process_rule_set(new_rules)
     }
   }
-
   input.click();
 }
 

@@ -1,4 +1,6 @@
 "use strict";
+import { remote } from 'electron'
+import fs from 'fs'
 
 function _hsv_to_rgb(hue, saturation, value) {
   // HSV values in [0..1]
@@ -127,6 +129,33 @@ export function save_colors() {
   // Download color object and store it in Web storage
   _downloadObjectAsJson(_my_palette, "visual_reqm2_colors")
   _store_colors(_my_palette)
+}
+
+export function save_colors_fs() {
+  let SavePath = remote.dialog.showSaveDialogSync(null,
+    {
+      filters: [{ name: 'JSON files', extensions: ['json']}],
+      properties: ['openFile']
+    })
+  if (typeof(SavePath) !== 'undefined') {
+    fs.writeFileSync(SavePath, JSON.stringify(_my_palette, 0, 2), 'utf8')
+    _store_colors(_my_palette)
+  }
+}
+
+export function load_colors_fs(update_function) {
+  let LoadPath = remote.dialog.showOpenDialogSync(
+    {
+      filters: [{ name: 'JSON files', extensions: ['json']}],
+      properties: ['openFile']
+    })
+  if (typeof(LoadPath) !== 'undefined' && (LoadPath.length === 1)) {
+    let colors = JSON.parse(fs.readFileSync(LoadPath[0], {encoding: 'utf8', flag: 'r'}))
+    _store_colors(colors)
+    _my_palette = colors
+    _color_random_reset()
+    update_function()
+  }
 }
 
 export function load_colors(update_function) {

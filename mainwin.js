@@ -77,7 +77,7 @@ function createWindow() {
         },
         {type: 'separator'},
         {
-          label:'Save svg file',
+          label:'Save SVG file',
           click (item, focusedWindow, ev) { mainWindow.webContents.send('save_svg')}
         },
         {type: 'separator'},
