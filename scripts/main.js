@@ -294,10 +294,10 @@
       }, svg_element);
 
       document.getElementById('graph').onkeyup = function(e) {
-        if (e.which == 78) {
+        if (e.key == 'n') {
           // alert("N key was pressed");
           next_selected()
-        } else if (e.which == 80) {
+        } else if (e.key == 'p') {
           // alert("P key was pressed");
           prev_selected()
         // } else if (e.ctrlKey && e.which == 66) {
@@ -307,7 +307,7 @@
         // } else if (e.ctrlKey && e.altKey && e.shiftKey && e.which == 85) {
         //   alert("Ctrl + Alt + Shift + U shortcut combination was pressed");
         }
-        //console.log(e)
+        console.log(e)
       };
 
       // context menu setup
