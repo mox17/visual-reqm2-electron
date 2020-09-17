@@ -2,6 +2,7 @@
 
   import ReqM2Oreqm, { xml_escape, load_safety_rules } from './diagrams.js'
   import get_color, { save_colors, load_colors } from './color.js'
+  import Viz from 'viz.js'
   import { ipcRenderer, remote } from 'electron'
   import fs from 'fs'
   let mainWindow = remote.getCurrentWindow();
