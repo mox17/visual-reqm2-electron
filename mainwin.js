@@ -35,7 +35,7 @@ ipcMain.on('can_close', () => {
 function createWindow() {
   let icon_path
   if (process.platform === 'linux') {
-    icon_path = './src/icons/png/128x128.png'
+    icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
     icon_path = './src/icons/win/icon.ico'
   } else {
