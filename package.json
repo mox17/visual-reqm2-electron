@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "0.98.3",
+  "version": "0.98.4",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
@@ -32,7 +32,8 @@
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
     "electron": "^9.0.0",
-    "electron-builder": "^20.44.4"
+    "electron-builder": "^20.44.4",
+    "electron-icon-maker": "0.0.5"
   },
   "dependencies": {
     "argparse": "^2.0.1",
@@ -46,7 +47,8 @@
     "appId": "com.mox17.visualreqm2",
     "productName": "Visual ReqM2",
     "extraFiles": [
-      "src/img/ico.png"
+      "src/icons/**",
+      "build/icons/*"
     ],
     "fileAssociations": [
       {
@@ -58,21 +60,15 @@
     "win": {
       "target": {
         "target": "nsis",
-        "arch": [
-          "ia32",
-          "x64"
-        ]
+        "arch": [ "x64" ]
       },
       "publisherName": "mox17",
-      "icon": "src/img/ico.ico"
+      "icon": "src/icons/win/icon.ico"
     },
     "linux": {
       "target": {
         "target": "AppImage",
-        "arch": [
-          "ia32",
-          "x64"
-        ]
+        "arch": [ "x64" ]
       }
     },
     "mac": {

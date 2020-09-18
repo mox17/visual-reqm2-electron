@@ -33,11 +33,19 @@ ipcMain.on('can_close', () => {
 });
 
 function createWindow() {
+  let icon_path
+  if (process.platform === 'linux') {
+    icon_path = './src/icons/png/128x128.png'
+  } else if (process.platform === 'win32') {
+    icon_path = './src/icons/win/icon.ico'
+  } else {
+    icon_path = './src/icons/mac/icon.icns'
+  }
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: mainWindow_width,
     height: mainWindow_height,
-    icon: 'src/img/ico.png',
+    icon: icon_path,
     webPreferences: {
       nodeIntegrationInWorker: true,
       nodeIntegration: true,
