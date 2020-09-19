@@ -3,7 +3,8 @@
   import ReqM2Oreqm, { xml_escape, load_safety_rules, load_safety_rules_fs } from './diagrams.js'
   import get_color, { save_colors, save_colors_fs, load_colors, load_colors_fs } from './color.js'
   import Viz from 'viz.js'
-  import { ipcRenderer, remote } from 'electron'
+  import { ipcRenderer, remote, clipboard, nativeImage } from 'electron'
+  import { base64StringToBlob } from 'blob-util'
   import fs from 'fs'
   let mainWindow = remote.getCurrentWindow();
 
@@ -437,6 +438,11 @@
     document.body.removeChild(ta);
   }
 
+  /*
+  document.getElementById('menu_copy_svg').addEventListener("click", function() {
+    copy_svg()
+  }); */
+
   function copy_svg() {
     // Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
     let clip_txt = '<img src="data:image/svg;base64,{}" width="{}" height="{}" alt="diagram"/>'.format(
@@ -449,6 +455,29 @@
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
+  }
+
+  document.getElementById('menu_copy_png').addEventListener("click", function() {
+    copy_png()
+  });
+
+  function copy_png() {
+    let image = Viz.svgXmlToPngImageElement(result, 1, png_callback);
+  }
+
+  function png_callback(ev, png) {
+    if (ev === null) {
+      var image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
+      //console.log(image_blob)
+      let item = new ClipboardItem({'image/png': image_blob})
+      //console.log(item)
+      navigator.clipboard.write([item]).then(function() {
+        //console.log("Copied to clipboard successfully!");
+      }, function(error) {
+        //console.error("unable to write to clipboard. Error:");
+        //console.log(error);
+      })
+    }
   }
 
   /*

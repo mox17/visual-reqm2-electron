@@ -5,8 +5,8 @@
   "main": "mainwin.js",
   "scripts": {
     "start": "electron .",
-    "start_w_args": "electron . ./testdata/oreqm_testdata_del_movement.oreqm",
-    "start_w_args_1": "electron . --debug  ./testdata/oreqm_testdata_del_movement.oreqm",
+    "start_w_args": "babel scripts -d lib && electron . ./testdata/oreqm_testdata_del_movement.oreqm",
+    "start_w_args_1": "babel scripts -d lib && electron . --debug  ./testdata/oreqm_testdata_del_movement.oreqm",
     "start_w_args_2": "electron . --debug ./testdata/oreqm_testdata_del_movement.oreqm ./testdata/oreqm_testdata_no_ogre.oreqm",
     "start_w_h": "electron . -h",
     "build": "babel scripts -d lib",
@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "argparse": "^2.0.1",
+    "blob-util": "^2.0.2",
     "diff": "^4.0.2",
     "electron-settings": "^3.2.0",
     "split.js": "^1.6.2",
@@ -60,7 +61,9 @@
     "win": {
       "target": {
         "target": "nsis",
-        "arch": [ "x64" ]
+        "arch": [
+          "x64"
+        ]
       },
       "publisherName": "mox17",
       "icon": "src/icons/win/icon.ico"
@@ -68,7 +71,9 @@
     "linux": {
       "target": {
         "target": "AppImage",
-        "arch": [ "x64" ]
+        "arch": [
+          "x64"
+        ]
       }
     },
     "mac": {
