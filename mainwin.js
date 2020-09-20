@@ -44,7 +44,8 @@ function calc_icon_path(argv0) {
 function createWindow() {
   let icon_path
   if (process.platform === 'linux') {
-    icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
+    //icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
+    icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
     // TODO: There must be a better way to determine the path to man icon file
     //icon_path = './build/icon.png'
