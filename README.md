@@ -191,13 +191,17 @@ Return to the main diagram by clicking `update graph`.
 
 ## Output
 
+Aside from the obvious output on the display, there are mechanisms to save and use the generated diagrams.
+
 The default output format is `.svg`. Output can also be generated in `.png` format.
 
-In **svg** mode the "download image" link in options bar will download a `.svg` file.
+From file menu click "Save diagram as...". There is a choice between `.svg` and `.png` format images.
 
-For easy pasting of diagrams to chat tools and similar, it is also a possibility to switch to `.png`
-mode with the `format:` selection above the diagram and then right-click and "copy image".
-This will be the browsers default right-click menu.
+The same functionality if also available from the right-click context menu as "Save diagram as..."
+
+For easy pasting of diagrams to chat tools and similar, it is also a possibility to right-click and select "Copy as PNG".
+
+There is currently no support for SVG images on the clipboard.
 
 ### How nodes are displayed
 
