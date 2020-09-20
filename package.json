@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "0.98.4",
+  "version": "0.99.0",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
@@ -59,22 +59,41 @@
       }
     ],
     "win": {
-      "target": {
-        "target": "nsis",
-        "arch": [
-          "x64"
-        ]
-      },
-      "publisherName": "mox17",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "publisherName": "Erling Stage",
       "icon": "src/icons/win/icon.ico"
     },
     "linux": {
-      "target": {
-        "target": "AppImage",
-        "arch": [
-          "x64"
-        ]
-      }
+      "category": "Utility",
+      "description": "Visual ReqM2 is an unofficial app to visualize requirement relationships.",
+      "synopsis": "Visual requirements viewer",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "mac": {
       "icon": "src/img/ico.png"
