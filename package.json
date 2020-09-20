@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "0.99.0",
+  "version": "0.99.3",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
@@ -14,8 +14,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "win": "electron-builder -w",
-    "linux": "electron-builder -l",
+    "win": "babel scripts -d lib && electron-builder -w",
+    "linux": "babel scripts -d lib && electron-builder -l",
     "mac": "electron-builder -m"
   },
   "author": {
@@ -49,7 +49,7 @@
     "productName": "Visual ReqM2",
     "extraFiles": [
       "src/icons/**",
-      "build/icons/*"
+      "build/**/*"
     ],
     "fileAssociations": [
       {
@@ -74,7 +74,7 @@
         }
       ],
       "publisherName": "Erling Stage",
-      "icon": "src/icons/win/icon.ico"
+      "icon": "build/icon.png"
     },
     "linux": {
       "category": "Utility",

@@ -32,14 +32,29 @@ ipcMain.on('can_close', () => {
   can_close = true;
 });
 
+function calc_icon_path(argv0) {
+  // Ugly hack to deal with path differences for nodejs and electron execution env.
+  if (path.basename(argv0.toLowerCase()).startsWith('electron')) {
+    return __dirname
+  } else {
+    return path.join(path.dirname(__dirname), '../')
+  }
+}
+
 function createWindow() {
   let icon_path
   if (process.platform === 'linux') {
     icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
-    icon_path = './src/icons/win/icon.ico'
+    // TODO: There must be a better way to determine the path to man icon file
+    //icon_path = './build/icon.png'
+    //icon_path = 'C:\\Users\\erlin\\Documents\\src\\visual-reqm2-electron\\build\\icon.png'
+    icon_path = path.join(calc_icon_path(process.argv[0]), './build/icon.png')
+    //console.log("process.resourcesPath: ",process.resourcesPath)
+    //console.log("__dirname: ", __dirname)
+    //console.log("calc_icon_path: ", calc_icon_path(process.argv[0]))
   } else {
-    icon_path = './src/icons/mac/icon.icns'
+    icon_path = path.join(__dirname, './src/icons/mac/icon.icns')
   }
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -161,27 +176,28 @@ const parser = new ArgumentParser({
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-    parser.add_argument('-v', '--version', { action: 'version', version });
-    parser.add_argument('-d', '--debug', { help: 'Enable debug', action: 'store_true' });
-    parser.add_argument('oreqm_main',  { help: 'main oreqm', nargs: '?' });
-    parser.add_argument('oreqm_ref',  { help: 'ref. oreqm', nargs: '?' });
+  parser.add_argument('-v', '--version', { action: 'version', version });
+  parser.add_argument('-d', '--debug', { help: 'Enable debug', action: 'store_true' });
+  parser.add_argument('oreqm_main',  { help: 'main oreqm', nargs: '?' });
+  parser.add_argument('oreqm_ref',  { help: 'ref. oreqm', nargs: '?' });
 
-    // Ugly work-around for command line difference when compiled to app
-    if (process.argv[1] != '.') {
-        process.argv.splice(1, 0, '.');
+  // Ugly work-around for command line difference when compiled to app compared to pure nodejs
+  if (process.argv[1] != '.') {
+    process.argv.splice(1, 0, '.');
+  }
+  let args = parser.parse_args()
+  debug = args.debug
+  //console.log(process.argv);
+  //console.log(args);
+  mainWindow_width = settings.get('mainWindow_width', 1024);
+  mainWindow_height = settings.get('mainWindow_height', 768);
+  createWindow();
+  mainWindow.webContents.on('did-finish-load', () => {
+    //console.log("argv:", process.argv, args)
+    if (process.argv.length > 1) {
+      mainWindow.webContents.send('argv', process.argv, args);
     }
-    let args = parser.parse_args()
-    debug = args.debug
-    //console.log(args);
-    mainWindow_width = settings.get('mainWindow_width', 1024);
-    mainWindow_height = settings.get('mainWindow_height', 768);
-    createWindow();
-    mainWindow.webContents.on('did-finish-load', () => {
-        //console.log("argv:", process.argv, args)
-        if (process.argv.length > 1) {
-            mainWindow.webContents.send('argv', process.argv, args);
-        }
-    });
+  });
 });
 
 // Quit when all windows are closed.
