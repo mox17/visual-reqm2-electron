@@ -4,7 +4,7 @@
   import get_color, { save_colors, save_colors_fs, load_colors, load_colors_fs } from './color.js'
   import Viz from 'viz.js'
   import { ipcRenderer, remote, clipboard, nativeImage } from 'electron'
-  import { base64StringToBlob } from 'blob-util'
+  import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
   let mainWindow = remote.getCurrentWindow();
 
@@ -71,8 +71,8 @@
     load_safety_rules_fs()
   });
 
-  ipcRenderer.on('save_svg', (item, window, key_ev) => {
-    save_svg()
+  ipcRenderer.on('save_as', (item, window, key_ev) => {
+    menu_save_as()
   });
 
   ipcRenderer.on('argv', (event, parameters, args) => {
@@ -114,7 +114,7 @@
 
   var parser = new DOMParser();
   var worker;
-  var result;
+  var svg_result;
   var oreqm_main
   var oreqm_ref
   var image_type = 'none'
@@ -167,7 +167,7 @@
       document.querySelector("#output").classList.remove("working");
       document.querySelector("#output").classList.remove("error");
 
-      result = e.data;
+      svg_result = e.data;
 
       viz_working_clear()
       updateOutput();
@@ -256,12 +256,12 @@
       graph.removeChild(img);
     }
 
-    if (!result) {
+    if (!svg_result) {
       return;
     }
 
     if (document.querySelector("#format select").value === "svg" && !document.querySelector("#raw input").checked) {
-      svg_element = parser.parseFromString(result, "image/svg+xml").documentElement;
+      svg_element = parser.parseFromString(svg_result, "image/svg+xml").documentElement;
       svg_element.id = "svg_output";
       graph.appendChild(svg_element);
 
@@ -383,9 +383,9 @@
       // Setup for download of image
       image_type = 'svg'
       image_mime = 'image/svg+xml'
-      image_data = result
+      image_data = svg_result
     } else if (document.querySelector("#format select").value === "png-image-element") {
-      var image = Viz.svgXmlToPngImageElement(result);
+      var image = Viz.svgXmlToPngImageElement(svg_result);
       graph.appendChild(image);
       image_type = 'png'
       image_mime = 'image/png'
@@ -397,17 +397,16 @@
       graph.appendChild(dot_text);
       image_type = 'dot'
       image_mime = 'text/vnd.graphviz'
-      image_data = result
+      image_data = svg_result
     } else {
       var plain_text = document.createElement("div");
       plain_text.id = "text";
-      plain_text.appendChild(document.createTextNode(result));
+      plain_text.appendChild(document.createTextNode(svg_result));
       graph.appendChild(plain_text);
       image_type = 'txt'
       image_mime = 'text/plain'
-      image_data = result
+      image_data = svg_result
     }
-    set_download_link()
   }
 
   window.addEventListener("beforeunload", function() {
@@ -440,13 +439,13 @@
 
   /*
   document.getElementById('menu_copy_svg').addEventListener("click", function() {
-    copy_svg()
+    copy_svg2()
   }); */
 
   function copy_svg() {
     // Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
     let clip_txt = '<img src="data:image/svg;base64,{}" width="{}" height="{}" alt="diagram"/>'.format(
-      btoa(result), svg_element.getAttribute('width'), svg_element.getAttribute('height'))
+      btoa(svg_result), svg_element.getAttribute('width'), svg_element.getAttribute('height'))
     const ta = document.createElement('textarea'); // 'img' ??
     ta.value = clip_txt
     ta.setAttribute('readonly', '');
@@ -457,12 +456,25 @@
     document.body.removeChild(ta);
   }
 
+  function copy_svg2() {
+    var image_blob = arrayBufferToBlob(svg_result, 'image/svg+xml')
+    console.log(image_blob)
+    let item = new ClipboardItem({'image/svg+xml': image_blob})
+    console.log(item)
+    navigator.clipboard.write([item]).then(function() {
+      console.log("Copied to clipboard successfully!");
+    }, function(error) {
+      console.error("unable to write to clipboard. Error:");
+      console.log(error);
+    })
+}
+
   document.getElementById('menu_copy_png').addEventListener("click", function() {
     copy_png()
   });
 
   function copy_png() {
-    let image = Viz.svgXmlToPngImageElement(result, 1, png_callback);
+    let image = Viz.svgXmlToPngImageElement(svg_result, 1, png_callback);
   }
 
   function png_callback(ev, png) {
@@ -477,6 +489,38 @@
         //console.error("unable to write to clipboard. Error:");
         //console.log(error);
       })
+    }
+  }
+
+  document.getElementById('menu_save_as').addEventListener("click", function() {
+    menu_save_as()
+  });
+
+  function menu_save_as() {
+    const save_options = {
+      filters: [
+        { name: 'SVG files', extensions: ['svg']},
+        { name: 'PNG files', extensions: ['png']},
+      ],
+      properties: ['openFile']
+      }
+    let savePath = remote.dialog.showSaveDialogSync(null, save_options)
+    if (typeof(savePath) !== 'undefined') {
+      if (savePath.endsWith('.svg') || savePath.endsWith('.SVG')) {
+        fs.writeFileSync(savePath, svg_result, 'utf8')
+      } else if (savePath.endsWith('.png') || savePath.endsWith('.PNG')) {
+        Viz.svgXmlToPngImageElement(svg_result, 1, (ev, png) => {
+          if (ev === null) {
+            const data_b64 = png.src.slice(22)
+            const buf = new Buffer.from(data_b64, 'base64');
+            fs.writeFileSync(savePath, buf, 'utf8')
+          } else {
+            console.log("error generating png:", ev)
+          }
+        });
+      } else {
+        alert("Unsupported file types in\n"+savePath)
+      }
     }
   }
 
@@ -816,7 +860,6 @@
     }
   }
 
-
   document.getElementById('get_ref_oreqm_file').addEventListener("click", function() {
     get_ref_oreqm_file()
   });
@@ -832,40 +875,6 @@
       load_file_ref(file)
     }
     input.click();
-  }
-
-  function save_svg() {
-    if (oreqm_main) {
-      const save_options = {
-        defaultPath: "visual_reqm2.{}".format(image_type),
-        filters: [{ name: 'Image files', extensions: [image_type]}],
-        properties: ['openFile']
-        }
-      //remote.dialog.showSaveDialog(null, save_options, do_save_svg)
-      let savePath = remote.dialog.showSaveDialogSync(null, save_options)
-      if (typeof(savePath) !== 'undefined') {
-        do_save_svg(savePath)
-      }
-    }
-  }
-
-  function do_save_svg(savePath) {
-    fs.writeFileSync(savePath, image_data, 'utf8')
-  }
-
-  function set_download_link() {
-    let download = document.getElementById('download_image')
-    let link = document.getElementById('a_link_id')
-    if (!link) {
-      link = document.createElement("a"); // Or maybe get it from the current document
-      link.id = "a_link_id"
-      download.appendChild(link); // Or append it whereever you want
-      link.innerHTML = "download image";
-    }
-    var image_blob = new Blob([image_data], {type: image_mime})
-    image_data_url = URL.createObjectURL(image_blob);
-    link.href = image_data_url;
-    link.download = "visual_reqm2.{}".format(image_type);
   }
 
   function get_excluded_doctypes() {

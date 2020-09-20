@@ -287,6 +287,7 @@
     border: 1px solid #555;
     white-space: nowrap;
     font-family: sans-serif;
+    font-size: 12px;
     background: #000;
     color: #FFF;
     list-style: none;
@@ -308,6 +309,11 @@
     pointer-events: none; /* This makes it not clickable */
     opacity: 0.6;         /* This grays it out to look disabled */
   }
+
+  .custom-menu_divider  {
+    border-bottom: 1px solid whitesmoke;
+  }
+
   /* svg context menu related - end */
 
   /* Status bar layout */
