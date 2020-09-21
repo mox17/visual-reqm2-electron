@@ -106,6 +106,7 @@ export default class ReqM2Specobjects {
     this.removed_reqs = [];        // List of removed requirements (copies taken from older(?) version of oreqm)
     this.visible_nodes = new Map(); // {doctype:[id]}
     this.problems = []             // [ Str ] problems reports
+    this.search_cache = new Map()  // Cache tagged string versions
     this.dot = 'digraph "" {label="Select filter criteria and exclusions, then click\\l                    [update graph]\\l(Unfiltered graphs may be too large to render)"\n  labelloc=b\n  fontsize=24\n  fontcolor=grey\n  fontname="Arial"\n}\n'
 
     // Initialization logic
@@ -524,34 +525,44 @@ export default class ReqM2Specobjects {
   }
 
   get_all_text(req_id) {
-    // Get all text fields as combined string
-    const rec = this.requirements.get(req_id)
-    let id_str = this.decorate_id(req_id)
-    let ffb = []
-    rec.fulfilledby.forEach(element =>
-      ffb.push('ffb:'+element[0]))
-    let tags = []
-    rec.tags.forEach(element =>
-      tags.push('tag:'+element))
-    let plat = []
-    rec.platform.forEach(element =>
-      plat.push('plt:'+element))
-    let all_text = 'dt:' + rec.doctype
-          + '\nst:' + rec.status
-          + '\nde:' + rec.description
-          + '\nfi:' + rec.furtherinfo
-          + '\nrt:' + rec.rationale
-          + '\nsr:' + rec.safetyrationale
-          + '\nsc:' + rec.safetyclass
-          + '\nsd:' + rec.shortdesc
-          + '\nuc:' + rec.usecase
-          + '\nvc:' + rec.verifycrit
-          + '\nco:' + rec.comment
-          + '\n' + ffb.join('\n')
-          + '\n' + tags.join('\n')
-          + '\n' + plat.join('\n')
-          + '\nid:' + id_str  // req_id is last to ensure regex search for <id>$ will succeed
-    return all_text
+    if (this.search_cache.has(req_id)) {
+      return this.search_cache.get(req_id)
+    } else {
+      // Get all text fields as combined string
+      const rec = this.requirements.get(req_id)
+      let id_str = this.decorate_id(req_id)
+      let ffb = []
+      rec.fulfilledby.forEach(element =>
+        ffb.push('ffb:'+element[0]))
+      let tags = []
+      rec.tags.forEach(element =>
+        tags.push('tag:'+element))
+      let plat = []
+      rec.platform.forEach(element =>
+        plat.push('plt:'+element))
+      let needsobj = []
+      rec.needsobj.forEach(element =>
+        needsobj.push('no:'+element))
+      let all_text = 'dt:' + rec.doctype
+        + '\nst:' + rec.status
+        + '\nde:' + rec.description
+        + '\nfi:' + rec.furtherinfo
+        + '\nrt:' + rec.rationale
+        + '\nsr:' + rec.safetyrationale
+        + '\nsc:' + rec.safetyclass
+        + '\nsd:' + rec.shortdesc
+        + '\nuc:' + rec.usecase
+        + '\nvc:' + rec.verifycrit
+        + '\nco:' + rec.comment
+        + '\n' + needsobj.join('\n')
+        + '\n' + ffb.join('\n')
+        + '\n' + tags.join('\n')
+        + '\n' + plat.join('\n')
+        + '\nid:' + id_str;  // req_id is last to ensure regex search for <id>$ will succeed
+
+      this.search_cache.set(req_id, all_text)
+      return all_text
+    }
   }
 
   find_reqs_with_text(regex) {
