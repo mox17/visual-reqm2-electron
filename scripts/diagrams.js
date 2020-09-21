@@ -304,6 +304,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     let doctype_dict = new Map()
     let selected_dict = new Map()
     let sel_arr = []
+    let selected_nodes = []
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       if (!doctype_dict.has(rec.doctype)) {
@@ -321,6 +322,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           sel_arr = selected_dict.get(rec.doctype)
           sel_arr.push(req_id)
           selected_dict.set(rec.doctype, sel_arr)
+          selected_nodes.push(req_id)
         }
       }
     }
@@ -381,6 +383,8 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     result.edge_count = edge_count
     result.doctype_dict = doctype_dict
     result.selected_dict = selected_dict
+    selected_nodes.sort()
+    result.selected_nodes = selected_nodes
     return result
   }
 

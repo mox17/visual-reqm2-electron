@@ -1086,20 +1086,20 @@
 
   function id_search(regex) {
     var results = oreqm_main.find_reqs_with_name(regex)
-    set_selection(results)
     oreqm_main.clear_colors()
     oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
     const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), results)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+    set_selection(graph.selected_nodes)
   }
 
   function txt_search(regex) {
     var results = oreqm_main.find_reqs_with_text(regex)
-    set_selection(results)
     oreqm_main.clear_colors()
     oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
     const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), results)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+    set_selection(graph.selected_nodes)
   }
 
   document.getElementById('clear_ref_oreqm').addEventListener("click", function() {
