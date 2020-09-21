@@ -1,22 +1,21 @@
 {
   "name": "visualreqm2",
-  "version": "0.99.3",
+  "version": "1.0.0",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
-    "start": "electron .",
+    "start": "babel scripts -d lib && electron .",
     "start_w_args": "babel scripts -d lib && electron . ./testdata/oreqm_testdata_del_movement.oreqm",
     "start_w_args_1": "babel scripts -d lib && electron . --debug  ./testdata/oreqm_testdata_del_movement.oreqm",
-    "start_w_args_2": "electron . --debug ./testdata/oreqm_testdata_del_movement.oreqm ./testdata/oreqm_testdata_no_ogre.oreqm",
-    "start_w_h": "electron . -h",
+    "start_w_args_2": "babel scripts -d lib && electron . --debug ./testdata/oreqm_testdata_del_movement.oreqm ./testdata/oreqm_testdata_no_ogre.oreqm",
+    "start_w_h": "babel scripts -d lib && electron . -h",
     "build": "babel scripts -d lib",
-    "dev": "electron . --debug",
+    "dev": "babel scripts -d lib && electron . --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder",
+    "pack": "babel scripts -d lib && electron-builder --dir",
+    "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
-    "linux": "babel scripts -d lib && electron-builder -l",
-    "mac": "electron-builder -m"
+    "linux": "babel scripts -d lib && electron-builder -l"
   },
   "author": {
     "name": "Erling Stage",
@@ -98,9 +97,6 @@
           ]
         }
       ]
-    },
-    "mac": {
-      "icon": "src/img/ico.png"
     }
   }
 }
