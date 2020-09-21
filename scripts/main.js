@@ -387,7 +387,7 @@
       image_mime = 'image/svg+xml'
       image_data = svg_result
     } else if (document.querySelector("#format select").value === "png-image-element") {
-      var image = Viz.svgXmlToPngImageElement(svg_result);
+      var image = Viz.svgXmlToPngImageElement(svg_result, 1);
       graph.appendChild(image);
       image_type = 'png'
       image_mime = 'image/png'
