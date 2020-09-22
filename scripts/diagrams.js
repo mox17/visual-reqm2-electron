@@ -72,7 +72,7 @@ const re_tag_text     = new RegExp(/<a\s+type="xref"\s+href="[A-Z]+_([^"]+)"\s*\
 //const re_xml_remove   = new RegExp(/<\/?ul>|<\/?itemizedlist>|<\/listitem>|<\/li>|<\/para>/g, 'm')
 const re_whitespace   = new RegExp(/^[\s\n]*|\s\n]*$/)
 const re_nbr_list     = new RegExp(/\n\s+(\d+)/g)
-const re_line_length  = new RegExp(/([^\n]{110,500}?(:|;| ))/g)
+const re_line_length  = new RegExp(/([^\n]{110,500}?(:|;| |\/|-))/g)
 //const re_keep_nl      = new RegExp(/\s*\n\s*/)
 const re_empty_lines  = new RegExp(/<BR ALIGN="LEFT"\/>(\s*&nbsp;<BR ALIGN="LEFT"\/>)+/, 'm')
 
@@ -608,17 +608,17 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           title += '      <tr><td>Search text</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(pattern_string.replace( /\\/g, '\\\\'))
         }
       }
+      let ex_dt_list = this.excluded_doctypes
+      if (ex_dt_list.length) {
+        title += '      <tr><td>excluded doctypes</td><td colspan="2">{}</td></tr>\n'.format(ex_dt_list.join(", ").replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>'))
+      }
+
+      let excluded_ids = this.excluded_ids
+      if (excluded_ids.length) {
+        title += '      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(excluded_ids.join('<BR ALIGN="LEFT"/>'))
+      }
     }
 
-    let ex_dt_list = this.excluded_doctypes
-    if (ex_dt_list.length) {
-      title += '      <tr><td>excluded doctypes</td><td colspan="2">{}</td></tr>\n'.format(ex_dt_list.join(", ").replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>'))
-    }
-
-    let excluded_ids = this.excluded_ids
-    if (excluded_ids.length) {
-      title += '      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(excluded_ids.join('<BR ALIGN="LEFT"/>'))
-    }
     if (extra && extra.title && extra.text && extra.title.length && extra.text.length) {
       title += '      <tr><td>{}</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(extra.title, extra.text)
     }
