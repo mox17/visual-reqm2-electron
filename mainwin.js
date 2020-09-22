@@ -11,8 +11,16 @@ const url = require('url');
 const settings = require('electron-settings');
 const { ArgumentParser } = require('argparse');
 const { version } = require('./package.json');
+const log = require('electron-log');
+const {autoUpdater} = require("electron-updater");
+
+// Optional logging
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+// end optional logging
 
 let debug = /--debug/.test(process.argv[2]);
+let run_autoupdater = false;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -62,6 +70,7 @@ function createWindow() {
     width: mainWindow_width,
     height: mainWindow_height,
     icon: icon_path,
+    show: false,
     webPreferences: {
       nodeIntegrationInWorker: true,
       nodeIntegration: true,
@@ -158,6 +167,14 @@ function createWindow() {
   ])
   electron.Menu.setApplicationMenu(menu);
 
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+    //log.info("run_autoupdater:", run_autoupdater)
+    if (run_autoupdater) {
+      autoUpdater.checkForUpdatesAndNotify();
+    }
+  });
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
@@ -187,15 +204,17 @@ const parser = new ArgumentParser({
 app.on('ready', () => {
   parser.add_argument('-v', '--version', { action: 'version', version });
   parser.add_argument('-d', '--debug', { help: 'Enable debug', action: 'store_true' });
+  parser.add_argument('-u', '--update', { help: 'Check for updates', action: 'store_true' });
   parser.add_argument('oreqm_main',  { help: 'main oreqm', nargs: '?' });
   parser.add_argument('oreqm_ref',  { help: 'ref. oreqm', nargs: '?' });
 
-  // Ugly work-around for command line difference when compiled to app compared to pure nodejs
+    // Ugly work-around for command line difference when compiled to app compared to pure nodejs
   if (process.argv[1] != '.') {
     process.argv.splice(1, 0, '.');
   }
   let args = parser.parse_args()
   debug = args.debug
+  run_autoupdater = args.update
   //console.log(process.argv);
   //console.log(args);
   mainWindow_width = settings.get('mainWindow_width', 1024);
@@ -228,3 +247,35 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+autoUpdater.on('update-available', () => {
+  mainWindow.webContents.send('update_available');
+});
+
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send('update_downloaded');
+});
+
+autoUpdater.on('checking-for-update', () => {
+  //log.info('Checking for update...');
+})
+
+autoUpdater.on('update-not-available', (info) => {
+  //log.info('Update not available.');
+})
+
+autoUpdater.on('error', (err) => {
+  //log.info('Error in auto-updater. ' + err);
+})
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  log.info(log_message);
+})
+
+ipcMain.on('restart_app', () => {
+  autoUpdater.quitAndInstall();
+});

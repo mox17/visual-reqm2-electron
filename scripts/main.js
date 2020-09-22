@@ -338,7 +338,7 @@
         // } else if (e.ctrlKey && e.altKey && e.shiftKey && e.which == 85) {
         //   alert("Ctrl + Alt + Shift + U shortcut combination was pressed");
         }
-        console.log(e)
+        //console.log(e)
       };
 
       // context menu setup
@@ -1636,4 +1636,55 @@
   function select_color(node_id, rec, node_color) {
     // Select colored nodes
     return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)
+  }
+
+  /* auto-update logic */
+
+  const notification = document.getElementById('notification');
+  const auto_update_message = document.getElementById('auto-update-message');
+  const restartButton = document.getElementById('restart-button');
+
+  ipcRenderer.on('update_available', () => {
+    ipcRenderer.removeAllListeners('update_available');
+    auto_update_message.innerText = 'A new update is available. Downloading now...';
+    notification.classList.remove('hidden');
+  });
+
+  ipcRenderer.on('update_downloaded', () => {
+    ipcRenderer.removeAllListeners('update_downloaded');
+    auto_update_message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
+    restartButton.classList.remove('hidden');
+    notification.classList.remove('hidden');
+  });
+
+  function closeNotification() {
+    notification.classList.add('hidden');
+  }
+  function restartApp() {
+    ipcRenderer.send('restart_app');
+  }
+  
+  document.getElementById('close-button').addEventListener("click", function() {
+    closeNotification()
+  });
+
+  document.getElementById('restart-button').addEventListener("click", function() {
+    restartApp()
+  });
+
+  if (document.readyState != "complete") {
+    document.addEventListener('DOMContentLoaded', function() {
+      prepareTags()
+    }, false);
+  } else {
+    prepareTags();
+  }
+
+  function prepareTags(){
+    let aTags = document.getElementsByTagName("a");
+    for (var i = 0; i < aTags.length; i++) {
+      aTags[i].setAttribute("onclick","require('shell').openExternal('" + aTags[i].href + "')");
+      aTags[i].href = "#";
+    }
+    return false;
   }

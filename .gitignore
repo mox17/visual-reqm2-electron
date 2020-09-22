@@ -5,3 +5,4 @@ dist/*
 package-lock.json
 .vscode/*
 lib/*
+electron-builder.yml

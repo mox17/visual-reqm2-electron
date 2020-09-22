@@ -73,14 +73,15 @@
 
           <span class="tooltip"><b>Excluded &lt;id&gt;s</b>
             <span class="tooltiptext">Excluded &lt;id&gt;s are
-              not shown and break
+              not shown and stops
               dependency tracing to
-              other nodes.
+              nodes beyond them.
             </span>
             <button id="clear_excluded_ids" type="button" >clear</button>
           </span>
           <textarea class="search_terms" id="excluded_ids" rows="3" cols="25" spellcheck="false"
           wrap="off" placeholder="excluded <id>s&#13;&#10;separate with ',' or newline" ></textarea>
+            <br>
             <label><input type="checkbox" id="no_rejects" checked>exclude rejected</label>
             <hr>
             <button type="button" id="filter_graph" title="Do recalculation of graph">update graph</button>
@@ -148,7 +149,7 @@
           <p>Version <span id="prog_version">0.98.1</span><br/>
           Copyright 2020 Erling Stage<br/>
           Licensed under MIT license<br/>
-         <!-- <a href="https://github.com/mox17/visual-reqm2-js">https://github.com/mox17/visual-reqm2-js</a> -->
+          <a href="https://github.com/mox17/visual-reqm2-electron" target="_blank" >https://github.com/mox17/visual-reqm2-electron</a>
         </p>
           <h4>Dependencies</h4>
           <p>Visual ReqM2 uses the following modules:
@@ -227,6 +228,17 @@
       <li id="menu_save_as"  class="custom-menu_divider" >Save diagram as ...</li>
       <li id="menu_xml_txt"  >Show XML</li>
     </ul>
+
+    <!-- auto-update message -->
+    <div id="notification" class="hidden">
+      <p id="auto-update-message"></p>
+      <button id="close-button">
+        Close
+      </button>
+      <button id="restart-button" onClick="restartApp()" class="hidden">
+        Restart
+      </button>
+    </div>
 
     <!--
     <script src="./modules/viz.js/viz.js"></script>
