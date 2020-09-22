@@ -293,7 +293,8 @@
     list-style: none;
     border-radius:1px;
     -moz-border-radius:1px;
-    box-shadow: 2px 2px 2px #aaa;
+    box-shadow: 12px 12px 12px #444;
+    padding-inline-start: 0px;
   }
 
   .custom-menu li {
