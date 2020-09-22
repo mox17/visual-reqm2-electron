@@ -87,7 +87,7 @@ function createWindow() {
       label: 'File',
       submenu: [
         {
-          label:'Save color scheme',
+          label:'Save color scheme as...',
           click (item, focusedWindow, ev) { mainWindow.webContents.send('save_colors')}
         },
         {
@@ -101,8 +101,12 @@ function createWindow() {
         },
         {type: 'separator'},
         {
+          label:'Save issues as...',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_issues_as')}
+        },
+        {
           label:'Save diagram as...',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_as')}
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_diagram_as')}
         },
         {type: 'separator'},
         {role:'quit'}
@@ -123,9 +127,16 @@ function createWindow() {
       label: 'View',
       submenu: [
         {
+          label: 'Show issues',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('show_issues')}
+        },
+        {
           label: 'Full screen',
           role: 'togglefullscreen',
         },
+        {role: 'resetzoom'},
+        {role: 'zoomin'},
+        {role: 'zoomout'},
         {
           label: 'Toggle Developer Tools',
           accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
@@ -133,9 +144,6 @@ function createWindow() {
             if (focusedWindow) focusedWindow.webContents.toggleDevTools()
           }
         },
-        {role: 'resetzoom'},
-        {role: 'zoomin'},
-        {role: 'zoomout'},
       ]
     },
     {

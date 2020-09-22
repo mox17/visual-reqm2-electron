@@ -71,8 +71,16 @@
     load_safety_rules_fs()
   });
 
-  ipcRenderer.on('save_as', (item, window, key_ev) => {
+  ipcRenderer.on('save_diagram_as', (item, window, key_ev) => {
     menu_save_as()
+  });
+
+  ipcRenderer.on('save_issues_as', (item, window, key_ev) => {
+    save_problems()
+  });
+
+  ipcRenderer.on('show_issues', (item, window, key_ev) => {
+    show_problems()
   });
 
   ipcRenderer.on('argv', (event, parameters, args) => {
@@ -1524,6 +1532,26 @@
     }
     ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, problem_txt)
     problemPopup.style.display = "block";
+  }
+
+  document.getElementById('save_problems').addEventListener("click", function() {
+    save_problems()
+  });
+
+  function save_problems() {
+    let problems = oreqm_main.get_problems()
+    if (problems.length > 0) {
+      let SavePath = remote.dialog.showSaveDialogSync(null,
+        {
+          filters: [{ name: 'TXT files', extensions: ['txt']}],
+          properties: ['openFile']
+        })
+      if (typeof(SavePath) !== 'undefined') {
+        fs.writeFileSync(SavePath, problems, 'utf8')
+      }
+    } else {
+      alert("There are no issues")
+    }
   }
 
   document.getElementById('clear_problems').addEventListener("click", function() {
