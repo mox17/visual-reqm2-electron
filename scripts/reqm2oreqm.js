@@ -568,11 +568,16 @@ export default class ReqM2Specobjects {
   find_reqs_with_text(regex) {
     // Check requirement texts against regex
     const ids = this.requirements.keys()
-    let rx = new RegExp(regex, 'ims')
     let matches = []
-    for (const id of ids) {
-      if (rx.test(this.get_all_text(id)))
-        matches.push(id)
+    try {
+      let rx = new RegExp(regex, 'ims')
+      for (const id of ids) {
+        if (rx.test(this.get_all_text(id)))
+          matches.push(id)
+      }
+    }
+    catch(err) {
+      alert('Selection criteria error:\n{}'.format(err.message))
     }
     return matches
   }
