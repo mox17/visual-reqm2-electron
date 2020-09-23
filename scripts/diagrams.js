@@ -272,6 +272,13 @@ export function load_safety_rules()
   input.click();
 }
 
+function quote_id(id) {
+  if (id.includes(' ')) {
+    id = '"{}"'.format(id)
+  }
+  return id
+}
+
 export default class ReqM2Oreqm extends ReqM2Specobjects {
 
       // Fixed texts that form part of dot file
@@ -543,8 +550,15 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           doctype_safety ? '\\l{}>{}'.format(dt_sc_str(doctype), dt_sc_str(lk)) : '',
           doctype_safety ? this.linksto_safe_color(doctype, lk) : 'black')
         if (doctype_safety && !this.linksto_safe(doctype, lk)) {
-          let prov_list = dt.linksto.get(lk).map(x => '{} -> {}'.format(x[1], x[0]))
-          let problem = "{} provcov to {}\n  {}".format(doctype, lk, prov_list.join('\n  '))
+          let prov_list = dt.linksto.get(lk).map(x => '{} -> {}'.format(quote_id(x[1]), quote_id(x[0])))
+          let dt2 = doctype
+          if (dt2.endsWith(':')) {
+            dt2 += '<none>'
+          }
+          if (lk.endsWith(':')) {
+            lk += '<none>'
+          }
+          let problem = "{} provcov to {}\n  {}".format(dt2, lk, prov_list.join('\n  '))
           this.problem_report(problem)
         }
       }
