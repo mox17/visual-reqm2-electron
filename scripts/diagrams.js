@@ -581,11 +581,11 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
   construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) {
     let title = '""'
     title  = '<\n    <table border="1" cellspacing="0" cellborder="1">\n'
-    title += '      <tr><td cellspacing="0" >File</td><td>{}</td><td>{}</td></tr>\n'.format(this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1$2<BR ALIGN="LEFT"/>'), this.timestamp)
+    title += '      <tr><td cellspacing="0" >File</td><td>{}</td><td>{}</td></tr>\n'.format(this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), this.timestamp)
 
     if (show_filters) {
       if (oreqm_ref) {
-        title += '      <tr><td>Ref. file</td><td>{}</td><td>{}</td></tr>\n'.format(oreqm_ref.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1$2<BR ALIGN="LEFT"/>'), oreqm_ref.timestamp)
+        title += '      <tr><td>Ref. file</td><td>{}</td><td>{}</td></tr>\n'.format(oreqm_ref.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), oreqm_ref.timestamp)
         /*
         let diff = oreqm_main.get_main_ref_diff()
         if (diff.new_reqs.length) {
