@@ -158,9 +158,12 @@
   }
 
   .highlight {
+    /*
     border-color: purple;
     border: 4px dashed #090;
-    border-radius: 10px;
+    border-radius: 10px;*/
+    box-shadow: inset 0 0 20px #0f0;
+    background: #0f0;
   }
 
   table.oreqm_file_table {
