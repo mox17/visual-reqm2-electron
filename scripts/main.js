@@ -123,7 +123,7 @@
   });
 
   var parser = new DOMParser();
-  var worker;
+  var vizjs_worker;
   var svg_result;
   var oreqm_main
   var oreqm_ref
@@ -162,18 +162,18 @@
   }
 
   function updateGraph() {
-    if (worker) {
-      worker.terminate();
+    if (vizjs_worker) {
+      vizjs_worker.terminate();
+      vizjs_worker = null
     }
+    vizjs_worker = new Worker("./lib/worker.js");
 
     clear_diagram()
 
     document.querySelector("#output").classList.add("working");
     document.querySelector("#output").classList.remove("error");
 
-    worker = new Worker("./lib/worker.js");
-
-    worker.onmessage = function(e) {
+    vizjs_worker.onmessage = function(e) {
       document.querySelector("#output").classList.remove("working");
       document.querySelector("#output").classList.remove("error");
 
@@ -183,7 +183,7 @@
       updateOutput();
     }
 
-    worker.onerror = function(e) {
+    vizjs_worker.onerror = function(e) {
       document.querySelector("#output").classList.remove("working");
       document.querySelector("#output").classList.add("error");
 
@@ -222,7 +222,7 @@
     if (document.querySelector("#format select").value === 'dot-source') {
       updateOutput();
     } else {
-      worker.postMessage(params);
+      vizjs_worker.postMessage(params);
       viz_working_set()
     }
   }
@@ -643,30 +643,31 @@
     cell = row.insertCell();
     cell.innerHTML = "<b>select</b>";
     cell = row.insertCell();
-    cell.innerHTML = "<b>exclude</b>";
+    cell.innerHTML = '<input type="checkbox" id="doctype_all" title="set all off or on"><b>exclude</b>';
+    cell.addEventListener("click", doctype_filter_all_change);
     let doctype_totals = 0
-    for (var i of doctype_names) {
+    for (var doctype_name of doctype_names) {
       row = table.insertRow();
-      row.style.backgroundColor = get_color(i)
+      row.style.backgroundColor = get_color(doctype_name)
       cell = row.insertCell();
-      cell.innerHTML = i;
+      cell.innerHTML = doctype_name;
 
       cell = row.insertCell();
-      cell.innerHTML = doctype_dict.get(i).length;
-      doctype_totals += doctype_dict.get(i).length;
+      cell.innerHTML = doctype_dict.get(doctype_name).length;
+      doctype_totals += doctype_dict.get(doctype_name).length;
 
       cell = row.insertCell();
-      cell.innerHTML = '<div id="doctype_shown_{}">0</div>'.format(i)
+      cell.innerHTML = '<div id="doctype_shown_{}">0</div>'.format(doctype_name)
 
       cell = row.insertCell();
-      cell.innerHTML = '<div id="doctype_select_{}">0</div>'.format(i)
+      cell.innerHTML = '<div id="doctype_select_{}">0</div>'.format(doctype_name)
 
       cell = row.insertCell();
-      let checked = excluded.includes(i)
-      cell.innerHTML = '<input type="checkbox" id="doctype_{}" {}>'.format(i, checked ? 'checked' : '')
-      cell.addEventListener("click", function() {
-        doctype_filter_change();
-      });
+      let checked = excluded.includes(doctype_name)
+      //console.log("dt table", doctype_name, checked)
+      cell.innerHTML = '<div><input type="checkbox" id="doctype_{}" {}/></div>'.format(doctype_name, checked ? 'checked' : '')
+      cell.addEventListener("click", doctype_filter_change);
+      cell = null
     }
     // Totals row
     row = table.insertRow();
@@ -682,31 +683,19 @@
     cell = row.insertCell();
     cell.innerHTML = '<div id="doctype_select_totals">0</div>'
 
-    cell = row.insertCell();
-    cell.innerHTML = '<input type="checkbox" id="doctype_all">'
-    cell.addEventListener("click", function() {
-      doctype_filter_all_change();
-    });
-
     document.getElementById("doctype_table").appendChild(table);
   }
 
-  var toggle_doctype_exclude = false // Flag to suppress updates by simulated clicks
-
   function doctype_filter_change() {
     set_doctype_all_checkbox()
-    if (!toggle_doctype_exclude) {
-      //console.log("doctype_filter_change")
-      if (auto_update) {
-        filter_graph()
-      }
+    //console.log("doctype_filter_change")
+    if (auto_update) {
+      filter_graph()
     }
   }
 
   function doctype_filter_all_change() {
-    toggle_doctype_exclude = true
     toggle_exclude()
-    toggle_doctype_exclude = false
     if (auto_update) {
       filter_graph()
     }
@@ -752,8 +741,8 @@
     document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB"
     document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
     const node_count = oreqm_main.get_node_count()
-    if (auto_update && node_count > 500) {
-      set_auto_update(false)
+    if (node_count < 500) {
+      set_auto_update(true)
     }
     if (oreqm_ref) { // if we have a reference do a compare
       viz_comparing_set()
@@ -907,19 +896,16 @@
 
   function toggle_exclude() {
     if (oreqm_main) {
-      toggle_doctype_exclude = true
       const doctypes = oreqm_main.get_doctypes()
       const names = doctypes.keys()
       let ex_list = get_excluded_doctypes()
+      const new_state = ex_list.length === 0
       for (const doctype of names) {
-        const checkbox_id = "doctype_{}".format(doctype)
-        const new_state = ex_list.length==0
-        var elm = document.getElementById(checkbox_id);
-        if (new_state != elm.checked) {
-          elm.click();
+        const box = document.getElementById("doctype_{}".format(doctype))
+        if (new_state != box.checked) {
+          box.checked = new_state
         }
       }
-      toggle_doctype_exclude = false
       doctype_filter_change();
     }
   }
@@ -931,15 +917,12 @@
   function invert_exclude() {
     // Invert the exclusion status of all doctypes
     if (oreqm_main) {
-      toggle_doctype_exclude = true
       const doctypes = oreqm_main.get_doctypes()
       const names = doctypes.keys()
       for (const doctype of names) {
-        const checkbox_id = "doctype_{}".format(doctype)
-        var elm = document.getElementById(checkbox_id);
-        elm.click();
+        var box = document.getElementById("doctype_{}".format(doctype));
+        box.checked = !box.checked
       }
-      toggle_doctype_exclude = false
       doctype_filter_change();
     }
   }
@@ -988,13 +971,18 @@
         } else {
           txt_search(search_pattern)
         }
+        updateGraph();
       } else {
         // no pattern specified
-        const graph = oreqm_main.create_graph(select_all, "reqspec1",
-          oreqm_main.construct_graph_title(true, null, oreqm_ref, false, ""), [])
+        let title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, "")
+        const graph = oreqm_main.create_graph(
+          select_all,
+          "reqspec1",
+          title,
+          []);
         set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+        updateGraph();
       }
-      updateGraph();
     }
   }
 
@@ -1663,7 +1651,7 @@
   function restartApp() {
     ipcRenderer.send('restart_app');
   }
-  
+
   document.getElementById('close-button').addEventListener("click", function() {
     closeNotification()
   });

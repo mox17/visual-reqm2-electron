@@ -5,6 +5,7 @@ import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
 import Doctype from './doctypes.js'
 import { remote } from 'electron'
+import showToast from 'show-toast';
 import fs from 'fs'
 
 var accepted_safety_class_links_re = [
@@ -304,7 +305,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
       node = this.format_cache.get(req_id)
       //console.log('cache hit: ', req_id)
     } else {
-      let node = format_node(req_id, this.requirements.get(req_id), ghost, this)
+      node = format_node(req_id, this.requirements.get(req_id), ghost, this)
       this.format_cache.set(req_id, node)
     }
     return node
@@ -344,6 +345,14 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           selected_nodes.push(req_id)
         }
       }
+      if (subset.length > 1000) {
+        showToast({
+          str: "More than 1000 nodes.\nGraph limited",
+          time: 5000,
+          position: 'middle'
+        })
+        break; // hard limit on node count
+      }
     }
     let show_top = this.doctypes.has(top_doctype) && !this.excluded_doctypes.includes(top_doctype)
     if (show_top) {
@@ -366,7 +375,6 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
         }
         graph += node + '\n'
         node_count += 1
-        //if (node_count > 10) break; // hard limit on node count
     }
     graph += '\n  # Edges\n'
     if (show_top) {
@@ -393,7 +401,6 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           }
         }
       }
-      //if (edge_count > 20) break; // hard limit on edge count
     }
     graph += '\n  label={}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n'.format(title)
     graph += ReqM2Oreqm.DOT_EPILOGUE
