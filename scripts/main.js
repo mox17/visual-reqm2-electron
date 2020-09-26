@@ -3,7 +3,7 @@
   import ReqM2Oreqm, { xml_escape, load_safety_rules, load_safety_rules_fs } from './diagrams.js'
   import get_color, { save_colors, save_colors_fs, load_colors, load_colors_fs } from './color.js'
   import Viz from 'viz.js'
-  import { ipcRenderer, remote, clipboard, nativeImage } from 'electron'
+  import { ipcRenderer, remote, clipboard, nativeImage, shell } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
   let mainWindow = remote.getCurrentWindow();
@@ -338,7 +338,7 @@
         // } else if (e.ctrlKey && e.altKey && e.shiftKey && e.which == 85) {
         //   alert("Ctrl + Alt + Shift + U shortcut combination was pressed");
         }
-        console.log(e)
+        //console.log(e)
       };
 
       // context menu setup
@@ -1636,4 +1636,65 @@
   function select_color(node_id, rec, node_color) {
     // Select colored nodes
     return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)
+  }
+
+  /* auto-update logic */
+
+  const notification = document.getElementById('notification');
+  const auto_update_message = document.getElementById('auto-update-message');
+  const restartButton = document.getElementById('restart-button');
+
+  ipcRenderer.on('update_available', () => {
+    ipcRenderer.removeAllListeners('update_available');
+    auto_update_message.innerText = 'A new update is available. Downloading now...';
+    notification.classList.remove('hidden');
+  });
+
+  ipcRenderer.on('update_downloaded', () => {
+    ipcRenderer.removeAllListeners('update_downloaded');
+    auto_update_message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
+    restartButton.classList.remove('hidden');
+    notification.classList.remove('hidden');
+  });
+
+  function closeNotification() {
+    notification.classList.add('hidden');
+  }
+  function restartApp() {
+    ipcRenderer.send('restart_app');
+  }
+  
+  document.getElementById('close-button').addEventListener("click", function() {
+    closeNotification()
+  });
+
+  document.getElementById('restart-button').addEventListener("click", function() {
+    restartApp()
+  });
+
+  // Open https:// urls in external browser
+  if (document.readyState != "complete") {
+    document.addEventListener('DOMContentLoaded', function() {
+      prepareTags()
+    }, false);
+  } else {
+    prepareTags();
+  }
+
+  function url_click_handler(e, url) {
+    e.preventDefault()
+    document.shell_openExternal(url)
+  }
+
+  function prepareTags(){
+    document.url_click_handler = url_click_handler
+    document.shell_openExternal = shell.openExternal
+    let aTags = document.getElementsByTagName("a");
+    for (var i = 0; i < aTags.length; i++) {
+      //console.log(aTags[i])
+      //aTags[i].setAttribute("onclick","require('shell').openExternal('" + aTags[i].href + "')");
+      aTags[i].setAttribute("onclick","document.url_click_handler(event, '" + aTags[i].href + "')");
+      aTags[i].href = "#";
+    }
+    return false;
   }

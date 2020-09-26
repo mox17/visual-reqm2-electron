@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
@@ -9,13 +9,15 @@
     "start_w_args_1": "babel scripts -d lib && electron . --debug  ./testdata/oreqm_testdata_del_movement.oreqm",
     "start_w_args_2": "babel scripts -d lib && electron . --debug ./testdata/oreqm_testdata_del_movement.oreqm ./testdata/oreqm_testdata_no_ogre.oreqm",
     "start_w_h": "babel scripts -d lib && electron . -h",
-    "build": "babel scripts -d lib",
+    "babel": "babel scripts -d lib",
     "dev": "babel scripts -d lib && electron . --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "babel scripts -d lib && electron-builder --dir",
     "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
-    "linux": "babel scripts -d lib && electron-builder -l"
+    "linux": "babel scripts -d lib && electron-builder -l",
+    "build": "babel scripts -d lib && electron-builder build --win --publish never",
+    "deploy": "babel scripts -d lib && electron-builder build --win --publish always"
   },
   "author": {
     "name": "Erling Stage",
@@ -38,14 +40,16 @@
     "argparse": "^2.0.1",
     "blob-util": "^2.0.2",
     "diff": "^4.0.2",
+    "electron-log": "^4.2.4",
     "electron-settings": "^3.2.0",
+    "electron-updater": "^4.3.5",
+    "shell": "^0.5.0",
     "split.js": "^1.6.2",
     "svg-pan-zoom": "^3.6.0",
     "viz.js": "^1.8.2"
   },
   "build": {
     "appId": "com.mox17.visualreqm2",
-    "productName": "Visual ReqM2",
     "extraFiles": [
       "src/icons/**",
       "build/**/*"
@@ -59,6 +63,12 @@
       }
     ],
     "win": {
+      "publisherName": [
+        "Erling Stage"
+      ],
+      "publish": [
+        "github"
+      ],
       "target": [
         {
           "target": "nsis",
@@ -73,16 +83,13 @@
           ]
         }
       ],
-      "publisherName": "Erling Stage",
       "icon": "build/icon.png"
     },
     "linux": {
       "category": "Utility",
       "description": "Visual ReqM2 is an unofficial app to visualize requirement relationships.",
       "synopsis": "ReqM2 requirements viewer",
-      "desktop": {
-
-      },
+      "desktop": {},
       "target": [
         {
           "target": "AppImage",
