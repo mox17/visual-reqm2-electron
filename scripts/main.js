@@ -3,7 +3,7 @@
   import ReqM2Oreqm, { xml_escape, load_safety_rules, load_safety_rules_fs } from './diagrams.js'
   import get_color, { save_colors, save_colors_fs, load_colors, load_colors_fs } from './color.js'
   import Viz from 'viz.js'
-  import { ipcRenderer, remote, clipboard, nativeImage } from 'electron'
+  import { ipcRenderer, remote, clipboard, nativeImage, shell } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
   let mainWindow = remote.getCurrentWindow();
@@ -1672,6 +1672,7 @@
     restartApp()
   });
 
+  // Open https:// urls in external browser
   if (document.readyState != "complete") {
     document.addEventListener('DOMContentLoaded', function() {
       prepareTags()
@@ -1680,10 +1681,19 @@
     prepareTags();
   }
 
+  function url_click_handler(e, url) {
+    e.preventDefault()
+    document.shell_openExternal(url)
+  }
+
   function prepareTags(){
+    document.url_click_handler = url_click_handler
+    document.shell_openExternal = shell.openExternal
     let aTags = document.getElementsByTagName("a");
     for (var i = 0; i < aTags.length; i++) {
-      aTags[i].setAttribute("onclick","require('shell').openExternal('" + aTags[i].href + "')");
+      //console.log(aTags[i])
+      //aTags[i].setAttribute("onclick","require('shell').openExternal('" + aTags[i].href + "')");
+      aTags[i].setAttribute("onclick","document.url_click_handler(event, '" + aTags[i].href + "')");
       aTags[i].href = "#";
     }
     return false;
