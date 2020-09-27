@@ -156,47 +156,85 @@
           tags: true,
           usecase: true,
           verifycrit: true,
-          version: true
+          version: true,
+          violations: false
         }
       }
       settings.set('program_settings', program_settings)
     }
-    console.log(program_settings)
+    //console.log(program_settings)
     settings_dialog_prepare()
+
+    document.getElementById('sett_ok').addEventListener("click", function() {
+      settings_dialog_results();
+      settingsPopup.style.display = "none";
+    });
+
+    document.getElementById('sett_cancel').addEventListener("click", function() {
+      settingsPopup.style.display = "none";
+    });
   }
 
+  const defined_specobject_fields = [
+    'id',
+    'comment',
+    'dependson',
+    'description',
+    'doctype',
+    'fulfilledby',
+    'furtherinfo',
+    'linksto',
+    'needsobj',
+    'platform',
+    'rationale',
+    'safetyclass',
+    'safetyrationale',
+    'shortdesc',
+    'source',
+    'sourcefile',
+    'sourceline',
+    'status',
+    'tags',
+    'usecase',
+    'verifycrit',
+    'version',
+    'violations'
+  ];
+
   function settings_dialog_prepare() {
-    const defined_flags = [
-      'id',
-      'comment',
-      'dependson',
-      'description',
-      'doctype',
-      'fulfilledby',
-      'furtherinfo',
-      'linksto',
-      'needsobj',
-      'platform',
-      'rationale',
-      'safetyclass',
-      'safetyrationale',
-      'shortdesc',
-      'source',
-      'sourcefile',
-      'sourceline',
-      'status',
-      'tags',
-      'usecase',
-      'verifycrit',
-      'version']
-    for (let field of defined_flags) {
+    // Set the checkboxes to reflect program_settings.compare_fields object
+    for (let field of defined_specobject_fields) {
       let dom_id = "sett_ignore_{}".format(field)
       let box = document.getElementById(dom_id)
-      console.log(field, dom_id, box, program_settings.compare_fields[field])
+      //console.log(field, dom_id, box, program_settings.compare_fields[field])
       if (box) {
         box.checked = !program_settings.compare_fields[field]
       }
     }
+  }
+
+  function settings_dialog_results() {
+    // Set program_settings.compare_fields object according to the checkboxes
+    for (let field of defined_specobject_fields) {
+      let dom_id = "sett_ignore_{}".format(field)
+      let box = document.getElementById(dom_id)
+      //console.log(field, dom_id, box, program_settings.compare_fields[field])
+      if (box) {
+        program_settings.compare_fields[field] = !box.checked
+      }
+    }
+    settings.set('program_settings', program_settings)
+  }
+
+  function get_ignored_fields() {
+    // return a list of fields to ignore
+    let ignore = []
+    for (let field of defined_specobject_fields) {
+      if (!program_settings.compare_fields[field]) {
+        ignore.push(field)
+      }
+    }
+    return ignore
   }
 
   var parser = new DOMParser();
@@ -1681,7 +1719,7 @@
   function compare_oreqm(oreqm_main, oreqm_ref) {
     // Both main and reference oreqm have been read.
     // Highlight new, changed and removed nodes in main oreqm (removed are added as 'ghosts')
-    let results = oreqm_main.compare_requirements(oreqm_ref)
+    let results = oreqm_main.compare_requirements(oreqm_ref, get_ignored_fields())
     let new_search_array = []
     let raw_search = document.getElementById("search_regex").value.trim()
     // This is a hack, these prefixes are a hidden part of 'delta' reqs <id>, and a search term is constructed to find them
