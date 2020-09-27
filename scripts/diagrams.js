@@ -347,8 +347,8 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
       }
       if (subset.length > 1000) {
         showToast({
-          str: "More than 1000 nodes.\nGraph limited",
-          time: 5000,
+          str: "More than 1000 specobjects.\nGraph is limited to 1st 1000 encountered.",
+          time: 10000,
           position: 'middle'
         })
         break; // hard limit on node count
