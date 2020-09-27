@@ -5,6 +5,7 @@ import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
 import Doctype from './doctypes.js'
 import { remote } from 'electron'
+import showToast from 'show-toast';
 import fs from 'fs'
 
 var accepted_safety_class_links_re = [
@@ -298,6 +299,18 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return epilogue;
   }
 
+  get_format_node(req_id, ghost) {
+    let node
+    if (this.format_cache.has(req_id)) {
+      node = this.format_cache.get(req_id)
+      //console.log('cache hit: ', req_id)
+    } else {
+      node = format_node(req_id, this.requirements.get(req_id), ghost, this)
+      this.format_cache.set(req_id, node)
+    }
+    return node
+  }
+
   create_graph(selection_function, top_doctype, title, highlights) {
     // Return a 'dot' compatible graph with the subset of nodes nodes
     // accepted by the selection_function.
@@ -332,6 +345,14 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           selected_nodes.push(req_id)
         }
       }
+      if (subset.length > 1000) {
+        showToast({
+          str: "More than 1000 specobjects.\nGraph is limited to 1st 1000 encountered.",
+          time: 10000,
+          position: 'middle'
+        })
+        break; // hard limit on node count
+      }
     }
     let show_top = this.doctypes.has(top_doctype) && !this.excluded_doctypes.includes(top_doctype)
     if (show_top) {
@@ -340,7 +361,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     for (const req_id of subset) {
         // nodes
         const ghost = this.removed_reqs.includes(req_id)
-        let node = format_node(req_id, this.requirements.get(req_id), ghost, this)
+        let node = this.get_format_node(req_id, ghost) // format_node(req_id, this.requirements.get(req_id), ghost, this)
         let dot_id = req_id //.replace(/\./g, '_').replace(' ', '_')
         if (this.new_reqs.includes(req_id)) {
           node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)

@@ -44,6 +44,7 @@
     "electron-settings": "^3.2.0",
     "electron-updater": "^4.3.5",
     "shell": "^0.5.0",
+    "show-toast": "^1.1.4",
     "split.js": "^1.6.2",
     "svg-pan-zoom": "^3.6.0",
     "viz.js": "^1.8.2"

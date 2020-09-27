@@ -107,6 +107,7 @@ export default class ReqM2Specobjects {
     this.visible_nodes = new Map(); // {doctype:[id]}
     this.problems = []             // [ Str ] problems reports
     this.search_cache = new Map()  // Cache tagged string versions
+    this.format_cache = new Map()  // Cache 'dot' formatted nodes
     this.dot = 'digraph "" {label="Select filter criteria and exclusions, then click\\l                    [update graph]\\l(Unfiltered graphs may be too large to render)"\n  labelloc=b\n  fontsize=24\n  fontcolor=grey\n  fontname="Arial"\n}\n'
 
     // Initialization logic
