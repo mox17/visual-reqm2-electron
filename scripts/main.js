@@ -5,6 +5,7 @@
   import Viz from 'viz.js'
   import { ipcRenderer, remote, clipboard, nativeImage, shell } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
+  import settings from 'electron-settings'
   import fs from 'fs'
   let mainWindow = remote.getCurrentWindow();
 
@@ -83,11 +84,16 @@
     show_problems()
   });
 
+  ipcRenderer.on('open_settings', (item, window, key_ev) => {
+    open_settings()
+  });
+
   ipcRenderer.on('argv', (event, parameters, args) => {
     let ok = true;
     let main = false;
     let ref = false;
 
+    handle_settings()
     /*
     let c_args = ''
     for (let i = 0; i < parameters.length; i++) {
@@ -122,15 +128,86 @@
     }
   });
 
+  function handle_settings() {
+    if (settings.has('program_settings')) {
+      program_settings = settings.get('program_settings')
+    } else {
+      // Establish default settings
+      program_settings = {
+        compare_fields: {
+          id: true,
+          comment: true,
+          dependson: true,
+          description: true,
+          doctype: true,
+          fulfilledby: true,
+          furtherinfo: true,
+          linksto: true,
+          needsobj: true,
+          platform: true,
+          rationale: true,
+          safetyclass: true,
+          safetyrationale: true,
+          shortdesc: true,
+          source: true,
+          sourcefile: false,
+          sourceline: false,
+          status: true,
+          tags: true,
+          usecase: true,
+          verifycrit: true,
+          version: true
+        }
+      }
+      settings.set('program_settings', program_settings)
+    }
+    console.log(program_settings)
+    settings_dialog_prepare()
+  }
+
+  function settings_dialog_prepare() {
+    const defined_flags = [
+      'id',
+      'comment',
+      'dependson',
+      'description',
+      'doctype',
+      'fulfilledby',
+      'furtherinfo',
+      'linksto',
+      'needsobj',
+      'platform',
+      'rationale',
+      'safetyclass',
+      'safetyrationale',
+      'shortdesc',
+      'source',
+      'sourcefile',
+      'sourceline',
+      'status',
+      'tags',
+      'usecase',
+      'verifycrit',
+      'version']
+    for (let field of defined_flags) {
+      let dom_id = "sett_ignore_{}".format(field)
+      let box = document.getElementById(dom_id)
+      console.log(field, dom_id, box, program_settings.compare_fields[field])
+      if (box) {
+        box.checked = !program_settings.compare_fields[field]
+      }
+    }
+  }
+
   var parser = new DOMParser();
   var vizjs_worker;
   var svg_result;
+  var program_settings = null
   var oreqm_main
   var oreqm_ref
   var image_type = 'none'
   var image_mime = ''
   var image_data = ''
-  var image_data_url = ''
   var auto_update = true
   var no_rejects = true
   var search_pattern = '' // regex for matching requirements
@@ -1176,6 +1253,15 @@
     problemPopup.style.display = "none";
   }
 
+  var settingsPopup = document.getElementById("settingsPopup");
+
+  var settingsPopupClose = document.getElementById("settingsPopupClose");
+
+  // When the user clicks on <span> (x), close the modal
+  settingsPopupClose.onclick = function() {
+    settingsPopup.style.display = "none";
+  }
+
   // When the user clicks anywhere outside of the modal, close it
   window.onbeforeunload = function() {
     return //"Graph is going away..."
@@ -1189,8 +1275,10 @@
       nodeSource.style.display = "none";
     } else if (event.target == problemPopup) {
       problemPopup.style.display = "none";
-    }
+    } else if (event.target == settingsPopup) {
+      settingsPopup.style.display = "none";
   }
+}
 
   // Selection/deselection of nodes by right-clicking the diagram
   document.getElementById('menu_select').addEventListener("click", function() {
@@ -1262,6 +1350,11 @@
   function clear_excluded_ids() {
     document.getElementById("excluded_ids").value = ""
     filter_change()
+  }
+
+  function open_settings() {
+
+    settingsPopup.style.display = "block";
   }
 
   function center_node(node_name) {
