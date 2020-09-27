@@ -130,6 +130,11 @@ function createWindow() {
         { role: 'cut' },
         { role: 'copy' },
         { role: 'paste' },
+        {type: 'separator'},
+        {
+          label:'Settings...',
+          click (item, focusedWindow, ev) { mainWindow.webContents.send('open_settings')}
+        }
       ]
     },
     {

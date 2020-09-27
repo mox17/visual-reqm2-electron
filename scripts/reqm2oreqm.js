@@ -79,7 +79,17 @@ function get_fulfilledby(node) {
   return ff_list
 }
 
-function stringEqual(a, b) {
+function stringEqual(a_in, b_in, ignore_list) {
+  let a = Object.assign({}, a_in)
+  let b = Object.assign({}, b_in)
+  //console.log(typeof(a), a, typeof(b), b)
+  if (typeof(a) === 'object' && typeof(b) === 'object') {
+    for (let field of ignore_list) {
+      // force ignored fields empty
+      a[field] = '';
+      b[field] = '';
+    }
+  }
   const a_s = JSON.stringify(a)
   const b_s = JSON.stringify(b)
   return a_s === b_s
@@ -186,8 +196,8 @@ export default class ReqM2Specobjects {
       req.safetyrationale = get_xml_text(comp, 'safetyrationale'),
       req.shortdesc       = get_xml_text(comp, 'shortdesc'),
       req.source          = get_xml_text(comp, 'source'),
-      req.sourcefile      = "" // this breaks comparisons // get_xml_text(comp, 'sourcefile'),
-      req.sourceline      = "" // this breaks comparisons // get_xml_text(comp, 'sourceline'),
+      req.sourcefile      = get_xml_text(comp, 'sourcefile'),
+      req.sourceline      = get_xml_text(comp, 'sourceline'),
       req.status          = get_xml_text(comp, 'status'),
       req.tags            = get_list_of(comp, 'tag'),
       req.usecase         = get_xml_text(comp, 'usecase'),
@@ -441,9 +451,10 @@ export default class ReqM2Specobjects {
     if (find_again) {
       this.find_links()
     }
+    this.search_cache = new Map() // clear search cache
   }
 
-  compare_requirements(old_reqs) {
+  compare_requirements(old_reqs, ignore_fields) {
     // Compare two sets of requirements (instances of ReqM2Oreqm)
     // and return lists of new, modified and removed <id>s"""
     // Requirements with no description are ignored
@@ -459,7 +470,7 @@ export default class ReqM2Specobjects {
         continue;
       }
       // compare json versions
-      if (stringEqual(this.requirements.get(req_id), old_reqs.requirements.get(req_id))) {
+      if (stringEqual(this.requirements.get(req_id), old_reqs.requirements.get(req_id), ignore_fields)) {
         continue // skip unchanged or nondescript reqs
       }
       if (old_reqs.requirements.has(req_id)) {
@@ -771,6 +782,8 @@ export default class ReqM2Specobjects {
       optional    += this.get_tag_text_formatted(rec, 'safetyrationale', indent)
       optional    += this.get_tag_text_formatted(rec, 'verifycrit', indent)
       optional    += this.get_tag_text_formatted(rec, 'source', indent)
+      optional    += this.get_tag_text_formatted(rec, 'sourcefile', indent)
+      optional    += this.get_tag_text_formatted(rec, 'sourceline', indent)
       optional    += this.get_list_formatted(rec, 'tags', indent)
       optional    += this.get_list_formatted(rec, 'fulfilledby', indent)
       optional    += this.get_list_formatted(rec, 'platform', indent)

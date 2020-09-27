@@ -5,6 +5,7 @@
   import Viz from 'viz.js'
   import { ipcRenderer, remote, clipboard, nativeImage, shell } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
+  import settings from 'electron-settings'
   import fs from 'fs'
   let mainWindow = remote.getCurrentWindow();
 
@@ -83,11 +84,16 @@
     show_problems()
   });
 
+  ipcRenderer.on('open_settings', (item, window, key_ev) => {
+    open_settings()
+  });
+
   ipcRenderer.on('argv', (event, parameters, args) => {
     let ok = true;
     let main = false;
     let ref = false;
 
+    handle_settings()
     /*
     let c_args = ''
     for (let i = 0; i < parameters.length; i++) {
@@ -122,15 +128,124 @@
     }
   });
 
+  function handle_settings() {
+    if (settings.has('program_settings')) {
+      program_settings = settings.get('program_settings')
+    } else {
+      // Establish default settings
+      program_settings = {
+        compare_fields: {
+          id: true,
+          comment: true,
+          dependson: true,
+          description: true,
+          doctype: true,
+          fulfilledby: true,
+          furtherinfo: true,
+          linksto: true,
+          needsobj: true,
+          platform: true,
+          rationale: true,
+          safetyclass: true,
+          safetyrationale: true,
+          shortdesc: true,
+          source: true,
+          sourcefile: false,
+          sourceline: false,
+          status: true,
+          tags: true,
+          usecase: true,
+          verifycrit: true,
+          version: true,
+          violations: false
+        }
+      }
+      settings.set('program_settings', program_settings)
+    }
+    //console.log(program_settings)
+    settings_dialog_prepare()
+
+    document.getElementById('sett_ok').addEventListener("click", function() {
+      settings_dialog_results();
+      settingsPopup.style.display = "none";
+    });
+
+    document.getElementById('sett_cancel').addEventListener("click", function() {
+      settingsPopup.style.display = "none";
+    });
+  }
+
+  const defined_specobject_fields = [
+    'id',
+    'comment',
+    'dependson',
+    'description',
+    'doctype',
+    'fulfilledby',
+    'furtherinfo',
+    'linksto',
+    'needsobj',
+    'platform',
+    'rationale',
+    'safetyclass',
+    'safetyrationale',
+    'shortdesc',
+    'source',
+    'sourcefile',
+    'sourceline',
+    'status',
+    'tags',
+    'usecase',
+    'verifycrit',
+    'version',
+    'violations'
+  ];
+
+  function settings_dialog_prepare() {
+    // Set the checkboxes to reflect program_settings.compare_fields object
+    for (let field of defined_specobject_fields) {
+      let dom_id = "sett_ignore_{}".format(field)
+      let box = document.getElementById(dom_id)
+      //console.log(field, dom_id, box, program_settings.compare_fields[field])
+      if (box) {
+        box.checked = !program_settings.compare_fields[field]
+      }
+    }
+  }
+
+  function settings_dialog_results() {
+    // Set program_settings.compare_fields object according to the checkboxes
+    for (let field of defined_specobject_fields) {
+      let dom_id = "sett_ignore_{}".format(field)
+      let box = document.getElementById(dom_id)
+      //console.log(field, dom_id, box, program_settings.compare_fields[field])
+      if (box) {
+        program_settings.compare_fields[field] = !box.checked
+      }
+    }
+    settings.set('program_settings', program_settings)
+  }
+
+  function get_ignored_fields() {
+    // return a list of fields to ignore
+    let ignore = []
+    for (let field of defined_specobject_fields) {
+      if (!program_settings.compare_fields[field]) {
+        ignore.push(field)
+      }
+    }
+    return ignore
+  }
+
   var parser = new DOMParser();
   var vizjs_worker;
   var svg_result;
+  var program_settings = null
   var oreqm_main
   var oreqm_ref
   var image_type = 'none'
   var image_mime = ''
   var image_data = ''
-  var image_data_url = ''
   var auto_update = true
   var no_rejects = true
   var search_pattern = '' // regex for matching requirements
@@ -1176,6 +1291,15 @@
     problemPopup.style.display = "none";
   }
 
+  var settingsPopup = document.getElementById("settingsPopup");
+
+  var settingsPopupClose = document.getElementById("settingsPopupClose");
+
+  // When the user clicks on <span> (x), close the modal
+  settingsPopupClose.onclick = function() {
+    settingsPopup.style.display = "none";
+  }
+
   // When the user clicks anywhere outside of the modal, close it
   window.onbeforeunload = function() {
     return //"Graph is going away..."
@@ -1189,8 +1313,10 @@
       nodeSource.style.display = "none";
     } else if (event.target == problemPopup) {
       problemPopup.style.display = "none";
-    }
+    } else if (event.target == settingsPopup) {
+      settingsPopup.style.display = "none";
   }
+}
 
   // Selection/deselection of nodes by right-clicking the diagram
   document.getElementById('menu_select').addEventListener("click", function() {
@@ -1262,6 +1388,11 @@
   function clear_excluded_ids() {
     document.getElementById("excluded_ids").value = ""
     filter_change()
+  }
+
+  function open_settings() {
+
+    settingsPopup.style.display = "block";
   }
 
   function center_node(node_name) {
@@ -1588,7 +1719,7 @@
   function compare_oreqm(oreqm_main, oreqm_ref) {
     // Both main and reference oreqm have been read.
     // Highlight new, changed and removed nodes in main oreqm (removed are added as 'ghosts')
-    let results = oreqm_main.compare_requirements(oreqm_ref)
+    let results = oreqm_main.compare_requirements(oreqm_ref, get_ignored_fields())
     let new_search_array = []
     let raw_search = document.getElementById("search_regex").value.trim()
     // This is a hack, these prefixes are a hidden part of 'delta' reqs <id>, and a search term is constructed to find them
