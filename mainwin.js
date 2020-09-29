@@ -100,12 +100,12 @@ function createWindow() {
           click (item, focusedWindow, ev) { mainWindow.webContents.send('save_colors')}
         },
         {
-          label:'Load color scheme',
+          label:'Load color scheme...',
           click (item, focusedWindow, ev) { mainWindow.webContents.send('load_colors')}
         },
         {type: 'separator'},
         {
-          label:'Load coverage rules',
+          label:'Load coverage rules...',
           click (item, focusedWindow, ev) { mainWindow.webContents.send('load_safety')}
         },
         {type: 'separator'},

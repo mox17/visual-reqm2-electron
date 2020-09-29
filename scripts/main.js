@@ -131,6 +131,13 @@
   function handle_settings() {
     if (settings.has('program_settings')) {
       program_settings = settings.get('program_settings')
+      // New options are added here with default values when reading settings from previous version
+      if (! ('max_calc_nodes' in program_settings)) {
+        program_settings.max_calc_nodes = 1000;
+      }
+      if (! ('show_coverage' in program_settings)) {
+        program_settings.show_coverage = false;
+      }
     } else {
       // Establish default settings
       program_settings = {
@@ -158,7 +165,9 @@
           verifycrit: true,
           version: true,
           violations: false
-        }
+        },
+        max_calc_nodes: 1000,
+        show_coverage: false
       }
       settings.set('program_settings', program_settings)
     }
@@ -211,6 +220,15 @@
         box.checked = !program_settings.compare_fields[field]
       }
     }
+    let box = document.getElementById('sett_show_coverage')
+    if (box) {
+      box.checked = program_settings.show_coverage
+    }
+    box = document.getElementById('sett_max_calc_nodes')
+    if (box) {
+      //console.log(program_settings.max_calc_nodes)
+      box.value = program_settings.max_calc_nodes.toString()
+    }
   }
 
   function settings_dialog_results() {
@@ -223,6 +241,10 @@
         program_settings.compare_fields[field] = !box.checked
       }
     }
+    let box = document.getElementById('sett_show_coverage')
+    program_settings.show_coverage = box.checked
+    box = document.getElementById('sett_max_calc_nodes')
+    program_settings.max_calc_nodes = parseInt(box.value)
     settings.set('program_settings', program_settings)
   }
 
@@ -1586,9 +1608,9 @@
     }
   }
 
-  document.getElementById('load_safety_rules').addEventListener("click", function() {
-    load_safety_rules()
-  });
+  //document.getElementById('load_safety_rules').addEventListener("click", function() {
+  //  load_safety_rules()
+  //});
 
   function src_add_plus_minus(part) {
     // Add git style '+', '-' in front of changed lines.
@@ -1693,17 +1715,17 @@
     }
   }
 
-  document.getElementById('load_color_scheme').addEventListener("click", function() {
-    load_color_scheme()
-  });
+  //document.getElementById('load_color_scheme').addEventListener("click", function() {
+  //  load_color_scheme()
+  //});
 
   function load_color_scheme() {
     load_colors(update_doctype_table)
   }
 
-  document.getElementById('save_colors').addEventListener("click", function() {
-    save_colors()
-  });
+  //document.getElementById('save_colors').addEventListener("click", function() {
+  //  save_colors()
+  //});
 
   document.getElementById('no_rejects').addEventListener("click", function() {
     no_rejects_click()

@@ -94,11 +94,6 @@
           <button type="button" id="invert_exclude" >invert exclude</button>
           <p/>
           <div id="doctype_table"></div>
-          <p/>
-          <button type="button" id="save_colors" title="Save current colors as .json file">save colors</button>
-          <button type="button" id="load_color_scheme" title="Load new colors from .json file">load colors</button>
-          <hr>
-          <button type="button" id="load_safety_rules" title="Load set of safetyclass regex checks from .json file">load cov. rules</button>
         </div>
         <div id="graph" class="split">
           <div id="options">
@@ -222,32 +217,41 @@
       <div class="modal-content row">
         <div><span id="settingsPopupClose" class="close">&times;</span></div>
         <hr>
-        <div id="settings_list" style="overflow-y: auto; height:600px; ">
-          <div>
-            <h1>Settings</h1>
-            <h3>Fields to ignore in comparisons between oreqm files</h3><br/>
-            <input type="checkbox" id="sett_ignore_comment" title="Ignore differences of comment">comment</button><br/>
-            <input type="checkbox" id="sett_ignore_dependson" title="Ignore differences of dependson">dependson</button><br/>
-            <input type="checkbox" id="sett_ignore_description" title="Ignore differences of description">description</button><br/>
-            <input type="checkbox" id="sett_ignore_fulfilledby" title="Ignore differences of fulfilledby">fulfilledby</button><br/>
-            <input type="checkbox" id="sett_ignore_furtherinfo" title="Ignore differences of furtherinfo">furtherinfo</button><br/>
-            <input type="checkbox" id="sett_ignore_linksto" title="Ignore differences of linksto">linksto</button><br/>
-            <input type="checkbox" id="sett_ignore_needsobj" title="Ignore differences of needsobj">needsobj</button><br/>
-            <input type="checkbox" id="sett_ignore_platform" title="Ignore differences of platform">platform</button><br/>
-            <input type="checkbox" id="sett_ignore_rationale" title="Ignore differences of rationale">rationale</button><br/>
-            <input type="checkbox" id="sett_ignore_safetyclass" title="Ignore differences of safetyclass">safetyclass</button><br/>
-            <input type="checkbox" id="sett_ignore_safetyrationale" title="Ignore differences of safetyrationale">safetyrationale</button><br/>
-            <input type="checkbox" id="sett_ignore_shortdesc" title="Ignore differences of shortdesc">shortdesc</button><br/>
-            <input type="checkbox" id="sett_ignore_source" title="Ignore differences of source">source</button><br/>
-            <input type="checkbox" id="sett_ignore_sourcefile" title="Ignore differences of sourcefile">sourcefile</button><br/>
-            <input type="checkbox" id="sett_ignore_sourceline" title="Ignore differences of sourceline">sourceline</button><br/>
-            <input type="checkbox" id="sett_ignore_status" title="Ignore differences of status">status</button><br/>
-            <input type="checkbox" id="sett_ignore_tags" title="Ignore differences of tags">tags</button><br/>
-            <input type="checkbox" id="sett_ignore_usecase" title="Ignore differences of usecase">usecase</button><br/>
-            <input type="checkbox" id="sett_ignore_verifycrit" title="Ignore differences of verifycrit">verifycrit</button><br/>
-            <input type="checkbox" id="sett_ignore_version" title="Ignore differences of version">version</button><br/>
-            <input type="checkbox" id="sett_ignore_violations" title="Ignore differences of violations">violations</button><br/>
+        <div class="row">
+          <h1>Settings</h1>
+          <div class="column3" id="settings_list" style="overflow-y: auto; height:600px; ">
+              <h4>Fields to ignore in comparisons between oreqm files</h4><br/>
+              <input type="checkbox" id="sett_ignore_comment" title="Ignore differences of comment"> comment</button><br/>
+              <input type="checkbox" id="sett_ignore_dependson" title="Ignore differences of dependson"> dependson</button><br/>
+              <input type="checkbox" id="sett_ignore_description" title="Ignore differences of description"> description</button><br/>
+              <input type="checkbox" id="sett_ignore_fulfilledby" title="Ignore differences of fulfilledby"> fulfilledby</button><br/>
+              <input type="checkbox" id="sett_ignore_furtherinfo" title="Ignore differences of furtherinfo"> furtherinfo</button><br/>
+              <input type="checkbox" id="sett_ignore_linksto" title="Ignore differences of linksto"> linksto</button><br/>
+              <input type="checkbox" id="sett_ignore_needsobj" title="Ignore differences of needsobj"> needsobj</button><br/>
+              <input type="checkbox" id="sett_ignore_platform" title="Ignore differences of platform"> platform</button><br/>
+              <input type="checkbox" id="sett_ignore_rationale" title="Ignore differences of rationale"> rationale</button><br/>
+              <input type="checkbox" id="sett_ignore_safetyclass" title="Ignore differences of safetyclass"> safetyclass</button><br/>
+              <input type="checkbox" id="sett_ignore_safetyrationale" title="Ignore differences of safetyrationale"> safetyrationale</button><br/>
+              <input type="checkbox" id="sett_ignore_shortdesc" title="Ignore differences of shortdesc"> shortdesc</button><br/>
+              <input type="checkbox" id="sett_ignore_source" title="Ignore differences of source"> source</button><br/>
+              <input type="checkbox" id="sett_ignore_sourcefile" title="Ignore differences of sourcefile"> sourcefile</button><br/>
+              <input type="checkbox" id="sett_ignore_sourceline" title="Ignore differences of sourceline"> sourceline</button><br/>
+              <input type="checkbox" id="sett_ignore_status" title="Ignore differences of status"> status</button><br/>
+              <input type="checkbox" id="sett_ignore_tags" title="Ignore differences of tags"> tags</button><br/>
+              <input type="checkbox" id="sett_ignore_usecase" title="Ignore differences of usecase"> usecase</button><br/>
+              <input type="checkbox" id="sett_ignore_verifycrit" title="Ignore differences of verifycrit"> verifycrit</button><br/>
+              <input type="checkbox" id="sett_ignore_version" title="Ignore differences of version"> version</button><br/>
+              <input type="checkbox" id="sett_ignore_violations" title="Ignore differences of violations"> violations</button><br/>
           </div>
+          <div class="column3">
+            <h4>Coverage settings</h4><br/>
+            <input type="checkbox" id="sett_show_coverage" title="Coverage status as extra colored row on specobjects"> Show coverage</button><br/>
+          </div>
+          <div class="column3">
+            <h4>UI settings</h4><br/>
+            <label for="sett_max_calc_nodes">Max number of calculated nodes (default 1000):</label>
+            <input type="number" id="sett_max_calc_nodes" name="sett_max_calc_nodes" min="500" max="5000">
+          </div> -->
         </div>
         <button type="button" id="sett_ok" >OK</button>
         <button type="button" id="sett_cancel" >Cancel</button>
