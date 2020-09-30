@@ -245,13 +245,16 @@
           </div>
           <div class="column3">
             <h4>Coverage settings</h4><br/>
-            <input type="checkbox" id="sett_show_coverage" title="Coverage status as extra colored row on specobjects"> Show coverage</button><br/>
+            <input type="checkbox" id="sett_show_coverage" title="Coverage status as extra&#13;colored row on specobjects"> Show coverage</button><br/>
           </div>
           <div class="column3">
             <h4>UI settings</h4><br/>
             <label for="sett_max_calc_nodes">Max number of calculated nodes (default 1000):</label>
-            <input type="number" id="sett_max_calc_nodes" name="sett_max_calc_nodes" min="500" max="5000">
-          </div> -->
+            <input type="number" id="sett_max_calc_nodes" name="sett_max_calc_nodes" min="500" max="5000" title="Max # of nodes in diagram."><br/>
+            <label for="top_doctypes">Top doctypes:</label>
+            <input type="text" id="top_doctypes" name="top_doctypes" maxlength="30"
+              title="Comma separated list of optional doctypes&#13;to connect to common top (controls layout)"><br/>
+          </div>
         </div>
         <button type="button" id="sett_ok" >OK</button>
         <button type="button" id="sett_cancel" >Cancel</button>

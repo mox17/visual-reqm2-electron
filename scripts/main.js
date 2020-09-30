@@ -138,6 +138,9 @@
       if (! ('show_coverage' in program_settings)) {
         program_settings.show_coverage = false;
       }
+      if (! ('top_doctypes' in program_settings)) {
+        program_settings.top_doctypes = ['reqspec1'];
+      }
     } else {
       // Establish default settings
       program_settings = {
@@ -167,7 +170,8 @@
           violations: false
         },
         max_calc_nodes: 1000,
-        show_coverage: false
+        show_coverage: false,
+        top_doctypes: ['reqspec1']
       }
       settings.set('program_settings', program_settings)
     }
@@ -229,6 +233,11 @@
       //console.log(program_settings.max_calc_nodes)
       box.value = program_settings.max_calc_nodes.toString()
     }
+    box = document.getElementById('top_doctypes')
+    if (box) {
+      //console.log(program_settings.max_calc_nodes)
+      box.value = program_settings.top_doctypes.join(',')
+    }
   }
 
   function settings_dialog_results() {
@@ -245,6 +254,9 @@
     program_settings.show_coverage = box.checked
     box = document.getElementById('sett_max_calc_nodes')
     program_settings.max_calc_nodes = parseInt(box.value)
+    box = document.getElementById('top_doctypes')
+    program_settings.top_doctypes = box.value.split(",")
+    //console.log(program_settings.top_doctypes)
     settings.set('program_settings', program_settings)
   }
 
@@ -1114,9 +1126,10 @@
         let title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, "")
         const graph = oreqm_main.create_graph(
           select_all,
-          "reqspec1",
+          program_settings.top_doctypes,
           title,
-          []);
+          [],
+          program_settings.max_calc_nodes);
         set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
         updateGraph();
       }
@@ -1221,7 +1234,11 @@
     var results = oreqm_main.find_reqs_with_name(regex)
     oreqm_main.clear_colors()
     oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
-    const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), results)
+    const graph = oreqm_main.create_graph(select_color,
+                                          program_settings.top_doctypes,
+                                          oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+                                          results,
+                                          program_settings.max_calc_nodes)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1230,7 +1247,11 @@
     var results = oreqm_main.find_reqs_with_text(regex)
     oreqm_main.clear_colors()
     oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
-    const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), results)
+    const graph = oreqm_main.create_graph(select_color,
+                                          program_settings.top_doctypes,
+                                          oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+                                          results,
+                                          program_settings.max_calc_nodes)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1757,7 +1778,11 @@
     }
     document.getElementById("search_regex").value = raw_search
     //console.log(results)
-    const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), [])
+    const graph = oreqm_main.create_graph(select_color,
+                                          program_settings.top_doctypes,
+                                          oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+                                          [],
+                                          program_settings.max_calc_nodes)
     return graph
   }
 

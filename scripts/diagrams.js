@@ -311,7 +311,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return node
   }
 
-  create_graph(selection_function, top_doctype, title, highlights) {
+  create_graph(selection_function, top_doctypes, title, highlights, max_nodes) {
     // Return a 'dot' compatible graph with the subset of nodes nodes
     // accepted by the selection_function.
     // The 'TOP' node forces a sensible layout for highest level requirements
@@ -345,7 +345,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           selected_nodes.push(req_id)
         }
       }
-      if (subset.length > 1000) {
+      if (subset.length > max_nodes) {
         showToast({
           str: "More than 1000 specobjects.\nGraph is limited to 1st 1000 encountered.",
           time: 10000,
@@ -354,7 +354,12 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
         break; // hard limit on node count
       }
     }
-    let show_top = this.doctypes.has(top_doctype) && !this.excluded_doctypes.includes(top_doctype)
+    let show_top = false
+    for (let top_dt of top_doctypes) {
+      if (this.doctypes.has(top_dt) && !this.excluded_doctypes.includes(top_dt)) {
+        show_top = true;
+      }
+    }
     if (show_top) {
       graph += '  "TOP" [fontcolor=lightgray];\n\n'
     }
@@ -379,7 +384,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     graph += '\n  # Edges\n'
     if (show_top) {
       for (const req_id of subset) {
-        if (this.requirements.get(req_id).doctype === top_doctype) {
+        if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
           graph += format_edge(req_id, 'TOP')
         }
       }
