@@ -183,6 +183,7 @@ export default class ReqM2Specobjects {
       let req = new Object();
       req.id              = get_xml_text(comp, 'id');
       req.comment         = get_xml_text(comp, 'comment'),
+      req.covstatus       = get_xml_text(comp, 'covstatus'),
       req.dependson       = get_list_of(comp, 'dependson'),
       req.description     = get_xml_text(comp, 'description');
       req.doctype         = doctype,
@@ -451,7 +452,13 @@ export default class ReqM2Specobjects {
     if (find_again) {
       this.find_links()
     }
-    this.search_cache = new Map() // clear search cache
+    this.clear_cache()
+  }
+
+  clear_cache() {
+    // Clear cached node data
+    this.search_cache = new Map()
+    this.format_cache = new Map()
   }
 
   compare_requirements(old_reqs, ignore_fields) {
@@ -566,6 +573,7 @@ export default class ReqM2Specobjects {
         + '\nuc:' + rec.usecase
         + '\nvc:' + rec.verifycrit
         + '\nco:' + rec.comment
+        + '\ncs:' + rec.covstatus
         + '\n' + needsobj.join('\n')
         + '\n' + ffb.join('\n')
         + '\n' + tags.join('\n')

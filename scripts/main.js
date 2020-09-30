@@ -258,6 +258,10 @@
     program_settings.top_doctypes = box.value.split(",")
     //console.log(program_settings.top_doctypes)
     settings.set('program_settings', program_settings)
+    if (oreqm_main) {
+      // settings can affect the rendering, therefore cache must be flushed
+      oreqm_main.clear_cache()
+    }
   }
 
   function get_ignored_fields() {
@@ -1129,7 +1133,8 @@
           program_settings.top_doctypes,
           title,
           [],
-          program_settings.max_calc_nodes);
+          program_settings.max_calc_nodes,
+          program_settings.show_coverage);
         set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
         updateGraph();
       }
@@ -1238,7 +1243,8 @@
                                           program_settings.top_doctypes,
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
                                           results,
-                                          program_settings.max_calc_nodes)
+                                          program_settings.max_calc_nodes,
+                                          program_settings.show_coverage)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1251,7 +1257,8 @@
                                           program_settings.top_doctypes,
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
                                           results,
-                                          program_settings.max_calc_nodes)
+                                          program_settings.max_calc_nodes,
+                                          program_settings.show_coverage)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1782,7 +1789,8 @@
                                           program_settings.top_doctypes,
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
                                           [],
-                                          program_settings.max_calc_nodes)
+                                          program_settings.max_calc_nodes,
+                                          program_settings.show_coverage)
     return graph
   }
 

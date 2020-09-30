@@ -130,7 +130,7 @@ function format_violations(vlist, rules) {
   return str
 }
 
-function format_node(node_id, rec, ghost, oreqm) {
+function format_node(node_id, rec, ghost, oreqm, show_coverage) {
   // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
@@ -141,11 +141,12 @@ function format_node(node_id, rec, ghost, oreqm) {
   let verifycrit      = rec.verifycrit      ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">{}</TD></TR>\n'.format(dot_format(rec.verifycrit)) : ''
   let comment         = rec.comment         ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: {}</TD></TR>\n'.format(dot_format(rec.comment)) : ''
   let source          = rec.source          ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">source: {}</TD></TR>\n'.format(dot_format(rec.source)) : ''
+  let covstatus = rec.covstatus && show_coverage ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">coverage: {}</TD></TR>\n'.format(dot_format(rec.covstatus)) : ''
   let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, rec.status) : ''
   node_table     = `
       <TABLE BGCOLOR="{}{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
         <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
+        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
                         get_color(rec.doctype),
                         ghost ? ':white' : '',
                         ghost ? 'grey' : 'black',
@@ -159,6 +160,7 @@ function format_node(node_id, rec, ghost, oreqm) {
                         furtherinfo,
                         source,
                         status,
+                        covstatus,
                         violations)
   let node = '  "{}" [id="{}" label=<{}>];\n'.format(node_id, node_id, node_table)
   return node
@@ -299,19 +301,19 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return epilogue;
   }
 
-  get_format_node(req_id, ghost) {
+  get_format_node(req_id, ghost, show_coverage) {
     let node
     if (this.format_cache.has(req_id)) {
       node = this.format_cache.get(req_id)
       //console.log('cache hit: ', req_id)
     } else {
-      node = format_node(req_id, this.requirements.get(req_id), ghost, this)
+      node = format_node(req_id, this.requirements.get(req_id), ghost, this, show_coverage)
       this.format_cache.set(req_id, node)
     }
     return node
   }
 
-  create_graph(selection_function, top_doctypes, title, highlights, max_nodes) {
+  create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage) {
     // Return a 'dot' compatible graph with the subset of nodes nodes
     // accepted by the selection_function.
     // The 'TOP' node forces a sensible layout for highest level requirements
@@ -347,7 +349,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
       }
       if (subset.length > max_nodes) {
         showToast({
-          str: "More than 1000 specobjects.\nGraph is limited to 1st 1000 encountered.",
+          str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
           time: 10000,
           position: 'middle'
         })
@@ -366,7 +368,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     for (const req_id of subset) {
         // nodes
         const ghost = this.removed_reqs.includes(req_id)
-        let node = this.get_format_node(req_id, ghost) // format_node(req_id, this.requirements.get(req_id), ghost, this)
+        let node = this.get_format_node(req_id, ghost, show_coverage) // format_node(req_id, this.requirements.get(req_id), ghost, this)
         let dot_id = req_id //.replace(/\./g, '_').replace(' ', '_')
         if (this.new_reqs.includes(req_id)) {
           node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
