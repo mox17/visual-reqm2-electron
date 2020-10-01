@@ -130,6 +130,14 @@ function format_violations(vlist, rules) {
   return str
 }
 
+function status_cell(rec, show_coverage) {
+  let cov_color = (rec.covstatus === 'covered') ? '' : (rec.covstatus === 'partially') ? 'BGCOLOR="yellow"' : 'BGCOLOR="red"'
+  let status_color = (rec.status === 'approved') ? '' : (rec.status === 'proposed') ? 'BGCOLOR="yellow"' :  'BGCOLOR="red"'
+  let covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : ''
+  let str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`
+  return str
+}
+
 function format_node(node_id, rec, ghost, oreqm, show_coverage) {
   // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
@@ -141,12 +149,11 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage) {
   let verifycrit      = rec.verifycrit      ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">{}</TD></TR>\n'.format(dot_format(rec.verifycrit)) : ''
   let comment         = rec.comment         ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: {}</TD></TR>\n'.format(dot_format(rec.comment)) : ''
   let source          = rec.source          ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">source: {}</TD></TR>\n'.format(dot_format(rec.source)) : ''
-  let covstatus = rec.covstatus && show_coverage ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">coverage: {}</TD></TR>\n'.format(dot_format(rec.covstatus)) : ''
-  let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, rec.status) : ''
+  let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, status_cell(rec, show_coverage)) : ''
   node_table     = `
       <TABLE BGCOLOR="{}{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
         <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
+        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
                         get_color(rec.doctype),
                         ghost ? ':white' : '',
                         ghost ? 'grey' : 'black',
@@ -160,7 +167,6 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage) {
                         furtherinfo,
                         source,
                         status,
-                        covstatus,
                         violations)
   let node = '  "{}" [id="{}" label=<{}>];\n'.format(node_id, node_id, node_table)
   return node
