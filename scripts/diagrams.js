@@ -130,7 +130,15 @@ function format_violations(vlist, rules) {
   return str
 }
 
-function format_node(node_id, rec, ghost, oreqm) {
+function status_cell(rec, show_coverage) {
+  let cov_color = (rec.covstatus === 'covered') ? '' : (rec.covstatus === 'partially') ? 'BGCOLOR="yellow"' : 'BGCOLOR="red"'
+  let status_color = (rec.status === 'approved') ? '' : (rec.status === 'proposed') ? 'BGCOLOR="yellow"' :  'BGCOLOR="red"'
+  let covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : ''
+  let str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`
+  return str
+}
+
+function format_node(node_id, rec, ghost, oreqm, show_coverage) {
   // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
@@ -141,7 +149,7 @@ function format_node(node_id, rec, ghost, oreqm) {
   let verifycrit      = rec.verifycrit      ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">{}</TD></TR>\n'.format(dot_format(rec.verifycrit)) : ''
   let comment         = rec.comment         ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: {}</TD></TR>\n'.format(dot_format(rec.comment)) : ''
   let source          = rec.source          ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">source: {}</TD></TR>\n'.format(dot_format(rec.source)) : ''
-  let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, rec.status) : ''
+  let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, status_cell(rec, show_coverage)) : ''
   node_table     = `
       <TABLE BGCOLOR="{}{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
         <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
@@ -299,19 +307,19 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return epilogue;
   }
 
-  get_format_node(req_id, ghost) {
+  get_format_node(req_id, ghost, show_coverage) {
     let node
     if (this.format_cache.has(req_id)) {
       node = this.format_cache.get(req_id)
       //console.log('cache hit: ', req_id)
     } else {
-      node = format_node(req_id, this.requirements.get(req_id), ghost, this)
+      node = format_node(req_id, this.requirements.get(req_id), ghost, this, show_coverage)
       this.format_cache.set(req_id, node)
     }
     return node
   }
 
-  create_graph(selection_function, top_doctype, title, highlights) {
+  create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage) {
     // Return a 'dot' compatible graph with the subset of nodes nodes
     // accepted by the selection_function.
     // The 'TOP' node forces a sensible layout for highest level requirements
@@ -345,23 +353,28 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           selected_nodes.push(req_id)
         }
       }
-      if (subset.length > 1000) {
+      if (subset.length > max_nodes) {
         showToast({
-          str: "More than 1000 specobjects.\nGraph is limited to 1st 1000 encountered.",
+          str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
           time: 10000,
           position: 'middle'
         })
         break; // hard limit on node count
       }
     }
-    let show_top = this.doctypes.has(top_doctype) && !this.excluded_doctypes.includes(top_doctype)
+    let show_top = false
+    for (let top_dt of top_doctypes) {
+      if (this.doctypes.has(top_dt) && !this.excluded_doctypes.includes(top_dt)) {
+        show_top = true;
+      }
+    }
     if (show_top) {
       graph += '  "TOP" [fontcolor=lightgray];\n\n'
     }
     for (const req_id of subset) {
         // nodes
         const ghost = this.removed_reqs.includes(req_id)
-        let node = this.get_format_node(req_id, ghost) // format_node(req_id, this.requirements.get(req_id), ghost, this)
+        let node = this.get_format_node(req_id, ghost, show_coverage) // format_node(req_id, this.requirements.get(req_id), ghost, this)
         let dot_id = req_id //.replace(/\./g, '_').replace(' ', '_')
         if (this.new_reqs.includes(req_id)) {
           node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
@@ -379,7 +392,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     graph += '\n  # Edges\n'
     if (show_top) {
       for (const req_id of subset) {
-        if (this.requirements.get(req_id).doctype === top_doctype) {
+        if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
           graph += format_edge(req_id, 'TOP')
         }
       }

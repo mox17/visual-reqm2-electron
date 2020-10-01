@@ -131,6 +131,16 @@
   function handle_settings() {
     if (settings.has('program_settings')) {
       program_settings = settings.get('program_settings')
+      // New options are added here with default values when reading settings from previous version
+      if (! ('max_calc_nodes' in program_settings)) {
+        program_settings.max_calc_nodes = 1000;
+      }
+      if (! ('show_coverage' in program_settings)) {
+        program_settings.show_coverage = false;
+      }
+      if (! ('top_doctypes' in program_settings)) {
+        program_settings.top_doctypes = ['reqspec1'];
+      }
     } else {
       // Establish default settings
       program_settings = {
@@ -158,7 +168,10 @@
           verifycrit: true,
           version: true,
           violations: false
-        }
+        },
+        max_calc_nodes: 1000,
+        show_coverage: false,
+        top_doctypes: ['reqspec1']
       }
       settings.set('program_settings', program_settings)
     }
@@ -211,6 +224,20 @@
         box.checked = !program_settings.compare_fields[field]
       }
     }
+    let box = document.getElementById('sett_show_coverage')
+    if (box) {
+      box.checked = program_settings.show_coverage
+    }
+    box = document.getElementById('sett_max_calc_nodes')
+    if (box) {
+      //console.log(program_settings.max_calc_nodes)
+      box.value = program_settings.max_calc_nodes.toString()
+    }
+    box = document.getElementById('top_doctypes')
+    if (box) {
+      //console.log(program_settings.max_calc_nodes)
+      box.value = program_settings.top_doctypes.join(',')
+    }
   }
 
   function settings_dialog_results() {
@@ -223,7 +250,18 @@
         program_settings.compare_fields[field] = !box.checked
       }
     }
+    let box = document.getElementById('sett_show_coverage')
+    program_settings.show_coverage = box.checked
+    box = document.getElementById('sett_max_calc_nodes')
+    program_settings.max_calc_nodes = parseInt(box.value)
+    box = document.getElementById('top_doctypes')
+    program_settings.top_doctypes = box.value.split(",")
+    //console.log(program_settings.top_doctypes)
     settings.set('program_settings', program_settings)
+    if (oreqm_main) {
+      // settings can affect the rendering, therefore cache must be flushed
+      oreqm_main.clear_cache()
+    }
   }
 
   function get_ignored_fields() {
@@ -1092,9 +1130,11 @@
         let title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, "")
         const graph = oreqm_main.create_graph(
           select_all,
-          "reqspec1",
+          program_settings.top_doctypes,
           title,
-          []);
+          [],
+          program_settings.max_calc_nodes,
+          program_settings.show_coverage);
         set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
         updateGraph();
       }
@@ -1199,7 +1239,12 @@
     var results = oreqm_main.find_reqs_with_name(regex)
     oreqm_main.clear_colors()
     oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
-    const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), results)
+    const graph = oreqm_main.create_graph(select_color,
+                                          program_settings.top_doctypes,
+                                          oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+                                          results,
+                                          program_settings.max_calc_nodes,
+                                          program_settings.show_coverage)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1208,7 +1253,12 @@
     var results = oreqm_main.find_reqs_with_text(regex)
     oreqm_main.clear_colors()
     oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
-    const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), results)
+    const graph = oreqm_main.create_graph(select_color,
+                                          program_settings.top_doctypes,
+                                          oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+                                          results,
+                                          program_settings.max_calc_nodes,
+                                          program_settings.show_coverage)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1586,9 +1636,9 @@
     }
   }
 
-  document.getElementById('load_safety_rules').addEventListener("click", function() {
-    load_safety_rules()
-  });
+  //document.getElementById('load_safety_rules').addEventListener("click", function() {
+  //  load_safety_rules()
+  //});
 
   function src_add_plus_minus(part) {
     // Add git style '+', '-' in front of changed lines.
@@ -1693,17 +1743,17 @@
     }
   }
 
-  document.getElementById('load_color_scheme').addEventListener("click", function() {
-    load_color_scheme()
-  });
+  //document.getElementById('load_color_scheme').addEventListener("click", function() {
+  //  load_color_scheme()
+  //});
 
   function load_color_scheme() {
     load_colors(update_doctype_table)
   }
 
-  document.getElementById('save_colors').addEventListener("click", function() {
-    save_colors()
-  });
+  //document.getElementById('save_colors').addEventListener("click", function() {
+  //  save_colors()
+  //});
 
   document.getElementById('no_rejects').addEventListener("click", function() {
     no_rejects_click()
@@ -1735,7 +1785,12 @@
     }
     document.getElementById("search_regex").value = raw_search
     //console.log(results)
-    const graph = oreqm_main.create_graph(select_color, "reqspec1", oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern), [])
+    const graph = oreqm_main.create_graph(select_color,
+                                          program_settings.top_doctypes,
+                                          oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+                                          [],
+                                          program_settings.max_calc_nodes,
+                                          program_settings.show_coverage)
     return graph
   }
 

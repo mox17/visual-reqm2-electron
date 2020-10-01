@@ -111,6 +111,7 @@ The combined string concatenates the raw text from xml tags with some prefixes i
 * `uc:<usecase>`
 * `vc:<verifycrit>`
 * `co:<comment>`
+* `cs:<covstatus>`
 * `tag:<tag>`
 * `plt:<platform>`
 * `id:<id>`
