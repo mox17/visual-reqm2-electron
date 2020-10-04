@@ -130,15 +130,15 @@ function format_violations(vlist, rules) {
   return str
 }
 
-function status_cell(rec, show_coverage) {
+function status_cell(rec, show_coverage, color_status) {
   let cov_color = (rec.covstatus === 'covered') ? '' : (rec.covstatus === 'partially') ? 'BGCOLOR="yellow"' : 'BGCOLOR="red"'
-  let status_color = (rec.status === 'approved') ? '' : (rec.status === 'proposed') ? 'BGCOLOR="yellow"' :  'BGCOLOR="red"'
+  let status_color = (!color_status || (rec.status === 'approved')) ? '' : (rec.status === 'proposed') ? 'BGCOLOR="yellow"' :  'BGCOLOR="red"'
   let covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : ''
   let str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`
   return str
 }
 
-function format_node(node_id, rec, ghost, oreqm, show_coverage) {
+function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
@@ -149,7 +149,7 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage) {
   let verifycrit      = rec.verifycrit      ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">{}</TD></TR>\n'.format(dot_format(rec.verifycrit)) : ''
   let comment         = rec.comment         ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: {}</TD></TR>\n'.format(dot_format(rec.comment)) : ''
   let source          = rec.source          ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">source: {}</TD></TR>\n'.format(dot_format(rec.source)) : ''
-  let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, status_cell(rec, show_coverage)) : ''
+  let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, status_cell(rec, show_coverage, color_status)) : ''
   node_table     = `
       <TABLE BGCOLOR="{}{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
         <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
@@ -307,19 +307,19 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return epilogue;
   }
 
-  get_format_node(req_id, ghost, show_coverage) {
+  get_format_node(req_id, ghost, show_coverage, color_status) {
     let node
     if (this.format_cache.has(req_id)) {
       node = this.format_cache.get(req_id)
       //console.log('cache hit: ', req_id)
     } else {
-      node = format_node(req_id, this.requirements.get(req_id), ghost, this, show_coverage)
+      node = format_node(req_id, this.requirements.get(req_id), ghost, this, show_coverage, color_status)
       this.format_cache.set(req_id, node)
     }
     return node
   }
 
-  create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage) {
+  create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage, color_status) {
     // Return a 'dot' compatible graph with the subset of nodes nodes
     // accepted by the selection_function.
     // The 'TOP' node forces a sensible layout for highest level requirements
@@ -374,7 +374,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     for (const req_id of subset) {
         // nodes
         const ghost = this.removed_reqs.includes(req_id)
-        let node = this.get_format_node(req_id, ghost, show_coverage) // format_node(req_id, this.requirements.get(req_id), ghost, this)
+        let node = this.get_format_node(req_id, ghost, show_coverage, color_status) // format_node(req_id, this.requirements.get(req_id), ghost, this)
         let dot_id = req_id //.replace(/\./g, '_').replace(' ', '_')
         if (this.new_reqs.includes(req_id)) {
           node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)

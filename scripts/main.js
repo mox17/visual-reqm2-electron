@@ -141,6 +141,9 @@
       if (! ('top_doctypes' in program_settings)) {
         program_settings.top_doctypes = ['reqspec1'];
       }
+      if (! ('color_status' in program_settings)) {
+        program_settings.color_status = false;
+      }
     } else {
       // Establish default settings
       program_settings = {
@@ -171,7 +174,8 @@
         },
         max_calc_nodes: 1000,
         show_coverage: false,
-        top_doctypes: ['reqspec1']
+        top_doctypes: ['reqspec1'],
+        color_status: false
       }
       settings.set('program_settings', program_settings)
     }
@@ -228,6 +232,10 @@
     if (box) {
       box.checked = program_settings.show_coverage
     }
+    box = document.getElementById('sett_color_status')
+    if (box) {
+      box.checked = program_settings.color_status
+    }
     box = document.getElementById('sett_max_calc_nodes')
     if (box) {
       //console.log(program_settings.max_calc_nodes)
@@ -252,6 +260,8 @@
     }
     let box = document.getElementById('sett_show_coverage')
     program_settings.show_coverage = box.checked
+    box = document.getElementById('sett_color_status')
+    program_settings.color_status = box.checked
     box = document.getElementById('sett_max_calc_nodes')
     program_settings.max_calc_nodes = parseInt(box.value)
     box = document.getElementById('top_doctypes')
@@ -1134,7 +1144,8 @@
           title,
           [],
           program_settings.max_calc_nodes,
-          program_settings.show_coverage);
+          program_settings.show_coverage,
+          program_settings.color_status);
         set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
         updateGraph();
       }
@@ -1244,7 +1255,8 @@
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
                                           results,
                                           program_settings.max_calc_nodes,
-                                          program_settings.show_coverage)
+                                          program_settings.show_coverage,
+                                          program_settings.color_status)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1258,7 +1270,8 @@
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
                                           results,
                                           program_settings.max_calc_nodes,
-                                          program_settings.show_coverage)
+                                          program_settings.show_coverage,
+                                          program_settings.color_status)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
     set_selection(graph.selected_nodes)
   }
@@ -1790,7 +1803,8 @@
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
                                           [],
                                           program_settings.max_calc_nodes,
-                                          program_settings.show_coverage)
+                                          program_settings.show_coverage,
+                                          program_settings.color_status)
     return graph
   }
 
@@ -1872,3 +1886,7 @@
     }
     return false;
   }
+
+  process.on('uncaughtException', function (err) {
+    console.log("uncaughtException:", err);
+  })
