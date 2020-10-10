@@ -550,18 +550,18 @@ export default class ReqM2Specobjects {
       // Get all text fields as combined string
       const rec = this.requirements.get(req_id)
       let id_str = this.decorate_id(req_id)
-      let ffb = []
+      let ffb = ''
       rec.fulfilledby.forEach(element =>
-        ffb.push('ffb:'+element[0]))
-      let tags = []
+        ffb += '\nffb:'+element[0])
+      let tags = ''
       rec.tags.forEach(element =>
-        tags.push('tag:'+element))
-      let plat = []
+        tags += '\ntag:'+element)
+      let plat = ''
       rec.platform.forEach(element =>
-        plat.push('plt:'+element))
-      let needsobj = []
+        plat += '\nplt:'+element)
+      let needsobj = ''
       rec.needsobj.forEach(element =>
-        needsobj.push('no:'+element))
+        needsobj += '\nno:'+element)
       let all_text = 'dt:' + rec.doctype
         + '\nst:' + rec.status
         + '\nde:' + rec.description
@@ -574,10 +574,10 @@ export default class ReqM2Specobjects {
         + '\nvc:' + rec.verifycrit
         + '\nco:' + rec.comment
         + '\ncs:' + rec.covstatus
-        + '\n' + needsobj.join('\n')
-        + '\n' + ffb.join('\n')
-        + '\n' + tags.join('\n')
-        + '\n' + plat.join('\n')
+        + needsobj
+        + ffb
+        + tags
+        + plat
         + '\nid:' + id_str;  // req_id is last to ensure regex search for <id>$ will succeed
 
       this.search_cache.set(req_id, all_text)
@@ -632,6 +632,11 @@ export default class ReqM2Specobjects {
   set_excluded_doctypes(doctypes) {
     // Set excluded doctypes
     this.excluded_doctypes = doctypes
+  }
+
+  get_excluded_doctypes() {
+    // Get excluded doctypes
+    return this.excluded_doctypes
   }
 
   set_excluded_ids(ids) {

@@ -1,12 +1,13 @@
   "use strict";
 
-  import ReqM2Oreqm, { xml_escape, load_safety_rules, load_safety_rules_fs } from './diagrams.js'
-  import get_color, { save_colors, save_colors_fs, load_colors, load_colors_fs } from './color.js'
+  import ReqM2Oreqm, { xml_escape, load_safety_rules_fs } from './diagrams.js'
+  import get_color, { save_colors_fs, load_colors_fs } from './color.js'
+  import { handle_settings, get_ignored_fields, program_settings } from './settings.js'
   import Viz from 'viz.js'
-  import { ipcRenderer, remote, clipboard, nativeImage, shell } from 'electron'
+  import { ipcRenderer, remote, clipboard, shell, app } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
-  import settings from 'electron-settings'
   import fs from 'fs'
+
   let mainWindow = remote.getCurrentWindow();
 
   // ------ utility functions and extensions --------
@@ -93,7 +94,7 @@
     let main = false;
     let ref = false;
 
-    handle_settings()
+    handle_settings(settings_updated)
     /*
     let c_args = ''
     for (let i = 0; i < parameters.length; i++) {
@@ -128,167 +129,17 @@
     }
   });
 
-  function handle_settings() {
-    if (settings.has('program_settings')) {
-      program_settings = settings.get('program_settings')
-      // New options are added here with default values when reading settings from previous version
-      if (! ('max_calc_nodes' in program_settings)) {
-        program_settings.max_calc_nodes = 1000;
-      }
-      if (! ('show_coverage' in program_settings)) {
-        program_settings.show_coverage = false;
-      }
-      if (! ('top_doctypes' in program_settings)) {
-        program_settings.top_doctypes = ['reqspec1'];
-      }
-      if (! ('color_status' in program_settings)) {
-        program_settings.color_status = false;
-      }
-    } else {
-      // Establish default settings
-      program_settings = {
-        compare_fields: {
-          id: true,
-          comment: true,
-          dependson: true,
-          description: true,
-          doctype: true,
-          fulfilledby: true,
-          furtherinfo: true,
-          linksto: true,
-          needsobj: true,
-          platform: true,
-          rationale: true,
-          safetyclass: true,
-          safetyrationale: true,
-          shortdesc: true,
-          source: true,
-          sourcefile: false,
-          sourceline: false,
-          status: true,
-          tags: true,
-          usecase: true,
-          verifycrit: true,
-          version: true,
-          violations: false
-        },
-        max_calc_nodes: 1000,
-        show_coverage: false,
-        top_doctypes: ['reqspec1'],
-        color_status: false
-      }
-      settings.set('program_settings', program_settings)
-    }
-    //console.log(program_settings)
-    settings_dialog_prepare()
-
-    document.getElementById('sett_ok').addEventListener("click", function() {
-      settings_dialog_results();
-      settingsPopup.style.display = "none";
-    });
-
-    document.getElementById('sett_cancel').addEventListener("click", function() {
-      settingsPopup.style.display = "none";
-    });
-  }
-
-  const defined_specobject_fields = [
-    'id',
-    'comment',
-    'dependson',
-    'description',
-    'doctype',
-    'fulfilledby',
-    'furtherinfo',
-    'linksto',
-    'needsobj',
-    'platform',
-    'rationale',
-    'safetyclass',
-    'safetyrationale',
-    'shortdesc',
-    'source',
-    'sourcefile',
-    'sourceline',
-    'status',
-    'tags',
-    'usecase',
-    'verifycrit',
-    'version',
-    'violations'
-  ];
-
-  function settings_dialog_prepare() {
-    // Set the checkboxes to reflect program_settings.compare_fields object
-    for (let field of defined_specobject_fields) {
-      let dom_id = "sett_ignore_{}".format(field)
-      let box = document.getElementById(dom_id)
-      //console.log(field, dom_id, box, program_settings.compare_fields[field])
-      if (box) {
-        box.checked = !program_settings.compare_fields[field]
-      }
-    }
-    let box = document.getElementById('sett_show_coverage')
-    if (box) {
-      box.checked = program_settings.show_coverage
-    }
-    box = document.getElementById('sett_color_status')
-    if (box) {
-      box.checked = program_settings.color_status
-    }
-    box = document.getElementById('sett_max_calc_nodes')
-    if (box) {
-      //console.log(program_settings.max_calc_nodes)
-      box.value = program_settings.max_calc_nodes.toString()
-    }
-    box = document.getElementById('top_doctypes')
-    if (box) {
-      //console.log(program_settings.max_calc_nodes)
-      box.value = program_settings.top_doctypes.join(',')
-    }
-  }
-
-  function settings_dialog_results() {
-    // Set program_settings.compare_fields object according to the checkboxes
-    for (let field of defined_specobject_fields) {
-      let dom_id = "sett_ignore_{}".format(field)
-      let box = document.getElementById(dom_id)
-      //console.log(field, dom_id, box, program_settings.compare_fields[field])
-      if (box) {
-        program_settings.compare_fields[field] = !box.checked
-      }
-    }
-    let box = document.getElementById('sett_show_coverage')
-    program_settings.show_coverage = box.checked
-    box = document.getElementById('sett_color_status')
-    program_settings.color_status = box.checked
-    box = document.getElementById('sett_max_calc_nodes')
-    program_settings.max_calc_nodes = parseInt(box.value)
-    box = document.getElementById('top_doctypes')
-    program_settings.top_doctypes = box.value.split(",")
-    //console.log(program_settings.top_doctypes)
-    settings.set('program_settings', program_settings)
+  function settings_updated() {
+    // callback when updated settings a taken into use
     if (oreqm_main) {
       // settings can affect the rendering, therefore cache must be flushed
       oreqm_main.clear_cache()
     }
   }
 
-  function get_ignored_fields() {
-    // return a list of fields to ignore
-    let ignore = []
-    for (let field of defined_specobject_fields) {
-      if (!program_settings.compare_fields[field]) {
-        ignore.push(field)
-      }
-    }
-    return ignore
-  }
-
   var parser = new DOMParser();
   var vizjs_worker;
   var svg_result;
-  var program_settings = null
   var oreqm_main
   var oreqm_ref
   var image_type = 'none'
@@ -726,6 +577,7 @@
       document.getElementById('menu_copy_ffb').classList.remove('custom-menu_disabled')
       document.getElementById('menu_exclude').classList.remove('custom-menu_disabled')
       document.getElementById('menu_xml_txt').classList.remove('custom-menu_disabled')
+      document.getElementById('menu_search_txt').classList.remove('custom-menu_disabled')
       if (selected_node_check(node_id)) {
         // it is a selected node
         document.getElementById('menu_select').classList.add('custom-menu_disabled')
@@ -742,6 +594,7 @@
       document.getElementById('menu_copy_id').classList.add('custom-menu_disabled')
       document.getElementById('menu_copy_ffb').classList.add('custom-menu_disabled')
       document.getElementById('menu_xml_txt').classList.add('custom-menu_disabled')
+      document.getElementById('menu_search_txt').classList.add('custom-menu_disabled')
     }
   }
 
@@ -785,7 +638,7 @@
   function display_doctypes_with_count(doctype_dict) {
     let doctype_names = Array.from(doctype_dict.keys())
     doctype_names.sort()
-    let excluded = get_excluded_doctypes() // so we can tick them again
+    let excluded = oreqm_main.get_excluded_doctypes() // so we can tick them again
     //console.log(doctype_names)
 
     const element = document.getElementById("dyn_doctype_table");
@@ -851,7 +704,7 @@
 
   function doctype_filter_change() {
     set_doctype_all_checkbox()
-    //console.log("doctype_filter_change")
+    //console.log("doctype_filter_change (click)")
     if (auto_update) {
       filter_graph()
     }
@@ -1051,7 +904,7 @@
         if (status && status.checked) {
           excluded_list.push(doctype)
         }
-        //console.log(doctype, status)
+        //console.log(doctype, status, status.checked)
       }
     }
     return excluded_list
@@ -1649,10 +1502,6 @@
     }
   }
 
-  //document.getElementById('load_safety_rules').addEventListener("click", function() {
-  //  load_safety_rules()
-  //});
-
   function src_add_plus_minus(part) {
     // Add git style '+', '-' in front of changed lines.
     // The part can be multi-line and is expected to end with a newline
@@ -1698,6 +1547,21 @@
         }
         ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, xml_escape(oreqm_main.get_node_text_formatted(selected_node)))
       }
+      nodeSource.style.display = "block";
+    }
+  }
+
+  document.getElementById('menu_search_txt').addEventListener("click", function() {
+    show_internal()
+  });
+
+  function show_internal() {
+    // Show selected node as internal tagged string
+    if (selected_node.length) {
+    var ref = document.getElementById('req_src');
+      let header_main = "<h2>Internal tagged 'search' format</h2>"
+      let a_txt = oreqm_main.get_all_text(selected_node).replace(/\n/g, '\u21B5\n')
+      ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, xml_escape(a_txt))
       nodeSource.style.display = "block";
     }
   }
@@ -1755,18 +1619,6 @@
       }
     }
   }
-
-  //document.getElementById('load_color_scheme').addEventListener("click", function() {
-  //  load_color_scheme()
-  //});
-
-  function load_color_scheme() {
-    load_colors(update_doctype_table)
-  }
-
-  //document.getElementById('save_colors').addEventListener("click", function() {
-  //  save_colors()
-  //});
 
   document.getElementById('no_rejects').addEventListener("click", function() {
     no_rejects_click()
@@ -1887,6 +1739,6 @@
     return false;
   }
 
-  process.on('uncaughtException', function (err) {
-    console.log("uncaughtException:", err);
-  })
+  // process.on('uncaughtException', function (err) {
+  //   console.log("uncaughtException:", err);
+  // })

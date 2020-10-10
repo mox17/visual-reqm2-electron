@@ -261,26 +261,6 @@ export function load_safety_rules_fs() {
   }
 }
 
-
-export function load_safety_rules()
-{
-  let input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json'
-
-  input.onchange = e => {
-    const file = e.target.files[0];
-    let reader = new FileReader();
-    reader.readAsText(file,'UTF-8');
-    reader.onload = readerEvent => {
-      const new_rules = JSON.parse(readerEvent.target.result);
-      //console.log(new_rules)
-      process_rule_set(new_rules)
-    }
-  }
-  input.click();
-}
-
 function quote_id(id) {
   if (id.includes(' ')) {
     id = '"{}"'.format(id)
