@@ -8,11 +8,11 @@ const ipcMain = electron.ipcMain;
 
 const path = require('path');
 const url = require('url');
-const settings = require('electron-settings');
 const { ArgumentParser } = require('argparse');
 const { version } = require('./package.json');
 const log = require('electron-log');
-const {autoUpdater} = require("electron-updater");
+const {autoUpdater} = require('electron-updater');
+const {settings} = require('./lib/settings.js')
 
 // Optional logging
 autoUpdater.logger = log;
@@ -55,7 +55,7 @@ function createWindow() {
     //icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
-    // TODO: There must be a better way to determine the path to man icon file
+    // TODO: There must be a better way to determine the path to main icon file
     //icon_path = './build/icon.png'
     //icon_path = 'C:\\Users\\erlin\\Documents\\src\\visual-reqm2-electron\\build\\icon.png'
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icon.png')
@@ -252,7 +252,6 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
 
 autoUpdater.on('update-available', () => {
   mainWindow.webContents.send('update_available');
