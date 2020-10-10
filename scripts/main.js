@@ -577,6 +577,7 @@
       document.getElementById('menu_copy_ffb').classList.remove('custom-menu_disabled')
       document.getElementById('menu_exclude').classList.remove('custom-menu_disabled')
       document.getElementById('menu_xml_txt').classList.remove('custom-menu_disabled')
+      document.getElementById('menu_search_txt').classList.remove('custom-menu_disabled')
       if (selected_node_check(node_id)) {
         // it is a selected node
         document.getElementById('menu_select').classList.add('custom-menu_disabled')
@@ -593,6 +594,7 @@
       document.getElementById('menu_copy_id').classList.add('custom-menu_disabled')
       document.getElementById('menu_copy_ffb').classList.add('custom-menu_disabled')
       document.getElementById('menu_xml_txt').classList.add('custom-menu_disabled')
+      document.getElementById('menu_search_txt').classList.add('custom-menu_disabled')
     }
   }
 
@@ -1549,6 +1551,21 @@
         }
         ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, xml_escape(oreqm_main.get_node_text_formatted(selected_node)))
       }
+      nodeSource.style.display = "block";
+    }
+  }
+
+  document.getElementById('menu_search_txt').addEventListener("click", function() {
+    show_internal()
+  });
+
+  function show_internal() {
+    // Show selected node as internal tagged string
+    if (selected_node.length) {
+    var ref = document.getElementById('req_src');
+      let header_main = "<h2>Internal tagged 'search' format</h2>"
+      let a_txt = oreqm_main.get_all_text(selected_node).replace(/\n/g, '\u21B5\n')
+      ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, xml_escape(a_txt))
       nodeSource.style.display = "block";
     }
   }
