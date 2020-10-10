@@ -1,6 +1,6 @@
 "use strict";
 
-import { ipcRenderer, remote, clipboard, nativeImage, shell, app } from 'electron'
+import { remote, app } from 'electron'
 export const settings = require('electron-settings');
 
 import fs from 'fs'
@@ -23,7 +23,7 @@ export var program_settings = null
  */
 export function handle_settings(settings_updated_callback) {
   if (settings.has('program_settings')) {
-    console.log(settings._getSettingsFilePath())
+    //console.log(settings._getSettingsFilePath())
     program_settings = settings.get('program_settings')
     // New options are added here with default values when reading settings from previous version
     if (! ('max_calc_nodes' in program_settings)) {

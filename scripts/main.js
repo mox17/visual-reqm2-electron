@@ -1,10 +1,10 @@
   "use strict";
 
-  import ReqM2Oreqm, { xml_escape, load_safety_rules, load_safety_rules_fs } from './diagrams.js'
-  import get_color, { save_colors, save_colors_fs, load_colors, load_colors_fs } from './color.js'
+  import ReqM2Oreqm, { xml_escape, load_safety_rules_fs } from './diagrams.js'
+  import get_color, { save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, get_ignored_fields, program_settings } from './settings.js'
   import Viz from 'viz.js'
-  import { ipcRenderer, remote, clipboard, nativeImage, shell, app } from 'electron'
+  import { ipcRenderer, remote, clipboard, shell, app } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
 
@@ -638,7 +638,7 @@
   function display_doctypes_with_count(doctype_dict) {
     let doctype_names = Array.from(doctype_dict.keys())
     doctype_names.sort()
-    let excluded = get_excluded_doctypes() // so we can tick them again
+    let excluded = oreqm_main.get_excluded_doctypes() // so we can tick them again
     //console.log(doctype_names)
 
     const element = document.getElementById("dyn_doctype_table");
@@ -704,7 +704,7 @@
 
   function doctype_filter_change() {
     set_doctype_all_checkbox()
-    //console.log("doctype_filter_change")
+    //console.log("doctype_filter_change (click)")
     if (auto_update) {
       filter_graph()
     }
@@ -904,7 +904,7 @@
         if (status && status.checked) {
           excluded_list.push(doctype)
         }
-        //console.log(doctype, status)
+        //console.log(doctype, status, status.checked)
       }
     }
     return excluded_list
@@ -1502,10 +1502,6 @@
     }
   }
 
-  //document.getElementById('load_safety_rules').addEventListener("click", function() {
-  //  load_safety_rules()
-  //});
-
   function src_add_plus_minus(part) {
     // Add git style '+', '-' in front of changed lines.
     // The part can be multi-line and is expected to end with a newline
@@ -1623,18 +1619,6 @@
       }
     }
   }
-
-  // document.getElementById('load_color_scheme').addEventListener("click", function() {
-  //  load_color_scheme()
-  // });
-
-  //  function load_color_scheme() {
-  //   load_colors(update_doctype_table)
-  // }
- 
-  // document.getElementById('save_colors').addEventListener("click", function() {
-  //  save_colors()
-  // });
 
   document.getElementById('no_rejects').addEventListener("click", function() {
     no_rejects_click()

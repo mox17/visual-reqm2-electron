@@ -634,6 +634,11 @@ export default class ReqM2Specobjects {
     this.excluded_doctypes = doctypes
   }
 
+  get_excluded_doctypes() {
+    // Get excluded doctypes
+    return this.excluded_doctypes
+  }
+
   set_excluded_ids(ids) {
     // Set excluded doctypes
     this.excluded_ids = ids

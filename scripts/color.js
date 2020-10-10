@@ -124,13 +124,6 @@ function _downloadObjectAsJson(exportObj, exportName){
   downloadAnchorNode.remove();
 }
 
-export function save_colors() {
-  // Public function
-  // Download color object and store it in Web storage
-  _downloadObjectAsJson(_my_palette, "visual_reqm2_colors")
-  _store_colors(_my_palette)
-}
-
 export function save_colors_fs() {
   let SavePath = remote.dialog.showSaveDialogSync(null,
     {
@@ -156,29 +149,6 @@ export function load_colors_fs(update_function) {
     _color_random_reset()
     update_function()
   }
-}
-
-export function load_colors(update_function) {
-  // Public function
-  let input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json'
-
-  input.onchange = e => {
-    const file = e.target.files[0];
-    let reader = new FileReader();
-
-    reader.readAsText(file,'UTF-8');
-    reader.onload = readerEvent => {
-      const colors = JSON.parse(readerEvent.target.result);
-      _store_colors(colors)
-      //console.log(colors)
-      _my_palette = colors
-      _color_random_reset()
-      update_function()
-    }
-  }
-  input.click();
 }
 
 const color_storage_name = 'Visual_ReqM2_color_palette'
