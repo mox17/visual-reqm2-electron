@@ -18,7 +18,7 @@ function settings_old_path() {
 export var program_settings = null
 
 /**
- * 
+ *
  * @param {function} settings_updated_callback - callback to put new settings into effect
  */
 export function handle_settings(settings_updated_callback) {

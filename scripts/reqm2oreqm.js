@@ -36,8 +36,13 @@ function get_list_of(node, tag_name) {
   return result
 }
 
+/**
+ * Get linksto references
+ * @param {specobject} node
+ *
+ * @return [{link}] an array of objects with .linksto .dstversion and .linkerror
+ */
 function get_linksto(node) {
-  // return an array of objects with .linksto and .dstversion
   var result = []
   var items = node.getElementsByTagName('provcov')
   var i;
@@ -54,11 +59,16 @@ function get_linksto(node) {
     } else {
       dstversion_txt = dstversion[0].textContent
     }
-    let pair = {
+    let linkerror = items[i].getElementsByTagName('linkerror')
+    // if (linkerror) {
+    //   console.log(linkerror[0].textContent)
+    // }
+    let link = {
       linksto : linksto[0].textContent,
-      dstversion : dstversion_txt
+      dstversion : dstversion_txt,
+      linkerror : linkerror ? linkerror[0].textContent : null
     }
-    result.push(pair)
+    result.push(link)
   }
   return result
 }

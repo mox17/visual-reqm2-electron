@@ -138,9 +138,28 @@ function status_cell(rec, show_coverage, color_status) {
   return str
 }
 
+/**
+ * Generate a string of possible missing referenced objects
+ * @param {specobject} rec
+ */
+function format_nonexistent_links(rec) {
+  let result = ''
+  let missing = []
+  for (let lt of rec.linksto) {
+    if (lt.linkerror && lt.linkerror.startsWith('referenced object does not exist')) {
+      missing.push(lt.linksto)
+    }
+  }
+  if (missing.length) {
+    result = '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>{}<BR ALIGN="LEFT"/></TD></TR>\n'.format(missing.join('<BR ALIGN="LEFT"/>'))
+  }
+  return result
+}
+
 function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
+  let nonexist_link =   format_nonexistent_links(rec)
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
   let furtherinfo     = rec.furtherinfo     ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: {}</TD></TR>\n'.format(dot_format(rec.furtherinfo)) : ''
   let safetyrationale = rec.safetyrationale ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: {}</TD></TR>\n'.format(dot_format(rec.safetyrationale)) : ''
@@ -153,7 +172,7 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   node_table     = `
       <TABLE BGCOLOR="{}{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
         <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
+        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
                         get_color(rec.doctype),
                         ghost ? ':white' : '',
                         ghost ? 'grey' : 'black',
@@ -167,7 +186,8 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
                         furtherinfo,
                         source,
                         status,
-                        violations)
+                        violations,
+                        nonexist_link)
   let node = '  "{}" [id="{}" label=<{}>];\n'.format(node_id, node_id, node_table)
   return node
 }
