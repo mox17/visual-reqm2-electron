@@ -63,10 +63,15 @@ function get_linksto(node) {
     // if (linkerror) {
     //   console.log(linkerror[0].textContent)
     // }
+    let link_error_txt = linkerror ? linkerror[0].textContent : ''
+    if (link_error_txt && link_error_txt.startsWith('source ')) {
+      // Do not render 'source not covered.' and 'source status 'rejected' excluded from tracing.' in diagram edges
+      link_error_txt = ''
+    }
     let link = {
       linksto : linksto[0].textContent,
       dstversion : dstversion_txt,
-      linkerror : linkerror ? linkerror[0].textContent : null
+      linkerror : link_error_txt
     }
     result.push(link)
   }
@@ -80,10 +85,21 @@ function get_fulfilledby(node) {
   var i;
   for (i = 0; i < ffbobj_list.length; i++) {
     var ffbobj = ffbobj_list[i]
-    var ff_entry = []
-    ff_entry[0] = get_xml_text(ffbobj, 'ffbId')
-    ff_entry[1] = get_xml_text(ffbobj, 'ffbType')
-    ff_entry[2] = get_xml_text(ffbobj, 'ffbVersion')
+    let ffb_linkerror_list = ffbobj.getElementsByTagName('ffbLinkerror')
+    // if (ffb_linkerror_list) {
+    //   console.log('ffbLinkerror:', ffb_linkerror_list[0].textContent)
+    // }
+    let ffb_linkerror_txt = ffb_linkerror_list ? ffb_linkerror_list[0].textContent : ''
+    if (ffb_linkerror_txt && ffb_linkerror_txt.startsWith('target not ')) {
+      // Do not render 'target not covered.' in diagram edges
+      ffb_linkerror_txt = ''
+    }
+    let ff_entry = {
+      id : get_xml_text(ffbobj, 'ffbId'),
+      doctype : get_xml_text(ffbobj, 'ffbType'),
+      version : get_xml_text(ffbobj, 'ffbVersion'),
+      ffblinkerror : ffb_linkerror_txt
+    }
     ff_list.push(ff_entry)
   }
   return ff_list
@@ -247,9 +263,9 @@ export default class ReqM2Specobjects {
       const rec = this.requirements.get(req_id)
       let ffb_list = Array.from(rec.fulfilledby)
       for (let ff_arr of ffb_list) {
-        const ff_id = ff_arr[0]
-        const ff_doctype = ff_arr[1]
-        const ff_version = ff_arr[2]
+        const ff_id = ff_arr.id
+        const ff_doctype = ff_arr.doctype
+        const ff_version = ff_arr.version
         if (!this.requirements.has(ff_id)) {
             // Create placeholder for ffb node
             let new_node = {
@@ -342,7 +358,7 @@ export default class ReqM2Specobjects {
         this.linksto_rev.set(link.linksto, lt_set)
       }
       for (const ffb_arr of rec.fulfilledby) {
-        const ffb_link = ffb_arr[0]
+        const ffb_link = ffb_arr.id
         // top-down
         if (!this.linksto_rev.has(req_id)) {
           this.linksto_rev.set(req_id, new Set())
@@ -562,7 +578,7 @@ export default class ReqM2Specobjects {
       let id_str = this.decorate_id(req_id)
       let ffb = ''
       rec.fulfilledby.forEach(element =>
-        ffb += '\nffb:'+element[0])
+        ffb += '\nffb:'+element.id)
       let tags = ''
       rec.tags.forEach(element =>
         tags += '\ntag:'+element)
@@ -768,7 +784,7 @@ export default class ReqM2Specobjects {
         <ffbId>{}</ffbId>
         <ffbType>{}</ffbType>
         <ffbVersion>{}</ffbVersion>
-      </ffbObj>`.format(list[i][0], list[i][1], list[i][2])
+      </ffbObj>`.format(list[i].id, list[i].doctype, list[i].version)
           }
           xml_txt += '\n    </fulfilledby>'
         } else {
