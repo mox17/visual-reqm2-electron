@@ -4,6 +4,7 @@
 import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
 import Doctype from './doctypes.js'
+import { program_settings } from './settings.js'
 import { remote } from 'electron'
 import showToast from 'show-toast';
 import fs from 'fs'
@@ -138,9 +139,30 @@ function status_cell(rec, show_coverage, color_status) {
   return str
 }
 
+/**
+ * Generate a string of possible missing referenced objects
+ * @param {specobject} rec
+ *
+ * @return {string} dot table row
+ */
+function format_nonexistent_links(rec) {
+  let result = ''
+  let missing = []
+  for (let lt of rec.linksto) {
+    if (lt.linkerror && lt.linkerror.startsWith('referenced object does not exist')) {
+      missing.push(lt.linksto)
+    }
+  }
+  if (missing.length) {
+    result = '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>{}<BR ALIGN="LEFT"/></TD></TR>\n'.format(missing.join('<BR ALIGN="LEFT"/>'))
+  }
+  return result
+}
+
 function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
+  let nonexist_link =   format_nonexistent_links(rec)
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
   let furtherinfo     = rec.furtherinfo     ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: {}</TD></TR>\n'.format(dot_format(rec.furtherinfo)) : ''
   let safetyrationale = rec.safetyrationale ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: {}</TD></TR>\n'.format(dot_format(rec.safetyrationale)) : ''
@@ -153,7 +175,7 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   node_table     = `
       <TABLE BGCOLOR="{}{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
         <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
+        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
                         get_color(rec.doctype),
                         ghost ? ':white' : '',
                         ghost ? 'grey' : 'black',
@@ -167,18 +189,42 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
                         furtherinfo,
                         source,
                         status,
-                        violations)
+                        violations,
+                        nonexist_link)
   let node = '  "{}" [id="{}" label=<{}>];\n'.format(node_id, node_id, node_table)
   return node
 }
 
-function format_edge(from_node, to_node, kind) {
-  // Format graph edge according to coverage type
-  let formatting = ""
-  if (kind === "fulfilledby") {
-    formatting = ' [style=bold color=purple dir=back fontname="Arial" label="ffb"]'
+/**
+ * Create dot formatted edge between specobjects
+ * @param {string} from_node - origin
+ * @param {string} to_node - destination
+ * @param {string} kind - 'fulfilledby' or ''
+ * @param {string} error - possible problem with this edge
+ *
+ * @return {string} - dot format edge
+ */
+function format_edge(from_node, to_node, kind, error) {
+  if (!program_settings.show_errors) {
+    error = ''
   }
-  return '  "{}" -> "{}"{};\n'.format(from_node, to_node, formatting)
+  let formatting = ''
+  let label = ''
+  if (error && error.length) {
+    error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
+  }
+  if (kind === "fulfilledby") {
+    formatting = ' [style=bold color=purple dir=back fontname="Arial" label="{}"]'
+    label = 'ffb'
+    if (error.length) {
+      label += '\n' + error
+      formatting = ' [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="{}"]'
+    }
+  } else {
+    formatting = ' [style=bold fontname="Arial" fontcolor="red" label="{}"]'
+    label = error
+  }
+  return '  "{}" -> "{}"{};\n'.format(from_node, to_node, formatting.format(label))
 }
 
 function tags_line(tags, platforms) {
@@ -373,11 +419,12 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     if (show_top) {
       for (const req_id of subset) {
         if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
-          graph += format_edge(req_id, 'TOP')
+          graph += format_edge(req_id, 'TOP', '', '')
         }
       }
     }
     let kind = ''
+    let linkerror = ''
     for (const req_id of subset) {
       // edges
       if (this.linksto.has(req_id)) {
@@ -386,10 +433,12 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           if (subset.includes(link)) {
             if (this.fulfilledby.has(req_id) && this.fulfilledby.get(req_id).has(link)) {
               kind = "fulfilledby"
+              linkerror = this.get_ffb_link_error(link, req_id)
             } else {
               kind = null
+              linkerror = this.get_link_error(req_id, link)
             }
-            graph += format_edge(req_id, link, kind)
+            graph += format_edge(req_id, link, kind, linkerror)
             edge_count += 1
           }
         }
@@ -407,6 +456,42 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     selected_nodes.sort()
     result.selected_nodes = selected_nodes
     return result
+  }
+
+  /**
+   * Get error possibly associated with linksto
+   * @param {string} req_id - specobject id
+   * @param {string} link - specobject in linksto reference
+   * 
+   * @return {string} - error string or ''
+   */
+  get_link_error(req_id, link) {
+    const rec = this.requirements.get(req_id)
+    let error = ''
+    for (const lt of rec.linksto) {
+      if (lt.linksto === link) {
+        error = lt.linkerror
+      }
+    }
+    return error
+  }
+
+  /**
+   * Get error possibly associated with fulfilledby link
+   * @param {string} req_id - specobject id
+   * @param {*} link - specobject in ffb reference
+   * 
+   * @return {string} - error string or ''
+   */
+  get_ffb_link_error(req_id, link) {
+    const rec = this.requirements.get(req_id)
+    let error = ''
+    for (const ffb of rec.fulfilledby) {
+      if (ffb.id === link) {
+        error = ffb.ffblinkerror
+      }
+    }
+    return error
   }
 
   linksto_safe(from, to) {
@@ -487,12 +572,12 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
       for (let ffb of ffb_list) {
         if (doctype_safety) {
           // will need at least its own safetyclass
-          dest_doctype = "{}:{}".format(ffb[1], this.requirements.get(id).safetyclass)
+          dest_doctype = "{}:{}".format(ffb.doctype, this.requirements.get(id).safetyclass)
         } else {
-          dest_doctype = ffb[1]
+          dest_doctype = ffb.doctype
         }
         //console.log("add_fulfilledby ", dest_doctype)
-        dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb[0]])
+        dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb.id])
       }
 
     }
