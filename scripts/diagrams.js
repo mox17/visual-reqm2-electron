@@ -4,6 +4,7 @@
 import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
 import Doctype from './doctypes.js'
+import { program_settings } from './settings.js'
 import { remote } from 'electron'
 import showToast from 'show-toast';
 import fs from 'fs'
@@ -141,6 +142,8 @@ function status_cell(rec, show_coverage, color_status) {
 /**
  * Generate a string of possible missing referenced objects
  * @param {specobject} rec
+ *
+ * @return {string} dot table row
  */
 function format_nonexistent_links(rec) {
   let result = ''
@@ -198,15 +201,16 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
  * @param {string} to_node - destination
  * @param {string} kind - 'fulfilledby' or ''
  * @param {string} error - possible problem with this edge
- * 
+ *
  * @return {string} - dot format edge
  */
 function format_edge(from_node, to_node, kind, error) {
-  // Format graph edge according to coverage type
+  if (!program_settings.show_errors) {
+    error = ''
+  }
   let formatting = ''
   let label = ''
   if (error && error.length) {
-    //error = error.replace(/destination version (\S+) does not match required version (\S+)\./, 'mismatch\nv$1 != v$2')
     error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
   }
   if (kind === "fulfilledby") {
@@ -415,7 +419,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     if (show_top) {
       for (const req_id of subset) {
         if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
-          graph += format_edge(req_id, 'TOP', '')
+          graph += format_edge(req_id, 'TOP', '', '')
         }
       }
     }

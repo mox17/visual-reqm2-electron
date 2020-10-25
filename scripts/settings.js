@@ -38,6 +38,9 @@ export function handle_settings(settings_updated_callback) {
     if (! ('color_status' in program_settings)) {
       program_settings.color_status = false;
     }
+    if (! ('show_errors' in program_settings)) {
+      program_settings.show_errors = true;
+    }
   } else {
     // Establish default settings
     program_settings = {
@@ -69,7 +72,8 @@ export function handle_settings(settings_updated_callback) {
       max_calc_nodes: 1000,
       show_coverage: false,
       top_doctypes: ['reqspec1'],
-      color_status: false
+      color_status: false,
+      show_errors: true
     }
     settings.set('program_settings', program_settings)
   }
@@ -169,6 +173,8 @@ function settings_dialog_results() {
   program_settings.show_coverage = box.checked
   box = document.getElementById('sett_color_status')
   program_settings.color_status = box.checked
+  box = document.getElementById('sett_show_errors')
+  program_settings.show_errors = box.checked
   box = document.getElementById('sett_max_calc_nodes')
   program_settings.max_calc_nodes = parseInt(box.value)
   box = document.getElementById('top_doctypes')
