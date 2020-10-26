@@ -147,14 +147,16 @@ function status_cell(rec, show_coverage, color_status) {
  */
 function format_nonexistent_links(rec) {
   let result = ''
-  let missing = []
-  for (let lt of rec.linksto) {
-    if (lt.linkerror && lt.linkerror.startsWith('referenced object does not exist')) {
-      missing.push(lt.linksto)
+  if (program_settings.show_errors) {
+    let missing = []
+    for (let lt of rec.linksto) {
+      if (lt.linkerror && lt.linkerror.startsWith('referenced object does not exist')) {
+        missing.push(lt.linksto)
+      }
     }
-  }
-  if (missing.length) {
-    result = '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>{}<BR ALIGN="LEFT"/></TD></TR>\n'.format(missing.join('<BR ALIGN="LEFT"/>'))
+    if (missing.length) {
+      result = '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;{}<BR ALIGN="LEFT"/></TD></TR>\n'.format(missing.join('<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;'))
+    }
   }
   return result
 }
@@ -162,7 +164,7 @@ function format_nonexistent_links(rec) {
 function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
-  let nonexist_link =   format_nonexistent_links(rec)
+  let nonexist_link = format_nonexistent_links(rec)
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
   let furtherinfo     = rec.furtherinfo     ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: {}</TD></TR>\n'.format(dot_format(rec.furtherinfo)) : ''
   let safetyrationale = rec.safetyrationale ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: {}</TD></TR>\n'.format(dot_format(rec.safetyrationale)) : ''

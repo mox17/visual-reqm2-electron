@@ -147,6 +147,10 @@ function settings_dialog_prepare() {
   if (box) {
     box.checked = program_settings.color_status
   }
+  box = document.getElementById('sett_show_errors')
+  if (box) {
+    box.checked = program_settings.show_errors
+  }
   box = document.getElementById('sett_max_calc_nodes')
   if (box) {
     //console.log(program_settings.max_calc_nodes)
