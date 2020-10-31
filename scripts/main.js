@@ -7,6 +7,7 @@
   import { ipcRenderer, remote, clipboard, shell, app } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
+  import https from 'https'
 
   let mainWindow = remote.getCurrentWindow();
 
@@ -103,6 +104,7 @@
     alert(c_args)
     */
 
+    check_newer_release_available()
     if (args.oreqm_main !== undefined) {
       //console.log(fs.statSync(args.oreqm_main));
       let main_stat = fs.statSync(args.oreqm_main);
@@ -151,6 +153,7 @@
   var id_checkbox = false // flag for scope of search
   var dot_source = ''
   var panZoom = null
+  var latest_version = 'unknown'
 
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
   document.getElementById("auto_update").checked = auto_update
@@ -1726,7 +1729,7 @@
     document.shell_openExternal(url)
   }
 
-  function prepareTags(){
+  function prepareTags() {
     document.url_click_handler = url_click_handler
     document.shell_openExternal = shell.openExternal
     let aTags = document.getElementsByTagName("a");
@@ -1737,6 +1740,43 @@
       aTags[i].href = "#";
     }
     return false;
+  }
+
+  /**
+   * Get latest release tag from github and check against this version.
+   * Update 'About' dialog with release version and set button green.
+   */
+  function check_newer_release_available() {
+    const options = {
+      hostname: 'api.github.com',
+      port: 443,
+      path: '/repos/mox17/visual-reqm2-electron/releases/latest',
+      headers: {
+        'Accept': "application/vnd.github.v3+json",
+        'User-Agent': 'com.mox17.visualreqm2'
+     }
+    }
+
+    https.get(options, (resp) => {
+      let data = '';
+
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      resp.on('end', () => {
+        let latest_rel = JSON.parse(data)
+        //console.log(latest_rel.explanation);
+        latest_version = latest_rel.name
+        //console.log(latest_version);
+        if (latest_version !== remote.app.getVersion()) {
+          aboutButton.style.background = '#00FF00'
+        }
+        document.getElementById('latest_release').innerHTML = ` available is ${latest_version}`
+      })
+    }).on("error", (err) => {
+      console.log("Error: " + err.message);
+    })
   }
 
   // process.on('uncaughtException', function (err) {
