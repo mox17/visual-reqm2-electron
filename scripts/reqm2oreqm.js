@@ -63,7 +63,7 @@ function get_linksto(node) {
     // if (linkerror) {
     //   console.log(linkerror[0].textContent)
     // }
-    let link_error_txt = linkerror ? linkerror[0].textContent : ''
+    let link_error_txt = (linkerror && linkerror.length > 0) ? linkerror[0].textContent : ''
     if (link_error_txt && link_error_txt.startsWith('source ')) {
       // Do not render 'source not covered.' and 'source status 'rejected' excluded from tracing.' in diagram edges
       link_error_txt = ''
@@ -89,7 +89,7 @@ function get_fulfilledby(node) {
     // if (ffb_linkerror_list) {
     //   console.log('ffbLinkerror:', ffb_linkerror_list[0].textContent)
     // }
-    let ffb_linkerror_txt = ffb_linkerror_list ? ffb_linkerror_list[0].textContent : ''
+    let ffb_linkerror_txt = (ffb_linkerror_list && ffb_linkerror_list.length > 0) ? ffb_linkerror_list[0].textContent : ''
     if (ffb_linkerror_txt && ffb_linkerror_txt.startsWith('target not ')) {
       // Do not render 'target not covered.' in diagram edges
       ffb_linkerror_txt = ''
