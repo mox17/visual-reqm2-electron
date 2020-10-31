@@ -104,26 +104,28 @@
     alert(c_args)
     */
 
-    check_newer_release_available()
+    if (program_settings.check_for_updates) {
+      check_newer_release_available()
+    }
     if (args.oreqm_main !== undefined) {
       //console.log(fs.statSync(args.oreqm_main));
       let main_stat = fs.statSync(args.oreqm_main);
       if (main_stat && main_stat.isFile()) {
-          //console.log(args.oreqm_main, main_stat);
-          main = true;
+        //console.log(args.oreqm_main, main_stat);
+        main = true;
       } else {
-          console.log("Not a file.", args.oreqm_main);
-          ok = false;
+        console.log("Not a file.", args.oreqm_main);
+        ok = false;
       }
     }
     if (args.oreqm_ref !== undefined) {
       let ref_stat = fs.statSync(args.oreqm_main);
       if (ref_stat && ref_stat.isFile()) {
-          //console.log(args.oreqm_ref, ref_stat);
-          ref = true;
+        //console.log(args.oreqm_ref, ref_stat);
+        ref = true;
       } else {
-          console.log("Not a file.", args.oreqm_ref);
-          ok = false;
+        console.log("Not a file.", args.oreqm_ref);
+        ok = false;
       }
     }
     if (ok && main) {

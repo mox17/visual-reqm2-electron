@@ -41,6 +41,9 @@ export function handle_settings(settings_updated_callback) {
     if (! ('show_errors' in program_settings)) {
       program_settings.show_errors = true;
     }
+    if (! ('check_for_updates' in program_settings)) {
+      program_settings.check_for_updates = true;
+    }
   } else {
     // Establish default settings
     program_settings = {
@@ -73,7 +76,8 @@ export function handle_settings(settings_updated_callback) {
       show_coverage: false,
       top_doctypes: ['reqspec1'],
       color_status: false,
-      show_errors: true
+      show_errors: true,
+      check_for_updates: true
     }
     settings.set('program_settings', program_settings)
   }
@@ -151,6 +155,10 @@ function settings_dialog_prepare() {
   if (box) {
     box.checked = program_settings.show_errors
   }
+  box = document.getElementById('sett_check_for_updates')
+  if (box) {
+    box.checked = program_settings.check_for_updates
+  }
   box = document.getElementById('sett_max_calc_nodes')
   if (box) {
     //console.log(program_settings.max_calc_nodes)
@@ -179,6 +187,8 @@ function settings_dialog_results() {
   program_settings.color_status = box.checked
   box = document.getElementById('sett_show_errors')
   program_settings.show_errors = box.checked
+  box = document.getElementById('sett_check_for_updates')
+  program_settings.check_for_updates = box.checked
   box = document.getElementById('sett_max_calc_nodes')
   program_settings.max_calc_nodes = parseInt(box.value)
   box = document.getElementById('top_doctypes')
