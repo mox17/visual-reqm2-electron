@@ -1,8 +1,8 @@
   "use strict";
 
-  import ReqM2Oreqm, { xml_escape, load_safety_rules_fs } from './diagrams.js'
+  import ReqM2Oreqm, { xml_escape } from './diagrams.js'
   import get_color, { save_colors_fs, load_colors_fs } from './color.js'
-  import { handle_settings, get_ignored_fields, program_settings } from './settings.js'
+  import { handle_settings, get_ignored_fields, program_settings, load_safety_rules_fs, open_settings } from './settings.js'
   import Viz from 'viz.js'
   import { ipcRenderer, remote, clipboard, shell, app } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
@@ -1311,11 +1311,6 @@
     filter_change()
   }
 
-  function open_settings() {
-
-    settingsPopup.style.display = "block";
-  }
-
   function center_node(node_name) {
     let found = false
     // Get translation applied to svg coordinates by Graphviz
@@ -1774,7 +1769,7 @@
         if (latest_version !== remote.app.getVersion()) {
           aboutButton.style.background = '#00FF00'
         }
-        document.getElementById('latest_release').innerHTML = ` available is ${latest_version}`
+        document.getElementById('latest_release').innerHTML = ` available for download is ${latest_version}`
       })
     }).on("error", (err) => {
       console.log("Error: " + err.message);

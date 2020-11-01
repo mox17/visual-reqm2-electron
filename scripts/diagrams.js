@@ -4,22 +4,10 @@
 import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
 import Doctype from './doctypes.js'
-import { program_settings } from './settings.js'
+import { program_settings, settings } from './settings.js'
 import { remote } from 'electron'
 import showToast from 'show-toast';
 import fs from 'fs'
-
-var accepted_safety_class_links_re = [
-  /^\w+:>\w+:$/,           // no safetyclass -> no safetyclass
-  /^\w+:QM>\w+:$/,         // QM -> no safetyclass
-  /^\w+:SIL-2>\w+:$/,      // SIL-2 -> no safetyclass
-  /^\w+:QM>\w+:QM$/,       // QM -> QM
-  /^\w+:SIL-2>\w+:QM$/,    // SIL-2 -> QM
-  /^\w+:SIL-2>\w+:SIL-2$/, // SIL-2 -> SIL-2
-  /^impl.*>.*$/,           // impl can cover anything (maybe?)
-  /^swintts.*>.*$/,        // swintts can cover anything (maybe?)
-  /^swuts.*>.*$/           // swuts can cover anything (maybe?)
-]
 
 export function xml_escape(txt) {
   // Escape string for usen in XML
@@ -261,54 +249,6 @@ function dt_sc_str(doctype_with_safetyclass) {
   return sc_str(doctype_with_safetyclass.split(':')[1])
 }
 
-function process_rule_set(new_rules) {
-  let pass_test = true
-  let regex_array = []
-  if (new_rules.length > 0) {
-    for (let rule of new_rules) {
-      if (!(typeof(rule)==='string')) {
-        alert('Expected an array of rule regex strings')
-        pass_test = false
-        break;
-      }
-      if (!rule.includes('>')) {
-        alert('Expected ">" in regex')
-        pass_test = false
-        break
-      }
-      let regex_rule
-      try {
-        regex_rule = new RegExp(rule)
-      }
-      catch(err) {
-        alert('Malformed regex: {}'.format(err.message))
-        pass_test = false
-        break
-      }
-      regex_array.push(regex_rule)
-    }
-    if (pass_test) {
-      // Update tests
-      accepted_safety_class_links_re = regex_array
-      //console.log(accepted_safety_class_links_re)
-    }
-  } else {
-    alert('Expected array of rule regex strings')
-  }
-}
-
-export function load_safety_rules_fs() {
-  let LoadPath = remote.dialog.showOpenDialogSync(
-    {
-      filters: [{ name: 'JSON files', extensions: ['json']}],
-      properties: ['openFile']
-    })
-  if (typeof(LoadPath) !== 'undefined' && (LoadPath.length === 1)) {
-    let new_rules = JSON.parse(fs.readFileSync(LoadPath[0], {encoding: 'utf8', flag: 'r'}))
-    process_rule_set(new_rules)
-  }
-}
-
 function quote_id(id) {
   if (id.includes(' ')) {
     id = '"{}"'.format(id)
@@ -499,7 +439,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
   linksto_safe(from, to) {
     // permitted safetyclass for providescoverage <from_safetyclass>:<to_safetyclass>
     let combo = "{}>{}".format(from, to)
-    for (const re of accepted_safety_class_links_re) {
+    for (const re of program_settings.safety_link_rules) {
       if (combo.match(re)) {
         return true
       }
@@ -681,7 +621,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     }
     let rules = new Object()
     if (doctype_safety) {
-      rules.text = xml_escape(JSON.stringify(accepted_safety_class_links_re, 0, 2)).replace(/\\/g, '\\\\')
+      rules.text = xml_escape(JSON.stringify(program_settings.safety_link_rules, 0, 2)).replace(/\\/g, '\\\\')
       rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ')
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
     }

@@ -231,15 +231,25 @@
             <input type="checkbox" id="sett_show_coverage" title="Coverage status shown as extra&#13;colored cell on specobjects"> Show coverage</button><br/>
             <input type="checkbox" id="sett_color_status" title="Color code &lt;status&gt; &#13;proposed -> yellow&#13;draft -> red"> Color &lt;status&gt;</button><br/>
             <input type="checkbox" id="sett_show_errors" title="Show link errors"> Show link errors</button><br/>
-            <input type="checkbox" id="sett_check_for_updates" title="Check latest github release"> Check for updates</button><br/>
+            <p/>
+            Safety rules - accepted <b>doctype:safetyclass>doctype:safetyclass</b> pairs<br/>
+            <textarea class="search_terms" id="safety_rules" rows="12" cols="34"
+            wrap="off" placeholder="safety rules array of regex"
+            spellcheck="false"></textarea>
+            <br>
+            <div><p id="regex_error" style="color:red"></p></div>
           </div>
           <div class="column3">
             <h4>UI settings</h4><br/>
             <label for="sett_max_calc_nodes">Max number of calculated nodes (default 1000):</label>
             <input type="number" id="sett_max_calc_nodes" name="sett_max_calc_nodes" min="500" max="5000" title="Max # of nodes in diagram."><br/>
-            <label for="top_doctypes">Top doctypes:</label>
-            <input type="text" id="top_doctypes" name="top_doctypes" maxlength="30"
-              title="Comma separated list of optional doctypes&#13;to connect to common top (controls layout)"><br/>
+            <p/>
+            <label for="top_doctypes">Top doctype(s) in hierarchy:</label>
+            <p/>
+            <input type="text" id="top_doctypes" name="top_doctypes" maxlength="30" spellcheck="false"
+            title="Comma separated list of optional doctypes&#13;to connect to common top (controls layout)"><br/>
+            <p/>
+            <input type="checkbox" id="sett_check_for_updates" title="Check latest github release"> Check for updates at startup</button><br/>
           </div>
         </div>
         <button type="button" id="sett_ok" >OK</button>
