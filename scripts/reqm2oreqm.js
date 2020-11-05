@@ -394,6 +394,9 @@ export default class ReqM2Specobjects {
   color_down(color, req_id) {
     //Color this id and linksto_rev referenced nodes with color
     const rec = this.requirements.get(req_id)
+    if (!rec) {
+      return // missing specobject
+    }
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }
@@ -424,6 +427,9 @@ export default class ReqM2Specobjects {
   color_up(color, req_id) {
     //Color this id and linksto referenced nodes with color
     const rec = this.requirements.get(req_id)
+    if (!rec) {
+      return // missing specobject
+    }
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }

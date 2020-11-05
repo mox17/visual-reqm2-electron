@@ -835,7 +835,7 @@
 
   function process_data_ref(name, data) {
     // Process the loaded data
-    oreqm_main.remove_ghost_requirements()
+    oreqm_main.remove_ghost_requirements(true)
     update_doctype_table()
     viz_parsing_set()
     oreqm_ref = new ReqM2Oreqm(name, data, [], [])
