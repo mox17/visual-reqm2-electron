@@ -193,6 +193,52 @@ show the nature and count of the relations to the other doctypes.
 Currently no filtering operations are possible on this diagram.
 Return to the main diagram by clicking the `update graph` button.
 
+## Viewing safetyclass links
+
+The `safety` button will display a diagram similar to the `hierarchy` diagram. What is additionally done is to
+consider the safetyclasses of the linked specobjects.
+
+Each doctype is represented by a box with its associated color. The total number of specobjects is
+listed along with the count of each safetyclass represented by specobjects of this doctype.
+
+There are arrows indicating providescoverage/linksto relations and stippled arrows for fulfilledby relations.
+Green arrows are supposed to indicate permitted relations and red arrows to indicate relations that are violating 
+safety rules.
+
+### Configuration of safety rules
+
+Now, Visual ReqM2 does not know all there is to know about safety rules, but it provides a mechanism to configure
+permitted links based on \<doctype> and \<safetyclass> of the specobjects at the ends of a link.
+
+Visual ReqM2 will construct a string for each relation with doctype and safetyclass for each end.
+Each **"doctype:safetyclass>doctype:safetyclass"** string will then be tested against an array of **regular expressions**,
+until one of them match, or all expressions have failed.
+
+The **'>'** character shall be read as "provides coverage to", and the **':'** character is the separator between
+\<doctype> and \<safetyclass> strings. 
+
+Fulfilledby links are considered 'in reverse direction' to follow this logic.
+
+If the string is matched, it is considered a valid link, but if no match is found, the link is invalid, it is
+reported as an issue and the link in the diagram is colored red.
+
+For each link in the diagram there is a count of the instances.
+
+The details of safety violations are written to the list of `issues`. This is a text log, which is accessible
+via the `issue` button in the upper right corner or through the menu 'View' -> 'Show issues'.
+Here the pairs of names, of the individual failed specobject relations, are listed.
+
+The `issues` dialog allows to save the text as a file and to clear the buffer.
+
+The analysis of the safety relations is done whenever the `safety` button is pressed.
+Notice that the diagram lists the regular expressions used to evaluate the 'correctness' of the safety relations.
+
+The array of regular expressions can be loaded from a .json file (it is an array of strings with javascript
+regex syntax).
+The array of expressions can also be edited from the settings dialog. Use Menu "Edit" ->  "Settings..." to access.
+
+When settings are modified, they are made persistent, so the next start of the program should use the same settings.
+
 ## Output
 
 Aside from the obvious output on the display, there are mechanisms to save and use the generated diagrams.
