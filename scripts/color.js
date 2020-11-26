@@ -156,6 +156,8 @@ function _store_colors(colors) {
   if (typeof(Storage) !== "undefined") {
     const color_string = JSON.stringify(colors)
     localStorage.setItem(color_storage_name, color_string);
+  } else {
+    console.log('Storage is undefined')
   }
 }
 
@@ -169,5 +171,5 @@ if (typeof(Storage) !== "undefined") {
     _my_palette = colors
   }
 } else {
-  //console.log('Sorry! No Web Storage support..')
+  console.log('Storage is undefined')
 }
