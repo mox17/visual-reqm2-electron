@@ -1613,6 +1613,7 @@
 
   function update_doctype_table() {
     if (oreqm_main) {
+      oreqm_main.clear_cache()
       display_doctypes_with_count(oreqm_main.doctypes)
       if (auto_update) {
         filter_graph()
