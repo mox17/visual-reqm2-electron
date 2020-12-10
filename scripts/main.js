@@ -131,6 +131,7 @@
     if (ok && main) {
       load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null);
     }
+    cmd_line_parameters(args)
   });
 
   function settings_updated() {
@@ -138,6 +139,29 @@
     if (oreqm_main) {
       // settings can affect the rendering, therefore cache must be flushed
       oreqm_main.clear_cache()
+    }
+  }
+
+  /**
+   * Handle command line parameters related to 'batch' execution, i.e. without opening a window
+   * @param {*} args the input argument object
+   */
+  function cmd_line_parameters(args) {
+    if (args.select !== undefined) {
+      search_pattern = args.select
+      document.getElementById('search_regex').value = args.select
+    }
+    if (args.excluded_ids !== undefined) {
+      document.getElementById('excluded_ids').value = args.excluded_ids
+    }
+    if (args.id_only) {
+      document.getElementById('id_checkbox_input').checked = args.id_only
+    }
+    if (args.excluded_doctypes !== undefined) {
+      let excl_dt = args.excluded_doctypes.split(',')
+      if (oreqm_main) {
+         oreqm_main.set_excluded_doctypes(excl_dt)
+      }
     }
   }
 
@@ -152,6 +176,7 @@
   var auto_update = true
   var no_rejects = true
   var search_pattern = '' // regex for matching requirements
+  var excluded_ids = ''   // \n separated list of ids
   var id_checkbox = false // flag for scope of search
   var dot_source = ''
   var panZoom = null
