@@ -196,8 +196,8 @@ function createWindow() {
       event.preventDefault();
     } else {
       [mainWindow_width, mainWindow_height] = mainWindow.getSize();
-      settings.set('mainWindow_width', mainWindow_width);
-      settings.set('mainWindow_height', mainWindow_height);
+      settings.set('mainWindow_width', mainWindow_width, {prettify: true});
+      settings.set('mainWindow_height', mainWindow_height, {prettify: true});
     }
   });
 }
