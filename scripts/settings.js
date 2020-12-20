@@ -1,6 +1,7 @@
 "use strict";
 
 import { remote, app } from 'electron'
+import { update_color_settings } from './color.js'
 export const settings = require('electron-settings');
 
 import fs from 'fs'
@@ -30,10 +31,16 @@ const default_safety_link_rules = [
 ];
 
 /**
+ * Process existing settings and add default values for new settings introduced
  *
  * @param {function} settings_updated_callback - callback to put new settings into effect
  */
 export function handle_settings(settings_updated_callback) {
+  let doctype_colors = null
+  if (settings.has('doctype_colors')) {
+    doctype_colors = settings.get('doctype_colors')
+  }
+  update_color_settings(doctype_colors, update_doctype_colors)
   if (settings.has('program_settings')) {
     // Upgrade settings to add new values
     //console.log(settings._getSettingsFilePath())
@@ -195,7 +202,6 @@ function settings_dialog_prepare() {
 
 /**
  * Check if new settings are valid
- * 
  * @return {boolean} - true if valid
  */
 function settings_dialog_results() {
@@ -249,7 +255,6 @@ export function get_ignored_fields() {
  * Check if this looks like a plausible arrays of regex.
  * Update settings if found OK and return status.
  * @param {string} new_rules - json array of regex strings
- * 
  * @return {boolean} - true if it seems good
  */
 function process_rule_set(new_rules) {
@@ -312,4 +317,12 @@ export function load_safety_rules_fs() {
       alert(result.error)
     }
   }
+}
+
+/**
+ * Callback function to update doctype color mappings
+ * @param {dict} colors - mapping from doctypes to colors
+ */
+function update_doctype_colors(colors) {
+  settings.set('doctype_colors', colors, {prettify: true})
 }

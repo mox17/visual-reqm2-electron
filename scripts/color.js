@@ -153,13 +153,43 @@ export function load_colors_fs(update_function) {
 
 const color_storage_name = 'Visual_ReqM2_color_palette'
 function _store_colors(colors) {
+  if (color_settings_updater !== null) {
+    color_settings_updater(colors)
+  }
+  /*
   if (typeof(Storage) !== "undefined") {
     const color_string = JSON.stringify(colors)
     localStorage.setItem(color_storage_name, color_string);
   } else {
     console.log('Storage is undefined')
   }
+  */
 }
+
+// callback function to update settings with updated color mapping
+var color_settings_updater = null
+
+/**
+ * This is called just after settings have been read. Use defined colors (if available)
+ * otherwise update settings with colors found in localStorage.
+ * @param {dict} color_settings - settings (or null) from saved json settings
+ * @param {function} update_function  - function to update settings with new color mappings
+ */
+export function update_color_settings(color_settings, update_function) {
+  color_settings_updater = update_function
+  if (color_settings) {
+    // Settings have preference
+    _my_palette = color_settings
+  } else {
+    // No colors in settings, but settings read from localStorage
+    if (colors_loaded_from_localStorage) {
+      color_settings_updater(_my_palette)
+    }
+  }
+}
+
+// When migrating colors to settings file, indicate if doctype colors were read
+var colors_loaded_from_localStorage = false
 
 // Load color palette when page loads
 if (typeof(Storage) !== "undefined") {
@@ -169,7 +199,8 @@ if (typeof(Storage) !== "undefined") {
   if (typeof(color_string) === 'string') {
     const colors = JSON.parse(color_string)
     _my_palette = colors
+    colors_loaded_from_localStorage = true
   }
 } else {
-  console.log('Storage is undefined')
+  //console.log('Storage is undefined')
 }
