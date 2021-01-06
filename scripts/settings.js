@@ -1,6 +1,7 @@
 "use strict";
 
 import { remote, app } from 'electron'
+import { update_color_settings } from './color.js'
 export const settings = require('electron-settings');
 
 import fs from 'fs'
@@ -30,31 +31,38 @@ const default_safety_link_rules = [
 ];
 
 /**
+ * Process existing settings and add default values for new settings introduced
  *
  * @param {function} settings_updated_callback - callback to put new settings into effect
  */
 export function handle_settings(settings_updated_callback) {
+  let doctype_colors = null
+  if (settings.has('doctype_colors')) {
+    doctype_colors = settings.get('doctype_colors')
+  }
+  update_color_settings(doctype_colors, update_doctype_colors)
   if (settings.has('program_settings')) {
     // Upgrade settings to add new values
     //console.log(settings._getSettingsFilePath())
     program_settings = settings.get('program_settings')
+    //console.log(program_settings)
     // New options are added here with default values when reading settings from previous version
     if (! ('max_calc_nodes' in program_settings)) {
       program_settings.max_calc_nodes = 1000;
     }
-    if (! ('show_coverage' in program_settings)) {
+    if (! ('show_coverage' in program_settings) || (typeof(program_settings.show_coverage) !== 'boolean')) {
       program_settings.show_coverage = false;
     }
     if (! ('top_doctypes' in program_settings)) {
       program_settings.top_doctypes = ['reqspec1'];
     }
-    if (! ('color_status' in program_settings)) {
+    if (! ('color_status' in program_settings) || (typeof(program_settings.color_status) !== 'boolean')) {
       program_settings.color_status = false;
     }
-    if (! ('show_errors' in program_settings)) {
+    if (! ('show_errors' in program_settings) || (typeof(program_settings.show_errors) !== 'boolean')) {
       program_settings.show_errors = true;
     }
-    if (! ('check_for_updates' in program_settings)) {
+    if (! ('check_for_updates' in program_settings) || (typeof(program_settings.check_for_updates) !== 'boolean')) {
       program_settings.check_for_updates = true;
     }
     if (! ('safety_link_rules' in program_settings)) {
@@ -96,7 +104,7 @@ export function handle_settings(settings_updated_callback) {
       check_for_updates: true,
       safety_link_rules: default_safety_link_rules
     }
-    settings.set('program_settings', program_settings)
+    settings.set('program_settings', program_settings, {prettify: true})
   }
   //console.log(program_settings)
   settings_dialog_prepare()
@@ -172,23 +180,11 @@ function settings_dialog_prepare() {
       box.checked = !program_settings.compare_fields[field]
     }
   }
-  let box = document.getElementById('sett_show_coverage')
-  if (box) {
-    box.checked = program_settings.show_coverage
-  }
-  box = document.getElementById('sett_color_status')
-  if (box) {
-    box.checked = program_settings.color_status
-  }
-  box = document.getElementById('sett_show_errors')
-  if (box) {
-    box.checked = program_settings.show_errors
-  }
-  box = document.getElementById('sett_check_for_updates')
-  if (box) {
-    box.checked = program_settings.check_for_updates
-  }
-  box = document.getElementById('sett_max_calc_nodes')
+  document.getElementById('sett_show_coverage').checked = program_settings.show_coverage
+  document.getElementById('sett_color_status').checked = program_settings.color_status
+  document.getElementById('sett_show_errors').checked = program_settings.show_errors
+  document.getElementById('sett_check_for_updates').checked = program_settings.check_for_updates
+  let box = document.getElementById('sett_max_calc_nodes')
   if (box) {
     //console.log(program_settings.max_calc_nodes)
     if (!program_settings.max_calc_nodes) {
@@ -206,7 +202,6 @@ function settings_dialog_prepare() {
 
 /**
  * Check if new settings are valid
- * 
  * @return {boolean} - true if valid
  */
 function settings_dialog_results() {
@@ -220,12 +215,13 @@ function settings_dialog_results() {
       program_settings.compare_fields[field] = !box.checked
     }
   }
-  program_settings.show_coverage     = document.getElementById('sett_show_coverage')
-  program_settings.color_status      = document.getElementById('sett_color_status')
-  program_settings.show_errors       = document.getElementById('sett_show_errors')
-  program_settings.check_for_updates = document.getElementById('sett_check_for_updates')
+  program_settings.show_coverage     = document.getElementById('sett_show_coverage').checked
+  program_settings.color_status      = document.getElementById('sett_color_status').checked
+  program_settings.show_errors       = document.getElementById('sett_show_errors').checked
+  program_settings.check_for_updates = document.getElementById('sett_check_for_updates').checked
   program_settings.max_calc_nodes    = parseInt(document.getElementById('sett_max_calc_nodes').value)
   program_settings.top_doctypes      = document.getElementById('top_doctypes').value.split(",")
+  console.log(program_settings)
   try {
     let new_safety_rules = JSON.parse(document.getElementById('safety_rules').value)
     let result = process_rule_set(new_safety_rules)
@@ -259,7 +255,6 @@ export function get_ignored_fields() {
  * Check if this looks like a plausible arrays of regex.
  * Update settings if found OK and return status.
  * @param {string} new_rules - json array of regex strings
- * 
  * @return {boolean} - true if it seems good
  */
 function process_rule_set(new_rules) {
@@ -299,7 +294,7 @@ function process_rule_set(new_rules) {
       // Update tests
       program_settings.safety_link_rules = regex_array
       //console.log(program_settings.safety_link_rules)
-      settings.set('program_settings', program_settings)
+      settings.set('program_settings', program_settings, {prettify: true})
     }
   } else {
      //alert('Expected array of rule regex strings')
@@ -322,4 +317,12 @@ export function load_safety_rules_fs() {
       alert(result.error)
     }
   }
+}
+
+/**
+ * Callback function to update doctype color mappings
+ * @param {dict} colors - mapping from doctypes to colors
+ */
+function update_doctype_colors(colors) {
+  settings.set('doctype_colors', colors, {prettify: true})
 }

@@ -26,6 +26,7 @@ let run_autoupdater = false;
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 let can_close = true
+let cmd_line_only = false
 
 let mainWindow_width = 1024
 let mainWindow_height = 768
@@ -173,10 +174,12 @@ function createWindow() {
   electron.Menu.setApplicationMenu(menu);
 
   mainWindow.once('ready-to-show', () => {
-    mainWindow.show()
-    //log.info("run_autoupdater:", run_autoupdater)
-    if (run_autoupdater) {
-      autoUpdater.checkForUpdatesAndNotify();
+    if (!cmd_line_only) {
+      mainWindow.show()
+      //log.info("run_autoupdater:", run_autoupdater)
+      if (run_autoupdater) {
+        autoUpdater.checkForUpdatesAndNotify();
+      }
     }
   });
 
@@ -193,8 +196,8 @@ function createWindow() {
       event.preventDefault();
     } else {
       [mainWindow_width, mainWindow_height] = mainWindow.getSize();
-      settings.set('mainWindow_width', mainWindow_width);
-      settings.set('mainWindow_height', mainWindow_height);
+      settings.set('mainWindow_width', mainWindow_width, {prettify: true});
+      settings.set('mainWindow_height', mainWindow_height, {prettify: true});
     }
   });
 }
@@ -207,13 +210,23 @@ const parser = new ArgumentParser({
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  parser.add_argument('-v', '--version', { action: 'version', version });
-  parser.add_argument('-d', '--debug', { help: 'Enable debug', action: 'store_true' });
-  parser.add_argument('-u', '--update', { help: 'Check for updates', action: 'store_true' });
-  parser.add_argument('oreqm_main',  { help: 'main oreqm', nargs: '?' });
-  parser.add_argument('oreqm_ref',  { help: 'ref. oreqm', nargs: '?' });
+  parser.add_argument('-v', '--version',           { action: 'version', version });
+  parser.add_argument('-d', '--debug',             { help: 'Enable debug', action: 'store_true' });
+  parser.add_argument('-u', '--update',            { help: 'Check for updates', action: 'store_true' });
+  parser.add_argument('-s', '--select',            { help: 'selection criteria', type: 'str' });
+  parser.add_argument('-i', '--id-only',           { help: 'search id only', action: 'store_true' });
+  parser.add_argument('-e', '--excluded-ids',      { help: 'excluded ids, comma separated', type: 'str' });
+  parser.add_argument('-c', '--excluded-doctypes', { help: 'excluded doctypes, comma separated', type: 'str' });
+  parser.add_argument('-f', '--format',            { help: 'svg, png or dot graph', type: 'str' });
+  parser.add_argument('-o', '--output',            { help: 'name of ouput', type: 'str' });
+  parser.add_argument('-a', '--safety',            { help: 'Generate safety check diagram', action: 'store_true' });
+  parser.add_argument('-t', '--hierarchy',         { help: 'Generate hierarchy diagram', action: 'store_true' });
+  parser.add_argument('-g', '--diagram',           { help: 'Generate specobject diagram', action: 'store_true' });
+  parser.add_argument('-r', '--rules',             { help: 'Safety rules json file', type: 'str' });
+  parser.add_argument('oreqm_main',                { help: 'main oreqm', nargs: '?' });
+  parser.add_argument('oreqm_ref',                 { help: 'ref. oreqm', nargs: '?' });
 
-    // Ugly work-around for command line difference when compiled to app compared to pure nodejs
+  // Ugly work-around for command line difference when compiled to app compared to pure nodejs
   if (process.argv[1] != '.') {
     process.argv.splice(1, 0, '.');
   }
@@ -222,6 +235,13 @@ app.on('ready', () => {
   run_autoupdater = args.update
   //console.log(process.argv);
   //console.log(args);
+  // Check if a command-line only action requested
+  if (args.safety || args.hierarchy || args.diagram) {
+    cmd_line_only = true
+    console.log("command-line only")
+    app.quit()
+  }
+
   mainWindow_width = settings.get('mainWindow_width', 1024);
   mainWindow_height = settings.get('mainWindow_height', 768);
   createWindow();
