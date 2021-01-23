@@ -1,7 +1,7 @@
 /* class for calculating doctype relationships */
 "use strict";
 
-export default class Doctype {
+export default class DoctypeRelations {
   // This class represent what relationships a doctype has
   constructor(name) {
     this.name = name

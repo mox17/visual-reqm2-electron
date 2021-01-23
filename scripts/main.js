@@ -19,6 +19,7 @@
     });
   };
 
+  // Define trim() operation if not existing
   if (typeof(String.prototype.trim) === "undefined")
   {
       String.prototype.trim = function()
@@ -27,6 +28,7 @@
       };
   }
 
+  // Define remove() operation if not existing
   if (typeof(Array.prototype.remove) === "undefined")
   {
     Array.prototype.remove = function() {
@@ -41,6 +43,7 @@
     };
   }
 
+  // Helper for exporting ReqExp to JSON
   RegExp.prototype.toJSON = function() { return this.source; };
 
   // ----------------------------------------------------------
@@ -58,6 +61,7 @@
     }
   });
 
+  // Handlers for menu operations triggered via RPC
   ipcRenderer.on('about', (item, window, key_ev) => {
     show_about()
   });
@@ -90,6 +94,10 @@
     open_settings()
   });
 
+  /**
+   * Main processing triggered mainwin starts here.
+   * Command line parameters are received here
+   */
   ipcRenderer.on('argv', (event, parameters, args) => {
     let ok = true;
     let main = false;
@@ -134,8 +142,10 @@
     cmd_line_parameters(args)
   });
 
+  /**
+   * Callback when updated settings a taken into use
+   */
   function settings_updated() {
-    // callback when updated settings a taken into use
     if (oreqm_main) {
       // settings can affect the rendering, therefore cache must be flushed
       oreqm_main.clear_cache()
@@ -174,7 +184,7 @@
   var image_mime = ''
   var image_data = ''
   var auto_update = true
-  var no_rejects = true
+  var no_rejects = true   // shall specobjects with status===rejected be displayed?
   var search_pattern = '' // regex for matching requirements
   var excluded_ids = ''   // \n separated list of ids
   var id_checkbox = false // flag for scope of search
@@ -820,7 +830,7 @@
     viz_loading_set()
     // setting up the reader
     let reader = new FileReader();
-    reader.readAsText(file,'UTF-8');
+    reader.readAsText(file, 'UTF-8');
     reader.onload = readerEvent => {
       process_data_main(file.path.length ? file.path : file.name, readerEvent.target.result)
     }
@@ -883,7 +893,7 @@
     if (oreqm_main) {
       viz_loading_set();
       let reader = new FileReader();
-      reader.readAsText(file,'UTF-8');
+      reader.readAsText(file, 'UTF-8');
       reader.onload = readerEvent => {
         process_data_ref(file.path.length ? file.path : file.name, readerEvent.target.result)
       }
@@ -1035,6 +1045,9 @@
     }
   }
 
+  /**
+   * Take exclusion parameters (excluded doctypes and excluded <id>s) from UI and transfer to oreqm object
+   */
   function handle_pruning() {
     if (oreqm_main) {
       let ex_id_list = []
@@ -1048,10 +1061,11 @@
     }
   }
 
-  var selected_nodes = []
-  var selected_index = 0
-  var selected_node = null
-  var selected_polygon = null
+  var selected_nodes = []  // List of id's matching search criteria
+  var selected_index = 0   // Currently selected <id>
+  var selected_node = null // <id> of currently selected node
+  // Manage selection highlight in diagram (extra bright red outline around selected specobject)
+  var selected_polygon = null // The svg id of the rectangle around a selected specobject in diagram
   var selected_width = ""  // width as a string
   var selected_color = ""  // color as #RRGGBB string
 
@@ -1062,6 +1076,10 @@
     nodeSelectEntries.innerHTML = ''
   }
 
+  /**
+   * Set list of selected <id>'s in combobox above diagram
+   * @param {list} selection - list of <id>'s
+   */
   function set_selection(selection) {
     selected_nodes = selection
     selected_index = 0
@@ -1081,6 +1099,10 @@
     }
   }
 
+  /**
+   * Set highlight in svg around specified node
+   * @param {DOMobject} node - SVG object. Naming is 'sel_'+id
+   */
   function set_selection_highlight(node) {
     clear_selection_highlight()
     let outline = node.querySelector('.cluster > polygon');
@@ -1093,6 +1115,7 @@
     }
   }
 
+  // Combobox handler
   document.getElementById('nodeSelect').addEventListener("change", function() {
     // Select node from drop-down
     clear_selection_highlight()
@@ -1129,10 +1152,14 @@
     }
   }
 
+  /**
+   * Search all id strings for a match to regex and create selection list
+   * @param {string} regex - regular expression
+   */
   function id_search(regex) {
     var results = oreqm_main.find_reqs_with_name(regex)
-    oreqm_main.clear_colors()
-    oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
+    oreqm_main.clear_marks()
+    oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
     const graph = oreqm_main.create_graph(select_color,
                                           program_settings.top_doctypes,
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
@@ -1144,10 +1171,14 @@
     set_selection(graph.selected_nodes)
   }
 
+  /**
+   * Search combined tagged string for a match to regex and create selection list
+   * @param {string} regex - search criteria
+   */
   function txt_search(regex) {
     var results = oreqm_main.find_reqs_with_text(regex)
-    oreqm_main.clear_colors()
-    oreqm_main.color_up_down(results, COLOR_UP, COLOR_DOWN)
+    oreqm_main.clear_marks()
+    oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
     const graph = oreqm_main.create_graph(select_color,
                                           program_settings.top_doctypes,
                                           oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
@@ -1261,8 +1292,8 @@
       problemPopup.style.display = "none";
     } else if (event.target == settingsPopup) {
       settingsPopup.style.display = "none";
+    }
   }
-}
 
   // Selection/deselection of nodes by right-clicking the diagram
   document.getElementById('menu_select').addEventListener("click", function() {
@@ -1336,6 +1367,10 @@
     filter_change()
   }
 
+  /**
+   * Center svg diagram around the selected specobject
+   * @param {string} node_name
+   */
   function center_node(node_name) {
     let found = false
     // Get translation applied to svg coordinates by Graphviz
@@ -1503,6 +1538,7 @@
     }
   }
 
+  // Hierarchy button handler
   document.getElementById('show_doctypes').addEventListener("click", function() {
     show_doctypes()
   });
@@ -1515,6 +1551,7 @@
     }
   }
 
+  // Safety button handler
   document.getElementById('show_doctypes_safety').addEventListener("click", function() {
     show_doctypes_safety()
   });
@@ -1527,13 +1564,17 @@
     }
   }
 
+  /**
+   * Add git style '+', '-' in front of changed lines.
+   * The part can be multi-line and is expected to end with a newline
+   * @param {object} part - diff object
+   * @return {string} - updated string
+   */
   function src_add_plus_minus(part) {
-    // Add git style '+', '-' in front of changed lines.
-    // The part can be multi-line and is expected to end with a newline
     let insert = part.added ? '+' : part.removed ? '-' : ' '
     let txt = part.value
     let last_char = txt.slice(-1)
-    txt = txt.slice(0,-1)
+    txt = txt.slice(0, -1)
     txt = insert + txt.split(/\n/gm).join('\n'+insert)
     return txt + last_char
   }
@@ -1542,8 +1583,10 @@
     show_source()
   });
 
+  /**
+   * Show selected node as XML
+   */
   function show_source() {
-    // Show selected node as XML
     if (selected_node.length) {
       var ref = document.getElementById('req_src');
       if (oreqm_ref && oreqm_main.updated_reqs.includes(selected_node)) {
@@ -1576,6 +1619,9 @@
     }
   }
 
+  /**
+   * Context menu handler to show internal tagged search format
+   */
   document.getElementById('menu_search_txt').addEventListener("click", function() {
     show_internal()
   });
@@ -1636,6 +1682,10 @@
     }
   }
 
+  /**
+   * Update doctype table. Colors associated with doctypes may have changed, therefore cached
+   * visualization data is cleared.
+   */
   function update_doctype_table() {
     if (oreqm_main) {
       oreqm_main.clear_cache()
@@ -1646,6 +1696,9 @@
     }
   }
 
+  /**
+   * Handle display (or not) of rejected specobjects
+   */
   document.getElementById('no_rejects').addEventListener("click", function() {
     no_rejects_click()
   });
@@ -1657,6 +1710,13 @@
     }
   }
 
+  /**
+   * Compare two oreqm files, each represented as objects.
+   * The main object will have visualization elements added and default diff related search terms are added.
+   * @param {object} oreqm_main
+   * @param {object} oreqm_ref
+   * @return {object} diff graph
+   */
   function compare_oreqm(oreqm_main, oreqm_ref) {
     // Both main and reference oreqm have been read.
     // Highlight new, changed and removed nodes in main oreqm (removed are added as 'ghosts')
@@ -1696,6 +1756,9 @@
     return true
   }
 
+  /**
+   * Values for tagging nodes visited while traversing UP and DOWN the graph of specobjects
+   */
   const COLOR_UP = 1
   const COLOR_DOWN = 2
 
@@ -1752,14 +1815,17 @@
     document.shell_openExternal(url)
   }
 
+  /**
+   * Make URLs clickable
+   */
   function prepareTags() {
     document.url_click_handler = url_click_handler
     document.shell_openExternal = shell.openExternal
     let aTags = document.getElementsByTagName("a");
     for (var i = 0; i < aTags.length; i++) {
       //console.log(aTags[i])
-      //aTags[i].setAttribute("onclick","require('shell').openExternal('" + aTags[i].href + "')");
-      aTags[i].setAttribute("onclick","document.url_click_handler(event, '" + aTags[i].href + "')");
+      //aTags[i].setAttribute("onclick", "require('shell').openExternal('" + aTags[i].href + "')");
+      aTags[i].setAttribute("onclick", "document.url_click_handler(event, '" + aTags[i].href + "')");
       aTags[i].href = "#";
     }
     return false;

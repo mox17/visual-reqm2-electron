@@ -1,12 +1,16 @@
 /* Main class for managing oreqm xml data */
 "use strict";
 
+/**
+ * Process xml input text and display possible errors detected
+ * @param {string} xmlString 
+ */
 function tryParseXML(xmlString) {
   var parser = new DOMParser();
   var parsererrorNS = parser.parseFromString('INVALID', 'text/xml').getElementsByTagName("parsererror")[0].namespaceURI;
   var dom = parser.parseFromString(xmlString, 'text/xml');
   let errors = dom.getElementsByTagNameNS(parsererrorNS, 'parsererror')
-  if(errors.length > 0) {
+  if (errors.length > 0) {
     let text = ''
     for (let t of errors[0].childNodes ) {
       text += t.textContent + '\n'
@@ -16,7 +20,14 @@ function tryParseXML(xmlString) {
   return dom;
 }
 
-// XML extract utilities
+// XML data extraction utility functions
+
+/**
+ * Return the text in the first (only?) tag with specified tag name
+ * @param {object} node - specobject
+ * @param {string} tag_name - name of tag
+ * @return text
+ */
 function get_xml_text(node, tag_name) {
   var result = ""
   var item = node.getElementsByTagName(tag_name)
@@ -26,6 +37,12 @@ function get_xml_text(node, tag_name) {
   return result
 }
 
+/**
+ * Return list of texts found in specified tags (multiple instances possible)
+ * @param {object} node
+ * @param {string} tag_name
+ * @return list of text
+ */
 function get_list_of(node, tag_name) {
   var result = []
   var items = node.getElementsByTagName(tag_name)
@@ -78,8 +95,12 @@ function get_linksto(node) {
   return result
 }
 
+/**
+ * Return a list of arrays (id,doctype,version) of the ffbObj's
+ * @param {object} node 
+ * @return list
+ */
 function get_fulfilledby(node) {
-  //Return a list of arrays (id,doctype,version) of the ffbObj's
   var ff_list = []
   var ffbobj_list = node.getElementsByTagName('ffbObj')
   var i;
@@ -105,6 +126,13 @@ function get_fulfilledby(node) {
   return ff_list
 }
 
+/**
+ * Compare a_in and b_in objects, while ignoring the fields listed in ignore_list
+ * @param {object} a_in 
+ * @param {object} b_in 
+ * @param {[string]} ignore_list
+ * @return boolean
+ */
 function stringEqual(a_in, b_in, ignore_list) {
   let a = Object.assign({}, a_in)
   let b = Object.assign({}, b_in)
@@ -121,8 +149,10 @@ function stringEqual(a_in, b_in, ignore_list) {
   return a_s === b_s
 }
 
+/**
+ * This class reads and manages information in ReqM2 .oreqm files
+ */
 export default class ReqM2Specobjects {
-  // This class reads and manages information in ReqM2 .oreqm files
   constructor(filename, content, excluded_doctypes, excluded_ids) {
     this.filename = filename;      // basename of oreqm file
     this.timestamp = ''            // recorded time of ReqM2 run
@@ -150,10 +180,10 @@ export default class ReqM2Specobjects {
     this.clear_problems()
     let success = this.process_oreqm_content(content);
     if (success) {
-      this.read_rules();
+      this.read_reqm2_rules();
       this.read_req_descriptions();
       this.add_fulfilledby_nodes();
-      this.find_links();
+      this.build_graph_traversal_links();
       this.timestamp = this.get_time()
       let problems = this.get_problems()
       if (problems) {
@@ -162,12 +192,19 @@ export default class ReqM2Specobjects {
     }
   }
 
+  /**
+   * Create a default diagram which acts as a mini user guide
+   */
   set_svg_guide() {
     this.dot = 'digraph "" {label="Select filter criteria and exclusions, then click\\l                    [update graph]\\l(Unfiltered graphs may be too large to render)"\n  labelloc=b\n  fontsize=24\n  fontcolor=grey\n  fontname="Arial"\n}\n'
   }
 
+  /**
+   * Attempt to load XML and report if error detected
+   * @param {string} content
+   * @return boolean - processing success
+   */
   process_oreqm_content(content) {
-    // Attempt to load XML and report if error detected
     try {
       this.root = tryParseXML(content)
     } catch (err) {
@@ -177,8 +214,11 @@ export default class ReqM2Specobjects {
     return true
   }
 
- read_rules() {
-   // Read rules and store descriptions in map
+  /**
+   * Read the rules specified within the oreqm file, i.e. the rules behind 'violations'.
+   * Store descriptions in map
+   */
+  read_reqm2_rules() {
    let rule_list = this.root.getElementsByTagName("rule");
    for (const rule of rule_list) {
      let rule_id_arr = rule.getElementsByTagName("name")
@@ -190,6 +230,9 @@ export default class ReqM2Specobjects {
    }
  }
 
+ /**
+  * Find and read all specobjects with associated doctypes
+  */
   read_req_descriptions() {
     // Handle all sections with specobjects
     let specobjects_list = this.root.getElementsByTagName("specobjects");
@@ -202,6 +245,11 @@ export default class ReqM2Specobjects {
     }
   }
 
+  /**
+   * Read a single specobject and create and object for each
+   * @param {object} node  -specobject
+   * @param {string} doctype
+   */
   read_specobject_list(node, doctype) {
     // Read individual specobject
     let specobject_list = node.getElementsByTagName("specobject");
@@ -254,9 +302,11 @@ export default class ReqM2Specobjects {
     }
   }
 
+  /**
+   * Create placeholders for absent 'fulfilledby' requirements.
+   * Add doctype to needsobj if not present
+   */
   add_fulfilledby_nodes() {
-    // Create placeholders for absent fulfilledby requirements.
-    // add doctype to needsobj if not present
     const ids = Array.from(this.requirements.keys())
     let new_nodes = new Map() // need a new container to add after loop
     for (let req_id of ids) {
@@ -330,9 +380,11 @@ export default class ReqM2Specobjects {
     }
   }
 
-  find_links() {
-    // Populate the linksto and reverse linksto_rev dicts with the linkages in the requirements.
-    // Ensure that color dict has all valid ids
+  /**
+   * Populate the linksto and reverse linksto_rev dicts with the linkages in the requirements.
+   * Ensure that color dict has all valid ids
+   */
+  build_graph_traversal_links() {
     const ids = this.requirements.keys()
     // Clear any previous results
     this.linksto = new Map()
@@ -386,13 +438,22 @@ export default class ReqM2Specobjects {
     }
   }
 
+  /**
+   * Store reject state flag in oreqm object
+   * @param {boolean} state 
+   */
   set_no_rejects(state) {
-    // keep reject state flag in object
     this.no_rejects = state
   }
 
-  color_down(color, req_id) {
-    //Color this id and linksto_rev referenced nodes with color
+  /**
+   * Check if node is eligible for inclusion in graph (not excluded, invalid or already visited)
+   * If OK mark req_id with 'color' and process child nodes recursively
+   * @param {integer} color 
+   * @param {string} req_id 
+   */
+  mark_and_flood_down(color, req_id) {
+    // Color this id and linksto_rev referenced nodes with color
     const rec = this.requirements.get(req_id)
     if (!rec) {
       return // missing specobject
@@ -419,12 +480,18 @@ export default class ReqM2Specobjects {
     this.color.set(req_id, col_set)
     if (this.linksto_rev.has(req_id)) {
       for (const child of this.linksto_rev.get(req_id)) {
-        this.color_down(color, child)
+        this.mark_and_flood_down(color, child)
       }
     }
   }
 
-  color_up(color, req_id) {
+  /**
+   * Check if node is eligible for inclusion in graph (not excluded, invalid or already visited)
+   * If OK mark req_id with 'color' and process ancestor nodes recursively
+   * @param {integer} color 
+   * @param {string} req_id 
+   */
+  mark_and_flood_up(color, req_id) {
     //Color this id and linksto referenced nodes with color
     const rec = this.requirements.get(req_id)
     if (!rec) {
@@ -450,21 +517,27 @@ export default class ReqM2Specobjects {
     col_set.add(color)
     this.color.set(req_id, col_set)
     if (this.linksto.has(req_id)) {
-      for (const child of this.linksto.get(req_id)) {
-        this.color_up(color, child)
+      for (const ancestor of this.linksto.get(req_id)) {
+        this.mark_and_flood_up(color, ancestor)
       }
     }
   }
 
+  /**
+   * Extract execution timestamp from oreqm report
+   * @return time
+   */
   get_time() {
-    // Extract execution timestamp from oreqm report
     const time = get_xml_text(this.root, "timestamp")
     return time
   }
 
+  /**
+   * A comparison may add 'ghost' requirements, which represent deleted
+   * requirements. Remove these 'ghost' requirements.
+   * @param {boolean} find_again - do a new search
+   */
   remove_ghost_requirements(find_again) {
-    // A comparison may add 'ghost' requirements, which represent deleted
-    // requirements. Remove these 'ghost' requirements
     for (const ghost_id of this.removed_reqs) {
       if (this.requirements.has(ghost_id)) { // Ghost may not exist
         const rec = this.requirements.get(ghost_id)
@@ -482,21 +555,28 @@ export default class ReqM2Specobjects {
     this.new_reqs = []
     this.updated_reqs = []
     if (find_again) {
-      this.find_links()
+      this.build_graph_traversal_links()
     }
     this.clear_cache()
   }
 
+  /**
+   * Clear cached node data
+   */
   clear_cache() {
-    // Clear cached node data
     this.search_cache = new Map()
     this.format_cache = new Map()
   }
 
+  /**
+   * Compare two sets of requirements (instances of ReqM2Oreqm)
+   * and return lists of new, modified and removed <id>s"""
+   * Requirements with no description are ignored
+   * @param {object} old_reqs - reference oreqm object
+   * @param {string[]} ignore_fields - list of fields to ignore
+   * @return object with new, updated and removed ids
+   */
   compare_requirements(old_reqs, ignore_fields) {
-    // Compare two sets of requirements (instances of ReqM2Oreqm)
-    // and return lists of new, modified and removed <id>s"""
-    // Requirements with no description are ignored
     const new_ids = Array.from(this.requirements.keys())
     let new_reqs = []
     let updated_reqs = []
@@ -538,7 +618,7 @@ export default class ReqM2Specobjects {
         this.doctypes.set(old_rec.doctype, dt_arr)
       }
     }
-    this.find_links() // Select the changed ones (if wanted)
+    this.build_graph_traversal_links() // Select the changed ones (if wanted)
     this.new_reqs = new_reqs
     this.updated_reqs = updated_reqs
     this.removed_reqs = removed_reqs
@@ -549,8 +629,12 @@ export default class ReqM2Specobjects {
     return result
   }
 
+  /**
+   * Prefix <id> with new:, chg: or rem: if changed
+   * @param {string} req_id  - id to check
+   * @return updated (decorated) id
+   */
   decorate_id(req_id) {
-    // prefix <id> with new:, chg: or rem: if changed
     let id_str = req_id
     if (this.new_reqs.includes(req_id)) {
       id_str = 'new:' + req_id
@@ -562,10 +646,14 @@ export default class ReqM2Specobjects {
     return id_str
   }
 
+  /**
+   * Check all ids against regex
+   * @param {string} regex
+   * @return list of matching ids
+   */
   find_reqs_with_name(regex) {
-    // Check <id> against regex
     const ids = this.requirements.keys()
-    let rx = new RegExp(regex, 'i')
+    let rx = new RegExp(regex, 'i') // case-insensitive
     let matches = []
     for (const id of ids) {
       const decorated_id = this.decorate_id(id)
@@ -575,6 +663,13 @@ export default class ReqM2Specobjects {
     return matches
   }
 
+  /**
+   * Return tagged text format for specobject.
+   * There is a cache for previously created strings which is used for speedup.
+   * Each xml tag has a corresponding 2 or 3 letter tag prefix.
+   * @param {string} req_id - id of specobject
+   * @return tagged string
+   */
   get_all_text(req_id) {
     if (this.search_cache.has(req_id)) {
       return this.search_cache.get(req_id)
@@ -617,12 +712,16 @@ export default class ReqM2Specobjects {
     }
   }
 
+  /**
+   * Check requirement texts against regex
+   * @param {string} regex
+   * @return list of matching ids
+   */
   find_reqs_with_text(regex) {
-    // Check requirement texts against regex
     const ids = this.requirements.keys()
     let matches = []
     try {
-      let rx = new RegExp(regex, 'ims')
+      let rx = new RegExp(regex, 'ims') // case-insensitive multi-line
       for (const id of ids) {
         if (rx.test(this.get_all_text(id)))
           matches.push(id)
@@ -634,18 +733,23 @@ export default class ReqM2Specobjects {
     return matches
   }
 
-  color_up_down(id_list, color_up_value, color_down_value) {
-    // Color from all nodes in id_list both up and down
-    //console.log(id_list)
-    let full_list = id_list //.concat(this.new_reqs, this.updated_reqs, this.removed_reqs)
-    for (const res of full_list) {
-      this.color_down(color_down_value, res)
-      this.color_up(color_up_value, res)
+  /**
+   * Mark all reachable nodes from id_list both up and down the graph
+   * @param {*} id_list 
+   * @param {*} color_up_value 
+   * @param {*} color_down_value 
+   */
+  mark_and_flood_up_down(id_list, color_up_value, color_down_value) {
+    for (const res of id_list) {
+      this.mark_and_flood_down(color_down_value, res)
+      this.mark_and_flood_up(color_up_value, res)
     }
   }
 
-  clear_colors() {
-    // Clear the 'color' tags on the requirements
+  /**
+   * Clear the 'color' tags on the requirements
+   */
+  clear_marks() {
     const ids = this.color.keys()
     for (const id of ids) {
       this.color.set(id, new Set())
@@ -693,16 +797,6 @@ export default class ReqM2Specobjects {
     return this.requirements.has(name)
   }
 
-  safety_doctype(id, safety) {
-    // construct a doctype name, qualified with safetyclass
-    let rec = this.requirements.get(id)
-    if (safety) {
-      return "{}:{}".format(rec.doctype, rec.safetyclass)
-    } else {
-      return rec.doctype
-    }
-  }
-
   doctypes_rank() {
     // Return an array of doctypes in abstraction level order.
     // Could be the order of initial declaration in oreqm
@@ -710,8 +804,11 @@ export default class ReqM2Specobjects {
     return Array.from(this.doctypes.keys())
   }
 
+  /**
+   * Collect problems and suppress duplicates
+   * @param {string} report - string with description (possibly multiple lines)
+   */
   problem_report(report) {
-    // report problems and suppress duplicates
     if (!this.problems.includes(report)) {
       this.problems.push(report)
       document.getElementById('issueCount').innerHTML = this.problems.length
@@ -728,10 +825,14 @@ export default class ReqM2Specobjects {
     document.getElementById('issueCount').innerHTML = this.problems.length
   }
 
+  /**
+   * Recreate XML for presentation purposes
+   * @param {object} rec 
+   * @param {string} tag 
+   * @return string in XML format
+   */
   get_tag_text_formatted(rec, tag) {
     let xml_txt = ''
-
-    //if (rec.hasOwnProperty(tag)) {
     if (Object.prototype.hasOwnProperty.call(rec, tag)) {
       let txt = rec[tag]
       let template = "\n    <{}>{}</{}>"
@@ -742,9 +843,14 @@ export default class ReqM2Specobjects {
     return xml_txt
   }
 
+  /**
+   * Recreate XML lists for presentation purposes
+   * @param {*} rec 
+   * @param {*} field 
+   * @return string in XML format
+   */
   get_list_formatted(rec, field) {
     let xml_txt = ''
-    //if (rec.hasOwnProperty(field)) {
     if (Object.prototype.hasOwnProperty.call(rec, field)) {
       let list = rec[field]
       let template = "\n    <{}>{}</{}>"
@@ -801,8 +907,12 @@ export default class ReqM2Specobjects {
     return xml_txt
   }
 
+  /**
+   * Reconstruct XML representation of specobject (ignoring extra tags related to oreqm results)
+   * @param {string} id 
+   * @return string in XML format
+   */
   get_node_text_formatted(id) {
-    // Reconstruct a XML representation
     let xml_txt = ""
     if (this.requirements.has(id)) {
       let rec = this.requirements.get(id)

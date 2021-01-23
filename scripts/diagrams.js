@@ -3,7 +3,7 @@
 
 import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
-import Doctype from './doctypes.js'
+import DoctypeRelations from './doctypes.js'
 import { program_settings, settings } from './settings.js'
 import { remote } from 'electron'
 import showToast from 'show-toast';
@@ -258,7 +258,14 @@ function quote_id(id) {
 
 export default class ReqM2Oreqm extends ReqM2Specobjects {
 
-      // Fixed texts that form part of dot file
+  constructor(filename, content, excluded_doctypes, excluded_ids) {
+    super(filename, content, excluded_doctypes, excluded_ids);
+    // diagram related members
+    this.doctype_clusters = null;
+    this.dt_map = null; //new Map(); // A map of { doctype_name : DoctypeRelations }
+  }
+
+  // Fixed texts that form part of dot file
   static get DOT_PREAMBLE() {
     const preamble =
 `digraph "" {
@@ -404,7 +411,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
    * Get error possibly associated with linksto
    * @param {string} req_id - specobject id
    * @param {string} link - specobject in linksto reference
-   * 
+   *
    * @return {string} - error string or ''
    */
   get_link_error(req_id, link) {
@@ -422,7 +429,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
    * Get error possibly associated with fulfilledby link
    * @param {string} req_id - specobject id
    * @param {*} link - specobject in ffb reference
-   * 
+   *
    * @return {string} - error string or ''
    */
   get_ffb_link_error(req_id, link) {
@@ -436,8 +443,15 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return error
   }
 
-  linksto_safe(from, to) {
-    // permitted safetyclass for providescoverage <from_safetyclass>:<to_safetyclass>
+  /**
+   * Check two expanded doctype:safetyclass pairs for compliance with at least one of the supplied rules,
+   * i.e. permitted safetyclass for providescoverage <from_safetyclass>:<to_safetyclass>
+   * @param {string} from - origin doctype:safetyclass
+   * @param {string} to - descination doctype:safetyclass
+   *
+   * @return {boolean}
+   */
+  check_linksto_safe(from, to) {
     let combo = "{}>{}".format(from, to)
     for (const re of program_settings.safety_link_rules) {
       if (combo.match(re)) {
@@ -447,22 +461,37 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return false
   }
 
-  linksto_safe_color(from, to) {
-    // Color coded safefety
-    return this.linksto_safe(from, to) ? '#00AA00' : '#FF0000'
+  build_doctype_with_safetyclass(id, safety) {
+    // construct a doctype name, qualified with safetyclass
+    let rec = this.requirements.get(id)
+    if (safety) {
+      return "{}:{}".format(rec.doctype, rec.safetyclass)
+    } else {
+      return rec.doctype
+    }
   }
 
-  scan_doctypes(doctype_safety) {
-    // Scan all requirements and summarize the relationships between doctypes
-    // with counts of instances and relations (needsobj, linksto, fulfilledby)
-    // When doctype_safety is true, the doctypes are qualified with the safetyclass
-    // of the requirement as in <doctype>:<safetyclass> and these are the nodes rendered
-    let dt_map = new Map() // A map of { doctype_name : Doctype }
+  /**
+   * Calculate edge color according to compliance with safety rules
+   * @param {string} from  - origin doctype
+   * @param {string} to - destination doctype
+   *
+   * @return {string} - RGB color of graph edge
+   */
+  linksto_safe_color(from, to) {
+    return this.check_linksto_safe(from, to) ? '#00AA00' : '#FF0000'
+  }
+
+  /**
+   * Build a mapping of doctype relations
+   * @param {boolean} - consider safetyclass in diagram
+   */
+  build_doctype_mapping(doctype_safety) {
     let id_list = this.requirements.keys()
     let doctype = null
     let dest_doctype = null
     let basic_doctype = null
-    let doctype_clusters = new Map() // {doctype : [doctype:safetyclass]}
+    this.doctype_clusters = new Map() // {doctype : [doctype:safetyclass]}
     for (const id of id_list) {
       if (this.requirements.get(id).ffb_placeholder === true) {
         // skip placeholders
@@ -470,28 +499,27 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
       }
       // make a cluster of doctypes with the different safetyclasses
       basic_doctype = this.requirements.get(id).doctype
-      if (!doctype_clusters.has(basic_doctype)) {
-        doctype_clusters.set(basic_doctype, [])
+      if (!this.doctype_clusters.has(basic_doctype)) {
+        this.doctype_clusters.set(basic_doctype, [])
       }
-      doctype = this.safety_doctype(id, doctype_safety)
-      if (!dt_map.has(doctype)) {
-        dt_map.set(doctype, new Doctype(doctype))
+      doctype = this.build_doctype_with_safetyclass(id, doctype_safety)
+      if (!this.dt_map.has(doctype)) {
+        this.dt_map.set(doctype, new DoctypeRelations(doctype))
         // Create clusters of refined doctypes, based on fundamental one
-        if (!doctype_clusters.get(basic_doctype).includes(doctype)) {
-          doctype_clusters.get(basic_doctype).push(doctype)
+        if (!this.doctype_clusters.get(basic_doctype).includes(doctype)) {
+          this.doctype_clusters.get(basic_doctype).push(doctype)
         }
       }
 
-      //
-      dt_map.get(doctype).add_instance(id)
+      this.dt_map.get(doctype).add_instance(id)
       // linksto
       if (this.linksto.has(id)) {
         const linksto = Array.from(this.linksto.get(id))
         for (let linked_id of linksto) {
           if (this.requirements.has(linked_id)) {
-            dest_doctype = this.safety_doctype(linked_id, doctype_safety)
+            dest_doctype = this.build_doctype_with_safetyclass(linked_id, doctype_safety)
             //console.log("add_linksto ", doctype, linked_id, dest_doctype)
-            dt_map.get(doctype).add_linksto(dest_doctype, [linked_id, id])
+            this.dt_map.get(doctype).add_linksto(dest_doctype, [linked_id, id])
           }
         }
       }
@@ -506,7 +534,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
             dest_doctype = need
           }
           //console.log("add_needsobj ", dest_doctype)
-          dt_map.get(doctype).add_needsobj(dest_doctype)
+          this.dt_map.get(doctype).add_needsobj(dest_doctype)
         }
       }
       // fulfilledby
@@ -519,10 +547,19 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           dest_doctype = ffb.doctype
         }
         //console.log("add_fulfilledby ", dest_doctype)
-        dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb.id])
+        this.dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb.id])
       }
 
     }
+  }
+
+  scan_doctypes(doctype_safety) {
+    // Scan all requirements and summarize the relationships between doctypes
+    // with counts of instances and relations (needsobj, linksto, fulfilledby)
+    // When doctype_safety is true, the doctypes are qualified with the safetyclass
+    // of the requirement as in <doctype>:<safetyclass> and these are the nodes rendered
+    this.dt_map = new Map() // A map of { doctype_name : DoctypeRelations }
+    this.build_doctype_mapping(doctype_safety)
     // DOT language start of diagram
     let graph = `digraph "" {
       rankdir="{}"
@@ -531,16 +568,16 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
 `.format(doctype_safety ? 'BT' : 'TD')
     // Define the doctype nodes - the order affects the layout
-    const doctype_array = Array.from(doctype_clusters.keys())
+    const doctype_array = Array.from(this.doctype_clusters.keys())
     for (let doctype of doctype_array) {
-      let doctypes_in_cluster = doctype_clusters.get(doctype)
+      let doctypes_in_cluster = this.doctype_clusters.get(doctype)
       let sc_stats = ''
       let count_total = 0
       let sc_list = Array.from(doctypes_in_cluster.keys())
       sc_list.sort()
       let sc_string = ''
       for (const sub_doctype of doctypes_in_cluster) {
-        let dt = dt_map.get(sub_doctype)
+        let dt = this.dt_map.get(sub_doctype)
         let sc = sub_doctype.split(':')[1]
         sc_string += '</TD><TD port="{}">{}: {} '.format(sc_str(sc), sc_str(sc), dt.count)
         count_total += dt.count
@@ -563,10 +600,10 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     }
     let dt
     let count
-    let doctype_edges = Array.from(dt_map.keys())
+    let doctype_edges = Array.from(this.dt_map.keys())
     // Loop over doctypes
     for (let doctype of doctype_edges) {
-      dt = dt_map.get(doctype)
+      dt = this.dt_map.get(doctype)
       // Needsobj links
       graph += '# linkage from {}\n'.format(doctype)
       let need_keys = Array.from(dt.needsobj.keys())
@@ -590,7 +627,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           count,
           doctype_safety ? '\\l{}>{}'.format(dt_sc_str(doctype), dt_sc_str(lk)) : '',
           doctype_safety ? this.linksto_safe_color(doctype, lk) : 'black')
-        if (doctype_safety && !this.linksto_safe(doctype, lk)) {
+        if (doctype_safety && !this.check_linksto_safe(doctype, lk)) {
           let prov_list = dt.linksto.get(lk).map(x => '{} -> {}'.format(quote_id(x[1]), quote_id(x[0])))
           let dt2 = doctype
           if (dt2.endsWith(':')) {
@@ -611,9 +648,9 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
           doctype.split(':')[0],
           ffb.split(':')[0],
           count,
-          doctype_safety ? '\n{}>{}'.format(dt_sc_str(ffb),dt_sc_str(doctype)) : '',
+          doctype_safety ? '\n{}>{}'.format(dt_sc_str(ffb), dt_sc_str(doctype)) : '',
           doctype_safety ? this.linksto_safe_color(ffb, doctype) : 'purple')
-        if (doctype_safety && !this.linksto_safe(ffb, doctype)) {
+        if (doctype_safety && !this.check_linksto_safe(ffb, doctype)) {
           let problem = "{} fulfilledby {}".format(ffb, doctype)
           this.problem_report(problem)
         }
@@ -626,13 +663,22 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
     }
     graph += '\n  label={}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n'.format(
-      this.construct_graph_title(false, rules, null))
+      this.construct_graph_title(false, rules, null, false, null))
     graph += '\n}\n'
     //console.log(graph)
     this.dot = graph
     return graph
   }
 
+  /**
+   * Construct diagram legend as 'dot' table.
+   * @param {boolean} show_filters - display selection criteria
+   * @param {object} extra - object with .title and .text for additional row
+   * @param {object} oreqm_ref - optional reference (2nd) oreqm object
+   * @param {boolean} id_checkbox - search <id>s only
+   * @param {string} search_pattern - 'selection criteria' string
+   * @return {string} - 'dot' table
+   */
   construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) {
     let title = '""'
     title  = '<\n    <table border="1" cellspacing="0" cellborder="1">\n'
