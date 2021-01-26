@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "mainwin.js",
   "scripts": {
