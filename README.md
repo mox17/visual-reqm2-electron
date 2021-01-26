@@ -12,15 +12,23 @@ differences between two `.oreqm` files.
 ## Running the application
 
 Under 'releases' there are binaries for Windows and Linux, which can directly be installed.
+There are also "stand-alone" executables, which do not integrate in menus and associate with `.oreqm` files.
+
+For Windows it is the excutable *without* 'Setup' in its name, and for Linux it is the `.AppImage` executable.
 
 ## Building the application
 
 Should you wish to build this, it is necessary to have nodejs installed (currently version v14.0.9)
-as well as npm (currently version 6.14.8)
+as well as npm (currently version 6.14.8).
+
+As javascript is an evolving language, the source code is transpiled to an older (simpler/uglier) format,
+which is then executed. This is to be compatible with some of the used modules.
+This means that the source code that is visible in the chrome debugging tool is close, but not exactly what is
+found in the scripts folder.
 
 ```bash
 npm install
-# transpile js
+# transpile js and start application
 npm run-script build
 npm start
 
@@ -30,16 +38,19 @@ To build a Windows executable to the following step (on a Windows machine)
 
 ```bash
 npm run-script win
-# this will create
-# ./dist/'Visual ReqM2 Setup 0.98.2.exe'
+# this will create an electron applications for Windows (installable and stand-alone)
+# './dist/Visual ReqM2 Setup 0.98.2.exe'
+# For Windows there are some signing steps. You will need to provide your own certificate 
+# and associated password, or remove the signing steps.
+# The signing is necessary for the auto-update feature to work, but this feature is default off.
 ```
 
 To build a Linux executable to the following step (on a Linux machine)
 
 ```bash
 npm run-script linux
-# this will create
-# ./dist/'Visual ReqM2 Setup 0.98.2.AppImage'
+# this will create .rpm , .dep and .AppImage binaries
+# './dist/Visual ReqM2 Setup 0.98.2.AppImage'
 ```
 
 ## Quick start
@@ -49,6 +60,7 @@ The program can be launched without parameters or can accept one or two oreqm fi
 ### Drag and drop
 
 The `.oreqm` files can be dragged to the input areas for main oreqm file and reference oreqm file respectively.
+These areas are in the upper left corner of the main window.
 
 ### If no diagram appears
 
@@ -59,6 +71,7 @@ If the program is not producing a diagram, consider disabling one or more less i
 exluding them from the doctype table. This can be done at any time.
 
 In the doctype table it is visible how many nodes an exclusion of a doctype would eliminate from the diagram.
+The doctype table is the colorful table in the lower left of the main window.
 
 ## Search
 
@@ -68,19 +81,24 @@ pruning of the graph of nodes is wanted.
 
 ### Search terms
 
-When no search terms are defined, Visual ReqM2 will display all nodes. This may not always be a good
+When no search terms are defined, Visual ReqM2 will try to display all nodes. This may not always be a good
 strategy, as some projects can have many thousands of requirements.
-Visual ReqM2 will disable the 'auto-update' flag when there are more than 500 nodes.
+
+Visual ReqM2 has a setting for maximum number of nodes in a diagram. the default is 1000 nodes.
+In indication will be shown when this limit is exceeded.
+
+At least the author believes that a diagram with more than 1000 nodes is not helping with the overview,
+that this program aims to provide. So if too many nodes are rendered, make the filters more precise.
 
 ### Filter Mechanisms
 
 There are three main ways to filter requirements:
 
 * by `doctype`
-* select nodes (and what is reachable)
-* exclude nodes (breaks reachability)
+* select specific nodes (and also show nodes that are reachable from selected nodes)
+* exclude specific nodes (breaks reachability)
 
-These will be explained below:
+These filter mechanisms will be explained below:
 
 #### Doctypes
 
@@ -90,11 +108,11 @@ The doctype table allows to disable display of selected doctypes. For example `i
 interesting information, it is their presence that counts, so the user may choose not to clutter the diagram
 and exclude them.
 
-The doctype table shows how many nodes of each are present in `.oreqm`, how many are shown and how many are currently selected.
+The doctype table shows how many nodes of each doctype are present in `.oreqm`, how many are shown and how many are currently selected.
 
 ### Selecting nodes
 
-The 'selection criteria' text box to the left accepts a **regular expression**. Nodes which match this
+The 'Selection criteria' text box to the left accepts a **regular expression**. Nodes which match this
 expression will be shown and highlighted with a maroon outline. Furthermore, all nodes reachable from these
 **selected** nodes will also be shown. All other nodes are left out.
 The regular expression can be applied to the \<id> only, or to a **combined** string.
@@ -119,8 +137,8 @@ The combined string concatenates the raw text from xml tags with some prefixes i
 **Note**: The `<id>` is deliberately the last item in this string. This means that a regex ending
 with `$` will match a specfic `<id>` and not all \<id>s with a common prefix.
 
-**Note**: When doing comparisons of two `.oreqm` files, the `<id>` is prefixed with `rem:`, `chg:`
-and `new:` for removed, changed and new nodes.respectively.
+**Note**: When doing comparisons of two `.oreqm` files, the `<id>` text is prefixed with `rem:`, `chg:`
+and `new:` for removed, changed and new nodes respectively.
 
 **Note**: It is possible to locate requirements with `fulfilledby` links, by using the text search
 prefix `ffb:` for the referred \<id>, or just `ffb:` to select them all.
@@ -131,38 +149,43 @@ respects the order of fields listed above and separating the search elements wit
 For example match requirements of \<safetyclass> 'SIL-2' with the word
 'kernel' in the \<id> using this search string: `sc:sil-2.*id:.*kernel`
 
-Nodes can also be selected by right-clicking them and choosing 'Select' in the menu. This will update
-the regex in the search box. All additional nodes reachable from selected node, will be added to diagram.
+The search is case-insensitive.
+
+Nodes can also be selected by right-clicking them and choosing 'Select' in the context menu. This will update
+the regex in the search box. All additional nodes reachable from the selected node, will be added to diagram.
 
 Similarly an explicitly selected node can also be de-selected again from the right-click menu.
 It is not possible to deselect nodes that were matched with anything but a specific `<id>$`.
 
-**Note**: the Visual ReqM2 specific right-click menu only works in `svg` mode.
+**Note**: the Visual ReqM2 specific right-click menu only works in `svg` mode, i.e. not if the diagram is 
+displayed as png file.
 
 ### Excluding nodes
 
-The "Excluded \<id>s" text box contains full \<id>s of nodes that are excluded, one per line.
+The "Excluded \<id>s" text box contains full \<id>s of nodes that are excluded, one \<id> per line.
 
 An excluded node is not shown and the and anything beyond it is not reachable from
 selected nodes.
-A right-click on a node opens a menu with the option to exclude the node.
+A right-click on a node opens a context menu with the option to exclude the node.
 
 To un-exclude the node it is necessary to delete the relevant entry in the "Excluded \<id>s" box.
 
 It is possible to exclude all nodes with \<status>rejected\</status> with the `exclude rejected`
-checkbox.
+checkbox (this is the default).
 
 ### Copy \<id> or other text from nodes to clipboard
 
-The right-click menu has an option that puts the \<id> on the clipboard.
+The right-click menu has an option that puts the \<id> on the clipboard. Also the fulfilledby style
+\<id>:\<doctype>:\<version> is directly available.
 
 This is only possible when **svg** format is in use (which is the default).
 
 ### Update and auto-update
 
-When loading an `.oreqm` file with less that 500 nodes, the full graph will be shown automatically.
-For larger graphs the `auto-opdate` option is turned off, and clicking the "Update graph" button is
-necessary.
+When loading an `.oreqm` file the full graph will be shown automatically, but the number of nodes
+is limited to the configurable number of 1000 (can be changed in settings).
+For larger graphs the `auto-opdate` option can be turned off, and clicking the "Update graph" button is
+necessary to update diagram (otherwise editing search criteria, exclusions or doctype filters will trigger a redraw).
 
 The underlying graph generation tool, "Graphviz/viz.js" is limited in how big graphs it can render,
 and processing time also grows with graph size.
@@ -170,11 +193,11 @@ and processing time also grows with graph size.
 While the graph is beingn calculated a "WORKING" status is shown in the options bar. This happens in
 a worker thread, so selection criteria can be updated while this is going on.
 
-It is possible to enable "auto-update" regardless of the size of the graph, but responsiveness may
+It is possible to use "auto-update" regardless of the size of the graph, but responsiveness may
 suffer when many nodes need to be rendered.
 
 When a suitably small graph has been defined though selections and/or exclusions, it is a good idea
-to enable "auto-update".
+to re-enable "auto-update".
 
 ### Comparing oreqm files
 
@@ -183,7 +206,8 @@ terms of what is categorized as new vs. removed.
 
 Nodes which are **new**, **changed** or **removed** are shown with an outline around them in green, orange or red.
 
-It is possible to select these nodes with regex expressions. A hidden prefix `new:`/`chg:`/`rem:` is added as described above.
+It is possible to select these nodes with regex expressions. A hidden prefix `new:`/`chg:`/`rem:` is added to their
+\<id> as described above. In the future this marker may be moved to a separate tag.
 
 ## Viewing the doctype relationships
 
@@ -202,15 +226,18 @@ Each doctype is represented by a box with its associated color. The total number
 listed along with the count of each safetyclass represented by specobjects of this doctype.
 
 There are arrows indicating providescoverage/linksto relations and stippled arrows for fulfilledby relations.
-Green arrows are supposed to indicate permitted relations and red arrows to indicate relations that are violating 
+GREEN arrows are supposed to indicate permitted relations and RED arrows to indicate relations that are violating 
 safety rules.
+
+Visual ReqM2 has a log of various problems detected. This is accessible through the `issues` button in the upper
+right corner.
 
 ### Configuration of safety rules
 
 Now, Visual ReqM2 does not know all there is to know about safety rules, but it provides a mechanism to configure
 permitted links based on \<doctype> and \<safetyclass> of the specobjects at the ends of a link.
 
-Visual ReqM2 will construct a string for each relation with doctype and safetyclass for each end.
+Visual ReqM2 will construct a string for each relation with doctype and safetyclass for each end of the relation.
 Each **"doctype:safetyclass>doctype:safetyclass"** string will then be tested against an array of **regular expressions**,
 until one of them match, or all expressions have failed.
 
@@ -237,13 +264,14 @@ The array of regular expressions can be loaded from a .json file (it is an array
 regex syntax).
 The array of expressions can also be edited from the settings dialog. Use Menu "Edit" ->  "Settings..." to access.
 
-When settings are modified, they are made persistent, so the next start of the program should use the same settings.
+When settings are modified, they are made persistent, so the next start of the program should have the same settings.
 
 ## Output
 
 Aside from the obvious output on the display, there are mechanisms to save and use the generated diagrams.
 
-The default output format is `.svg`. Output can also be generated in `.png` format.
+The default output format is `.svg`. Output can also be generated in `.png` format and in `.dot` format.
+The latter is mostly for debugging problems with the generation of diagrams.
 
 From file menu click "Save diagram as...". Specifying either a `.svg` or `.png` extension for
 the filename, controls the output format
@@ -272,6 +300,9 @@ The resulting palette can be downloaded, possibly modified, and uploaded. Visual
 as a setting internally. This means that next time the tool is used, any custom color scheme selected, should still be in effect.
 
 There are sample color `.json` files in the `./testdata/` directory.
+
+A project may wish to define a color scheme for the relevant doctypes, as this will make diagrams more recognizable when
+doctypes always appear in the same color.
 
 ## Examples
 
