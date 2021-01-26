@@ -45,6 +45,13 @@ npm run-script win
 # The signing is necessary for the auto-update feature to work, but this feature is default off.
 ```
 
+The signing for Windows is configured with two environment variables. See https://www.electron.build/code-signing for details.
+```bash
+CSC_KEY_PASSWORD=somesecretpasswordwhichisnotthisone
+# Define path to certificate
+CSC_LINK=~/certs/app_cert.pfx
+```
+
 To build a Linux executable to the following step (on a Linux machine)
 
 ```bash
