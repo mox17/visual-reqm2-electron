@@ -1,8 +1,10 @@
 /* class for calculating doctype relationships */
 "use strict";
 
+/**
+ * @classdesc This class represent what relationships a doctype has
+ */
 export default class DoctypeRelations {
-  // This class represent what relationships a doctype has
   constructor(name) {
     this.name = name
     this.count = 0               // Number of instances

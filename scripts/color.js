@@ -2,9 +2,14 @@
 import { remote } from 'electron'
 import fs from 'fs'
 
+/**
+ * Convert HSV values in [0..1] to RGB
+ * @param  {number} hue
+ * @param  {number} saturation
+ * @param  {number} value
+ * @return {Array<number>} [r, g, b] values from 0 to 255
+ */
 function _hsv_to_rgb(hue, saturation, value) {
-  // HSV values in [0..1]
-  //  returns [r, g, b] values from 0 to 255
   let red, green, blue
   let hue_int = Math.floor(hue * 6)
   let f = hue * 6 - hue_int
@@ -49,8 +54,11 @@ const GOLDEN_RATIO_CONJUGATE = 0.618033988749895
 var HUE_START = 0.314159265359 // use "random" start value
 var HUE = HUE_START
 
+/**
+ * Calculate next pseudo random color
+ * @return {Array<number>} RGB colors
+ */
 function _get_random_color() {
-  // Calculate next pseudo random color
   HUE += GOLDEN_RATIO_CONJUGATE
   HUE %= 1
   return _hsv_to_rgb(HUE, 0.3, 0.99)
@@ -60,6 +68,11 @@ function _color_random_reset() {
   HUE = HUE_START
 }
 
+/**
+ * @param  {number} d number
+ * @param  {number} padding amount leading zeroes
+ * @return {string} hexadecimal string
+ */
 function _decimalToHex(d, padding) {
   var hex = Number(d).toString(16).toUpperCase();
   padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
@@ -78,6 +91,12 @@ function _get_color_string() {
                           _decimalToHex(color[2], 2))
 }
 
+/**
+ * Create new color for new doctype
+ * @param  {object} palette map of doctype to color
+ * @param  {string} doctype
+ * @return {string} html friendly color string
+ */
 function _add_color(palette, doctype) {
   let doctypes = Object.keys(palette)
   let new_color
@@ -102,8 +121,12 @@ var _my_palette =
   "none": "#FFFFFF"
 };
 
+/**
+ * public function to get color of doctype
+ * @param  {string} key (doctype)
+ * @return {string} html color
+ */
 export default function get_color(key) {
-  // pucblic function to get color
   let color
   if (key in _my_palette) {
     color = _my_palette[key]
@@ -113,17 +136,9 @@ export default function get_color(key) {
   return color
 }
 
-
-function _downloadObjectAsJson(exportObj, exportName){
-  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, 0, 2));
-  var downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href",     dataStr);
-  downloadAnchorNode.setAttribute("download", exportName + ".json");
-  document.body.appendChild(downloadAnchorNode); // required for firefox
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
-}
-
+/**
+ * Prompt user for save location and save color palette as external file.
+ */
 export function save_colors_fs() {
   let SavePath = remote.dialog.showSaveDialogSync(null,
     {
@@ -136,6 +151,9 @@ export function save_colors_fs() {
   }
 }
 
+/**
+ * Prompt user for load location and load external file as color palette.
+ */
 export function load_colors_fs(update_function) {
   let LoadPath = remote.dialog.showOpenDialogSync(
     {
@@ -151,7 +169,10 @@ export function load_colors_fs(update_function) {
   }
 }
 
+/** @global {string} Name of (legacy) browser storage for color palettes */
 const color_storage_name = 'Visual_ReqM2_color_palette'
+
+
 function _store_colors(colors) {
   if (color_settings_updater !== null) {
     color_settings_updater(colors)
@@ -166,14 +187,14 @@ function _store_colors(colors) {
   */
 }
 
-// callback function to update settings with updated color mapping
+/** @global {function} callback function to update settings with updated color mapping */
 var color_settings_updater = null
 
 /**
  * This is called just after settings have been read. Use defined colors (if available)
  * otherwise update settings with colors found in localStorage.
- * @param {dict} color_settings - settings (or null) from saved json settings
- * @param {function} update_function  - function to update settings with new color mappings
+ * @param {dict} color_settings settings (or null) from saved json settings
+ * @param {function} update_function function to update settings with new color mappings
  */
 export function update_color_settings(color_settings, update_function) {
   color_settings_updater = update_function

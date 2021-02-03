@@ -50,6 +50,7 @@
 
   var beforeUnloadMessage = null;
 
+  /** @description Draggable border between diagram and selection logic to the left */
   var resizeEvent = new Event("paneresize");
   Split(['#oreqm_div', '#graph'], {
     sizes: [15, 85],
@@ -67,31 +68,31 @@
   });
 
   ipcRenderer.on('save_colors', (item, window, key_ev) => {
-    save_colors_fs()
+    save_colors_fs();
   });
 
   ipcRenderer.on('load_colors', (item, window, key_ev) => {
-    load_colors_fs(update_doctype_table)
+    load_colors_fs(update_doctype_table);
   });
 
   ipcRenderer.on('load_safety', (item, window, key_ev) => {
-    load_safety_rules_fs()
+    load_safety_rules_fs();
   });
 
   ipcRenderer.on('save_diagram_as', (item, window, key_ev) => {
-    menu_save_as()
+    menu_save_as();
   });
 
   ipcRenderer.on('save_issues_as', (item, window, key_ev) => {
-    save_problems()
+    save_problems();
   });
 
   ipcRenderer.on('show_issues', (item, window, key_ev) => {
-    show_problems()
+    show_problems();
   });
 
   ipcRenderer.on('open_settings', (item, window, key_ev) => {
-    open_settings()
+    open_settings();
   });
 
   /**
@@ -103,7 +104,7 @@
     let main = false;
     let ref = false;
 
-    handle_settings(settings_updated)
+    handle_settings(settings_updated);
     /*
     let c_args = ''
     for (let i = 0; i < parameters.length; i++) {
@@ -113,7 +114,7 @@
     */
 
     if (program_settings.check_for_updates) {
-      check_newer_release_available()
+      check_newer_release_available();
     }
     if (args.oreqm_main !== undefined) {
       //console.log(fs.statSync(args.oreqm_main));
@@ -143,7 +144,7 @@
   });
 
   /**
-   * Callback when updated settings a taken into use
+   * Callback when updated settings are taken into use
    */
   function settings_updated() {
     if (oreqm_main) {
@@ -175,21 +176,34 @@
     }
   }
 
+  /** parses generated svg from graphviz */
   var parser = new DOMParser();
+  /** worker thread running graphviz */
   var vizjs_worker;
+  /** svg output from graphviz */
   var svg_result;
+  /** Object containing internal representation of main oreqm file */
   var oreqm_main
+  /** Object containing internal representation of reference oreqm file */
   var oreqm_ref
   var image_type = 'none'
   var image_mime = ''
   var image_data = ''
+  /** */ When true diagram is generated whenever selections or exclusions are updated */
   var auto_update = true
+  /** When true specobject in state 'rejected' are ignored */
   var no_rejects = true   // shall specobjects with status===rejected be displayed?
-  var search_pattern = '' // regex for matching requirements
-  var excluded_ids = ''   // \n separated list of ids
+  /** regex for matching requirements */
+  var search_pattern = ''
+  /** \n separated list of excluded ids */
+  var excluded_ids = ''
+  /** When true only search ID field */
   var id_checkbox = false // flag for scope of search
+  /** the generated 'dot' source submitted to graphviz */
   var dot_source = ''
+  /** The svg pan and zoom utility used in diagram pane */
   var panZoom = null
+  /** Version available on github.com */
   var latest_version = 'unknown'
 
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
@@ -215,6 +229,9 @@
     document.getElementById("viz_working").innerHTML = '<span style="color: #000000"></span>'
   }
 
+  /**
+   * Start graphviz in worker thread on processing new dot graph.
+   */
   function updateGraph() {
     if (vizjs_worker) {
       vizjs_worker.terminate();
@@ -281,8 +298,12 @@
     }
   }
 
+  /** svg element parsed from graphviz svg output */
   var svg_element = null
 
+  /**
+   * Remove currently displayed graph
+   */
   function clear_diagram() {
     const graph = document.querySelector("#output");
 
@@ -302,6 +323,10 @@
     }
   }
 
+  /**
+   * Render generated diagram in window, considering the selected output format
+   * and set up event handlers for resizing, pan/zoom and context menu
+   */
   function updateOutput() {
     const graph = document.querySelector("#output");
 
@@ -485,6 +510,10 @@
     copy_id_node(true)
   });
 
+  /**
+   * Put id of selected specobject on clipboard in selected format
+   * @param {boolean} ffb_format true: id:doctype:version ; false: id
+   */
   function copy_id_node(ffb_format) {
     const ta = document.createElement('textarea');
     if (ffb_format) {
@@ -506,8 +535,10 @@
     copy_svg2()
   }); */
 
+  /**
+   * Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
+   */
   function copy_svg() {
-    // Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
     let clip_txt = '<img src="data:image/svg;base64,{}" width="{}" height="{}" alt="diagram"/>'.format(
       btoa(svg_result), svg_element.getAttribute('width'), svg_element.getAttribute('height'))
     const ta = document.createElement('textarea'); // 'img' ??
@@ -533,6 +564,7 @@
     })
 }
 
+  /** context menu item handler. Copy diagram as png to clipboard */
   document.getElementById('menu_copy_png').addEventListener("click", function() {
     copy_png()
   });
@@ -541,6 +573,11 @@
     let image = Viz.svgXmlToPngImageElement(svg_result, 1, png_callback);
   }
 
+  /**
+   * Create binary blob of png and put on clipboard
+   * @param {null} ev 
+   * @param {string} png 
+   */
   function png_callback(ev, png) {
     if (ev === null) {
       var image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
@@ -556,6 +593,7 @@
     }
   }
 
+  /** context menu handler - save diagram as */
   document.getElementById('menu_save_as').addEventListener("click", function() {
     menu_save_as()
   });
@@ -609,6 +647,10 @@
     updateOutput();
   });
 
+  /**
+   * Update context menu for selected node
+   * @param {string} node_id 
+   */
   function update_menu_options(node_id) {
     // get individual context menu options as appropriate
     if (oreqm_main && oreqm_main.check_node_id(node_id)) {
@@ -638,8 +680,12 @@
     }
   }
 
+  /**
+   * Update doctype table with counts of nodes actually displayed
+   * @param {Map<string,string[]>} visible_nodes mapping from doctypes to list of visible nodes of each doctype
+   * @param {string[]} selected_nodes list of id's
+   */
   function set_doctype_count_shown(visible_nodes, selected_nodes) {
-    // Update doctype table with counts of nodes actually displayed
     let doctypes = visible_nodes.keys()
     let shown_count = 0
     for (const doctype of doctypes) {
@@ -668,6 +714,7 @@
     }
   }
 
+  /** Remove doctype table */
   function clear_doctypes_table() {
     const element = document.getElementById("dyn_doctype_table");
     if (element) {
@@ -675,6 +722,10 @@
     }
   }
 
+  /**
+   * Create doctype tablle with counts and exclusion checkboxes
+   * @param {Map<string,string[]>} doctype_dict 
+   */
   function display_doctypes_with_count(doctype_dict) {
     let doctype_names = Array.from(doctype_dict.keys())
     doctype_names.sort()
@@ -742,6 +793,7 @@
     document.getElementById("doctype_table").appendChild(table);
   }
 
+  /** doctype exclusion was toggled */
   function doctype_filter_change() {
     set_doctype_all_checkbox()
     //console.log("doctype_filter_change (click)")
@@ -750,6 +802,7 @@
     }
   }
 
+  /** Invert all doctype exclusions and update */
   function doctype_filter_all_change() {
     toggle_exclude()
     if (auto_update) {
@@ -789,8 +842,12 @@
     auto_update = state
   }
 
+  /**
+   * Process main oreqm file
+   * @param {string} name filename of oreqm file
+   * @param {string} data xml data
+   */
   function process_data_main(name, data) {
-    // Process the loaded data
     viz_parsing_set()
     oreqm_main = new ReqM2Oreqm(name, data, [], [])
     document.getElementById('name').innerHTML = oreqm_main.filename
@@ -818,6 +875,10 @@
     set_window_title(name)
   }
 
+  /**
+   * Update window title
+   * @param {string} extra typically pathname of oreqm 
+   */
   function set_window_title(extra) {
     let title = "Visual ReqM2 - {}".format(extra)
     mainWindow.setTitle(title);
@@ -850,6 +911,7 @@
     });
   }
 
+  /** Handle button click for interactive load of main oreqm via file selector */
   document.getElementById('get_main_oreqm_file').addEventListener("click", function() {
     get_main_oreqm_file()
   });
@@ -888,6 +950,10 @@
     set_window_title("{} vs. {}".format(oreqm_main.filename, oreqm_ref.filename))
   }
 
+  /**
+   * Load reference oreqm from specified pathname
+   * @param {string} file reference oreqm filename
+   */
   function load_file_ref(file) {
     // Load reference file
     if (oreqm_main) {
@@ -932,8 +998,11 @@
     input.click();
   }
 
+  /**
+   * Get the list of doctypes with checked 'excluded' status
+   * @return {string[]} list of doctypes
+   */
   function get_excluded_doctypes() {
-    // Get the list of doctypes with checked 'excluded' status
     let excluded_list = []
     if (oreqm_main) {
       const doctypes = oreqm_main.get_doctypes()
@@ -950,6 +1019,9 @@
     return excluded_list
   }
 
+  /**
+   * Set all doctypes to excluded/included
+   */
   function toggle_exclude() {
     if (oreqm_main) {
       const doctypes = oreqm_main.get_doctypes()
@@ -970,6 +1042,9 @@
     invert_exclude()
   });
 
+  /**
+   * Toggle each doctype exclusion individually
+   */
   function invert_exclude() {
     // Invert the exclusion status of all doctypes
     if (oreqm_main) {
@@ -1012,6 +1087,9 @@
     filter_graph()
   });
 
+  /**
+   * Update diagram with current selection and exclusion parameters
+   */
   function filter_graph() {
     reset_selection()
     if (oreqm_main) {
@@ -1061,14 +1139,23 @@
     }
   }
 
-  var selected_nodes = []  // List of id's matching search criteria
-  var selected_index = 0   // Currently selected <id>
-  var selected_node = null // <id> of currently selected node
+  /** List of id's matching search criteria */
+  var selected_nodes = []
+  /** Currently selected \<id> */
+  var selected_index = 0
+  /** \<id> of currently selected node */
+  var selected_node = null
   // Manage selection highlight in diagram (extra bright red outline around selected specobject)
-  var selected_polygon = null // The svg id of the rectangle around a selected specobject in diagram
-  var selected_width = ""  // width as a string
-  var selected_color = ""  // color as #RRGGBB string
+  /** The svg id of the rectangle around a selected specobject in diagram */
+  var selected_polygon = null
+  /** width of svg outline as a string */
+  var selected_width = ""
+  /** color of svg outline as #RRGGBB string */
+  var selected_color = ""
 
+  /**
+   * Clear node selection list and visible combobox
+   */
   function reset_selection() {
     selected_nodes = []
     selected_index = 0
@@ -1078,7 +1165,7 @@
 
   /**
    * Set list of selected <id>'s in combobox above diagram
-   * @param {list} selection - list of <id>'s
+   * @param {list} selection list of \<id>'s
    */
   function set_selection(selection) {
     selected_nodes = selection
@@ -1091,6 +1178,9 @@
     return selected_nodes.includes(node)
   }
 
+  /**
+   * Update svg outline around selected specobject
+   */
   function clear_selection_highlight() {
     if (selected_polygon) {
       selected_polygon.setAttribute('stroke-width', selected_width)
@@ -1101,7 +1191,7 @@
 
   /**
    * Set highlight in svg around specified node
-   * @param {DOMobject} node - SVG object. Naming is 'sel_'+id
+   * @param {DOMobject} node SVG object. Naming is 'sel_'+id
    */
   function set_selection_highlight(node) {
     clear_selection_highlight()
@@ -1154,7 +1244,7 @@
 
   /**
    * Search all id strings for a match to regex and create selection list
-   * @param {string} regex - regular expression
+   * @param {string} regex regular expression
    */
   function id_search(regex) {
     var results = oreqm_main.find_reqs_with_name(regex)
@@ -1173,7 +1263,7 @@
 
   /**
    * Search combined tagged string for a match to regex and create selection list
-   * @param {string} regex - search criteria
+   * @param {string} regex search criteria
    */
   function txt_search(regex) {
     var results = oreqm_main.find_reqs_with_text(regex)
@@ -1314,6 +1404,7 @@
     }
   });
 
+  /** Context menu handler  */
   document.getElementById('menu_deselect').addEventListener("click", function() {
     // Remove node to the selection criteria (if not already selected)
     let node = selected_node
@@ -1420,8 +1511,9 @@
     }
   }
 
-  // drop file handling
+  /** Drag and drop file handling main */
   const drop_area_main = document.getElementById('drop_area_main');
+  /** Drag and drop file handling reference */
   const drop_area_ref = document.getElementById('drop_area_ref');
 
   // Prevent default drag behaviors
@@ -1505,8 +1597,12 @@
     event.dataTransfer.dropEffect = 'none';
   });
 
+  /**
+   * Process dropped file, if there is just one file
+   * @param {object} ev 
+   * @param {boolean} main_file true: main file, false: reference file
+   */
   function process_dropped_file(ev, main_file) {
-    // Process dropped file, if there is just one file
     let dropped_file
     let count = 0
     let i = 0
@@ -1538,7 +1634,7 @@
     }
   }
 
-  // Hierarchy button handler
+  // Doctype hierarchy button handler
   document.getElementById('show_doctypes').addEventListener("click", function() {
     show_doctypes()
   });
@@ -1567,8 +1663,8 @@
   /**
    * Add git style '+', '-' in front of changed lines.
    * The part can be multi-line and is expected to end with a newline
-   * @param {object} part - diff object
-   * @return {string} - updated string
+   * @param {object} part diff object
+   * @return {string} updated string
    */
   function src_add_plus_minus(part) {
     let insert = part.added ? '+' : part.removed ? '-' : ' '

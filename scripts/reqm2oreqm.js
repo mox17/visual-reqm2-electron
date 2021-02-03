@@ -24,9 +24,9 @@ function tryParseXML(xmlString) {
 
 /**
  * Return the text in the first (only?) tag with specified tag name
- * @param {object} node - specobject
- * @param {string} tag_name - name of tag
- * @return text
+ * @param {object} node specobject
+ * @param {string} tag_name name of tag
+ * @return {string}
  */
 function get_xml_text(node, tag_name) {
   var result = ""
@@ -38,10 +38,10 @@ function get_xml_text(node, tag_name) {
 }
 
 /**
- * Return list of texts found in specified tags (multiple instances possible)
+ * Return list of texts found in specified xml tags (multiple instances possible)
  * @param {object} node
  * @param {string} tag_name
- * @return list of text
+ * @return {string[]} list of text
  */
 function get_list_of(node, tag_name) {
   var result = []
@@ -56,8 +56,7 @@ function get_list_of(node, tag_name) {
 /**
  * Get linksto references
  * @param {specobject} node
- *
- * @return [{link}] an array of objects with .linksto .dstversion and .linkerror
+ * @return {object[]} an array of objects with .linksto .dstversion and .linkerror
  */
 function get_linksto(node) {
   var result = []
@@ -98,7 +97,7 @@ function get_linksto(node) {
 /**
  * Return a list of arrays (id,doctype,version) of the ffbObj's
  * @param {object} node 
- * @return list
+ * @return {object[]} list
  */
 function get_fulfilledby(node) {
   var ff_list = []
@@ -131,7 +130,7 @@ function get_fulfilledby(node) {
  * @param {object} a_in 
  * @param {object} b_in 
  * @param {[string]} ignore_list
- * @return boolean
+ * @return {boolean}
  */
 function stringEqual(a_in, b_in, ignore_list) {
   let a = Object.assign({}, a_in)
@@ -160,7 +159,7 @@ export default class ReqM2Specobjects {
     this.doctypes = new Map();     // { doctype : [id] }  List of ids of a specific doctype
     this.requirements = new Map(); // { id : Requirement}
     this.rules = new Map();        // {rule_id : description}
-    this.color = new Map();        // {id:[color]}
+    this.color = new Map();        // {id:[color]} When traversing the graph of nodes a 'color' is associated with each visited node
     this.linksto = new Map();      // {id:{id}} -- map to set of linked ids
     this.linksto_rev = new Map();  // {id:{id}} -- reverse direction of linksto. i.e. top-down
     this.fulfilledby = new Map();  // {id:{id}}
@@ -202,7 +201,7 @@ export default class ReqM2Specobjects {
   /**
    * Attempt to load XML and report if error detected
    * @param {string} content
-   * @return boolean - processing success
+   * @return {boolean} processing success
    */
   process_oreqm_content(content) {
     try {
@@ -247,7 +246,7 @@ export default class ReqM2Specobjects {
 
   /**
    * Read a single specobject and create and object for each
-   * @param {object} node  -specobject
+   * @param {object} node specobject
    * @param {string} doctype
    */
   read_specobject_list(node, doctype) {
@@ -525,7 +524,7 @@ export default class ReqM2Specobjects {
 
   /**
    * Extract execution timestamp from oreqm report
-   * @return time
+   * @return {string} time
    */
   get_time() {
     const time = get_xml_text(this.root, "timestamp")
@@ -535,7 +534,7 @@ export default class ReqM2Specobjects {
   /**
    * A comparison may add 'ghost' requirements, which represent deleted
    * requirements. Remove these 'ghost' requirements.
-   * @param {boolean} find_again - do a new search
+   * @param {boolean} find_again do a new search
    */
   remove_ghost_requirements(find_again) {
     for (const ghost_id of this.removed_reqs) {
@@ -572,9 +571,9 @@ export default class ReqM2Specobjects {
    * Compare two sets of requirements (instances of ReqM2Oreqm)
    * and return lists of new, modified and removed <id>s"""
    * Requirements with no description are ignored
-   * @param {object} old_reqs - reference oreqm object
-   * @param {string[]} ignore_fields - list of fields to ignore
-   * @return object with new, updated and removed ids
+   * @param {object} old_reqs reference oreqm object
+   * @param {string[]} ignore_fields list of fields to ignore
+   * @return {object} with new, updated and removed ids
    */
   compare_requirements(old_reqs, ignore_fields) {
     const new_ids = Array.from(this.requirements.keys())
@@ -631,8 +630,8 @@ export default class ReqM2Specobjects {
 
   /**
    * Prefix <id> with new:, chg: or rem: if changed
-   * @param {string} req_id  - id to check
-   * @return updated (decorated) id
+   * @param {string} req_id id to check
+   * @return {string} updated (decorated) id
    */
   decorate_id(req_id) {
     let id_str = req_id
@@ -649,7 +648,7 @@ export default class ReqM2Specobjects {
   /**
    * Check all ids against regex
    * @param {string} regex
-   * @return list of matching ids
+   * @return {string[]} list of matching ids
    */
   find_reqs_with_name(regex) {
     const ids = this.requirements.keys()
@@ -667,8 +666,8 @@ export default class ReqM2Specobjects {
    * Return tagged text format for specobject.
    * There is a cache for previously created strings which is used for speedup.
    * Each xml tag has a corresponding 2 or 3 letter tag prefix.
-   * @param {string} req_id - id of specobject
-   * @return tagged string
+   * @param {string} req_id id of specobject
+   * @return {string} tagged string
    */
   get_all_text(req_id) {
     if (this.search_cache.has(req_id)) {
@@ -715,7 +714,7 @@ export default class ReqM2Specobjects {
   /**
    * Check requirement texts against regex
    * @param {string} regex
-   * @return list of matching ids
+   * @return {string[]} list of matching ids
    */
   find_reqs_with_text(regex) {
     const ids = this.requirements.keys()
@@ -806,7 +805,7 @@ export default class ReqM2Specobjects {
 
   /**
    * Collect problems and suppress duplicates
-   * @param {string} report - string with description (possibly multiple lines)
+   * @param {string} report string with description (possibly multiple lines)
    */
   problem_report(report) {
     if (!this.problems.includes(report)) {
@@ -829,7 +828,7 @@ export default class ReqM2Specobjects {
    * Recreate XML for presentation purposes
    * @param {object} rec 
    * @param {string} tag 
-   * @return string in XML format
+   * @return {string} in XML format
    */
   get_tag_text_formatted(rec, tag) {
     let xml_txt = ''
@@ -847,7 +846,7 @@ export default class ReqM2Specobjects {
    * Recreate XML lists for presentation purposes
    * @param {*} rec 
    * @param {*} field 
-   * @return string in XML format
+   * @return {string} in XML format
    */
   get_list_formatted(rec, field) {
     let xml_txt = ''
@@ -910,7 +909,7 @@ export default class ReqM2Specobjects {
   /**
    * Reconstruct XML representation of specobject (ignoring extra tags related to oreqm results)
    * @param {string} id 
-   * @return string in XML format
+   * @return {string} in XML format
    */
   get_node_text_formatted(id) {
     let xml_txt = ""

@@ -9,13 +9,22 @@ import { remote } from 'electron'
 import showToast from 'show-toast';
 import fs from 'fs'
 
+/**
+ * Escape XML special characters
+ * @param {string} txt String possibly containing XML reserved characters
+ * @return {string} Updated text
+ */
 export function xml_escape(txt) {
   // Escape string for usen in XML
   return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
+/**
+ * Normalize indentation of multiline string, removing common indentation
+ * @param {string} txt Multi-line string
+ * @return {string} Adjusted string
+ */
 function normalize_indent(txt) {
-  // Normalize indentation of multiline string
   txt = txt.replace(/\r/, '')  // no cr
   txt = txt.replace(/\t/, '  ')  // no tabs
   txt = txt.replace(/^(\s*\n)+/, '') // empty initial line
@@ -37,7 +46,7 @@ function normalize_indent(txt) {
       min_leading = 0
     }
   }
-  // Heuristic that 1st line may mave no indentation because of the xml is written
+  // Heuristic that 1st line may mave no indentation because of the way xml is written
   if (line_arr.length > 1) {
     if (first_length < min_leading) {
       line_arr[0] = ' '.repeat(min_leading-first_length) + line_arr[0]
@@ -66,8 +75,12 @@ const re_line_length  = new RegExp(/([^\n]{110,500}?(:|;| |\/|-))/g)
 //const re_keep_nl      = new RegExp(/\s*\n\s*/)
 const re_empty_lines  = new RegExp(/<BR ALIGN="LEFT"\/>(\s*&nbsp;<BR ALIGN="LEFT"\/>)+/, 'm')
 
+/**
+ * Remove xml style formatting not compliant with 'dot' tables
+ * @param {*} txt Text with various markup (for example docbook)
+ * @return {string} 'dot' html table friendly text.
+ */
 function dot_format(txt) {
-  //Remove xml style formatting not compliant with dot
   let txt2
   let new_txt = ''
   if (txt.length) {
@@ -106,6 +119,12 @@ function dot_format(txt) {
   return new_txt
 }
 
+/**
+ * Format violations as list with the text from the definition in oreqm
+ * @param  {array} vlist
+ * @param  {object} rules
+ * @return {string} docbook formatted list
+ */
 function format_violations(vlist, rules) {
   let str = 'violations:\n  <itemizedlist>\n'
   for (const v of vlist) {
@@ -119,6 +138,13 @@ function format_violations(vlist, rules) {
   return str
 }
 
+/**
+ * Generate color coded cells for coverage
+ * @param  {object} rec Specobject
+ * @param  {boolean} show_coverage shall coverage be color coded
+ * @param  {boolean} color_status shall specobject status be color coded
+ * @return {string} dot html table
+ */
 function status_cell(rec, show_coverage, color_status) {
   let cov_color = (rec.covstatus === 'covered') ? '' : (rec.covstatus === 'partially') ? 'BGCOLOR="yellow"' : 'BGCOLOR="red"'
   let status_color = (!color_status || (rec.status === 'approved')) ? '' : (rec.status === 'proposed') ? 'BGCOLOR="yellow"' :  'BGCOLOR="red"'
@@ -130,7 +156,6 @@ function status_cell(rec, show_coverage, color_status) {
 /**
  * Generate a string of possible missing referenced objects
  * @param {specobject} rec
- *
  * @return {string} dot table row
  */
 function format_nonexistent_links(rec) {
@@ -149,8 +174,17 @@ function format_nonexistent_links(rec) {
   return result
 }
 
+/**
+ * Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
+ * @param  {string} node_id  Specobject <id>
+ * @param  {object} rec Object with specobject data
+ * @param  {boolean} ghost Is this a deleted object (then rendered with gradient)
+ * @param  {object} oreqm Object for whole oreqm file
+ * @param  {boolean} show_coverage
+ * @param  {boolean} color_status
+ * @return {string} dot html table representing the specobject
+ */
 function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
-  // Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
   let node_table = ""
   let nonexist_link = format_nonexistent_links(rec)
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
@@ -187,12 +221,11 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
 
 /**
  * Create dot formatted edge between specobjects
- * @param {string} from_node - origin
- * @param {string} to_node - destination
- * @param {string} kind - 'fulfilledby' or ''
- * @param {string} error - possible problem with this edge
- *
- * @return {string} - dot format edge
+ * @param {string} from_node origin
+ * @param {string} to_node destination
+ * @param {string} kind 'fulfilledby' or ''
+ * @param {string} error possible problem with this edge
+ * @return {string} dot format edge
  */
 function format_edge(from_node, to_node, kind, error) {
   if (!program_settings.show_errors) {
@@ -217,6 +250,11 @@ function format_edge(from_node, to_node, kind, error) {
   return '  "{}" -> "{}"{};\n'.format(from_node, to_node, formatting.format(label))
 }
 
+/**
+ * @param  {Array} tags of tag strings
+ * @param  {Array} platforms of platform strings
+ * @return {string} dot html table cell
+ */
 function tags_line(tags, platforms) {
   // Combine tags and platforms into one cell in table
   let line = []
@@ -239,16 +277,29 @@ function tags_line(tags, platforms) {
 
 // ----- helper functions hierarchy diagrams
 
+/**
+ * Show the empty safetyclass as 'none'
+ * @param  {string} sc safetyclass
+ * @return {string}
+ */
 function sc_str(sc) {
-  // Show the empty safetyclass as 'none'
   return (sc === '') ? 'none' : sc
 }
 
+/**
+ * return string representation of safetyclass part of doctype
+ * @param {string} doctype_with_safetyclass formatted as doctype:safetyclass
+ * @return {string} safetyclass part
+ */
 function dt_sc_str(doctype_with_safetyclass) {
-  // return string representation of safetyclass part of doctype
   return sc_str(doctype_with_safetyclass.split(':')[1])
 }
 
+/**
+ * Put quotes around IDs containing spaces
+ * @param {string} id 
+ * @return {string}
+ */
 function quote_id(id) {
   if (id.includes(' ')) {
     id = '"{}"'.format(id)
@@ -256,16 +307,26 @@ function quote_id(id) {
   return id
 }
 
+/**
+ * @classdesc Derived class with capability to generate diagrams of contained oreqm data.
+ */
 export default class ReqM2Oreqm extends ReqM2Specobjects {
 
+  /**
+   * Construct new object
+   * @param {string} filename of the oreqm file
+   * @param {string} content XML data
+   * @param {string[]} excluded_doctypes List of doctypes to exclude from diagram
+   * @param {string[]} excluded_ids List of IDs to exclude from diagram
+   */
   constructor(filename, content, excluded_doctypes, excluded_ids) {
     super(filename, content, excluded_doctypes, excluded_ids);
     // diagram related members
-    this.doctype_clusters = null;
+    this.doctype_clusters = null; // A map of {doctype : [doctype:safetyclass]}
     this.dt_map = null; //new Map(); // A map of { doctype_name : DoctypeRelations }
   }
 
-  // Fixed texts that form part of dot file
+  /** @description Initial part of dot file */
   static get DOT_PREAMBLE() {
     const preamble =
 `digraph "" {
@@ -277,11 +338,20 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return preamble;
   }
 
+  /** @description Final part of dot file */
   static get DOT_EPILOGUE() {
     const epilogue = '\n}\n';
     return epilogue;
   }
 
+  /**
+   * Format a node to dot format. Use a cache to speed up subsequent renderings.
+   * @param {string} req_id 
+   * @param {boolean} ghost Is this a deleted speocobject (in a comparison)
+   * @param {boolean} show_coverage 
+   * @param {boolean} color_status 
+   * @return {string} dot html table string
+   */
   get_format_node(req_id, ghost, show_coverage, color_status) {
     let node
     if (this.format_cache.has(req_id)) {
@@ -294,11 +364,22 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return node
   }
 
+  /**
+   * Return a 'dot' compatible graph with the subset of nodes nodes
+   * accepted by the selection_function.
+   * Also updates the doctype table in lower left of window.
+   * The 'TOP' node forces a sensible layout for highest level requirements
+   * (some level of visual proximity and aligned to the left of the graph)
+   * @param {function} selection_function A function which tells if a particular node is included
+   * @param {array} top_doctypes List of doctypes to link to 'TOP' node
+   * @param {string} title diagram legend as dot html table
+   * @param {object} highlights List of object IDs to be outlined as selected
+   * @param {number} max_nodes Upper limit of nodes to render
+   * @param {boolean} show_coverage 
+   * @param {boolean} color_status 
+   * @return {string} dot graph
+   */
   create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage, color_status) {
-    // Return a 'dot' compatible graph with the subset of nodes nodes
-    // accepted by the selection_function.
-    // The 'TOP' node forces a sensible layout for highest level requirements
-    // (some level of visual proximity and aligned to the left of the graph)
     let graph = ReqM2Oreqm.DOT_PREAMBLE;
     let subset = []
     const ids = this.requirements.keys()
@@ -409,10 +490,9 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Get error possibly associated with linksto
-   * @param {string} req_id - specobject id
-   * @param {string} link - specobject in linksto reference
-   *
-   * @return {string} - error string or ''
+   * @param {string} req_id specobject id
+   * @param {string} link specobject in linksto reference
+   * @return {string} error string or ''
    */
   get_link_error(req_id, link) {
     const rec = this.requirements.get(req_id)
@@ -427,10 +507,9 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Get error possibly associated with fulfilledby link
-   * @param {string} req_id - specobject id
-   * @param {*} link - specobject in ffb reference
-   *
-   * @return {string} - error string or ''
+   * @param {string} req_id specobject id
+   * @param {string} link specobject in ffb reference
+   * @return {string} error string or ''
    */
   get_ffb_link_error(req_id, link) {
     const rec = this.requirements.get(req_id)
@@ -446,9 +525,8 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
   /**
    * Check two expanded doctype:safetyclass pairs for compliance with at least one of the supplied rules,
    * i.e. permitted safetyclass for providescoverage <from_safetyclass>:<to_safetyclass>
-   * @param {string} from - origin doctype:safetyclass
-   * @param {string} to - descination doctype:safetyclass
-   *
+   * @param {string} from origin doctype:safetyclass
+   * @param {string} to descination doctype:safetyclass
    * @return {boolean}
    */
   check_linksto_safe(from, to) {
@@ -461,6 +539,12 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     return false
   }
 
+  /**
+   * Generate doctype:safetyclass classifier
+   * @param {string} id 
+   * @param {string} safety safetyclass
+   * @return {string}
+   */
   build_doctype_with_safetyclass(id, safety) {
     // construct a doctype name, qualified with safetyclass
     let rec = this.requirements.get(id)
@@ -473,18 +557,18 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Calculate edge color according to compliance with safety rules
-   * @param {string} from  - origin doctype
-   * @param {string} to - destination doctype
-   *
-   * @return {string} - RGB color of graph edge
+   * @param {string} from  origin doctype
+   * @param {string} to destination doctype
+   * @return {string} RGB color of graph edge
    */
   linksto_safe_color(from, to) {
     return this.check_linksto_safe(from, to) ? '#00AA00' : '#FF0000'
   }
 
   /**
-   * Build a mapping of doctype relations
-   * @param {boolean} - consider safetyclass in diagram
+   * Build a mapping of doctype relations.
+   * Update this.dt_map 
+   * @param {boolean} doctype_safety consider safetyclass in diagram
    */
   build_doctype_mapping(doctype_safety) {
     let id_list = this.requirements.keys()
@@ -549,15 +633,18 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
         //console.log("add_fulfilledby ", dest_doctype)
         this.dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb.id])
       }
-
     }
   }
 
+  /**
+   * Scan all requirements and summarize the relationships between doctypes
+   * with counts of instances and relations (needsobj, linksto, fulfilledby)
+   * When doctype_safety is true, the doctypes are qualified with the safetyclass
+   * of the requirement as in <doctype>:<safetyclass> and these are the nodes rendered
+   * @param {boolean} doctype_safety false: plain doctype relations; true: safetyclass checks for doctype relations
+   * @return {string} dot language diagram
+   */
   scan_doctypes(doctype_safety) {
-    // Scan all requirements and summarize the relationships between doctypes
-    // with counts of instances and relations (needsobj, linksto, fulfilledby)
-    // When doctype_safety is true, the doctypes are qualified with the safetyclass
-    // of the requirement as in <doctype>:<safetyclass> and these are the nodes rendered
     this.dt_map = new Map() // A map of { doctype_name : DoctypeRelations }
     this.build_doctype_mapping(doctype_safety)
     // DOT language start of diagram
@@ -672,12 +759,12 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Construct diagram legend as 'dot' table.
-   * @param {boolean} show_filters - display selection criteria
-   * @param {object} extra - object with .title and .text for additional row
-   * @param {object} oreqm_ref - optional reference (2nd) oreqm object
-   * @param {boolean} id_checkbox - search <id>s only
-   * @param {string} search_pattern - 'selection criteria' string
-   * @return {string} - 'dot' table
+   * @param {boolean} show_filters display selection criteria
+   * @param {object} extra object with .title and .text for additional row
+   * @param {object} oreqm_ref optional reference (2nd) oreqm object
+   * @param {boolean} id_checkbox search <id>s only
+   * @param {string} search_pattern 'selection criteria' string
+   * @return {string} 'dot' table
    */
   construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) {
     let title = '""'

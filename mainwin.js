@@ -30,8 +30,6 @@ let cmd_line_only = false
 
 let mainWindow_width = 1024
 let mainWindow_height = 768
-let mainWindow_x
-let mainWindow_y
 
 ipcMain.on('cannot_close', () => {
   can_close = false;
