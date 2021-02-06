@@ -162,7 +162,7 @@ export function save_colors_fs(path = null) {
  * @param {string|null} path 
  */
 export function load_colors_fs(update_function, path = null) {
-  let LoadPath;
+  let LoadPath = null;
   if (path === null) {
     LoadPath = remote.dialog.showOpenDialogSync(
     {
@@ -170,7 +170,7 @@ export function load_colors_fs(update_function, path = null) {
       properties: ['openFile']
     })
   } else {
-    LoadPath = path;
+    LoadPath = [path];
   }
   if (typeof(LoadPath) !== 'undefined' && (LoadPath.length === 1)) {
     let colors = JSON.parse(fs.readFileSync(LoadPath[0], {encoding: 'utf8', flag: 'r'}))

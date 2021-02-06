@@ -11,8 +11,7 @@
     "start_w_h": "babel scripts -d lib && electron . -g",
     "babel": "babel scripts -d lib",
     "dev": "babel scripts -d lib && electron . --debug",
-    "test": "babel scripts -d lib && electron-mocha --full-trace './tests/*.spec.js'",
-    "test-renderer": "electron-mocha --renderer --reporter spec main.spec.js",
+    "test": "babel scripts -d lib && nyc --reporter=html electron-mocha --full-trace './tests/*.spec.js'",
     "pack": "babel scripts -d lib && electron-builder --dir",
     "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
@@ -37,7 +36,8 @@
     "electron-builder": "^20.44.4",
     "electron-icon-maker": "0.0.5",
     "electron-mocha": "^10.0.0",
-    "eslint": "^7.8.0"
+    "eslint": "^7.8.0",
+    "nyc": "^15.1.0"
   },
   "dependencies": {
     "argparse": "^2.0.1",
