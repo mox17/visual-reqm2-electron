@@ -1,12 +1,12 @@
 "use strict";
-
 import { remote, app } from 'electron'
 import { update_color_settings } from './color.js'
 export const settings = require('electron-settings');
 
 import fs from 'fs'
-import path from 'path'
+//import path from 'path'
 
+/*
 function settings_old_path() {
   // Path used for settings
   const defaultSettingsFileName = 'Settings';
@@ -15,6 +15,7 @@ function settings_old_path() {
   const defaultSettingsFilePath = path.join(userDataPath, defaultSettingsFileName);
   return defaultSettingsFilePath;
 }
+*/
 
 export var program_settings = null
 

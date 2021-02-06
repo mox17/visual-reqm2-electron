@@ -4,10 +4,8 @@
 import ReqM2Specobjects from './reqm2oreqm.js'
 import get_color from './color.js'
 import DoctypeRelations from './doctypes.js'
-import { program_settings, settings } from './settings.js'
-import { remote } from 'electron'
+import { program_settings } from './settings.js'
 import showToast from 'show-toast';
-import fs from 'fs'
 
 /**
  * Escape XML special characters

@@ -4,7 +4,7 @@
   import get_color, { save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, get_ignored_fields, program_settings, load_safety_rules_fs, open_settings } from './settings.js'
   import Viz from 'viz.js'
-  import { ipcRenderer, remote, clipboard, shell, app } from 'electron'
+  import { ipcRenderer, remote, shell } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
   import https from 'https'
@@ -63,35 +63,35 @@
   });
 
   // Handlers for menu operations triggered via RPC
-  ipcRenderer.on('about', (item, window, key_ev) => {
+  ipcRenderer.on('about', (_item, _window, _key_ev) => {
     show_about()
   });
 
-  ipcRenderer.on('save_colors', (item, window, key_ev) => {
+  ipcRenderer.on('save_colors', (_item, _window, _key_ev) => {
     save_colors_fs();
   });
 
-  ipcRenderer.on('load_colors', (item, window, key_ev) => {
+  ipcRenderer.on('load_colors', (_item, _window, _key_ev) => {
     load_colors_fs(update_doctype_table);
   });
 
-  ipcRenderer.on('load_safety', (item, window, key_ev) => {
+  ipcRenderer.on('load_safety', (_item, _window, _key_ev) => {
     load_safety_rules_fs();
   });
 
-  ipcRenderer.on('save_diagram_as', (item, window, key_ev) => {
+  ipcRenderer.on('save_diagram_as', (_item, _window, _key_ev) => {
     menu_save_as();
   });
 
-  ipcRenderer.on('save_issues_as', (item, window, key_ev) => {
+  ipcRenderer.on('save_issues_as', (_item, _window, _key_ev) => {
     save_problems();
   });
 
-  ipcRenderer.on('show_issues', (item, window, key_ev) => {
+  ipcRenderer.on('show_issues', (_item, _window, _key_ev) => {
     show_problems();
   });
 
-  ipcRenderer.on('open_settings', (item, window, key_ev) => {
+  ipcRenderer.on('open_settings', (_item, _window, _key_ev) => {
     open_settings();
   });
 
@@ -538,6 +538,7 @@
   /**
    * Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
    */
+  /*
   function copy_svg() {
     let clip_txt = '<img src="data:image/svg;base64,{}" width="{}" height="{}" alt="diagram"/>'.format(
       btoa(svg_result), svg_element.getAttribute('width'), svg_element.getAttribute('height'))
@@ -550,7 +551,9 @@
     document.execCommand('copy');
     document.body.removeChild(ta);
   }
+  */
 
+  /*
   function copy_svg2() {
     var image_blob = arrayBufferToBlob(svg_result, 'image/svg+xml')
     console.log(image_blob)
@@ -562,7 +565,8 @@
       console.error("unable to write to clipboard. Error:");
       console.log(error);
     })
-}
+  }
+  */
 
   /** context menu item handler. Copy diagram as png to clipboard */
   document.getElementById('menu_copy_png').addEventListener("click", function() {
@@ -586,9 +590,9 @@
       //console.log(item)
       navigator.clipboard.write([item]).then(function() {
         //console.log("Copied to clipboard successfully!");
-      }, function(error) {
+      }, function(_error) {
         //console.error("unable to write to clipboard. Error:");
-        //console.log(error);
+        //console.log(_error);
       })
     }
   }

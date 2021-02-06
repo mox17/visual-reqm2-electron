@@ -1,8 +1,6 @@
 "use strict";
 const electron = require('electron')
-// Module to control application life.
 const app = electron.app
-// Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 const ipcMain = electron.ipcMain;
 
@@ -96,25 +94,25 @@ function createWindow() {
       submenu: [
         {
           label:'Save color scheme as...',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_colors')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_colors')}
         },
         {
           label:'Load color scheme...',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('load_colors')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_colors')}
         },
         {type: 'separator'},
         {
           label:'Load coverage rules...',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('load_safety')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_safety')}
         },
         {type: 'separator'},
         {
           label:'Save issues as...',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_issues_as')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_issues_as')}
         },
         {
           label:'Save diagram as...',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('save_diagram_as')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_as')}
         },
         {type: 'separator'},
         {role:'quit'}
@@ -132,7 +130,7 @@ function createWindow() {
         {type: 'separator'},
         {
           label:'Settings...',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('open_settings')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('open_settings')}
         }
       ]
     },
@@ -141,7 +139,7 @@ function createWindow() {
       submenu: [
         {
           label: 'Show issues',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('show_issues')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('show_issues')}
         },
         {
           label: 'Full screen',
@@ -164,7 +162,7 @@ function createWindow() {
       submenu: [
         {
           label:'About',
-          click (item, focusedWindow, ev) { mainWindow.webContents.send('about')}
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('about')}
         }
       ]
     }
@@ -283,12 +281,12 @@ autoUpdater.on('checking-for-update', () => {
   //log.info('Checking for update...');
 })
 
-autoUpdater.on('update-not-available', (info) => {
+autoUpdater.on('update-not-available', (_info) => {
   //log.info('Update not available.');
 })
 
-autoUpdater.on('error', (err) => {
-  //log.info('Error in auto-updater. ' + err);
+autoUpdater.on('error', (_err) => {
+  //log.info('Error in auto-updater. ' + _err);
 })
 
 autoUpdater.on('download-progress', (progressObj) => {

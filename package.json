@@ -34,7 +34,8 @@
     "@babel/preset-env": "^7.11.5",
     "electron": "^9.0.0",
     "electron-builder": "^20.44.4",
-    "electron-icon-maker": "0.0.5"
+    "electron-icon-maker": "0.0.5",
+    "eslint": "^7.8.0"
   },
   "dependencies": {
     "argparse": "^2.0.1",
