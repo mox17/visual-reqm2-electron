@@ -297,7 +297,7 @@ function dt_sc_str(doctype_with_safetyclass) {
 
 /**
  * Put quotes around IDs containing spaces
- * @param {string} id 
+ * @param {string} id
  * @return {string}
  */
 function quote_id(id) {
@@ -346,10 +346,10 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Format a node to dot format. Use a cache to speed up subsequent renderings.
-   * @param {string} req_id 
+   * @param {string} req_id
    * @param {boolean} ghost Is this a deleted speocobject (in a comparison)
-   * @param {boolean} show_coverage 
-   * @param {boolean} color_status 
+   * @param {boolean} show_coverage
+   * @param {boolean} color_status
    * @return {string} dot html table string
    */
   get_format_node(req_id, ghost, show_coverage, color_status) {
@@ -375,8 +375,8 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {string} title diagram legend as dot html table
    * @param {object} highlights List of object IDs to be outlined as selected
    * @param {number} max_nodes Upper limit of nodes to render
-   * @param {boolean} show_coverage 
-   * @param {boolean} color_status 
+   * @param {boolean} show_coverage
+   * @param {boolean} color_status
    * @return {string} dot graph
    */
   create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage, color_status) {
@@ -541,7 +541,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Generate doctype:safetyclass classifier
-   * @param {string} id 
+   * @param {string} id
    * @param {string} safety safetyclass
    * @return {string}
    */
@@ -567,7 +567,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Build a mapping of doctype relations.
-   * Update this.dt_map 
+   * Update this.dt_map
    * @param {boolean} doctype_safety consider safetyclass in diagram
    */
   build_doctype_mapping(doctype_safety) {

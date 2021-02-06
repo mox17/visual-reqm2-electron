@@ -189,7 +189,7 @@
   var image_type = 'none'
   var image_mime = ''
   var image_data = ''
-  /** */ When true diagram is generated whenever selections or exclusions are updated */
+  /** When true diagram is generated whenever selections or exclusions are updated */
   var auto_update = true
   /** When true specobject in state 'rejected' are ignored */
   var no_rejects = true   // shall specobjects with status===rejected be displayed?
@@ -575,8 +575,8 @@
 
   /**
    * Create binary blob of png and put on clipboard
-   * @param {null} ev 
-   * @param {string} png 
+   * @param {null} ev event
+   * @param {string} png image as string
    */
   function png_callback(ev, png) {
     if (ev === null) {
@@ -649,23 +649,21 @@
 
   /**
    * Update context menu for selected node
-   * @param {string} node_id 
+   * @param {string} node_id
    */
   function update_menu_options(node_id) {
     // get individual context menu options as appropriate
     if (oreqm_main && oreqm_main.check_node_id(node_id)) {
       // a node was right-clicked
+      document.getElementById('menu_select').classList.remove('custom-menu_disabled')
       document.getElementById('menu_copy_id').classList.remove('custom-menu_disabled')
       document.getElementById('menu_copy_ffb').classList.remove('custom-menu_disabled')
       document.getElementById('menu_exclude').classList.remove('custom-menu_disabled')
       document.getElementById('menu_xml_txt').classList.remove('custom-menu_disabled')
       document.getElementById('menu_search_txt').classList.remove('custom-menu_disabled')
       if (selected_node_check(node_id)) {
-        // it is a selected node
-        document.getElementById('menu_select').classList.add('custom-menu_disabled')
         document.getElementById('menu_deselect').classList.remove('custom-menu_disabled')
       } else {
-        document.getElementById('menu_select').classList.remove('custom-menu_disabled')
         document.getElementById('menu_deselect').classList.add('custom-menu_disabled')
       }
     } else {
@@ -723,8 +721,8 @@
   }
 
   /**
-   * Create doctype tablle with counts and exclusion checkboxes
-   * @param {Map<string,string[]>} doctype_dict 
+   * Create doctype table with counts and exclusion checkboxes
+   * @param {Map<string,string[]>} doctype_dict
    */
   function display_doctypes_with_count(doctype_dict) {
     let doctype_names = Array.from(doctype_dict.keys())
@@ -877,7 +875,7 @@
 
   /**
    * Update window title
-   * @param {string} extra typically pathname of oreqm 
+   * @param {string} extra typically pathname of oreqm
    */
   function set_window_title(extra) {
     let title = "Visual ReqM2 - {}".format(extra)
@@ -1174,6 +1172,10 @@
     nodeSelectEntries.innerHTML = '<option>'+selected_nodes.join('</option>\n<option>')+'</option>'
   }
 
+  /**
+   * Checks if a node is explicitly selected, i.e. whole id is present in selection string.
+   * @param {string} node id string
+   */
   function selected_node_check(node) {
     return selected_nodes.includes(node)
   }
@@ -1599,7 +1601,7 @@
 
   /**
    * Process dropped file, if there is just one file
-   * @param {object} ev 
+   * @param {object} ev
    * @param {boolean} main_file true: main file, false: reference file
    */
   function process_dropped_file(ev, main_file) {

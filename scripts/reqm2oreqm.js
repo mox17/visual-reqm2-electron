@@ -3,7 +3,7 @@
 
 /**
  * Process xml input text and display possible errors detected
- * @param {string} xmlString 
+ * @param {string} xmlString
  */
 function tryParseXML(xmlString) {
   var parser = new DOMParser();
@@ -96,7 +96,7 @@ function get_linksto(node) {
 
 /**
  * Return a list of arrays (id,doctype,version) of the ffbObj's
- * @param {object} node 
+ * @param {object} node
  * @return {object[]} list
  */
 function get_fulfilledby(node) {
@@ -127,10 +127,10 @@ function get_fulfilledby(node) {
 
 /**
  * Compare a_in and b_in objects, while ignoring the fields listed in ignore_list
- * @param {object} a_in 
- * @param {object} b_in 
+ * @param {object} a_in
+ * @param {object} b_in
  * @param {[string]} ignore_list
- * @return {boolean}
+ * @return {boolean} is the subset of fields equal
  */
 function stringEqual(a_in, b_in, ignore_list) {
   let a = Object.assign({}, a_in)
@@ -439,7 +439,7 @@ export default class ReqM2Specobjects {
 
   /**
    * Store reject state flag in oreqm object
-   * @param {boolean} state 
+   * @param {boolean} state
    */
   set_no_rejects(state) {
     this.no_rejects = state
@@ -448,8 +448,8 @@ export default class ReqM2Specobjects {
   /**
    * Check if node is eligible for inclusion in graph (not excluded, invalid or already visited)
    * If OK mark req_id with 'color' and process child nodes recursively
-   * @param {integer} color 
-   * @param {string} req_id 
+   * @param {integer} color
+   * @param {string} req_id
    */
   mark_and_flood_down(color, req_id) {
     // Color this id and linksto_rev referenced nodes with color
@@ -487,8 +487,8 @@ export default class ReqM2Specobjects {
   /**
    * Check if node is eligible for inclusion in graph (not excluded, invalid or already visited)
    * If OK mark req_id with 'color' and process ancestor nodes recursively
-   * @param {integer} color 
-   * @param {string} req_id 
+   * @param {integer} color
+   * @param {string} req_id
    */
   mark_and_flood_up(color, req_id) {
     //Color this id and linksto referenced nodes with color
@@ -734,9 +734,9 @@ export default class ReqM2Specobjects {
 
   /**
    * Mark all reachable nodes from id_list both up and down the graph
-   * @param {*} id_list 
-   * @param {*} color_up_value 
-   * @param {*} color_down_value 
+   * @param {*} id_list
+   * @param {*} color_up_value
+   * @param {*} color_down_value
    */
   mark_and_flood_up_down(id_list, color_up_value, color_down_value) {
     for (const res of id_list) {
@@ -826,8 +826,8 @@ export default class ReqM2Specobjects {
 
   /**
    * Recreate XML for presentation purposes
-   * @param {object} rec 
-   * @param {string} tag 
+   * @param {object} rec
+   * @param {string} tag
    * @return {string} in XML format
    */
   get_tag_text_formatted(rec, tag) {
@@ -844,8 +844,8 @@ export default class ReqM2Specobjects {
 
   /**
    * Recreate XML lists for presentation purposes
-   * @param {*} rec 
-   * @param {*} field 
+   * @param {*} rec
+   * @param {*} field
    * @return {string} in XML format
    */
   get_list_formatted(rec, field) {
@@ -908,7 +908,7 @@ export default class ReqM2Specobjects {
 
   /**
    * Reconstruct XML representation of specobject (ignoring extra tags related to oreqm results)
-   * @param {string} id 
+   * @param {string} id
    * @return {string} in XML format
    */
   get_node_text_formatted(id) {
