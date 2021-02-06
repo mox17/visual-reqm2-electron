@@ -1,7 +1,7 @@
   "use strict";
-
+  import _ from './util.js'
   import ReqM2Oreqm, { xml_escape } from './diagrams.js'
-  import get_color, { save_colors_fs, load_colors_fs } from './color.js'
+  import { get_color, save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, get_ignored_fields, program_settings, load_safety_rules_fs, open_settings } from './settings.js'
   import Viz from 'viz.js'
   import { ipcRenderer, remote, shell } from 'electron'
@@ -11,42 +11,7 @@
 
   let mainWindow = remote.getCurrentWindow();
 
-  // ------ utility functions and extensions --------
-  String.prototype.format = function () {
-    var i = 0, args = arguments;
-    return this.replace(/{}/g, function () {
-      return typeof args[i] != 'undefined' ? args[i++] : '';
-    });
-  };
-
-  // Define trim() operation if not existing
-  if (typeof(String.prototype.trim) === "undefined")
-  {
-      String.prototype.trim = function()
-      {
-          return String(this).replace(/^\s+|\s+$/g, '');
-      };
-  }
-
-  // Define remove() operation if not existing
-  if (typeof(Array.prototype.remove) === "undefined")
-  {
-    Array.prototype.remove = function() {
-      var what, a = arguments, L = a.length, ax;
-      while (L && this.length) {
-          what = a[--L];
-          while ((ax = this.indexOf(what)) !== -1) {
-              this.splice(ax, 1);
-          }
-      }
-      return this;
-    };
-  }
-
-  // Helper for exporting ReqExp to JSON
-  RegExp.prototype.toJSON = function() { return this.source; };
-
-  // ----------------------------------------------------------
+ 
 
   var beforeUnloadMessage = null;
 

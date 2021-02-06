@@ -126,7 +126,7 @@ var _my_palette =
  * @param  {string} key (doctype)
  * @return {string} html color
  */
-export default function get_color(key) {
+export function get_color(key) {
   let color
   if (key in _my_palette) {
     color = _my_palette[key]
@@ -139,33 +139,47 @@ export default function get_color(key) {
 /**
  * Prompt user for save location and save color palette as external file.
  */
-export function save_colors_fs() {
-  let SavePath = remote.dialog.showSaveDialogSync(null,
+export function save_colors_fs(path = null) {
+  let SavePath;
+  if (path === null) {
+    SavePath = remote.dialog.showSaveDialogSync(null,
     {
       filters: [{ name: 'JSON files', extensions: ['json']}],
       properties: ['openFile']
     })
+  } else {
+    SavePath = path;
+  }
   if (typeof(SavePath) !== 'undefined') {
     fs.writeFileSync(SavePath, JSON.stringify(_my_palette, 0, 2), 'utf8')
-    _store_colors(_my_palette)
+    _store_colors(_my_palette);
   }
 }
 
 /**
  * Prompt user for load location and load external file as color palette.
+ * @param {function} update_function 
+ * @param {string|null} path 
  */
-export function load_colors_fs(update_function) {
-  let LoadPath = remote.dialog.showOpenDialogSync(
+export function load_colors_fs(update_function, path = null) {
+  let LoadPath;
+  if (path === null) {
+    LoadPath = remote.dialog.showOpenDialogSync(
     {
       filters: [{ name: 'JSON files', extensions: ['json']}],
       properties: ['openFile']
     })
+  } else {
+    LoadPath = path;
+  }
   if (typeof(LoadPath) !== 'undefined' && (LoadPath.length === 1)) {
     let colors = JSON.parse(fs.readFileSync(LoadPath[0], {encoding: 'utf8', flag: 'r'}))
     _store_colors(colors)
     _my_palette = colors
     _color_random_reset()
-    update_function()
+    if (update_function) {
+      update_function()
+    }
   }
 }
 
@@ -203,7 +217,7 @@ export function update_color_settings(color_settings, update_function) {
     _my_palette = color_settings
   } else {
     // No colors in settings, but settings read from localStorage
-    if (colors_loaded_from_localStorage) {
+    if (colors_loaded_from_localStorage && color_settings_updater !== null) {
       color_settings_updater(_my_palette)
     }
   }

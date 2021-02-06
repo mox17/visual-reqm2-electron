@@ -11,7 +11,8 @@
     "start_w_h": "babel scripts -d lib && electron . -g",
     "babel": "babel scripts -d lib",
     "dev": "babel scripts -d lib && electron . --debug",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "babel scripts -d lib && electron-mocha --full-trace './tests/*.spec.js'",
+    "test-renderer": "electron-mocha --renderer --reporter spec main.spec.js",
     "pack": "babel scripts -d lib && electron-builder --dir",
     "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
@@ -35,6 +36,7 @@
     "electron": "^9.0.0",
     "electron-builder": "^20.44.4",
     "electron-icon-maker": "0.0.5",
+    "electron-mocha": "^10.0.0",
     "eslint": "^7.8.0"
   },
   "dependencies": {
