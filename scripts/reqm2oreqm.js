@@ -808,10 +808,9 @@ export default class ReqM2Specobjects {
    * @param {string} report string with description (possibly multiple lines)
    */
   problem_report(report) {
-    if (!this.problems.includes(report)) {
+    //if (!this.problems.includes(report)) {
       this.problems.push(report)
-      document.getElementById('issueCount').innerHTML = this.problems.length
-    }
+    //}
   }
 
   get_problems() {
@@ -819,9 +818,13 @@ export default class ReqM2Specobjects {
     return this.problems.join('\n')
   }
 
+  get_problem_count() {
+    // Get a count of problems strings
+    return this.problems.length;
+  }
+
   clear_problems() {
     this.problems = []
-    document.getElementById('issueCount').innerHTML = this.problems.length
   }
 
   /**

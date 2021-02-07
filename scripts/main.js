@@ -1085,6 +1085,7 @@
           program_settings.show_coverage,
           program_settings.color_status);
         set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+        set_issue_count();
         updateGraph();
       }
     }
@@ -1229,6 +1230,7 @@
                                           program_settings.show_coverage,
                                           program_settings.color_status)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+    set_issue_count();
     set_selection(graph.selected_nodes)
   }
 
@@ -1248,6 +1250,7 @@
                                           program_settings.show_coverage,
                                           program_settings.color_status)
     set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+    set_issue_count();
     set_selection(graph.selected_nodes)
   }
 
@@ -1614,6 +1617,7 @@
     // Show the graph of doctype relationships
     if (oreqm_main) {
       oreqm_main.scan_doctypes(false)
+      set_issue_count();
       updateGraph();
     }
   }
@@ -1626,9 +1630,21 @@
   function show_doctypes_safety() {
     // Show the graph of doctype relationships
     if (oreqm_main) {
-      oreqm_main.scan_doctypes(true)
+      oreqm_main.scan_doctypes(true);
+      set_issue_count();
       updateGraph();
     }
+  }
+
+  /**
+   * Update count in 'issues' button
+   */
+  function set_issue_count() {
+    let count = 0
+    if (oreqm_main) {
+      count = oreqm_main.get_problem_count();
+    }
+    document.getElementById('issueCount').innerHTML = count;
   }
 
   /**
@@ -1744,8 +1760,9 @@
 
   function clear_problems() {
     if (oreqm_main) {
-      oreqm_main.clear_problems()
-      show_problems()
+      oreqm_main.clear_problems();
+      document.getElementById('issueCount').innerHTML = 0;
+      show_problems();
     }
   }
 
@@ -1810,6 +1827,7 @@
                                           program_settings.max_calc_nodes,
                                           program_settings.show_coverage,
                                           program_settings.color_status)
+    set_issue_count();
     return graph
   }
 
