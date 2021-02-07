@@ -22,7 +22,7 @@ export function xml_escape(txt) {
  * @param {string} txt Multi-line string
  * @return {string} Adjusted string
  */
-function normalize_indent(txt) {
+export function normalize_indent(txt) {
   txt = txt.replace(/\r/, '')  // no cr
   txt = txt.replace(/\t/, '  ')  // no tabs
   txt = txt.replace(/^(\s*\n)+/, '') // empty initial line
@@ -78,7 +78,7 @@ const re_empty_lines  = new RegExp(/<BR ALIGN="LEFT"\/>(\s*&nbsp;<BR ALIGN="LEFT
  * @param {*} txt Text with various markup (for example docbook)
  * @return {string} 'dot' html table friendly text.
  */
-function dot_format(txt) {
+export function dot_format(txt) {
   let txt2
   let new_txt = ''
   if (txt.length) {
@@ -308,7 +308,7 @@ function quote_id(id) {
 /**
  * @classdesc Derived class with capability to generate diagrams of contained oreqm data.
  */
-export default class ReqM2Oreqm extends ReqM2Specobjects {
+export class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Construct new object

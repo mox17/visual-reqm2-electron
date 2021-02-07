@@ -1,6 +1,6 @@
   "use strict";
   import _ from './util.js'
-  import ReqM2Oreqm, { xml_escape } from './diagrams.js'
+  import { ReqM2Oreqm, xml_escape } from './diagrams.js'
   import { get_color, save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, get_ignored_fields, program_settings, load_safety_rules_fs, open_settings } from './settings.js'
   import Viz from 'viz.js'

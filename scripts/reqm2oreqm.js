@@ -207,6 +207,7 @@ export default class ReqM2Specobjects {
     try {
       this.root = tryParseXML(content)
     } catch (err) {
+      console.log(err);
       alert(err)
       return false
     }
@@ -727,6 +728,7 @@ export default class ReqM2Specobjects {
       }
     }
     catch(err) {
+      console.log('Selection criteria error:\n{}'.format(err.message));
       alert('Selection criteria error:\n{}'.format(err.message))
     }
     return matches
