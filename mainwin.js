@@ -55,7 +55,7 @@ function createWindow() {
     // TODO: There must be a better way to determine the path to main icon file
     //icon_path = './build/icon.png'
     //icon_path = 'C:\\Users\\erlin\\Documents\\src\\visual-reqm2-electron\\build\\icon.png'
-    icon_path = path.join(calc_icon_path(process.argv[0]), './build/icon.png')
+    icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
     //console.log("process.resourcesPath: ",process.resourcesPath)
     //console.log("__dirname: ", __dirname)
     //console.log("calc_icon_path: ", calc_icon_path(process.argv[0]))
