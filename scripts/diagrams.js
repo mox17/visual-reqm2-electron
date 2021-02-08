@@ -75,7 +75,7 @@ const re_empty_lines  = new RegExp(/<BR ALIGN="LEFT"\/>(\s*&nbsp;<BR ALIGN="LEFT
 
 /**
  * Remove xml style formatting not compliant with 'dot' tables
- * @param {*} txt Text with various markup (for example docbook)
+ * @param {string} txt Text with various markup (for example docbook)
  * @return {string} 'dot' html table friendly text.
  */
 export function dot_format(txt) {

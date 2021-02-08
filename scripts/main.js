@@ -120,7 +120,7 @@
 
   /**
    * Handle command line parameters related to 'batch' execution, i.e. without opening a window
-   * @param {*} args the input argument object
+   * @param {object} args the input argument object
    */
   function cmd_line_parameters(args) {
     if (args.select !== undefined) {

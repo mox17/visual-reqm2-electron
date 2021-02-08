@@ -736,9 +736,9 @@ export default class ReqM2Specobjects {
 
   /**
    * Mark all reachable nodes from id_list both up and down the graph
-   * @param {*} id_list
-   * @param {*} color_up_value
-   * @param {*} color_down_value
+   * @param {string[]} id_list
+   * @param {integer} color_up_value
+   * @param {integer} color_down_value
    */
   mark_and_flood_up_down(id_list, color_up_value, color_down_value) {
     for (const res of id_list) {
@@ -849,8 +849,8 @@ export default class ReqM2Specobjects {
 
   /**
    * Recreate XML lists for presentation purposes
-   * @param {*} rec
-   * @param {*} field
+   * @param {object} rec object representing specobject
+   * @param {string} field xml tag name
    * @return {string} in XML format
    */
   get_list_formatted(rec, field) {
