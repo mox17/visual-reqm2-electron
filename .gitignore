@@ -7,3 +7,5 @@ package-lock.json
 lib/*
 electron-builder.yml
 tmp/*
+coverage/*
+.nyc_output/*
