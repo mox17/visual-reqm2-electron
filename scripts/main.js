@@ -61,7 +61,7 @@
   });
 
   /**
-   * Main processing triggered mainwin starts here.
+   * Main processing triggered from main process starts here.
    * Command line parameters are received here
    */
   ipcRenderer.on('argv', (event, parameters, args) => {
