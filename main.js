@@ -222,11 +222,22 @@ app.on('ready', () => {
   parser.add_argument('oreqm_main',                { help: 'main oreqm', nargs: '?' });
   parser.add_argument('oreqm_ref',                 { help: 'ref. oreqm', nargs: '?' });
 
-  // Ugly work-around for command line difference when compiled to app compared to pure nodejs
-  if (process.argv[1] != '.') {
-    process.argv.splice(1, 0, '.');
+  console.log("The options are:", process.argv)
+  let args
+  // TODO: Current parameter handling conflicts with spectron testing, so as a work-around
+  // command line parameter handling is disabled when automated testing is detected.
+  var isInTest = true
+  if (isInTest) {
+    args = parser.parse_args([]);
+  } else {
+    // Ugly work-around for command line difference when compiled to app compared to pure nodejs
+    if ((process.argv.length) > 1 && process.argv[1] != '.') {
+      process.argv.splice(1, 0, '.');
+    }
+    args = parser.parse_args(process.argv)
+    //args = parser.parse_args(['']);
   }
-  let args = parser.parse_args()
+
   debug = args.debug
   run_autoupdater = args.update
   //console.log(process.argv);

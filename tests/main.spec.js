@@ -2,7 +2,7 @@
 
 const electron = require('electron');
 const util = require('../lib/util.js');
-//const main = _interopRequireDefault(require('../lib/main.js'));
+//const main = _interopRequireDefault(require('../lib/main_render.js'));
 const assert = require('assert');
 const fs = require('fs');
 

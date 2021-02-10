@@ -11,7 +11,7 @@
 
   let mainWindow = remote.getCurrentWindow();
 
- 
+
 
   var beforeUnloadMessage = null;
 
@@ -81,7 +81,7 @@
     if (program_settings.check_for_updates) {
       check_newer_release_available();
     }
-    if (args.oreqm_main !== undefined) {
+    if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
       //console.log(fs.statSync(args.oreqm_main));
       let main_stat = fs.statSync(args.oreqm_main);
       if (main_stat && main_stat.isFile()) {
@@ -92,7 +92,7 @@
         ok = false;
       }
     }
-    if (args.oreqm_ref !== undefined) {
+    if (args.oreqm_ref !== undefined && args.oreqm_ref.length > 0) {
       let ref_stat = fs.statSync(args.oreqm_main);
       if (ref_stat && ref_stat.isFile()) {
         //console.log(args.oreqm_ref, ref_stat);
