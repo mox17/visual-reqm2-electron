@@ -9,7 +9,7 @@
   import fs from 'fs'
   import https from 'https'
 
-  let mainWindow = remote.getCurrentWindow();
+  //let mainWindow = remote.getCurrentWindow();
 
 
 
@@ -146,11 +146,11 @@
   /** worker thread running graphviz */
   var vizjs_worker;
   /** svg output from graphviz */
-  var svg_result;
+  export var svg_result;
   /** Object containing internal representation of main oreqm file */
-  var oreqm_main
+  export var oreqm_main
   /** Object containing internal representation of reference oreqm file */
-  var oreqm_ref
+  export var oreqm_ref
   var image_type = 'none'
   var image_mime = ''
   var image_data = ''
@@ -169,7 +169,7 @@
   /** The svg pan and zoom utility used in diagram pane */
   var panZoom = null
   /** Version available on github.com */
-  var latest_version = 'unknown'
+  export var latest_version = 'unknown'
 
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
   document.getElementById("auto_update").checked = auto_update
@@ -848,10 +848,10 @@
    */
   function set_window_title(extra) {
     let title = "Visual ReqM2 - {}".format(extra)
-    mainWindow.setTitle(title);
+    remote.getCurrentWindow().setTitle(title);
   }
 
-  function load_file_main(file) {
+  export function load_file_main(file) {
     //console.log("load_file_main", file);
     clear_diagram()
     clear_doctypes_table()

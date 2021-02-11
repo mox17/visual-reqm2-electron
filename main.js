@@ -130,6 +130,7 @@ function createWindow() {
         {type: 'separator'},
         {
           label:'Settings...',
+          id: 'menu_settings',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('open_settings')}
         }
       ]
@@ -222,26 +223,28 @@ app.on('ready', () => {
   parser.add_argument('oreqm_main',                { help: 'main oreqm', nargs: '?' });
   parser.add_argument('oreqm_ref',                 { help: 'ref. oreqm', nargs: '?' });
 
-  console.log("The options are:", process.argv)
+  let argv = process.argv.slice() // Manipulate a copy in following
+  console.log("The options are:", argv)
+  console.log("spectron env setting", process.env.RUNNING_IN_SPECTRON)
   let args
   // TODO: Current parameter handling conflicts with spectron testing, so as a work-around
   // command line parameter handling is disabled when automated testing is detected.
-  var isInTest = true
+  var isInTest = process.env.hasOwnProperty('RUNNING_IN_SPECTRON')
   if (isInTest) {
     args = parser.parse_args([]);
   } else {
     // Ugly work-around for command line difference when compiled to app compared to pure nodejs
-    if ((process.argv.length) > 1 && process.argv[1] != '.') {
-      process.argv.splice(1, 0, '.');
+    if ((argv.length > 1) && argv[1] !== '.') {
+      argv.splice(1, 0, '.');
     }
-    args = parser.parse_args(process.argv)
-    //args = parser.parse_args(['']);
+    argv.splice(0,2) // remove ['electron', '.']
+    //console.log("Effective options are:", argv)
+    args = parser.parse_args(argv)
   }
+  console.log("effective args: ", args)
 
   debug = args.debug
   run_autoupdater = args.update
-  //console.log(process.argv);
-  //console.log(args);
   // Check if a command-line only action requested
   if (args.safety || args.hierarchy || args.diagram) {
     cmd_line_only = true
