@@ -27,7 +27,7 @@ export const defined_specobject_fields = [
   'usecase',
   'verifycrit',
   'version',
-  'violations'  /* Violations is a pseudo field. This output data is stored in the object. 
+  'violations'  /* Violations is a pseudo field. This output data is stored in the object.
                    TODO: this could be made more elegant */
 ];
 

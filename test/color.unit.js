@@ -22,7 +22,7 @@ it('Generate color', function() {
 it('Save palette', function() {
     if (fs.existsSync(pal_file)) {
         fs.unlinkSync(pal_file);
-    }    
+    }
     color.save_colors_fs(pal_file);
     //console.log(fs.statSync(pal_file, {throwIfNoEntry: false, bigint: true}) );
     assert.ok(fs.existsSync(pal_file));
@@ -30,12 +30,12 @@ it('Save palette', function() {
     //console.log(file_content);
     //assert.strictEqual(file_content.includes('"fxoobar"'), true);
     assert.ok(file_content.includes('"foobar0"'), true);
-});    
+});
 
 it('Load palette', function() {
     color.load_colors_fs(null, "test_palette.json");
     assert.ok(true);
-});    
+});
 
 it('Set palette', function() {
     let mapping = {"xyzzy": "#223344"}
@@ -43,5 +43,5 @@ it('Set palette', function() {
     color.update_color_settings(mapping, null);
     let xyzzy = color.get_color("xyzzy");
     assert.strictEqual("#223344", xyzzy);
-});    
+});
 

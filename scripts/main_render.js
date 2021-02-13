@@ -1,6 +1,6 @@
   "use strict";
   import _ from './util.js'
-  import { ReqM2Oreqm, xml_escape, set_limit_reporter } from './diagrams.js'
+  import { xml_escape, set_limit_reporter } from './diagrams.js'
   import { get_color, save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
   import { get_ignored_fields, program_settings } from './settings.js'
@@ -10,10 +10,34 @@
   import fs from 'fs'
   import https from 'https'
   import showToast from 'show-toast';
+  import { settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
+           update_graph, svg_result, create_oreqm_main, create_oreqm_ref, dot_source,
+           COLOR_UP, COLOR_DOWN } from './main_data.js'
+  import Progressbar from 'electron-progressbar'
 
   //let mainWindow = remote.getCurrentWindow();
 
   var beforeUnloadMessage = null;
+
+  /** When true diagram is generated whenever selections or exclusions are updated */
+  var auto_update = true
+  /** When true only search ID field */
+  var id_checkbox = false // flag for scope of search
+  /** regex for matching requirements */
+  var search_pattern = ''
+  /** The format for the diagram output */
+  let selected_format = 'svg'
+  /** The svg pan and zoom utility used in diagram pane */
+  var panZoom = null
+  /** parses generated svg from graphviz in preparation for display */
+  var parser = new DOMParser();
+  /** Version available on github.com */
+  var latest_version = 'unknown'
+  var image_type = 'none'
+  var image_mime = ''
+  var image_data = ''
+  /** When true specobject in state 'rejected' are ignored */
+  var no_rejects = true   // shall specobjects with status===rejected be displayed?
 
   /** @description Draggable border between diagram and selection logic to the left */
   var resizeEvent = new Event("paneresize");
@@ -60,14 +84,17 @@
     open_settings();
   });
 
-
+  /**
+   * Show a toast when graph has been limited to max_nodes nodes
+   * @param {number} max_nodes The limit
+   */
   function report_limit_as_toast(max_nodes) {
     showToast({
       str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
       time: 10000,
       position: 'middle'
     })
-}
+  }
 
   /**
    * Main processing triggered from main process starts here.
@@ -120,16 +147,6 @@
   });
 
   /**
-   * Callback when updated settings are taken into use
-   */
-  function settings_updated() {
-    if (oreqm_main) {
-      // settings can affect the rendering, therefore cache must be flushed
-      oreqm_main.clear_cache()
-    }
-  }
-
-  /**
    * Handle command line parameters related to 'batch' execution, i.e. without opening a window
    * @param {object} args the input argument object
    */
@@ -151,36 +168,6 @@
       }
     }
   }
-
-  /** parses generated svg from graphviz */
-  var parser = new DOMParser();
-  /** worker thread running graphviz */
-  var vizjs_worker;
-  /** svg output from graphviz */
-  export var svg_result;
-  /** Object containing internal representation of main oreqm file */
-  export var oreqm_main
-  /** Object containing internal representation of reference oreqm file */
-  export var oreqm_ref
-  var image_type = 'none'
-  var image_mime = ''
-  var image_data = ''
-  /** When true diagram is generated whenever selections or exclusions are updated */
-  var auto_update = true
-  /** When true specobject in state 'rejected' are ignored */
-  var no_rejects = true   // shall specobjects with status===rejected be displayed?
-  /** regex for matching requirements */
-  var search_pattern = ''
-  /** \n separated list of excluded ids */
-  var excluded_ids = ''
-  /** When true only search ID field */
-  var id_checkbox = false // flag for scope of search
-  /** the generated 'dot' source submitted to graphviz */
-  var dot_source = ''
-  /** The svg pan and zoom utility used in diagram pane */
-  var panZoom = null
-  /** Version available on github.com */
-  export var latest_version = 'unknown'
 
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
   document.getElementById("auto_update").checked = auto_update
@@ -205,73 +192,24 @@
     document.getElementById("viz_working").innerHTML = '<span style="color: #000000"></span>'
   }
 
-  /**
-   * Start graphviz in worker thread on processing new dot graph.
-   */
-  function updateGraph() {
-    if (vizjs_worker) {
-      vizjs_worker.terminate();
-      vizjs_worker = null
-    }
-    vizjs_worker = new Worker("./lib/worker.js");
-
-    clear_diagram()
-
+  function html_viz_processing_show() {
     document.querySelector("#output").classList.add("working");
     document.querySelector("#output").classList.remove("error");
+  }
 
-    vizjs_worker.onmessage = function(e) {
-      document.querySelector("#output").classList.remove("working");
-      document.querySelector("#output").classList.remove("error");
+  function html_viz_processing_clear() {
+    document.querySelector("#output").classList.remove("working");
+    document.querySelector("#output").classList.remove("error");
+  }
 
-      svg_result = e.data;
-
-      viz_working_clear()
-      updateOutput();
+  function html_viz_processing_error(message) {
+    document.querySelector("#output").classList.remove("working");
+    document.querySelector("#output").classList.add("error");
+    let error = document.querySelector("#error");
+    while (error.firstChild) {
+      error.removeChild(error.firstChild);
     }
-
-    vizjs_worker.onerror = function(e) {
-      document.querySelector("#output").classList.remove("working");
-      document.querySelector("#output").classList.add("error");
-
-      var message = e.message === undefined ? "An error occurred while processing the graph input." : e.message;
-
-      var error = document.querySelector("#error");
-      while (error.firstChild) {
-        error.removeChild(error.firstChild);
-      }
-
-      document.querySelector("#error").appendChild(document.createTextNode(message));
-
-      console.error(e);
-      console.log(dot_source)
-      viz_working_clear()
-      e.preventDefault();
-    }
-
-    dot_source = oreqm_main != null ? oreqm_main.get_dot() : "digraph foo {\nfoo -> bar\nfoo -> baz\n}\n"
-    var params = {
-      src: dot_source,
-      options: {
-        engine: "dot", //document.querySelector("#engine select").value,
-        format: document.querySelector("#format select").value
-        , totalMemory: 4 * 16 * 1024 *1024
-      }
-    };
-
-    // Instead of asking for png-image-element directly, which we can't do in a worker,
-    // ask for SVG and convert when updating the output.
-
-    if (params.options.format === "png-image-element") {
-      params.options.format = "svg";
-    }
-
-    if (document.querySelector("#format select").value === 'dot-source') {
-      updateOutput();
-    } else {
-      vizjs_worker.postMessage(params);
-      viz_working_set()
-    }
+    document.querySelector("#error").appendChild(document.createTextNode(message));
   }
 
   /** svg element parsed from graphviz svg output */
@@ -303,7 +241,7 @@
    * Render generated diagram in window, considering the selected output format
    * and set up event handlers for resizing, pan/zoom and context menu
    */
-  function updateOutput() {
+  function updateOutput(result) {
     const graph = document.querySelector("#output");
 
     var svg = graph.querySelector("svg");
@@ -325,7 +263,7 @@
       return;
     }
 
-    if (document.querySelector("#format select").value === "svg" && !document.querySelector("#raw input").checked) {
+    if (selected_format === "svg" && !document.querySelector("#raw input").checked) {
       svg_element = parser.parseFromString(svg_result, "image/svg+xml").documentElement;
       svg_element.id = "svg_output";
       graph.appendChild(svg_element);
@@ -449,13 +387,13 @@
       image_type = 'svg'
       image_mime = 'image/svg+xml'
       image_data = svg_result
-    } else if (document.querySelector("#format select").value === "png-image-element") {
+    } else if (selected_format === "png-image-element") {
       var image = Viz.svgXmlToPngImageElement(svg_result, 1);
       graph.appendChild(image);
       image_type = 'png'
       image_mime = 'image/png'
       image_data = image
-    } else if (document.querySelector("#format select").value === "dot-source") {
+    } else if (selected_format === "dot-source") {
       var dot_text = document.createElement("div");
       dot_text.id = "text";
       dot_text.appendChild(document.createTextNode(dot_source));
@@ -588,44 +526,45 @@
       }
     let savePath = remote.dialog.showSaveDialogSync(null, save_options)
     if (typeof(savePath) !== 'undefined') {
-      if (savePath.endsWith('.svg') || savePath.endsWith('.SVG')) {
-        fs.writeFileSync(savePath, svg_result, 'utf8')
-      } else if (savePath.endsWith('.png') || savePath.endsWith('.PNG')) {
-        Viz.svgXmlToPngImageElement(svg_result, 1, (ev, png) => {
-          if (ev === null) {
-            const data_b64 = png.src.slice(22)
-            const buf = new Buffer.from(data_b64, 'base64');
-            fs.writeFileSync(savePath, buf, 'utf8')
-          } else {
-            console.log("error generating png:", ev)
-          }
-        });
-      } else {
-        alert("Unsupported file types in\n"+savePath)
-      }
+      save_diagram_file(savePath);
     }
   }
 
-  /*
-  document.querySelector("#engine select").addEventListener("change", function() {
-      updateGraph();
-    }); */
-
   document.querySelector("#format select").addEventListener("change", function() {
-    if (document.querySelector("#format select").value === "svg") {
+    selected_format = document.querySelector("#format select").value
+    if (selected_format === "svg") {
       document.querySelector("#raw").classList.remove("disabled");
       document.querySelector("#raw input").disabled = false;
     } else {
       document.querySelector("#raw").classList.add("disabled");
       document.querySelector("#raw input").disabled = true;
     }
-
-    updateGraph();
+    update_diagram(selected_format);
   });
 
   document.querySelector("#raw input").addEventListener("change", function() {
     updateOutput();
   });
+
+  function spinner_show(text) {
+    html_viz_processing_show();
+    viz_working_set();
+  }
+
+  function spinner_stop() {
+    html_viz_processing_clear();
+    viz_working_clear();
+  }
+
+  function diagram_error(message) {
+    html_viz_processing_error(message);
+    viz_working_clear()
+  }
+
+  function update_diagram(selected_format) {
+    clear_diagram()
+    update_graph(selected_format, spinner_show, spinner_stop, updateOutput, diagram_error);
+  }
 
   /**
    * Update context menu for selected node
@@ -809,32 +748,31 @@
   });
 
   function filter_change() {
-    //console.log("filter_change")
     if (auto_update) {
       filter_graph()
     }
   }
 
+  /**
+   * Set auto-update status
+   * @param {boolean} state true: do auto update, false: user has to trigger update
+   */
   function set_auto_update(state) {
     document.getElementById("auto_update").checked = state
     auto_update = state
   }
 
   /**
-   * Process main oreqm file
+   * Create main oreqm object from XML string
    * @param {string} name filename of oreqm file
    * @param {string} data xml data
    */
   function process_data_main(name, data) {
     viz_parsing_set()
-    oreqm_main = new ReqM2Oreqm(name, data, [], [])
+    create_oreqm_main(name, data);
     document.getElementById('name').innerHTML = oreqm_main.filename
     document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB"
     document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
-    const node_count = oreqm_main.get_node_count()
-    if (node_count < 500) {
-      set_auto_update(true)
-    }
     if (oreqm_ref) { // if we have a reference do a compare
       viz_comparing_set()
       let gr = compare_oreqm(oreqm_main, oreqm_ref)
@@ -846,7 +784,7 @@
       filter_graph()
     } else {
       oreqm_main.set_svg_guide()
-      updateGraph()
+      update_diagram(selected_format)
     }
     document.getElementById('get_ref_oreqm_file').disabled = false
     document.getElementById('clear_ref_oreqm').disabled = false
@@ -913,7 +851,7 @@
     oreqm_main.remove_ghost_requirements(true)
     update_doctype_table()
     viz_parsing_set()
-    oreqm_ref = new ReqM2Oreqm(name, data, [], [])
+    create_oreqm_ref(name, data)
     document.getElementById('ref_name').innerHTML = name
     document.getElementById('ref_size').innerHTML = (Math.round(data.length/1024))+" KiB"
     document.getElementById('ref_timestamp').innerHTML = oreqm_ref.get_time()
@@ -977,7 +915,7 @@
   }
 
   /**
-   * Get the list of doctypes with checked 'excluded' status
+   * Get the list of doctypes with checked 'excluded' status from html
    * @return {string[]} list of doctypes
    */
   function get_excluded_doctypes() {
@@ -1055,6 +993,10 @@
 
   }
 
+  /**
+   * Get the regular expression from "Selection criteria" box
+   * @return {string} regular expression
+   */
   function get_search_regex_clean() {
     let raw_search = document.getElementById("search_regex").value
     let clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
@@ -1083,7 +1025,7 @@
         } else {
           txt_search(search_pattern)
         }
-        updateGraph();
+        update_diagram(selected_format);
       } else {
         // no pattern specified
         let title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, "")
@@ -1097,7 +1039,7 @@
           program_settings.color_status);
         set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
         set_issue_count();
-        updateGraph();
+        update_diagram(selected_format);
       }
     }
   }
@@ -1629,7 +1571,7 @@
     if (oreqm_main) {
       oreqm_main.scan_doctypes(false)
       set_issue_count();
-      updateGraph();
+      update_diagram(selected_format);
     }
   }
 
@@ -1643,7 +1585,7 @@
     if (oreqm_main) {
       oreqm_main.scan_doctypes(true);
       set_issue_count();
-      updateGraph();
+      update_diagram(selected_format);
     }
   }
 
@@ -1678,7 +1620,7 @@
   });
 
   /**
-   * Show selected node as XML
+   * Show selected node as XML in the source code modal (html)
    */
   function show_source() {
     if (selected_node.length) {
@@ -1853,17 +1795,6 @@
     return true
   }
 
-  /**
-   * Values for tagging nodes visited while traversing UP and DOWN the graph of specobjects
-   */
-  const COLOR_UP = 1
-  const COLOR_DOWN = 2
-
-  function select_color(node_id, rec, node_color) {
-    // Select colored nodes
-    return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)
-  }
-
   /* auto-update logic */
 
   const notification = document.getElementById('notification');
@@ -1886,6 +1817,7 @@
   function closeNotification() {
     notification.classList.add('hidden');
   }
+
   function restartApp() {
     ipcRenderer.send('restart_app');
   }

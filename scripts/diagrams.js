@@ -306,7 +306,7 @@ function quote_id(id) {
 
 /**
  * Report when number of nodes are limited to console
- * @param {integer} max_nodes 
+ * @param {integer} max_nodes
  */
 function report_limit_exeeded(max_nodes) {
   console.log(`More than ${max_nodes} specobjects. Graph is limited to 1st ${max_nodes} encountered.`)
@@ -317,7 +317,7 @@ let limit_reporter = report_limit_exeeded
 
 /**
  * Set reporting function
- * @param {function} reporting_function 
+ * @param {function} reporting_function some_function(max_limit)
  */
 export function set_limit_reporter(reporting_function) {
   limit_reporter = reporting_function;

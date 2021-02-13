@@ -18,10 +18,10 @@ it('New settings', function() {
     let ignored_fields = settings.get_ignored_fields();
     //console.log(ignored_fields);
     assert.ok(ignored_fields.includes('violations'));
- 
+
     let new_settings = {};
     new_settings = Object.assign(new_settings, settings.program_settings);
-    
+
     delete new_settings.max_calc_nodes;
     delete new_settings.show_coverage;
     delete new_settings.top_doctypes;

@@ -39,7 +39,7 @@ describe('Color tests', function() {
 
     it('Set palette', function() {
         let mapping = {"xyzzy": "#223344"}
-    
+
         color.update_color_settings(mapping, null);
         let xyzzy = color.get_color("xyzzy");
         assert.strictEqual("#223344", xyzzy);

@@ -158,8 +158,8 @@ export function save_colors_fs(path = null) {
 
 /**
  * Prompt user for load location and load external file as color palette.
- * @param {function} update_function 
- * @param {string|null} path 
+ * @param {function} update_function some_function()
+ * @param {string|null} path  path to color scheme json file
  */
 export function load_colors_fs(update_function, path = null) {
   let LoadPath = null;
