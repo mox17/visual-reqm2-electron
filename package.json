@@ -31,9 +31,9 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.12.13",
-    "@babel/core": "^7.12.13",
-    "@babel/preset-env": "^7.12.13",
+    "@babel/cli": "^7.12.16",
+    "@babel/core": "^7.12.16",
+    "@babel/preset-env": "^7.12.16",
     "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
     "electron": "^10.0.0",
@@ -41,8 +41,8 @@
     "electron-chromedriver": "^11.0.0",
     "electron-icon-maker": "0.0.5",
     "electron-mocha": "^10.0.0",
-    "eslint": "^7.8.0",
-    "mocha": "^8.2.1",
+    "eslint": "^7.20.0",
+    "mocha": "^8.3.0",
     "nyc": "^15.1.0",
     "spectron": "^12.0.0"
   },

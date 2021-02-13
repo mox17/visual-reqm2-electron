@@ -11,6 +11,7 @@ const { version } = require('./package.json');
 const log = require('electron-log');
 const {autoUpdater} = require('electron-updater');
 const {settings} = require('./lib/settings_dialog.js')
+const ProgressBar = require('electron-progressbar');
 
 // Optional logging
 autoUpdater.logger = log;
@@ -46,8 +47,8 @@ function calc_icon_path(argv0) {
   }
 }
 
+let icon_path
 function createWindow() {
-  let icon_path
   if (process.platform === 'linux') {
     //icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
@@ -82,6 +83,9 @@ function createWindow() {
     slashes: true,
     backgroundColor: '#000000'
   }));
+
+  ipcMain.on('progress_start', progressbar_start);
+  ipcMain.on('progress_stop', progressbar_stop);
 
   // Open the DevTools.
   if (debug) {
@@ -315,3 +319,48 @@ autoUpdater.on('download-progress', (progressObj) => {
 ipcMain.on('restart_app', () => {
   autoUpdater.quitAndInstall();
 });
+
+// ProgressBar handling
+
+  /**  */
+  let progressBar = null;
+
+  /**
+   * Start or update a progress bar
+   * @param {string} text to be displayed
+   */
+  function progressbar_start(text) {
+    console.log(text)
+    if (progressBar === null) {
+      progressBar = new ProgressBar({
+        /*
+        title: 'Diagram being calculated',
+        text: 'Processing...',
+        detail: text,
+        indeterminate: true,
+        */
+        browserWindow: {
+          icon: icon_path,
+          webPreferences: {
+            nodeIntegration: true
+          }
+        }
+      });
+
+      progressBar.on('completed', function() {
+        //progressBar.text = '';
+        //progressBar.detail = 'Task completed. Exiting...';
+        progressBar = null;
+      });
+
+    } else {
+      //progressBar.detail = text;
+    }
+  }
+
+  function progressbar_stop() {
+    if (progressBar) {
+      progressBar.setCompleted();
+    }
+  }
+

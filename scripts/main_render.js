@@ -12,9 +12,8 @@
   import { settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
            update_graph, svg_result, create_oreqm_main, create_oreqm_ref, dot_source,
            COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref } from './main_data.js'
-  import Progressbar from 'electron-progressbar'
 
-  //let mainWindow = remote.getCurrentWindow();
+  let mainWindow = remote.getCurrentWindow();
 
   var beforeUnloadMessage = null;
 
@@ -532,9 +531,20 @@
     viz_working_clear()
   }
 
+  function progressbar_start(text) {
+    console.log("progressbar_start", text);
+    ipcRenderer.send('progress_start', text);
+  }
+
+  function progressbar_stop() {
+    console.log("progressbar_stop");
+    ipcRenderer.send('progress_stop');
+  }
+
   function update_diagram(selected_format) {
     clear_diagram()
-    update_graph(selected_format, spinner_show, spinner_stop, updateOutput, diagram_error);
+    update_graph(selected_format, progressbar_start, progressbar_stop, updateOutput, diagram_error);
+    //update_graph(selected_format, spinner_show, spinner_stop, updateOutput, diagram_error);
   }
 
   /**
@@ -769,7 +779,7 @@
    */
   function set_window_title(extra) {
     let title = "Visual ReqM2 - {}".format(extra)
-    remote.getCurrentWindow().setTitle(title);
+    mainWindow.setTitle(title);
   }
 
   export function load_file_main(file) {
