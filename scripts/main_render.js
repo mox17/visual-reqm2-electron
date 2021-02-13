@@ -2,7 +2,8 @@
   import _ from './util.js'
   import { ReqM2Oreqm, xml_escape, set_limit_reporter } from './diagrams.js'
   import { get_color, save_colors_fs, load_colors_fs } from './color.js'
-  import { handle_settings, get_ignored_fields, program_settings, load_safety_rules_fs, open_settings } from './settings.js'
+  import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
+  import { get_ignored_fields, program_settings } from './settings.js'
   import Viz from 'viz.js'
   import { ipcRenderer, remote, shell } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
@@ -1814,6 +1815,7 @@
   function compare_oreqm(oreqm_main, oreqm_ref) {
     // Both main and reference oreqm have been read.
     // Highlight new, changed and removed nodes in main oreqm (removed are added as 'ghosts')
+    // eslint-disable-next-line no-unused-vars
     let results = oreqm_main.compare_requirements(oreqm_ref, get_ignored_fields())
     let new_search_array = []
     let raw_search = document.getElementById("search_regex").value.trim()

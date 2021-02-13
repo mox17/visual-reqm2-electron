@@ -10,7 +10,7 @@ const { ArgumentParser } = require('argparse');
 const { version } = require('./package.json');
 const log = require('electron-log');
 const {autoUpdater} = require('electron-updater');
-const {settings} = require('./lib/settings.js')
+const {settings} = require('./lib/settings_dialog.js')
 
 // Optional logging
 autoUpdater.logger = log;
@@ -224,11 +224,13 @@ app.on('ready', () => {
   parser.add_argument('oreqm_ref',                 { help: 'ref. oreqm', nargs: '?' });
 
   let argv = process.argv.slice() // Manipulate a copy in following
-  console.log("The options are:", argv)
-  console.log("spectron env setting", process.env.RUNNING_IN_SPECTRON)
+  //console.log("The options are:", argv)
+  //console.log("spectron env setting", process.env.RUNNING_IN_SPECTRON)
   let args
   // TODO: Current parameter handling conflicts with spectron testing, so as a work-around
   // command line parameter handling is disabled when automated testing is detected.
+
+  // eslint-disable-next-line no-prototype-builtins
   var isInTest = process.env.hasOwnProperty('RUNNING_IN_SPECTRON')
   if (isInTest) {
     args = parser.parse_args([]);
@@ -241,7 +243,7 @@ app.on('ready', () => {
     //console.log("Effective options are:", argv)
     args = parser.parse_args(argv)
   }
-  console.log("effective args: ", args)
+  //console.log("effective args: ", args)
 
   debug = args.debug
   run_autoupdater = args.update
