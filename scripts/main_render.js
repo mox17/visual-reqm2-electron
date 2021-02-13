@@ -1,6 +1,6 @@
   "use strict";
   import _ from './util.js'
-  import { ReqM2Oreqm, xml_escape } from './diagrams.js'
+  import { ReqM2Oreqm, xml_escape, set_limit_reporter } from './diagrams.js'
   import { get_color, save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, get_ignored_fields, program_settings, load_safety_rules_fs, open_settings } from './settings.js'
   import Viz from 'viz.js'
@@ -8,10 +8,9 @@
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
   import https from 'https'
+  import showToast from 'show-toast';
 
   //let mainWindow = remote.getCurrentWindow();
-
-
 
   var beforeUnloadMessage = null;
 
@@ -60,6 +59,15 @@
     open_settings();
   });
 
+
+  function report_limit_as_toast(max_nodes) {
+    showToast({
+      str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
+      time: 10000,
+      position: 'middle'
+    })
+}
+
   /**
    * Main processing triggered from main process starts here.
    * Command line parameters are received here
@@ -68,6 +76,8 @@
     let ok = true;
     let main = false;
     let ref = false;
+
+    set_limit_reporter(report_limit_as_toast);
 
     handle_settings(settings_updated);
     /*

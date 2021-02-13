@@ -5,7 +5,6 @@ import { ReqM2Specobjects } from './reqm2oreqm.js'
 import { get_color } from './color.js'
 import { DoctypeRelations } from './doctypes.js'
 import { program_settings } from './settings.js'
-import showToast from 'show-toast';
 
 /**
  * Escape XML special characters
@@ -306,6 +305,25 @@ function quote_id(id) {
 }
 
 /**
+ * Report when number of nodes are limited to console
+ * @param {integer} max_nodes 
+ */
+function report_limit_exeeded(max_nodes) {
+  console.log(`More than ${max_nodes} specobjects. Graph is limited to 1st ${max_nodes} encountered.`)
+}
+
+/** function pointer to reporting function */
+let limit_reporter = report_limit_exeeded
+
+/**
+ * Set reporting function
+ * @param {function} reporting_function 
+ */
+export function set_limit_reporter(reporting_function) {
+  limit_reporter = reporting_function;
+}
+
+/**
  * @classdesc Derived class with capability to generate diagrams of contained oreqm data.
  */
 export class ReqM2Oreqm extends ReqM2Specobjects {
@@ -387,6 +405,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     let selected_dict = new Map()
     let sel_arr = []
     let selected_nodes = []
+    let limited = false
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       if (!doctype_dict.has(rec.doctype)) {
@@ -408,11 +427,8 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         }
       }
       if (subset.length > max_nodes) {
-        showToast({
-          str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
-          time: 10000,
-          position: 'middle'
-        })
+        limited = true;
+        limit_reporter(max_nodes);
         break; // hard limit on node count
       }
     }
@@ -481,6 +497,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     result.edge_count = edge_count
     result.doctype_dict = doctype_dict
     result.selected_dict = selected_dict
+    result.limited = limited
     selected_nodes.sort()
     result.selected_nodes = selected_nodes
     return result
