@@ -151,7 +151,7 @@ function stringEqual(a_in, b_in, ignore_list) {
 /**
  * This class reads and manages information in ReqM2 .oreqm files
  */
-export default class ReqM2Specobjects {
+export class ReqM2Specobjects {
   constructor(filename, content, excluded_doctypes, excluded_ids) {
     this.filename = filename;      // basename of oreqm file
     this.timestamp = ''            // recorded time of ReqM2 run

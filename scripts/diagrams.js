@@ -1,9 +1,9 @@
 /* Main class for managing oreqm xml data */
 "use strict";
 
-import ReqM2Specobjects from './reqm2oreqm.js'
+import { ReqM2Specobjects } from './reqm2oreqm.js'
 import { get_color } from './color.js'
-import DoctypeRelations from './doctypes.js'
+import { DoctypeRelations } from './doctypes.js'
 import { program_settings } from './settings.js'
 import showToast from 'show-toast';
 
