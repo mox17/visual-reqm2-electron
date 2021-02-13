@@ -4,7 +4,6 @@
   import { get_color, save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
   import { get_ignored_fields, program_settings } from './settings.js'
-  import Viz from 'viz.js'
   import { ipcRenderer, remote, shell } from 'electron'
   import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
   import fs from 'fs'
@@ -12,7 +11,7 @@
   import showToast from 'show-toast';
   import { settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
            update_graph, svg_result, create_oreqm_main, create_oreqm_ref, dot_source,
-           COLOR_UP, COLOR_DOWN } from './main_data.js'
+           COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref } from './main_data.js'
   import Progressbar from 'electron-progressbar'
 
   //let mainWindow = remote.getCurrentWindow();
@@ -288,29 +287,6 @@
         panZoom.resize();
       });
 
-      /*
-      // This time, add the listener to the graph itself
-      svg_element.addEventListener('click', event => {
-        let str = ""
-        if (!event.altKey) { // This test allows Alt-drag to function
-          // Grab all the siblings of the element that was actually clicked on
-          for (const sibling of event.target.parentElement.children) {
-            // Check if they're the title
-            if (sibling.nodeName != 'title') continue;
-            str = sibling.innerHTML;
-            break;
-          }
-          const ta = document.createElement('textarea');
-          ta.value = str;
-          ta.setAttribute('readonly', '');
-          ta.style = { position: 'absolute', left: '-9999px' };
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }
-      }); */
-
       svg_element.addEventListener('focus', function() {
         this.addEventListener('keypress', function() {
             //console.log(e.keyCode);
@@ -324,12 +300,6 @@
         } else if (e.key == 'p') {
           // alert("P key was pressed");
           prev_selected()
-        // } else if (e.ctrlKey && e.which == 66) {
-        //   alert("Ctrl + B shortcut combination was pressed");
-        // } else if (e.ctrlKey && e.altKey && e.which == 89) {
-        //   alert("Ctrl + Alt + Y shortcut combination was pressed");
-        // } else if (e.ctrlKey && e.altKey && e.shiftKey && e.which == 85) {
-        //   alert("Ctrl + Alt + Shift + U shortcut combination was pressed");
         }
         //console.log(e)
       };
@@ -388,7 +358,7 @@
       image_mime = 'image/svg+xml'
       image_data = svg_result
     } else if (selected_format === "png-image-element") {
-      var image = Viz.svgXmlToPngImageElement(svg_result, 1);
+      var image = convert_svg_to_png(svg_result)
       graph.appendChild(image);
       image_type = 'png'
       image_mime = 'image/png'
@@ -488,7 +458,7 @@
   });
 
   function copy_png() {
-    let image = Viz.svgXmlToPngImageElement(svg_result, 1, png_callback);
+    convert_svg_to_png(svg_result, png_callback);
   }
 
   /**
@@ -521,6 +491,7 @@
       filters: [
         { name: 'SVG files', extensions: ['svg']},
         { name: 'PNG files', extensions: ['png']},
+        { name: 'DOT files', extensions: ['dot']},
       ],
       properties: ['openFile']
       }
@@ -757,6 +728,7 @@
    * Set auto-update status
    * @param {boolean} state true: do auto update, false: user has to trigger update
    */
+  // eslint-disable-next-line no-unused-vars
   function set_auto_update(state) {
     document.getElementById("auto_update").checked = state
     auto_update = state
@@ -1214,8 +1186,7 @@
   function clear_reference_oreqm()
   {
     if (oreqm_ref) {
-      oreqm_ref = null
-      oreqm_main.remove_ghost_requirements(true)
+      clear_oreqm_ref();
       update_doctype_table()
       document.getElementById('ref_name').innerHTML = ''
       document.getElementById('ref_size').innerHTML = ''

@@ -115,6 +115,15 @@ export function create_oreqm_ref(name, data) {
 }
 
 /**
+ * Convert svg to png
+ * @param {string} svg diagram in string format
+ * @return {object} png image
+ */
+export function convert_svg_to_png(svg, cb_done=undefined) {
+  return Viz.svgXmlToPngImageElement(svg, 1, cb_done);
+}
+
+/**
  * Save svg or png file. Format is controlled with extension of filename
  * @param {string} savePath path whre to store diagram
  */
@@ -126,24 +135,34 @@ export function save_diagram_file(savePath) {
       if (ev === null) {
         const data_b64 = png.src.slice(22)
         const buf = new Buffer.from(data_b64, 'base64');
-        fs.writeFileSync(savePath, buf, 'utf8')
+        fs.writeFileSync(savePath, buf, 'utf8');
       } else {
-        console.log("error generating png:", ev)
+        console.log("error generating png:", ev);
       }
     });
+  } else if (savePath.endsWith('.dot') || savePath.endsWith('.DOT')) {
+    fs.writeFileSync(savePath, dot_source, 'utf8');
   } else {
-    //alert("Unsupported file types in\n"+savePath)
+    alert("Unsupported file types in\n"+savePath)
   }
 }
 
-  /**
-   * Values for tagging nodes visited while traversing UP and DOWN the graph of specobjects
-   */
-  export const COLOR_UP = 1
-  export const COLOR_DOWN = 2
+/**
+ * clean up reference oreqm object
+ */
+export function clear_oreqm_ref() {
+  oreqm_ref = null
+  oreqm_main.remove_ghost_requirements(true)
+}
 
-  export function select_color(node_id, rec, node_color) {
-    // Select colored nodes
-    return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)
-  }
+/**
+ * Values for tagging nodes visited while traversing UP and DOWN the graph of specobjects
+ */
+export const COLOR_UP = 1
+export const COLOR_DOWN = 2
+
+export function select_color(node_id, rec, node_color) {
+  // Select colored nodes
+  return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)
+}
 
