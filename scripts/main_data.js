@@ -83,6 +83,9 @@ export function update_graph(selected_format, cb_spinner_run, cb_spinner_stop, c
   }
 
   if (selected_format === 'dot-source') {
+    if (cb_spinner_stop) {
+      cb_spinner_stop();
+    }
     if (cb_success) {
       cb_success(dot_source);
     }
