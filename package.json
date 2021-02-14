@@ -12,7 +12,7 @@
     "dev": "babel scripts -d lib && electron . --debug",
     "test": "babel scripts -d lib && nyc --reporter=html mocha",
     "test:elec": "babel scripts -d lib && nyc --reporter=html electron-mocha --renderer --full-trace './test/*.unit.js'",
-    "test:mocha": "babel scripts -d lib && nyc --reporter=html mocha ./test/*.spec.js",
+    "test:mocha": "babel scripts -d lib && nyc --reporter=html mocha ",
     "pack": "babel scripts -d lib && electron-builder --dir",
     "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
