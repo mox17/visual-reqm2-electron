@@ -401,92 +401,33 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     const ids = this.requirements.keys()
     let node_count = 0
     let edge_count = 0
-    let doctype_dict = new Map()
-    let selected_dict = new Map()
-    let sel_arr = []
+    let doctype_dict = new Map()  // { doctype : [id] }  list of id's per doctype
+    let selected_dict = new Map() // { doctype : [id] } list of selected id's per doctype
     let selected_nodes = []
     let limited = false
     for (const req_id of ids) {
-      const rec = this.requirements.get(req_id)
-      if (!doctype_dict.has(rec.doctype)) {
-        doctype_dict.set(rec.doctype, [])
-        selected_dict.set(rec.doctype, [])
-      }
-      if (selection_function(req_id, rec, this.color.get(req_id)) &&
-          !this.excluded_doctypes.includes(rec.doctype) &&
-          !this.excluded_ids.includes(req_id)) {
-        subset.push(req_id)
-        let dt = doctype_dict.get(rec.doctype)
-        dt.push(req_id)
-        doctype_dict.set(rec.doctype, dt)
-        if (highlights.includes(req_id)) {
-          sel_arr = selected_dict.get(rec.doctype)
-          sel_arr.push(req_id)
-          selected_dict.set(rec.doctype, sel_arr)
-          selected_nodes.push(req_id)
-        }
-      }
+      this.doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes);
       if (subset.length > max_nodes) {
         limited = true;
         limit_reporter(max_nodes);
         break; // hard limit on node count
       }
     }
-    let show_top = false
-    for (let top_dt of top_doctypes) {
-      if (this.doctypes.has(top_dt) && !this.excluded_doctypes.includes(top_dt)) {
-        show_top = true;
-      }
-    }
-    if (show_top) {
-      graph += '  "TOP" [fontcolor=lightgray];\n\n'
-    }
+    let show_top;
+    ({ show_top, graph } = this.handle_top_node(top_doctypes, graph));
     for (const req_id of subset) {
         // nodes
         const ghost = this.removed_reqs.includes(req_id)
-        let node = this.get_format_node(req_id, ghost, show_coverage, color_status) // format_node(req_id, this.requirements.get(req_id), ghost, this)
-        let dot_id = req_id //.replace(/\./g, '_').replace(' ', '_')
-        if (this.new_reqs.includes(req_id)) {
-          node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
-        } else if (this.updated_reqs.includes(req_id)) {
-          node = 'subgraph "cluster_{}_changed" { color=goldenrod1 penwidth=1 label="changed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
-        } else if (this.removed_reqs.includes(req_id)) {
-          node = 'subgraph "cluster_{}_removed" { color=red penwidth=1 label="removed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
-        }
-        if (highlights.includes(req_id)) {
-          node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label=""\n{}}\n'.format(dot_id, dot_id, node)
-        }
+        let node = this.get_format_node(req_id, ghost, show_coverage, color_status)
+        node = this.add_node_emphasis(req_id, node, req_id, highlights);
         graph += node + '\n'
         node_count += 1
     }
     graph += '\n  # Edges\n'
-    if (show_top) {
-      for (const req_id of subset) {
-        if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
-          graph += format_edge(req_id, 'TOP', '', '')
-        }
-      }
-    }
-    let kind = ''
-    let linkerror = ''
+    graph = this.handle_top_node_edges(show_top, subset, top_doctypes, graph);
     for (const req_id of subset) {
       // edges
-      if (this.linksto.has(req_id)) {
-        for (const link of this.linksto.get(req_id)) {
-          // Do not reference non-selected specobjets
-          if (subset.includes(link)) {
-            if (this.fulfilledby.has(req_id) && this.fulfilledby.get(req_id).has(link)) {
-              kind = "fulfilledby"
-              linkerror = this.get_ffb_link_error(link, req_id)
-            } else {
-              kind = null
-              linkerror = this.get_link_error(req_id, link)
-            }
-            graph += format_edge(req_id, link, kind, linkerror)
-            edge_count += 1
-          }
-        }
-      }
+      ({ graph, edge_count } = this.add_dot_edge(req_id, subset, graph, edge_count));
     }
     graph += '\n  label={}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n'.format(title)
     graph += ReqM2Oreqm.DOT_EPILOGUE
@@ -501,6 +442,101 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     selected_nodes.sort()
     result.selected_nodes = selected_nodes
     return result
+  }
+
+  handle_top_node_edges(show_top, subset, top_doctypes, graph) {
+    if (show_top) {
+      for (const req_id of subset) {
+        if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
+          graph += format_edge(req_id, 'TOP', '', '');
+        }
+      }
+    }
+    return graph;
+  }
+
+  handle_top_node(top_doctypes, graph) {
+    let show_top = false;
+    for (let top_dt of top_doctypes) {
+      if (this.doctypes.has(top_dt) && !this.excluded_doctypes.includes(top_dt)) {
+        show_top = true;
+      }
+    }
+    if (show_top) {
+      graph += '  "TOP" [fontcolor=lightgray];\n\n';
+    }
+    return { show_top, graph };
+  }
+
+  add_dot_edge(req_id, subset, graph, edge_count) {
+    let kind = ''
+    let linkerror = ''
+    if (this.linksto.has(req_id)) {
+      for (const link of this.linksto.get(req_id)) {
+        // Do not reference non-selected specobjets
+        if (subset.includes(link)) {
+          if (this.fulfilledby.has(req_id) && this.fulfilledby.get(req_id).has(link)) {
+            kind = "fulfilledby";
+            linkerror = this.get_ffb_link_error(link, req_id);
+          } else {
+            kind = null;
+            linkerror = this.get_link_error(req_id, link);
+          }
+          graph += format_edge(req_id, link, kind, linkerror);
+          edge_count += 1;
+        }
+      }
+    }
+    return { graph, edge_count };
+  }
+
+  /**
+   * Calculate categories of nodes in diagram
+   * @param {string} req_id of current node
+   * @param {Map<string, string[]>} doctype_dict 
+   * @param {Map<string, string[]>} selected_dict 
+   * @param {function(string, Object, Set<number>)} selection_function 
+   * @param {string[]} subset List of selected and reachable ids
+   * @param {string[]} highlights list of selected ids
+   * @param {string[]} selected_nodes 
+   */
+  doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes) {
+    const rec = this.requirements.get(req_id);
+    if (!doctype_dict.has(rec.doctype)) {
+      doctype_dict.set(rec.doctype, []);
+      selected_dict.set(rec.doctype, []);
+    }
+    if (selection_function(req_id, rec, this.color.get(req_id)) &&
+      !this.excluded_doctypes.includes(rec.doctype) &&
+      !this.excluded_ids.includes(req_id)) {
+      subset.push(req_id);
+      doctype_dict.get(rec.doctype).push(req_id);
+      if (highlights.includes(req_id)) {
+        selected_dict.get(rec.doctype).push(req_id);
+        selected_nodes.push(req_id);
+      }
+    }
+  }
+
+  /**
+   * Decorate the node with a colored 'cluster¨' if one of special categories.
+   * @param {string} req_id specobject id
+   * @param {string} node 'dot' language node
+   * @param {string} dot_id svg level id
+   * @param {string[]} highlights id's of selected nodes
+   */
+  add_node_emphasis(req_id, node, dot_id, highlights) {
+    if (this.new_reqs.includes(req_id)) {
+      node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+    } else if (this.updated_reqs.includes(req_id)) {
+      node = 'subgraph "cluster_{}_changed" { color=goldenrod1 penwidth=1 label="changed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+    } else if (this.removed_reqs.includes(req_id)) {
+      node = 'subgraph "cluster_{}_removed" { color=red penwidth=1 label="removed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+    }
+    if (highlights.includes(req_id)) {
+      node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label=""\n{}}\n'.format(dot_id, dot_id, node);
+    }
+    return node;
   }
 
   /**

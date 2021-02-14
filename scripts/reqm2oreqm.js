@@ -660,9 +660,7 @@ export class ReqM2Specobjects {
           this.doctypes.set(old_rec.doctype, [])
         }
         // Update doctype table with new counts (and types)
-        let dt_arr = this.doctypes.get(old_rec.doctype)
-        dt_arr.push(req_id)
-        this.doctypes.set(old_rec.doctype, dt_arr)
+        this.doctypes.get(old_rec.doctype).push(req_id)
       }
     }
     this.build_graph_traversal_links() // Select the changed ones (if wanted)
