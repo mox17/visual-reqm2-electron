@@ -443,27 +443,24 @@ export class ReqM2Specobjects {
     // Clear any previous results
     this.linksto = new Map()
     this.linksto_rev = new Map()
-    let lt_set
-    let lt_key // key to speobjects, can be != id for duplicated id's
     // Check all requirements
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       for (const link of rec.linksto) {
-        //console.log(req_id, link)
+        // key to speobjects, can be != id for duplicated id's
+        const lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
+
         // bottom-up
         if (!this.linksto.has(req_id)) {
             this.linksto.set(req_id, new Set())
         }
-        lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
-        this.linksto.set(req_id, this.linksto.get(req_id).add(lt_key))
+        this.linksto.get(req_id).add(lt_key)
 
         // top-down
         if (!this.linksto_rev.has(lt_key)) {
           this.linksto_rev.set(lt_key, new Set())
         }
-        lt_set = this.linksto_rev.get(lt_key)
-        lt_set.add(req_id)
-        this.linksto_rev.set(lt_key, lt_set)
+        this.linksto_rev.get(lt_key).add(req_id)
       }
       for (const ffb_arr of rec.fulfilledby) {
         const ffb_link = this.get_key_for_id_ver(ffb_arr.id, ffb_arr.version)
@@ -471,24 +468,18 @@ export class ReqM2Specobjects {
         if (!this.linksto_rev.has(req_id)) {
           this.linksto_rev.set(req_id, new Set())
         }
-        let ffb_set = this.linksto_rev.get(req_id)
-        ffb_set.add(ffb_link)
-        this.linksto_rev.set(req_id, ffb_set)
+        this.linksto_rev.get(req_id).add(ffb_link)
 
         if (!this.fulfilledby.has(ffb_link)) {
           this.fulfilledby.set(ffb_link, new Set())
         }
-        ffb_set = this.fulfilledby.get(ffb_link)
-        ffb_set.add(req_id)
-        this.fulfilledby.set(ffb_link, ffb_set)
+        this.fulfilledby.get(ffb_link).add(req_id)
 
         // bottom-up
         if (!this.linksto.has(ffb_link)) {
           this.linksto.set(ffb_link, new Set())
         }
-        lt_set = this.linksto.get(ffb_link)
-        lt_set.add(req_id)
-        this.linksto.set(ffb_link, lt_set)
+        this.linksto.get(ffb_link).add(req_id)
       }
       this.color.set(req_id, new Set())
     }

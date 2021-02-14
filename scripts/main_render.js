@@ -401,7 +401,7 @@
     const ta = document.createElement('textarea');
     if (ffb_format) {
       let rec = oreqm_main.requirements.get(selected_node)
-      ta.value = '{}:{}:{}'.format(selected_node, rec.doctype, rec.version)
+      ta.value = '{}:{}:{}'.format(rec.id, rec.doctype, rec.version)
     } else {
       ta.value = selected_node
     }
