@@ -11,6 +11,8 @@
     "babel": "babel scripts -d lib",
     "dev": "babel scripts -d lib && electron . --debug",
     "test": "babel scripts -d lib && nyc --reporter=html mocha",
+    "test:elec": "babel scripts -d lib && nyc --reporter=html electron-mocha --renderer --full-trace './test/*.unit.js'",
+    "test:mocha": "babel scripts -d lib && nyc --reporter=html mocha ./test/*.spec.js",
     "pack": "babel scripts -d lib && electron-builder --dir",
     "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
@@ -41,6 +43,7 @@
     "eslint": "^7.20.0",
     "mocha": "^8.3.0",
     "nyc": "^15.1.0",
+    "shx": "^0.3.3",
     "spectron": "^12.0.0"
   },
   "dependencies": {
