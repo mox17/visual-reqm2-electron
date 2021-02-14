@@ -158,6 +158,8 @@ export class ReqM2Specobjects {
     this.root = null;              // xml tree
     this.doctypes = new Map();     // { doctype : [id] }  List of ids of a specific doctype
     this.requirements = new Map(); // { id : Requirement}
+    this.versions = new Map();     // { id : [version] }
+    this.duplicates = new Map();   // { id : [{id2, version}] } where id2 is the effective (unique) key
     this.rules = new Map();        // {rule_id : description}
     this.color = new Map();        // {id:[color]} When traversing the graph of nodes a 'color' is associated with each visited node
     this.linksto = new Map();      // {id:{id}} -- map to set of linked ids
@@ -254,52 +256,85 @@ export class ReqM2Specobjects {
     // Read individual specobject
     let specobject_list = node.getElementsByTagName("specobject");
     for (const comp of specobject_list) {
-      let req = new Object();
-      req.id              = get_xml_text(comp, 'id');
-      req.comment         = get_xml_text(comp, 'comment'),
-      req.covstatus       = get_xml_text(comp, 'covstatus'),
-      req.dependson       = get_list_of(comp, 'dependson'),
-      req.description     = get_xml_text(comp, 'description');
-      req.doctype         = doctype,
-      req.fulfilledby     = get_fulfilledby(comp),
-      req.furtherinfo     = get_xml_text(comp, 'furtherinfo'),
-      req.linksto         = get_linksto(comp),
-      req.needsobj        = get_list_of(comp, 'needsobj'),
-      req.platform        = get_list_of(comp, 'platform'),
-      req.rationale       = get_xml_text(comp, 'rationale'),
-      req.safetyclass     = get_xml_text(comp, 'safetyclass'),
-      req.safetyrationale = get_xml_text(comp, 'safetyrationale'),
-      req.shortdesc       = get_xml_text(comp, 'shortdesc'),
-      req.source          = get_xml_text(comp, 'source'),
-      req.sourcefile      = get_xml_text(comp, 'sourcefile'),
-      req.sourceline      = get_xml_text(comp, 'sourceline'),
-      req.status          = get_xml_text(comp, 'status'),
-      req.tags            = get_list_of(comp, 'tag'),
-      req.usecase         = get_xml_text(comp, 'usecase'),
-      req.verifycrit      = get_xml_text(comp, 'verifycrit'),
-      req.version         = get_xml_text(comp, 'version'),
-      req.violations      = get_list_of(comp, 'ruleid');
-      req.ffb_placeholder = false;
-
-      if (this.requirements.has(req.id)) {
-        let problem = "<id> duplicated: {} ".format(req.id)
-        //console.log("redefinition of ", req.id)
-        this.problem_report(problem)
-      }
-      while (this.requirements.has(req.id)) {
-        // Add suffix until id is unique
-        req.id += '_dup_'
-      }
-      this.requirements.set(req.id, req)
-      let dt_arr = this.doctypes.get(doctype)
-      if (!dt_arr.includes(req.id)) {
-        dt_arr.push(req.id)
-        this.doctypes.set(doctype, dt_arr) // keep status per doctype
-      } else {
-        //console.log("duplicate id ", req.id)
-      }
-      //console.log(req);
+      this.add_one_specobject(comp, doctype);
     }
+  }
+
+  /**
+   * Add one specobject to oreqm container
+   * @param {object} comp 
+   */
+  add_one_specobject(comp, doctype) {
+    let req = new Object();
+    req.id              = get_xml_text(comp, 'id');
+    req.comment         = get_xml_text(comp, 'comment'),
+    req.covstatus       = get_xml_text(comp, 'covstatus'),
+    req.dependson       = get_list_of(comp, 'dependson'),
+    req.description     = get_xml_text(comp, 'description');
+    req.doctype         = doctype,
+    req.fulfilledby     = get_fulfilledby(comp),
+    req.furtherinfo     = get_xml_text(comp, 'furtherinfo'),
+    req.linksto         = get_linksto(comp),
+    req.needsobj        = get_list_of(comp, 'needsobj'),
+    req.platform        = get_list_of(comp, 'platform'),
+    req.rationale       = get_xml_text(comp, 'rationale'),
+    req.safetyclass     = get_xml_text(comp, 'safetyclass'),
+    req.safetyrationale = get_xml_text(comp, 'safetyrationale'),
+    req.shortdesc       = get_xml_text(comp, 'shortdesc'),
+    req.source          = get_xml_text(comp, 'source'),
+    req.sourcefile      = get_xml_text(comp, 'sourcefile'),
+    req.sourceline      = get_xml_text(comp, 'sourceline'),
+    req.status          = get_xml_text(comp, 'status'),
+    req.tags            = get_list_of(comp, 'tag'),
+    req.usecase         = get_xml_text(comp, 'usecase'),
+    req.verifycrit      = get_xml_text(comp, 'verifycrit'),
+    req.version         = get_xml_text(comp, 'version'),
+    req.violations      = get_list_of(comp, 'ruleid');
+    req.ffb_placeholder = false;
+
+    // There may be duplicate <id>'s in use. the this.versions and this.duplicates create
+    // a look-up mechanism to enable correct linkage. This assumes that id+version is unique
+    let key = req.id;
+    while (this.requirements.has(key)) {
+      // TODO: add check for unique versions
+      // Add suffix until id is unique
+      key += ':'+req.version;
+    }
+    this.requirements.set(key, req)
+    if (this.versions.has(req.id)) {
+      this.versions.get(req.id).push(req.version);
+      console.log("More versions of:", req.id, this.versions.get(req.id));
+      if (this.duplicates.has(req.id)) {
+        // Additional - 3rd or later duplicate
+        // TODO: add check for unique versions
+        this.duplicates.get(req.id).push({id: key, version: req.version});
+        console.log(this.duplicates);
+      } else {
+        // Put 1st two duplicates on list
+        this.duplicates.set(req.id, [
+          {id: req.id, version: this.versions.get(req.id)[0]},
+          {id: key, version: req.version}
+        ]);
+        console.log(this.duplicates);
+      }
+    } else {
+      // All <id>'s have at least one entry in 'versions'. This is the initial one
+      this.versions.set(req.id, [req.version]);
+    }
+    /*
+    if (this.requirements.has(req.id)) {
+      let problem = "<id> duplicated: {} ".format(req.id)
+      //console.log("redefinition of ", req.id)
+      this.problem_report(problem)
+    }*/
+    let dt_arr = this.doctypes.get(doctype)
+    if (!dt_arr.includes(key)) {
+      dt_arr.push(key)
+      this.doctypes.set(doctype, dt_arr) // keep status per doctype
+    } else {
+      //console.log("duplicate id ", req.id)
+    }
+    //console.log(req);
   }
 
   /**
@@ -381,6 +416,25 @@ export class ReqM2Specobjects {
   }
 
   /**
+   * Get the effective key for a (id, version) pair
+   * @param {string} id Possibly duplicate <id>
+   * @param {string} version id+version unique
+   * @return {string} effective key. If matching version not found an unspecified key with matching id will be returned
+   */
+  get_key_for_id_ver(id, version) {
+    let key = id;
+    if (this.duplicates.has(id)) {
+        for (const id_ver of this.duplicates.get(id)) {
+          if (id_ver.version === version) {
+            return id_ver.id;
+          }
+        }
+        console.log("No match to multiple versions of:", id, version)
+    }
+    return key;
+  }
+
+  /**
    * Populate the linksto and reverse linksto_rev dicts with the linkages in the requirements.
    * Ensure that color dict has all valid ids
    */
@@ -390,6 +444,7 @@ export class ReqM2Specobjects {
     this.linksto = new Map()
     this.linksto_rev = new Map()
     let lt_set
+    let lt_key // key to speobjects, can be != id for duplicated id's
     // Check all requirements
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
@@ -399,18 +454,19 @@ export class ReqM2Specobjects {
         if (!this.linksto.has(req_id)) {
             this.linksto.set(req_id, new Set())
         }
-        this.linksto.set(req_id, this.linksto.get(req_id).add(link.linksto))
+        lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
+        this.linksto.set(req_id, this.linksto.get(req_id).add(lt_key))
 
         // top-down
-        if (!this.linksto_rev.has(link.linksto)) {
-          this.linksto_rev.set(link.linksto, new Set())
+        if (!this.linksto_rev.has(lt_key)) {
+          this.linksto_rev.set(lt_key, new Set())
         }
-        lt_set = this.linksto_rev.get(link.linksto)
+        lt_set = this.linksto_rev.get(lt_key)
         lt_set.add(req_id)
-        this.linksto_rev.set(link.linksto, lt_set)
+        this.linksto_rev.set(lt_key, lt_set)
       }
       for (const ffb_arr of rec.fulfilledby) {
-        const ffb_link = ffb_arr.id
+        const ffb_link = this.get_key_for_id_ver(ffb_arr.id, ffb_arr.version)
         // top-down
         if (!this.linksto_rev.has(req_id)) {
           this.linksto_rev.set(req_id, new Set())

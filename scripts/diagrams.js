@@ -200,7 +200,7 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
                         get_color(rec.doctype),
                         ghost ? ':white' : '',
                         ghost ? 'grey' : 'black',
-                        node_id, rec.version, rec.doctype,
+                        rec.id, rec.version, rec.doctype,
                         dot_format(rec.description), rec.needsobj.join('<BR/>'),
                         shortdesc,
                         rationale,

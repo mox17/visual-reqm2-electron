@@ -532,12 +532,12 @@
   }
 
   function progressbar_start(text) {
-    console.log("progressbar_start", text);
+    //console.log("progressbar_start", text);
     ipcRenderer.send('progress_start', text);
   }
 
   function progressbar_stop() {
-    console.log("progressbar_stop");
+    //console.log("progressbar_stop");
     ipcRenderer.send('progress_stop');
   }
 
