@@ -54,6 +54,7 @@
     "electron-progressbar": "^2.0.0",
     "electron-settings": "^3.2.0",
     "electron-updater": "^4.3.5",
+    "jsdom": "^16.4.0",
     "shell": "^0.8.4",
     "show-toast": "^1.1.4",
     "split.js": "^1.6.2",

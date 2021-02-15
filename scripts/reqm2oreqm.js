@@ -190,7 +190,7 @@ export class ReqM2Specobjects {
       this.timestamp = this.get_time()
       let problems = this.get_problems()
       if (problems) {
-        //alert(problems)
+        alert(problems);
       }
     }
   }
