@@ -12,8 +12,7 @@ describe('Settings tests', function() {
 
     // eslint-disable-next-line no-undef
     it('New settings', function() {
-        assert.strictEqual(settings.program_settings, null);
-
+        // Force settings to default
         settings.check_and_upgrade_settings(null);
         assert.strictEqual(settings.program_settings.max_calc_nodes, 1000);
 

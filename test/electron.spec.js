@@ -22,7 +22,7 @@ describe('Application launch', function () {
   let app, client
 
   beforeEach(function () {
-    console.log(path.join(__dirname, '..'))
+    //console.log(path.join(__dirname, '..'))
     //console.log(electronPath)
     app = new Application({
       path: electronPath,
