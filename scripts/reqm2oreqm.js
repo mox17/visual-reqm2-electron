@@ -156,10 +156,12 @@ export class ReqM2Specobjects {
     this.filename = filename;      // basename of oreqm file
     this.timestamp = ''            // recorded time of ReqM2 run
     this.root = null;              // xml tree
-    this.doctypes = new Map();     // { doctype : [id] }  List of ids of a specific doctype
-    this.requirements = new Map(); // { id : Requirement}
-    this.versions = new Map();     // { id : [version] }
-    this.duplicates = new Map();   // { id : [{id2, version}] } where id2 is the effective (unique) key
+    /** Map<doctype, id[]>  List of ids of a specific doctype */
+    this.doctypes = new Map();
+    /** Map<key, Requirement[]> Where key is === \<id> except for duplicates, where a :\<version> is suffixed for subsequent instances of \<id> */
+    this.requirements = new Map();
+    /** Map<id, {id:, version:}[]> where 2nd id is the effective (unique) key */
+    this.duplicates = new Map();
     this.rules = new Map();        // {rule_id : description}
     this.color = new Map();        // {id:[color]} When traversing the graph of nodes a 'color' is associated with each visited node
     this.linksto = new Map();      // {id:{id}} -- map to set of linked ids
@@ -292,49 +294,37 @@ export class ReqM2Specobjects {
     req.violations      = get_list_of(comp, 'ruleid');
     req.ffb_placeholder = false;
 
-    // There may be duplicate <id>'s in use. the this.versions and this.duplicates create
-    // a look-up mechanism to enable correct linkage. This assumes that id+version is unique
+    // There may be duplicate <id>'s in use.
     let key = req.id;
+    let report_duplicate = true;
     while (this.requirements.has(key)) {
-      // TODO: add check for unique versions
+      // Check for unique versions
+      if (report_duplicate && this.requirements.get(key).version === req.version) {
+        let problem = `specobject '${req.id}' is duplicated with same version '${req.version}'`;
+        console.log(problem);
+        this.problem_report(problem);
+        report_duplicate = false;
+      }
       // Add suffix until id is unique
       key += ':'+req.version;
     }
-    this.requirements.set(key, req)
-    if (this.versions.has(req.id)) {
-      this.versions.get(req.id).push(req.version);
-      console.log("More versions of:", req.id, this.versions.get(req.id));
-      if (this.duplicates.has(req.id)) {
-        // Additional - 3rd or later duplicate
-        // TODO: add check for unique versions
-        this.duplicates.get(req.id).push({id: key, version: req.version});
-        console.log(this.duplicates);
-      } else {
-        // Put 1st two duplicates on list
-        this.duplicates.set(req.id, [
-          {id: req.id, version: this.versions.get(req.id)[0]},
-          {id: key, version: req.version}
-        ]);
-        console.log(this.duplicates);
+    this.requirements.set(key, req);
+    // Keep track of duplicates and their versions
+    if (key !== req.id) {
+      if (!this.duplicates.has(req.id)) {
+        // Create list of duplicates for this <id>
+        let first_req = this.requirements.has(req.id);
+        this.duplicates.set(req.id, [{id: first_req.id, version: first_req.version}])
       }
-    } else {
-      // All <id>'s have at least one entry in 'versions'. This is the initial one
-      this.versions.set(req.id, [req.version]);
+      // Add duplicate
+      this.duplicates.get(req.id).push({id: key, version: req.version});
     }
-    /*
-    if (this.requirements.has(req.id)) {
-      let problem = "<id> duplicated: {} ".format(req.id)
-      //console.log("redefinition of ", req.id)
-      this.problem_report(problem)
-    }*/
+
     let dt_arr = this.doctypes.get(doctype)
     if (!dt_arr.includes(key)) {
       dt_arr.push(key)
       this.doctypes.set(doctype, dt_arr) // keep status per doctype
-    } else {
-      //console.log("duplicate id ", req.id)
     }
-    //console.log(req);
   }
 
   /**
