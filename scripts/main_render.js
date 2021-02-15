@@ -400,8 +400,8 @@
   function copy_id_node(ffb_format) {
     const ta = document.createElement('textarea');
     if (ffb_format) {
-      let rec = oreqm_main.requirements.get(selected_node)
-      ta.value = '{}:{}:{}'.format(rec.id, rec.doctype, rec.version)
+      let rec = oreqm_main.requirements.get(selected_node);
+      ta.value = `${rec.id}:${rec.doctype}:${rec.version}`;
     } else {
       ta.value = selected_node
     }
@@ -587,20 +587,20 @@
     let doctypes = visible_nodes.keys()
     let shown_count = 0
     for (const doctype of doctypes) {
-      let shown_cell = document.getElementById("doctype_shown_{}".format(doctype))
+      let shown_cell = document.getElementById(`doctype_shown_${doctype}`);
       if (shown_cell) {
         shown_cell.innerHTML = visible_nodes.get(doctype).length
         shown_count += visible_nodes.get(doctype).length
       }
     }
-    let shown_cell_totals = document.getElementById("doctype_shown_totals")
+    let shown_cell_totals = document.getElementById("doctype_shown_totals");
     if (shown_cell_totals) {
       shown_cell_totals.innerHTML = shown_count
     }
     doctypes = selected_nodes.keys()
     let selected_count = 0
     for (const doctype of doctypes) {
-      let selected_cell = document.getElementById("doctype_select_{}".format(doctype))
+      let selected_cell = document.getElementById(`doctype_select_${doctype}`);
       if (selected_cell) {
         selected_cell.innerHTML = selected_nodes.get(doctype).length
         selected_count += selected_nodes.get(doctype).length
@@ -662,15 +662,15 @@
       doctype_totals += doctype_dict.get(doctype_name).length;
 
       cell = row.insertCell();
-      cell.innerHTML = '<div id="doctype_shown_{}">0</div>'.format(doctype_name)
+      cell.innerHTML = `<div id="doctype_shown_${doctype_name}">0</div>`;
 
       cell = row.insertCell();
-      cell.innerHTML = '<div id="doctype_select_{}">0</div>'.format(doctype_name)
+      cell.innerHTML = `<div id="doctype_select_${doctype_name}">0</div>`;
 
       cell = row.insertCell();
       let checked = excluded.includes(doctype_name)
       //console.log("dt table", doctype_name, checked)
-      cell.innerHTML = '<div><input type="checkbox" id="doctype_{}" {}/></div>'.format(doctype_name, checked ? 'checked' : '')
+      cell.innerHTML = `<div><input type="checkbox" id="doctype_${doctype_name}" ${checked ? 'checked' : ''}/></div>`;
       cell.addEventListener("click", doctype_filter_change);
       cell = null
     }
@@ -778,7 +778,7 @@
    * @param {string} extra typically pathname of oreqm
    */
   function set_window_title(extra) {
-    let title = "Visual ReqM2 - {}".format(extra)
+    let title = `Visual ReqM2 - ${extra}`;
     mainWindow.setTitle(title);
   }
 
@@ -845,7 +845,7 @@
     if (auto_update) {
       filter_graph()
     }
-    set_window_title("{} vs. {}".format(oreqm_main.filename, oreqm_ref.filename))
+    set_window_title(`${oreqm_main.filename} vs. ${oreqm_ref.filename}`)
   }
 
   /**
@@ -906,7 +906,7 @@
       const doctypes = oreqm_main.get_doctypes()
       const names = doctypes.keys()
       for (const doctype of names) {
-        const cb_name = "doctype_{}".format(doctype)
+        const cb_name = `doctype_${doctype}`
         const status = document.getElementById(cb_name);
         if (status && status.checked) {
           excluded_list.push(doctype)
@@ -927,7 +927,7 @@
       let ex_list = get_excluded_doctypes()
       const new_state = ex_list.length === 0
       for (const doctype of names) {
-        const box = document.getElementById("doctype_{}".format(doctype))
+        const box = document.getElementById(`doctype_${doctype}`)
         if (new_state != box.checked) {
           box.checked = new_state
         }
@@ -949,7 +949,7 @@
       const doctypes = oreqm_main.get_doctypes()
       const names = doctypes.keys()
       for (const doctype of names) {
-        var box = document.getElementById("doctype_{}".format(doctype));
+        var box = document.getElementById(`doctype_${doctype}`);
         box.checked = !box.checked
       }
       doctype_filter_change();
@@ -1297,7 +1297,7 @@
   document.getElementById('menu_select').addEventListener("click", function() {
     // Add node to the selection criteria (if not already selected)
     let node = selected_node
-    let node_select_str = "{}$".format(node)
+    let node_select_str = `${node}$`
     let search_pattern = document.getElementById("search_regex").value.trim()
     if (oreqm_main && oreqm_main.check_node_id(node)) {
       if (!search_pattern.includes(node_select_str)) {
@@ -1316,7 +1316,7 @@
   document.getElementById('menu_deselect').addEventListener("click", function() {
     // Remove node to the selection criteria (if not already selected)
     let node = selected_node
-    let node_select_str = new RegExp("(^|\\|){}\\$".format(node))
+    let node_select_str = new RegExp(`(^|\\|)${node}\\$`)
     let org_search_pattern = document.getElementById("search_regex").value.trim()
     let search_pattern = org_search_pattern.replace(/\n/g, '')
     let new_search_pattern = search_pattern.replace(node_select_str, '')
@@ -1329,7 +1329,7 @@
       //console.log("deselect_node() - search ", node, search_pattern, new_search_pattern)
       filter_change()
     } else {
-      let alert_text = "'{}' is not a selected node\nPerhaps try 'Exclude'?".format(node)
+      let alert_text = `'${node}' is not a selected node\nPerhaps try 'Exclude'?`
       alert(alert_text)
     }
   });
@@ -1388,7 +1388,7 @@
       }
     }
     if (found) {
-      set_selection_highlight(document.getElementById('sel_{}'.format(node_name)))
+      set_selection_highlight(document.getElementById(`sel_${node_name}`))
       let output = document.getElementById("output");
       let sizes = panZoom.getSizes()
       let rz = sizes.realZoom;
@@ -1619,7 +1619,7 @@
           if (part.added || part.removed) {
             font = 'bold'
           }
-          result += '<span style="color: {}; font-weight: {};">{}</span>'.format(color, font, src_add_plus_minus(part))
+          result += `<span style="color: ${color}; font-weight: ${font};">${src_add_plus_minus(part)}</span>`
         });
         result += '</pre>'
         ref.innerHTML = result
@@ -1630,7 +1630,7 @@
         } else if (oreqm_main.new_reqs.includes(selected_node)) {
           header_main = "<h2>XML format (new specobject)</h2>"
         }
-        ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, xml_escape(oreqm_main.get_node_text_formatted(selected_node)))
+        ref.innerHTML = `${header_main}<pre>${xml_escape(oreqm_main.get_node_text_formatted(selected_node))}</pre>`
       }
       nodeSource.style.display = "block";
     }
@@ -1649,7 +1649,7 @@
     var ref = document.getElementById('req_src');
       let header_main = "<h2>Internal tagged 'search' format</h2>"
       let a_txt = oreqm_main.get_all_text(selected_node).replace(/\n/g, '\u21B5\n')
-      ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, xml_escape(a_txt))
+      ref.innerHTML = `${header_main}<pre>${xml_escape(a_txt)}</pre>`
       nodeSource.style.display = "block";
     }
   }
@@ -1664,7 +1664,7 @@
     if (oreqm_main) {
       problem_txt =  xml_escape(oreqm_main.get_problems())
     }
-    ref.innerHTML = '{}<pre>{}</pre>'.format(header_main, problem_txt)
+    ref.innerHTML = `${header_main}<pre>${problem_txt}</pre>`
     problemPopup.style.display = "block";
   }
 

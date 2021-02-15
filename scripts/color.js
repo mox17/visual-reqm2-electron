@@ -86,9 +86,7 @@ function _decimalToHex(d, padding) {
 function _get_color_string() {
   // Return color as #RRGGBB string"""
   const color = _get_random_color()
-  return "#{}{}{}".format(_decimalToHex(color[0], 2),
-                          _decimalToHex(color[1], 2),
-                          _decimalToHex(color[2], 2))
+  return `#${_decimalToHex(color[0], 2)}${_decimalToHex(color[1], 2)}${_decimalToHex(color[2], 2)}`
 }
 
 /**

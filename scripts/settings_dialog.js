@@ -77,7 +77,7 @@ function settings_dialog_prepare() {
   document.getElementById('regex_error').innerHTML = "";
   // Set the checkboxes to reflect program_settings.compare_fields object
   for (let field of defined_specobject_fields) {
-    let dom_id = "sett_ignore_{}".format(field);
+    let dom_id = `sett_ignore_${field}`;
     let box = document.getElementById(dom_id);
     //console.log(field, dom_id, box, program_settings.compare_fields[field])
     if (box && (typeof(program_settings.compare_fields[field])!=='undefined')) {
@@ -112,7 +112,7 @@ function settings_dialog_results() {
   // Set program_settings.compare_fields object according to the checkboxes
   document.getElementById('regex_error').innerHTML = ""
   for (let field of defined_specobject_fields) {
-    let dom_id = "sett_ignore_{}".format(field)
+    let dom_id = `sett_ignore_${field}`
     let box = document.getElementById(dom_id)
     //console.log(field, dom_id, box, program_settings.compare_fields[field])
     if (box) {
@@ -183,10 +183,8 @@ export function process_rule_set(new_rules) {
         break;
       }
       if (!rule.includes('>')) {
-        result.error = 'Expected ">" in regex "{}"'.format(rule)
+        result.error = `Expected ">" in regex "${rule}"`
         result.pass = false
-        //alert('Expected ">" in regex "{}"'.format(rule))
-        //console.log('Expected ">" in regex "{}"'.format(rule))
         break
       }
       let regex_rule
@@ -194,9 +192,8 @@ export function process_rule_set(new_rules) {
         regex_rule = new RegExp(rule)
       }
       catch(err) {
-        result.error = 'Malformed regex: {}'.format(err.message)
+        result.error = `Malformed regex: ${err.message}`
         result.pass = false
-        //alert('Malformed regex: {}'.format(err.message))
         break
       }
       regex_array.push(regex_rule)

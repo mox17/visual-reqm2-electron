@@ -374,7 +374,7 @@ export class ReqM2Specobjects {
           // check for matching doctype
           const real_dt = this.requirements.get(ff_id).doctype
           if (real_dt !== ff_doctype) {
-            let problem = "ffbType {} does not match {} for <id> {}".format(ff_doctype, real_dt, ff_id)
+            let problem = `ffbType ${ff_doctype} does not match ${real_dt} for <id> ${ff_id}`
             this.problem_report(problem)
           }
         }
@@ -763,8 +763,9 @@ export class ReqM2Specobjects {
       }
     }
     catch(err) {
-      console.log('Selection criteria error:\n{}'.format(err.message));
-      alert('Selection criteria error:\n{}'.format(err.message))
+      let msg = `Selection criteria error:\n${err.message}`;
+      console.log(msg);
+      alert(msg);
     }
     return matches
   }
@@ -874,9 +875,9 @@ export class ReqM2Specobjects {
     let xml_txt = ''
     if (Object.prototype.hasOwnProperty.call(rec, tag)) {
       let txt = rec[tag]
-      let template = "\n    <{}>{}</{}>"
+      let template = `\n    <${tag}>${txt}</${tag}>`
       if (txt.length) {
-        xml_txt = template.format(tag, txt, tag)
+        xml_txt = template;
       }
     }
     return xml_txt
@@ -892,17 +893,16 @@ export class ReqM2Specobjects {
     let xml_txt = ''
     if (Object.prototype.hasOwnProperty.call(rec, field)) {
       let list = rec[field]
-      let template = "\n    <{}>{}</{}>"
       if (list.length) {
-        xml_txt = "\n{}: ".format(field)
+        xml_txt = `\n${field}: `
         if (field==='linksto') {
           xml_txt = '\n    <providescoverage>'
           for (let i=0; i<list.length; i++) {
             xml_txt += `
       <provcov>
-        <linksto>{}</linksto>
-        <dstversion>{}</dstversion>
-      </provcov>`.format(list[i].linksto, list[i].dstversion)
+        <linksto>${list[i].linksto}</linksto>
+        <dstversion>${list[i].dstversion}</dstversion>
+      </provcov>`
           }
           xml_txt += '\n    </providescoverage>'
         } else if (field==='needsobj') {
@@ -910,21 +910,21 @@ export class ReqM2Specobjects {
           for (let i=0; i<list.length; i++) {
             if (list[i].includes('*')) continue;
             xml_txt += `
-      <needscov><needsobj>{}</needsobj></needscov>`.format(list[i])
+      <needscov><needsobj>${list[i]}</needsobj></needscov>`
           }
           xml_txt += '\n    </needscoverage>'
         } else if (field==='tags') {
           xml_txt = '\n    <tags>'
           for (let i=0; i<list.length; i++) {
             xml_txt += `
-      <tag>{}</tag>`.format(list[i])
+      <tag>${list[i]}</tag>`
           }
           xml_txt += '\n    </tags>'
         } else if (field==='platform') {
           xml_txt = '\n    <platforms>'
           for (let i=0; i<list.length; i++) {
             xml_txt += `
-      <platform>{}</platform>`.format(list[i])
+      <platform>${list[i]}</platform>`
           }
           xml_txt += '\n    </platforms>'
         } else if (field==='fulfilledby') {
@@ -932,14 +932,14 @@ export class ReqM2Specobjects {
           for (let i=0; i<list.length; i++) {
             xml_txt += `
       <ffbObj>
-        <ffbId>{}</ffbId>
-        <ffbType>{}</ffbType>
-        <ffbVersion>{}</ffbVersion>
-      </ffbObj>`.format(list[i].id, list[i].doctype, list[i].version)
+        <ffbId>${list[i].id}</ffbId>
+        <ffbType>${list[i].doctype}</ffbType>
+        <ffbVersion>${list[i].version}</ffbVersion>
+      </ffbObj>`
           }
           xml_txt += '\n    </fulfilledby>'
         } else {
-          xml_txt = template.format(field, list.join(', '), field)
+          xml_txt = `\n    <${field}>${list.join(', ')}</${field}>`
         }
       }
     }
@@ -956,14 +956,6 @@ export class ReqM2Specobjects {
     if (this.requirements.has(id)) {
       let rec = this.requirements.get(id)
       let indent = '      '
-      let template = `\
-<specobjects doctype="{}">
-  <specobject>
-    <id>{}</id>
-    <status>{}</status>{}
-  </specobject>
-</specobjects>
-`
       let optional = ''
       optional    += this.get_tag_text_formatted(rec, 'source', indent)
       optional    += this.get_tag_text_formatted(rec, 'version', indent)
@@ -983,7 +975,14 @@ export class ReqM2Specobjects {
       optional    += this.get_list_formatted(rec, 'platform', indent)
       optional    += this.get_list_formatted(rec, 'needsobj', indent)
       optional    += this.get_list_formatted(rec, 'linksto', indent)
-      xml_txt = template.format(rec.doctype, rec.id, rec.status, optional)
+      xml_txt = `\
+<specobjects doctype="${rec.doctype}">
+  <specobject>
+    <id>${rec.id}</id>
+    <status>${rec.status}</status>${optional}
+  </specobject>
+</specobjects>
+`
     }
     return xml_txt
   }
