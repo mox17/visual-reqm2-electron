@@ -313,7 +313,7 @@ export class ReqM2Specobjects {
     if (key !== req.id) {
       if (!this.duplicates.has(req.id)) {
         // Create list of duplicates for this <id>
-        let first_req = this.requirements.has(req.id);
+        let first_req = this.requirements.get(req.id);
         this.duplicates.set(req.id, [{id: first_req.id, version: first_req.version}])
       }
       // Add duplicate
@@ -702,7 +702,7 @@ export class ReqM2Specobjects {
    * Return tagged text format for specobject.
    * There is a cache for previously created strings which is used for speedup.
    * Each xml tag has a corresponding 2 or 3 letter tag prefix.
-   * @param {string} req_id id of specobject
+   * @param {string} req_id key of specobject, === id for non-duplicates
    * @return {string} tagged string
    */
   get_all_text(req_id) {
@@ -711,7 +711,7 @@ export class ReqM2Specobjects {
     } else {
       // Get all text fields as combined string
       const rec = this.requirements.get(req_id)
-      let id_str = this.decorate_id(req_id)
+      let id_str = this.decorate_id(rec.id)
       let ffb = ''
       rec.fulfilledby.forEach(element =>
         ffb += '\nffb:'+element.id)
@@ -725,6 +725,7 @@ export class ReqM2Specobjects {
       rec.needsobj.forEach(element =>
         needsobj += '\nno:'+element)
       let all_text = 'dt:' + rec.doctype
+        + '\nve:' + rec.version
         + '\nst:' + rec.status
         + '\nde:' + rec.description
         + '\nfi:' + rec.furtherinfo
@@ -740,7 +741,7 @@ export class ReqM2Specobjects {
         + ffb
         + tags
         + plat
-        + '\nid:' + id_str;  // req_id is last to ensure regex search for <id>$ will succeed
+        + '\nid:' + id_str;
 
       this.search_cache.set(req_id, all_text)
       return all_text

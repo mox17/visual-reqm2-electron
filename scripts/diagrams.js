@@ -416,13 +416,24 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     }
     let show_top;
     ({ show_top, graph } = this.handle_top_node(top_doctypes, graph));
-    for (const req_id of subset) {
+
+    let arrays_of_duplicates
+    let not_duplicates
+    ({arrays_of_duplicates, not_duplicates} = this.visible_duplicates(subset));
+    console.log(arrays_of_duplicates)
+    console.log(not_duplicates)
+    for (const dup_list of arrays_of_duplicates) {
+      let dup_cluster_id = this.requirements.get(dup_list[0]).id;
+      graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=1 label="duplicates" fontname="Arial" labelloc="t"\n`;
+      for (const req_id of dup_list) {
+        // duplicate nodes
+        ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));
+      }
+      graph += `}`;
+    }
+    for (const req_id of not_duplicates) {
         // nodes
-        const ghost = this.removed_reqs.includes(req_id)
-        let node = this.get_format_node(req_id, ghost, show_coverage, color_status)
-        node = this.add_node_emphasis(req_id, node, req_id, highlights);
-        graph += node + '\n'
-        node_count += 1
+        ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));
     }
     graph += '\n  # Edges\n'
     graph = this.handle_top_node_edges(show_top, subset, top_doctypes, graph);
@@ -445,6 +456,51 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     return result
   }
 
+  add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count) {
+    const ghost = this.removed_reqs.includes(req_id);
+    let node = this.get_format_node(req_id, ghost, show_coverage, color_status);
+    node = this.add_node_emphasis(req_id, node, req_id, highlights);
+    graph += node + '\n';
+    node_count += 1;
+    return { graph, node_count };
+  }
+
+  /**
+   * Calculate the subset of visible nodes that are duplicates
+   * @param {string[]} subset keys of visible nodes
+   * @return { string[][], string[] } An array of visible duplicate sets, array of rest
+   */
+  visible_duplicates(subset) {
+    let set_copy = subset.slice();
+    let not_duplicates = [];
+    let arrays_of_duplicates = [];
+    while (set_copy.length > 0) {
+      let key = set_copy[0];
+      let id = this.requirements.get(set_copy[0]).id;
+      if (this.duplicates.has(id)) {
+        // Add the duplicates on the list to dup_set which are also in the subset
+        let dup_set = [];
+        let dup_arr = this.duplicates.get(id);
+        for (const dup_pair of dup_arr) {
+          if (set_copy.includes(dup_pair.id)) {
+            dup_set.push(dup_pair.id);
+          }
+        }
+        // Remove these ids/keys from set_copy
+        let temp_copy = set_copy.filter(function(value, _index, _arr){
+          return !dup_set.includes(value);
+        })
+        set_copy = temp_copy;
+        arrays_of_duplicates.push(dup_set)
+      } else {
+        not_duplicates.push(key)
+        set_copy = set_copy.slice(1);
+      }
+    }
+    console.log("visible_duplicates", subset, arrays_of_duplicates, not_duplicates);
+    return { arrays_of_duplicates, not_duplicates };
+  }
+
   handle_top_node_edges(show_top, subset, top_doctypes, graph) {
     if (show_top) {
       for (const req_id of subset) {
@@ -456,6 +512,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     return graph;
   }
 
+  /**
+   * Add 'TOP' node if there will be edges to it.
+   * @param {string[]} top_doctypes 
+   * @param {string} graph 
+   */
   handle_top_node(top_doctypes, graph) {
     let show_top = false;
     for (let top_dt of top_doctypes) {
