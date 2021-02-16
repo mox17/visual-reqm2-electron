@@ -31,7 +31,7 @@ describe('Color palette tests', function() {
         let file_content = fs.readFileSync(pal_file, 'utf8');
         //console.log(file_content);
         //assert.strictEqual(file_content.includes('"fxoobar"'), true);
-        assert.ok(file_content.includes('"foobar0"'), true);
+        assert.ok(file_content.includes('"foobar0"'), true); //rq: ->(rq_doctype_color_gen)
     });
 
     it('Load palette', function() {

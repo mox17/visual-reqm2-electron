@@ -12,13 +12,13 @@
     "dev": "babel scripts -d lib && electron . --debug",
     "test": "babel scripts -d lib && nyc --reporter=html mocha",
     "test:elec": "babel scripts -d lib && nyc --reporter=html electron-mocha --renderer --full-trace './test/*.unit.js'",
-    "test:mocha": "babel scripts -d lib && nyc --reporter=html mocha ",
     "pack": "babel scripts -d lib && electron-builder --dir",
     "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
     "linux": "babel scripts -d lib && electron-builder -l",
     "build": "babel scripts -d lib && electron-builder build --win --publish never",
-    "deploy": "babel scripts -d lib && electron-builder build --win --publish always"
+    "deploy": "babel scripts -d lib && electron-builder build --win --publish always",
+    "reqm2": "bash ./run_reqm2.sh"
   },
   "author": {
     "name": "Erling Stage",

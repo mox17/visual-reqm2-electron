@@ -396,6 +396,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} dot graph
    */
   create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage, color_status) {
+    //rq: ->(rq_dot) D(* Function shall output a dot graph*)
     let graph = ReqM2Oreqm.DOT_PREAMBLE;
     let subset = []
     const ids = this.requirements.keys()
