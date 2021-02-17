@@ -417,6 +417,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     let show_top;
     ({ show_top, graph } = this.handle_top_node(top_doctypes, graph));
 
+    // babel artifact? below names must match what is used in return from visible_duplicates()
     let arrays_of_duplicates
     let not_duplicates
     ({arrays_of_duplicates, not_duplicates} = this.visible_duplicates(subset));
