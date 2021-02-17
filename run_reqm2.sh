@@ -8,7 +8,7 @@ elif [ ! -d ./reqm2 ]; then
 fi
 
 if [ -z ${REQM2+x} ]; then
-  echo "REQM2 is unset. Do 'export=/full/path/to/ReqM2.pl'";
+  echo "REQM2 is unset. Do 'export REQM2=/full/path/to/ReqM2.pl'";
   exit 1
 else
   echo "Using $REQM2 to process requirements."
