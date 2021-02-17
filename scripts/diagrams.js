@@ -497,7 +497,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         set_copy = set_copy.slice(1);
       }
     }
-    console.log("visible_duplicates", subset, arrays_of_duplicates, not_duplicates);
+    //console.log("visible_duplicates", subset, arrays_of_duplicates, not_duplicates);
     return { arrays_of_duplicates, not_duplicates };
   }
 
@@ -514,8 +514,8 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Add 'TOP' node if there will be edges to it.
-   * @param {string[]} top_doctypes 
-   * @param {string} graph 
+   * @param {string[]} top_doctypes
+   * @param {string} graph
    */
   handle_top_node(top_doctypes, graph) {
     let show_top = false;
@@ -555,12 +555,12 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   /**
    * Calculate categories of nodes in diagram
    * @param {string} req_id of current node
-   * @param {Map<string, string[]>} doctype_dict 
-   * @param {Map<string, string[]>} selected_dict 
-   * @param {function(string, Object, Set<number>)} selection_function 
+   * @param {Map<string, string[]>} doctype_dict
+   * @param {Map<string, string[]>} selected_dict
+   * @param {function(string, Object, Set<number>)} selection_function
    * @param {string[]} subset List of selected and reachable ids
    * @param {string[]} highlights list of selected ids
-   * @param {string[]} selected_nodes 
+   * @param {string[]} selected_nodes
    */
   doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes) {
     const rec = this.requirements.get(req_id);
