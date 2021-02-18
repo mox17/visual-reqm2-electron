@@ -4,6 +4,7 @@ const settings = _interopRequireDefault(require("../lib/settings.js"));
 const ReqM2Oreqm = _interopRequireDefault(require("../lib/diagrams.js"));
 const main_data = _interopRequireDefault(require("../lib/main_data.js"));
 const fs = require("fs");
+const eol = require('eol')
 
 // Provide DOMParser for testing
 const jsdom = require("jsdom");
@@ -85,39 +86,39 @@ describe("ReqM2Oreqm tests", function () {
   
   // eslint-disable-next-line no-undef
   it("Check generated dot string", function () {
-    let dot_str = oreqm.get_dot();
+    let dot_str = eol.auto(oreqm.get_dot());
     fs.writeFileSync("dot_file_1_test.dot", dot_str, {
       encoding: "utf8",
       flag: "w",
     });
     //console.dir(expect(dot_str))
-    let dot_ref = fs.readFileSync("./test/refdata/dot_file_1_ref.dot", "utf8");
+    let dot_ref = eol.auto(fs.readFileSync("./test/refdata/dot_file_1_ref.dot", "utf8"));
     expect(dot_str).to.equal(dot_ref);
   });
 
   // eslint-disable-next-line no-undef
   it('Create hierarchy diagram', function () {
-    const hierarchy = oreqm.scan_doctypes(false);
+    const hierarchy = eol.auto(oreqm.scan_doctypes(false));
     assert.ok(hierarchy.includes('digraph'));
 
     fs.writeFileSync("dot_file_hierarchy_test.dot", hierarchy, {
       encoding: "utf8",
       flag: "w",
     });
-    let dot_ref = fs.readFileSync("./test/refdata/dot_file_hierarchy_ref.dot", "utf8");
+    let dot_ref = eol.auto(fs.readFileSync("./test/refdata/dot_file_hierarchy_ref.dot", "utf8"));
     expect(hierarchy).to.equal(dot_ref);
   });
 
   // eslint-disable-next-line no-undef
   it('Create safety diagram', function () {
-    const safety = oreqm.scan_doctypes(true);
+    const safety = eol.auto(oreqm.scan_doctypes(true));
     assert.ok(safety.includes('digraph'));
 
     fs.writeFileSync("dot_file_safety_test.dot", safety, {
       encoding: "utf8",
       flag: "w",
     });
-    let dot_ref = fs.readFileSync("./test/refdata/dot_file_safety_ref.dot", "utf8");
+    let dot_ref = eol.auto(fs.readFileSync("./test/refdata/dot_file_safety_ref.dot", "utf8"));
     expect(safety).to.equal(dot_ref);
   });
 
