@@ -51,7 +51,7 @@ describe('Application launch', function () {
     assert.equal(count, 1);
     //console.dir(await app.electron.clipboard.availableFormats())
     //app.client.click('#aboutButton');
-    await app.webContents.executeJavaScript("alert('Killroy was here');");
+    await app.webContents.executeJavaScript("alert('Kilroy was here');");
     await sleep(2000);
   })
 
