@@ -120,6 +120,7 @@ export function check_and_upgrade_settings(sett_data) {
  */
 export function get_ignored_fields() {
   // return a list of fields to ignore
+  //rq: ->(rq_tag_ignore_diff)
   let ignore = []
   for (let field of defined_specobject_fields) {
     if (!program_settings.compare_fields[field]) {

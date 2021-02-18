@@ -38,7 +38,7 @@ describe("ReqM2Oreqm tests", function () {
   settings.check_and_upgrade_settings(null);
 
   const test_oreqm_file_name = "./testdata/oreqm_testdata_del_movement.oreqm";
-  let oreqm_txt = fs.readFileSync(test_oreqm_file_name);
+  let oreqm_txt = fs.readFileSync(test_oreqm_file_name); //rq: ->(rq_read_oreqm)
   let oreqm = new ReqM2Oreqm.ReqM2Oreqm(
     test_oreqm_file_name,
     oreqm_txt,
@@ -93,7 +93,7 @@ describe("ReqM2Oreqm tests", function () {
     });
     //console.dir(expect(dot_str))
     let dot_ref = eol.auto(fs.readFileSync("./test/refdata/dot_file_1_ref.dot", "utf8"));
-    expect(dot_str).to.equal(dot_ref);
+    expect(dot_str).to.equal(dot_ref); //rq: ->(rq_dot)
   });
 
   // eslint-disable-next-line no-undef

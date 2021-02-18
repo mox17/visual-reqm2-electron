@@ -118,6 +118,7 @@
       check_newer_release_available();
     }
     if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
+      //rq: ->(rq_one_oreqm_cmd_line)
       //console.log(fs.statSync(args.oreqm_main));
       let main_stat = fs.statSync(args.oreqm_main);
       if (main_stat && main_stat.isFile()) {
@@ -129,6 +130,7 @@
       }
     }
     if (args.oreqm_ref !== undefined && args.oreqm_ref.length > 0) {
+      //rq: ->(rq_two_oreqm_cmd_line)
       let ref_stat = fs.statSync(args.oreqm_main);
       if (ref_stat && ref_stat.isFile()) {
         //console.log(args.oreqm_ref, ref_stat);
@@ -262,10 +264,12 @@
     }
 
     if (selected_format === "svg" && !document.querySelector("#raw input").checked) {
+      //rq: ->(rq_show_svg)
       svg_element = parser.parseFromString(svg_result, "image/svg+xml").documentElement;
       svg_element.id = "svg_output";
       graph.appendChild(svg_element);
 
+      //rq: ->(rq_svg_pan_zoom)
       panZoom = svgPanZoom(svg_element, {
         panEnabled: true,
         zoomEnabled: true,
@@ -293,6 +297,7 @@
       }, svg_element);
 
       document.getElementById('graph').onkeyup = function(e) {
+        //rq: ->(rq_navigate_sel)
         if (e.key == 'n') {
           // alert("N key was pressed");
           next_selected()
@@ -304,6 +309,7 @@
       };
 
       // context menu setup
+      //rq: ->(rq_svg_context_menu)
       var menuNode = document.getElementById('node-menu');
       svg_element.addEventListener('contextmenu', event => {
         let str = ""
@@ -357,12 +363,14 @@
       image_mime = 'image/svg+xml'
       image_data = svg_result
     } else if (selected_format === "png-image-element") {
+      //rq: ->(rq_show_png)
       var image = convert_svg_to_png(svg_result)
       graph.appendChild(image);
       image_type = 'png'
       image_mime = 'image/png'
       image_data = image
     } else if (selected_format === "dot-source") {
+      //rq: ->(rq_show_dot)
       var dot_text = document.createElement("div");
       dot_text.id = "text";
       dot_text.appendChild(document.createTextNode(dot_source));
@@ -399,11 +407,11 @@
    */
   function copy_id_node(ffb_format) {
     const ta = document.createElement('textarea');
+    let rec = oreqm_main.requirements.get(selected_node);
     if (ffb_format) {
-      let rec = oreqm_main.requirements.get(selected_node);
-      ta.value = `${rec.id}:${rec.doctype}:${rec.version}`;
+      ta.value = `${rec.id}:${rec.doctype}:${rec.version}`; //rq: ->(rq_ctx_copy_id_dt_ver)
     } else {
-      ta.value = selected_node
+      ta.value = rec.id; //rq: ->(rq_ctx_copy_id)
     }
     ta.setAttribute('readonly', '');
     ta.style = { position: 'absolute', left: '-9999px' };
@@ -453,7 +461,7 @@
 
   /** context menu item handler. Copy diagram as png to clipboard */
   document.getElementById('menu_copy_png').addEventListener("click", function() {
-    copy_png()
+    copy_png(); //rq: ->(rq_ctx_copy_png)
   });
 
   function copy_png() {
@@ -482,14 +490,14 @@
 
   /** context menu handler - save diagram as */
   document.getElementById('menu_save_as').addEventListener("click", function() {
-    menu_save_as()
+    menu_save_as();
   });
 
   function menu_save_as() {
     const save_options = {
       filters: [
-        { name: 'SVG files', extensions: ['svg']},
-        { name: 'PNG files', extensions: ['png']},
+        { name: 'SVG files', extensions: ['svg']}, //rq: ->(rq_save_svg_file)
+        { name: 'PNG files', extensions: ['png']}, //rq: ->(rq_save_png_file)
         { name: 'DOT files', extensions: ['dot']},
       ],
       properties: ['openFile']
@@ -589,7 +597,7 @@
     for (const doctype of doctypes) {
       let shown_cell = document.getElementById(`doctype_shown_${doctype}`);
       if (shown_cell) {
-        shown_cell.innerHTML = visible_nodes.get(doctype).length
+        shown_cell.innerHTML = visible_nodes.get(doctype).length //rq: ->(rq_dt_shown_stat)
         shown_count += visible_nodes.get(doctype).length
       }
     }
@@ -602,12 +610,13 @@
     for (const doctype of doctypes) {
       let selected_cell = document.getElementById(`doctype_select_${doctype}`);
       if (selected_cell) {
-        selected_cell.innerHTML = selected_nodes.get(doctype).length
+        selected_cell.innerHTML = selected_nodes.get(doctype).length; //rq: ->(rq_dt_exist_stat)
         selected_count += selected_nodes.get(doctype).length
       }
     }
     let selected_cell_totals = document.getElementById("doctype_select_totals")
     if (selected_cell_totals) {
+      //rq: ->(rq_dt_sel_stat)
       selected_cell_totals.innerHTML = selected_count
     }
   }
@@ -680,7 +689,7 @@
     cell.innerHTML = "totals:";
 
     cell = row.insertCell();
-    cell.innerHTML = doctype_totals
+    cell.innerHTML = doctype_totals  //rq: ->(rq_totals_stat)
 
     cell = row.insertCell();
     cell.innerHTML = '<div id="doctype_shown_totals">0</div>'
@@ -815,6 +824,7 @@
   });
 
   function get_main_oreqm_file() {
+    //rq: ->(rq_filesel_main_oreqm)
     let input = document.createElement('input');
     input.type = 'file';
     input.accept = '.oreqm'
@@ -884,6 +894,7 @@
   });
 
   function get_ref_oreqm_file() {
+    //rq: ->(rq_filesel_ref_oreqm)
     let input = document.createElement('input');
     input.type = 'file';
     input.accept = '.oreqm'
@@ -1009,6 +1020,7 @@
         }
         update_diagram(selected_format);
       } else {
+        //rq: ->(	rq_no_sel_show_all)
         // no pattern specified
         let title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, "")
         const graph = oreqm_main.create_graph(
@@ -1120,6 +1132,7 @@
   });
 
   document.getElementById('prev_selected').addEventListener("click", function() {
+    //rq: ->(rq_navigate_sel)
     prev_selected();
   });
 
@@ -1135,6 +1148,7 @@
   }
 
   document.getElementById('next_selected').addEventListener("click", function() {
+    //rq: ->(rq_navigate_sel)
     next_selected()
   });
 
@@ -1153,7 +1167,7 @@
    * Search all id strings for a match to regex and create selection list
    * @param {string} regex regular expression
    */
-  function id_search(regex) {
+  function id_search(regex) { //rq: ->(rq_search_id_only)
     var results = oreqm_main.find_reqs_with_name(regex)
     oreqm_main.clear_marks()
     oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
@@ -1173,7 +1187,7 @@
    * Search combined tagged string for a match to regex and create selection list
    * @param {string} regex search criteria
    */
-  function txt_search(regex) {
+  function txt_search(regex) { //rq: ->(rq_sel_txt)
     var results = oreqm_main.find_reqs_with_text(regex)
     oreqm_main.clear_marks()
     oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
@@ -1296,6 +1310,7 @@
   // Selection/deselection of nodes by right-clicking the diagram
   document.getElementById('menu_select').addEventListener("click", function() {
     // Add node to the selection criteria (if not already selected)
+    //rq: ->(rq_ctx_add_selection)
     let node = selected_node
     let node_select_str = `${node}$`
     let search_pattern = document.getElementById("search_regex").value.trim()
@@ -1315,6 +1330,7 @@
   /** Context menu handler  */
   document.getElementById('menu_deselect').addEventListener("click", function() {
     // Remove node to the selection criteria (if not already selected)
+    //rq: ->(rq_ctx_deselect)
     let node = selected_node
     let node_select_str = new RegExp(`(^|\\|)${node}\\$`)
     let org_search_pattern = document.getElementById("search_regex").value.trim()
@@ -1336,6 +1352,7 @@
 
   document.getElementById('menu_exclude').addEventListener("click", function() {
     // Add node to the exclusion list
+    //rq: ->(rq_ctx_excl)
     if (oreqm_main && oreqm_main.check_node_id(selected_node)) {
         var excluded_ids = document.getElementById("excluded_ids").value.trim()
       if (excluded_ids.length) {
@@ -1443,6 +1460,7 @@
   })
 
   drop_area_main.addEventListener('drop', (event) => {
+    //rq: ->(rq_drop_main_oreqm)
     event.stopPropagation();
     event.preventDefault();
     //console.log(event.dataTransfer.files);
@@ -1450,6 +1468,7 @@
   });
 
   drop_area_ref.addEventListener('drop', (event) => {
+    //rq: ->(rq_drop_ref_oreqm)
     event.stopPropagation();
     event.preventDefault();
     //console.log(event.dataTransfer.files);
@@ -1607,6 +1626,7 @@
     if (selected_node.length) {
       var ref = document.getElementById('req_src');
       if (oreqm_ref && oreqm_main.updated_reqs.includes(selected_node)) {
+        //rq: ->(rq_ctx_show_diff)
         // create a diff
         let text_ref = xml_escape(oreqm_ref.get_node_text_formatted(selected_node))
         let text_main = xml_escape(oreqm_main.get_node_text_formatted(selected_node))
@@ -1624,6 +1644,7 @@
         result += '</pre>'
         ref.innerHTML = result
       } else {
+        //rq: ->(rq_ctx_show_xml)
         let header_main = "<h2>XML format</h2>"
         if (oreqm_main.removed_reqs.includes(selected_node)) {
           header_main = "<h2>XML format (removed specobject)</h2>"
@@ -1657,9 +1678,7 @@
   function show_problems() {
     // Show problems colleced in oreqm_main
     var ref = document.getElementById('problem_list');
-    let header_main = `\
-<h2>Detected problems</h2>
-`
+    let header_main = '\n<h2>Detected problems</h2>\n'
     let problem_txt = 'Nothing to see here...'
     if (oreqm_main) {
       problem_txt =  xml_escape(oreqm_main.get_problems())
@@ -1673,6 +1692,7 @@
   });
 
   function save_problems() {
+    //rq: ->(rq_issues_file_export)
     let problems = oreqm_main.get_problems()
     if (problems.length > 0) {
       let SavePath = remote.dialog.showSaveDialogSync(null,
@@ -1846,6 +1866,7 @@
    * Update 'About' dialog with release version and set button green.
    */
   function check_newer_release_available() {
+    //rq: ->(rq_check_github_release)
     const options = {
       hostname: 'api.github.com',
       port: 443,
