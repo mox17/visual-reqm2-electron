@@ -181,7 +181,7 @@ export class ReqM2Specobjects {
 
     // Initialization logic
     this.clear_problems()
-    let success = this.process_oreqm_content(content);
+    let success = this.process_oreqm_content(content); //rq: ->(rq_read_oreqm)
     if (success) {
       this.read_reqm2_rules();
       this.read_req_descriptions();
@@ -298,10 +298,13 @@ export class ReqM2Specobjects {
     let key = req.id;
     let report_duplicate = true;
     while (this.requirements.has(key)) {
+      //rq: ->(rq_dup_req)
       // Check for unique versions
       if (report_duplicate && this.requirements.get(key).version === req.version) {
         let problem = `specobject '${req.id}' is duplicated with same version '${req.version}'`;
         console.log(problem);
+        // `  this is a work-around for bugs in ReqM2's parsing of JavaScript
+        //rq: ->(rq_dup_same_version)
         this.problem_report(problem);
         report_duplicate = false;
       }
@@ -332,6 +335,7 @@ export class ReqM2Specobjects {
    * Add doctype to needsobj if not present
    */
   add_fulfilledby_nodes() {
+    //rq: ->(rq_ffb_placeholder)
     const ids = Array.from(this.requirements.keys())
     let new_nodes = new Map() // need a new container to add after loop
     for (let req_id of ids) {
@@ -381,7 +385,7 @@ export class ReqM2Specobjects {
         // Add pseudo needsobj with '*' suffix
         if (!rec.needsobj.includes(ff_doctype) &&
             !rec.needsobj.includes(ff_doctype+'*')) {
-          rec.needsobj.push(ff_doctype+'*')
+          rec.needsobj.push(ff_doctype+'*'); //rq: ->(rq_ffb_needsobj) 
           this.requirements.set(req_id, rec)
         }
         // Add new doctype list if unknown
@@ -502,14 +506,14 @@ export class ReqM2Specobjects {
       return // already visited
     }
     //console.log(this.requirements.get(req_id).doctype)
-    if (this.excluded_doctypes.includes(rec.doctype)) {
+    if (this.excluded_doctypes.includes(rec.doctype)) { //rq: ->(rq_sel_doctype)
       return // blacklisted doctype
     }
     //Is this requirement rejected
-    if (this.no_rejects && rec.status === 'rejected') {
+    if (this.no_rejects && rec.status === 'rejected') { //rq: ->(rq_excl_rejected)
       return // rejected specobject
     }
-    if (this.excluded_ids.includes(req_id)) {
+    if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
     let col_set = this.color.get(req_id)
@@ -540,14 +544,14 @@ export class ReqM2Specobjects {
     if (this.color.get(req_id).has(color)) {
       return // already visited
     }
-    if (this.excluded_doctypes.includes(rec.doctype)) {
+    if (this.excluded_doctypes.includes(rec.doctype)) { //rq: ->(rq_sel_doctype)
       return // blacklisted doctype
     }
     //Is this requirement rejected
-    if (this.no_rejects && rec.status === 'rejected') {
+    if (this.no_rejects && rec.status === 'rejected') { //rq: ->(rq_excl_rejected)
       return // rejected specobject
     }
-    if (this.excluded_ids.includes(req_id)) {
+    if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
     let col_set = this.color.get(req_id)
@@ -613,7 +617,7 @@ export class ReqM2Specobjects {
    * @param {string[]} ignore_fields list of fields to ignore
    * @return {object} with new, updated and removed ids
    */
-  compare_requirements(old_reqs, ignore_fields) {
+  compare_requirements(old_reqs, ignore_fields) { //rq: ->(rq_oreqm_diff_calc)
     const new_ids = Array.from(this.requirements.keys())
     let new_reqs = []
     let updated_reqs = []
@@ -692,7 +696,7 @@ export class ReqM2Specobjects {
     let matches = []
     for (const id of ids) {
       const decorated_id = this.decorate_id(id)
-      if (decorated_id.search(rx) >= 0)
+      if (decorated_id.search(rx) >= 0) //rq: ->(rq_search_id_only)
         matches.push(id)
     }
     return matches
@@ -778,6 +782,7 @@ export class ReqM2Specobjects {
    * @param {integer} color_down_value
    */
   mark_and_flood_up_down(id_list, color_up_value, color_down_value) {
+    //rq: ->(	rq_calc_shown_graph)
     for (const res of id_list) {
       this.mark_and_flood_down(color_down_value, res)
       this.mark_and_flood_up(color_up_value, res)
@@ -847,6 +852,7 @@ export class ReqM2Specobjects {
    * @param {string} report string with description (possibly multiple lines)
    */
   problem_report(report) {
+    //rq: ->(rq_issues_log)
     //if (!this.problems.includes(report)) {
       this.problems.push(report)
     //}

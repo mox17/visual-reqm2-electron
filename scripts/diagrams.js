@@ -78,6 +78,7 @@ const re_empty_lines  = new RegExp(/<BR ALIGN="LEFT"\/>(\s*&nbsp;<BR ALIGN="LEFT
  * @return {string} 'dot' html table friendly text.
  */
 export function dot_format(txt) {
+  //rq: ->(rq_markup_remove)
   let txt2
   let new_txt = ''
   if (txt.length) {
@@ -123,6 +124,7 @@ export function dot_format(txt) {
  * @return {string} docbook formatted list
  */
 function format_violations(vlist, rules) {
+  //rq: ->(rq_node_probs)
   let str = 'violations:\n  <itemizedlist>\n'
   for (const v of vlist) {
     if (rules.has(v)) {
@@ -143,10 +145,12 @@ function format_violations(vlist, rules) {
  * @return {string} dot html table
  */
 function status_cell(rec, show_coverage, color_status) {
+  //rq: ->(rq_status_color)
+  //rq: ->(rq_cov_color)
   let cov_color = (rec.covstatus === 'covered') ? '' : (rec.covstatus === 'partially') ? 'BGCOLOR="yellow"' : 'BGCOLOR="red"'
   let status_color = (!color_status || (rec.status === 'approved')) ? '' : (rec.status === 'proposed') ? 'BGCOLOR="yellow"' :  'BGCOLOR="red"'
-  let covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : ''
-  let str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`
+  let covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : '';
+  let str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`;
   return str
 }
 
@@ -182,6 +186,7 @@ function format_nonexistent_links(rec) {
  * @return {string} dot html table representing the specobject
  */
 function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
+  //rq: ->(rq_doctype_color)
   let node_table = ""
   let nonexist_link = format_nonexistent_links(rec)
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
@@ -231,9 +236,11 @@ function format_edge(from_node, to_node, kind, error) {
   let formatting = ''
   let label = ''
   if (error && error.length) {
+    //rq: ->(rq_edge_probs)
     error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
   }
   if (kind === "fulfilledby") {
+    //rq: ->(rq_edge_pcov_ffb)
     formatting = ' [style=bold color=purple dir=back fontname="Arial" label="{}"]'
     label = 'ffb'
     if (error.length) {
@@ -410,19 +417,21 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       this.doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes);
       if (subset.length > max_nodes) {
         limited = true;
-        limit_reporter(max_nodes);
+        limit_reporter(max_nodes); //rq: ->(rq_config_node_limit)
         break; // hard limit on node count
       }
     }
     let show_top;
     ({ show_top, graph } = this.handle_top_node(top_doctypes, graph));
 
+    // babel artifact? below names must match what is used in return from visible_duplicates()
     let arrays_of_duplicates
     let not_duplicates
     ({arrays_of_duplicates, not_duplicates} = this.visible_duplicates(subset));
-    console.log(arrays_of_duplicates)
-    console.log(not_duplicates)
+    //console.log(arrays_of_duplicates)
+    //console.log(not_duplicates)
     for (const dup_list of arrays_of_duplicates) {
+      //rq: ->(rq_dup_req_display)
       let dup_cluster_id = this.requirements.get(dup_list[0]).id;
       graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=1 label="duplicates" fontname="Arial" labelloc="t"\n`;
       for (const req_id of dup_list) {
@@ -441,7 +450,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       // edges
       ({ graph, edge_count } = this.add_dot_edge(req_id, subset, graph, edge_count));
     }
-    graph += '\n  label={}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n'.format(title)
+    graph += '\n  label={}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n'.format(title); //rq: ->(rq_diagram_legend)
     graph += ReqM2Oreqm.DOT_EPILOGUE
     this.dot = graph
     let result = new Object()
@@ -588,6 +597,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {string[]} highlights id's of selected nodes
    */
   add_node_emphasis(req_id, node, dot_id, highlights) {
+    //rq: ->(rq_req_diff_show)
     if (this.new_reqs.includes(req_id)) {
       node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
     } else if (this.updated_reqs.includes(req_id)) {
@@ -596,6 +606,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       node = 'subgraph "cluster_{}_removed" { color=red penwidth=1 label="removed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
     }
     if (highlights.includes(req_id)) {
+      //rq: ->(	rq_highlight_sel)
       node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label=""\n{}}\n'.format(dot_id, dot_id, node);
     }
     return node;
@@ -758,6 +769,8 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} dot language diagram
    */
   scan_doctypes(doctype_safety) {
+    //rq: ->(rq_doctype_hierarchy)
+    //rq: ->(rq_doctype_aggr_safety)
     this.dt_map = new Map() // A map of { doctype_name : DoctypeRelations }
     this.build_doctype_mapping(doctype_safety)
     // DOT language start of diagram
@@ -862,6 +875,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ')
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
     }
+    //rq: ->(rq_diagram_legend)
     graph += '\n  label={}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n'.format(
       this.construct_graph_title(false, rules, null, false, null))
     graph += '\n}\n'
@@ -879,7 +893,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {string} search_pattern 'selection criteria' string
    * @return {string} 'dot' table
    */
-  construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) {
+  construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) { //rq: ->(rq_diagram_legend)
     let title = '""'
     title  = '<\n    <table border="1" cellspacing="0" cellborder="1">\n'
     title += '      <tr><td cellspacing="0" >File</td><td>{}</td><td>{}</td></tr>\n'.format(this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), this.timestamp)

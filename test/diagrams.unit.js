@@ -4,6 +4,7 @@ const settings = _interopRequireDefault(require("../lib/settings.js"));
 const ReqM2Oreqm = _interopRequireDefault(require("../lib/diagrams.js"));
 const main_data = _interopRequireDefault(require("../lib/main_data.js"));
 const fs = require("fs");
+const eol = require("eol");
 
 // Provide DOMParser for testing
 const jsdom = require("jsdom");
@@ -37,7 +38,7 @@ describe("ReqM2Oreqm tests", function () {
   settings.check_and_upgrade_settings(null);
 
   const test_oreqm_file_name = "./testdata/oreqm_testdata_del_movement.oreqm";
-  let oreqm_txt = fs.readFileSync(test_oreqm_file_name);
+  let oreqm_txt = fs.readFileSync(test_oreqm_file_name); //rq: ->(rq_read_oreqm)
   let oreqm = new ReqM2Oreqm.ReqM2Oreqm(
     test_oreqm_file_name,
     oreqm_txt,
@@ -45,15 +46,21 @@ describe("ReqM2Oreqm tests", function () {
     []
   );
 
+  it("Verify no doctypes blocked", function () {
+    console.log(oreqm.excluded_doctypes);
+    assert.strictEqual(oreqm.filename, test_oreqm_file_name);
+  });
+
   // eslint-disable-next-line no-undef
   it("Create instance", function () {
-    assert.strictEqual(oreqm.filename, test_oreqm_file_name);
+    assert.ok(oreqm.get_excluded_doctypes().length === 0);
   });
 
   // eslint-disable-next-line no-undef
   it("Finds reqs", function () {
     let matches = oreqm.find_reqs_with_text("maze");
     //console.log(matches)
+    //rq: ->(rq_sel_txt)
     assert.strictEqual(matches.includes("cc.game.location.maze.1"), true);
     assert.strictEqual(matches.includes("cc.game.location.maze.2"), true);
     assert.strictEqual(matches.includes("cc.game.location.maze.3"), true);
@@ -82,43 +89,72 @@ describe("ReqM2Oreqm tests", function () {
     assert.strictEqual(graph.node_count, 26);
     assert.strictEqual(graph.edge_count, 25);
   });
-  
+
   // eslint-disable-next-line no-undef
   it("Check generated dot string", function () {
-    let dot_str = oreqm.get_dot();
+    let dot_str = eol.auto(oreqm.get_dot());
     fs.writeFileSync("dot_file_1_test.dot", dot_str, {
       encoding: "utf8",
       flag: "w",
     });
     //console.dir(expect(dot_str))
-    let dot_ref = fs.readFileSync("./test/refdata/dot_file_1_ref.dot", "utf8");
-    expect(dot_str).to.equal(dot_ref);
+    let dot_ref = eol.auto(
+      fs.readFileSync("./test/refdata/dot_file_1_ref.dot", "utf8")
+    );
+    expect(dot_str).to.equal(dot_ref); //rq: ->(rq_dot,rq_no_sel_show_all,rq_show_dot)
+    assert.ok(dot_str.includes('vaporware*')); //rq: ->(rq_ffb_needsobj)
+  });
+
+  it("doctype filtering", function () {
+    let matches = oreqm.find_reqs_with_text("PLACEHOLDER");
+    assert.ok(matches.includes("zork.game.location.frobozz"));
+    assert.strictEqual(
+      oreqm.requirements.get("zork.game.location.frobozz").doctype,
+      "vaporware"
+    );
+    // Now exclude this doctype
+    oreqm.set_excluded_doctypes(["vaporware"]);
+    oreqm.create_graph(
+      select_all,
+      [],
+      "A test title",
+      [],
+      1000,
+      true,
+      true
+    );
+    //rq: ->(rq_sel_doctype)
+    assert.strictEqual(oreqm.get_dot().indexOf("zork.game.location.frobozz"), -1); // node id absent from file
+    oreqm.set_excluded_doctypes([]);
   });
 
   // eslint-disable-next-line no-undef
-  it('Create hierarchy diagram', function () {
-    const hierarchy = oreqm.scan_doctypes(false);
-    assert.ok(hierarchy.includes('digraph'));
+  it("Create hierarchy diagram", function () {
+    const hierarchy = eol.auto(oreqm.scan_doctypes(false));
+    assert.ok(hierarchy.includes("digraph"));
 
     fs.writeFileSync("dot_file_hierarchy_test.dot", hierarchy, {
       encoding: "utf8",
       flag: "w",
     });
-    let dot_ref = fs.readFileSync("./test/refdata/dot_file_hierarchy_ref.dot", "utf8");
+    let dot_ref = eol.auto(
+      fs.readFileSync("./test/refdata/dot_file_hierarchy_ref.dot", "utf8")
+    );
     expect(hierarchy).to.equal(dot_ref);
   });
 
   // eslint-disable-next-line no-undef
-  it('Create safety diagram', function () {
-    const safety = oreqm.scan_doctypes(true);
-    assert.ok(safety.includes('digraph'));
+  it("Create safety diagram", function () {
+    const safety = eol.auto(oreqm.scan_doctypes(true));
+    assert.ok(safety.includes("digraph"));
 
     fs.writeFileSync("dot_file_safety_test.dot", safety, {
       encoding: "utf8",
       flag: "w",
     });
-    let dot_ref = fs.readFileSync("./test/refdata/dot_file_safety_ref.dot", "utf8");
+    let dot_ref = eol.auto(
+      fs.readFileSync("./test/refdata/dot_file_safety_ref.dot", "utf8")
+    );
     expect(safety).to.equal(dot_ref);
   });
-
 });

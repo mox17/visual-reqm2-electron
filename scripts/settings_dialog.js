@@ -10,6 +10,7 @@ export const settings = require('electron-settings');
  * @param {function} settings_updated_callback callback to put new settings into effect
  */
 export function handle_settings(settings_updated_callback) {
+  //rq: ->(rq_settings_file)
   let doctype_colors = null;
   if (settings.has('doctype_colors')) {
     doctype_colors = settings.get('doctype_colors');
@@ -90,6 +91,7 @@ function settings_dialog_prepare() {
   document.getElementById('sett_check_for_updates').checked = program_settings.check_for_updates;
   let box = document.getElementById('sett_max_calc_nodes');
   if (box) {
+    //rq: ->(rq_config_node_limit)
     //console.log(program_settings.max_calc_nodes)
     if (!program_settings.max_calc_nodes) {
       program_settings.max_calc_nodes = 1000;
@@ -125,8 +127,9 @@ function settings_dialog_results() {
   program_settings.check_for_updates = document.getElementById('sett_check_for_updates').checked
   program_settings.max_calc_nodes    = parseInt(document.getElementById('sett_max_calc_nodes').value)
   program_settings.top_doctypes      = document.getElementById('top_doctypes').value.split(",")
-  console.log(program_settings)
+  //console.log(program_settings)
   try {
+    //rq: ->(rq_safety_rules_config)
     let new_safety_rules = JSON.parse(document.getElementById('safety_rules').value)
     let result = process_rule_set(new_safety_rules)
     if (result.pass) {
@@ -148,6 +151,7 @@ function settings_dialog_results() {
  * User file selector for 'safety' rules, possibly showing alert
  */
 export function load_safety_rules_fs() {
+  //rq: ->(rq_safety_rules_import)
   let LoadPath = remote.dialog.showOpenDialogSync(
     {
       filters: [{ name: 'JSON files', extensions: ['json']}],
@@ -217,5 +221,6 @@ export function process_rule_set(new_rules) {
  * @param {dict} colors mapping from doctypes to colors
  */
 function update_doctype_colors(colors) {
+  //rq: ->(rq_doctype_color_sett)
   settings.set('doctype_colors', colors, {prettify: true})
 }

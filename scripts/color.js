@@ -125,6 +125,7 @@ var _my_palette =
  * @return {string} html color
  */
 export function get_color(key) {
+  //rq: ->(rq_doctype_color_gen)
   let color
   if (key in _my_palette) {
     color = _my_palette[key]
@@ -138,6 +139,7 @@ export function get_color(key) {
  * Prompt user for save location and save color palette as external file.
  */
 export function save_colors_fs(path = null) {
+  //rq: ->(rq_doctype_color_export)
   let SavePath;
   if (path === null) {
     SavePath = remote.dialog.showSaveDialogSync(null,
@@ -160,6 +162,7 @@ export function save_colors_fs(path = null) {
  * @param {string|null} path  path to color scheme json file
  */
 export function load_colors_fs(update_function, path = null) {
+  //rq: ->(rq_doctype_color_import)
   let LoadPath = null;
   if (path === null) {
     LoadPath = remote.dialog.showOpenDialogSync(
@@ -186,6 +189,7 @@ const color_storage_name = 'Visual_ReqM2_color_palette'
 
 
 function _store_colors(colors) {
+  //rq: ->(rq_doctype_color_sett)
   if (color_settings_updater !== null) {
     color_settings_updater(colors)
   }

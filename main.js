@@ -179,6 +179,7 @@ function createWindow() {
       mainWindow.show()
       //log.info("run_autoupdater:", run_autoupdater)
       if (run_autoupdater) {
+        //rq: ->(rq_autoupdate_win)
         autoUpdater.checkForUpdatesAndNotify();
       }
     }
