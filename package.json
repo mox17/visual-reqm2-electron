@@ -56,6 +56,7 @@
     "electron-updater": "^4.3.5",
     "eol": "^0.9.1",
     "jsdom": "^16.4.0",
+    "mkdirp": "^1.0.4",
     "shell": "^0.8.4",
     "show-toast": "^1.1.4",
     "split.js": "^1.6.2",

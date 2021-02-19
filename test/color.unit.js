@@ -9,7 +9,7 @@ var assert = chai.assert;    // Using Assert style
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-const pal_file = "test_palette.json";
+const pal_file = "tmp/test_palette.json";
 
 describe('Color palette tests', function() {
 
@@ -26,16 +26,14 @@ describe('Color palette tests', function() {
             fs.unlinkSync(pal_file);
         }
         color.save_colors_fs(pal_file);
-        //console.log(fs.statSync(pal_file, {throwIfNoEntry: false, bigint: true}) );
         assert.ok(fs.existsSync(pal_file));
         let file_content = fs.readFileSync(pal_file, 'utf8');
         //console.log(file_content);
-        //assert.strictEqual(file_content.includes('"fxoobar"'), true);
         assert.ok(file_content.includes('"foobar0"'), true); //rq: ->(rq_doctype_color_gen)
     });
 
     it('Load palette', function() {
-        color.load_colors_fs(null, "test_palette.json");
+        color.load_colors_fs(null, pal_file);
         assert.ok(true);
     });
 

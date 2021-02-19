@@ -5,6 +5,7 @@ const ReqM2Oreqm = _interopRequireDefault(require("../lib/diagrams.js"));
 const main_data = _interopRequireDefault(require("../lib/main_data.js"));
 const fs = require("fs");
 const eol = require("eol");
+const mkdirp = require('mkdirp')
 
 // Provide DOMParser for testing
 const jsdom = require("jsdom");
@@ -31,6 +32,10 @@ function select_all(_node_id, rec, _node_color) {
   // Select all - no need to inspect input
   return rec.status !== "rejected";
 }
+
+before(function () {
+  mkdirp.sync('./tmp');
+});
 
 // eslint-disable-next-line no-undef
 describe("ReqM2Oreqm tests", function () {
@@ -61,14 +66,14 @@ describe("ReqM2Oreqm tests", function () {
     let matches = oreqm.find_reqs_with_text("maze");
     //console.log(matches)
     //rq: ->(rq_sel_txt)
-    assert.strictEqual(matches.includes("cc.game.location.maze.1"), true);
-    assert.strictEqual(matches.includes("cc.game.location.maze.2"), true);
-    assert.strictEqual(matches.includes("cc.game.location.maze.3"), true);
-    assert.strictEqual(matches.includes("cc.game.location.maze.4"), true);
-    assert.strictEqual(matches.includes("cc.game.location.maze.5"), true);
-    assert.strictEqual(matches.includes("cc.game.location.maze.7"), true);
-    assert.strictEqual(matches.includes("cc.game.location.maze.8"), true);
-    assert.strictEqual(matches.includes("cc.game.location.maze.9"), true);
+    assert.ok(matches.includes("cc.game.location.maze.1"));
+    assert.ok(matches.includes("cc.game.location.maze.2"));
+    assert.ok(matches.includes("cc.game.location.maze.3"));
+    assert.ok(matches.includes("cc.game.location.maze.4"));
+    assert.ok(matches.includes("cc.game.location.maze.5"));
+    assert.ok(matches.includes("cc.game.location.maze.7"));
+    assert.ok(matches.includes("cc.game.location.maze.8"));
+    assert.ok(matches.includes("cc.game.location.maze.9"));
   });
 
   // eslint-disable-next-line no-undef
@@ -93,7 +98,7 @@ describe("ReqM2Oreqm tests", function () {
   // eslint-disable-next-line no-undef
   it("Check generated dot string", function () {
     let dot_str = eol.auto(oreqm.get_dot());
-    fs.writeFileSync("dot_file_1_test.dot", dot_str, {
+    fs.writeFileSync("tmp/dot_file_1_test.dot", dot_str, {
       encoding: "utf8",
       flag: "w",
     });
@@ -102,7 +107,7 @@ describe("ReqM2Oreqm tests", function () {
       fs.readFileSync("./test/refdata/dot_file_1_ref.dot", "utf8")
     );
     expect(dot_str).to.equal(dot_ref); //rq: ->(rq_dot,rq_no_sel_show_all,rq_show_dot)
-    assert.ok(dot_str.includes('vaporware*')); //rq: ->(rq_ffb_needsobj)
+    assert.ok(dot_str.includes("vaporware*")); //rq: ->(rq_ffb_needsobj)
   });
 
   it("doctype filtering", function () {
@@ -114,17 +119,12 @@ describe("ReqM2Oreqm tests", function () {
     );
     // Now exclude this doctype
     oreqm.set_excluded_doctypes(["vaporware"]);
-    oreqm.create_graph(
-      select_all,
-      [],
-      "A test title",
-      [],
-      1000,
-      true,
-      true
-    );
+    oreqm.create_graph(select_all, [], "A test title", [], 1000, true, true);
     //rq: ->(rq_sel_doctype)
-    assert.strictEqual(oreqm.get_dot().indexOf("zork.game.location.frobozz"), -1); // node id absent from file
+    assert.strictEqual(
+      oreqm.get_dot().indexOf("zork.game.location.frobozz"),
+      -1
+    ); // node id absent from file
     oreqm.set_excluded_doctypes([]);
   });
 
@@ -133,7 +133,7 @@ describe("ReqM2Oreqm tests", function () {
     const hierarchy = eol.auto(oreqm.scan_doctypes(false));
     assert.ok(hierarchy.includes("digraph"));
 
-    fs.writeFileSync("dot_file_hierarchy_test.dot", hierarchy, {
+    fs.writeFileSync("tmp/dot_file_hierarchy_test.dot", hierarchy, {
       encoding: "utf8",
       flag: "w",
     });
@@ -148,7 +148,7 @@ describe("ReqM2Oreqm tests", function () {
     const safety = eol.auto(oreqm.scan_doctypes(true));
     assert.ok(safety.includes("digraph"));
 
-    fs.writeFileSync("dot_file_safety_test.dot", safety, {
+    fs.writeFileSync("tmp/dot_file_safety_test.dot", safety, {
       encoding: "utf8",
       flag: "w",
     });
