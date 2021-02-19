@@ -10,4 +10,4 @@ out/*
 package-lock.json
 reqm2/*
 testdata/ITREQM2*
-tmp/*
+tmp*/*
