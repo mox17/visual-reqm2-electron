@@ -6,16 +6,16 @@ const mkdirp = require('mkdirp')
 //const fs = require('fs');
 const chai = require("chai");
 const assert = chai.assert; // Using Assert style
-const expect = chai.expect; // Using Expect style
-const should = chai.should(); // Using Should style
+//const expect = chai.expect; // Using Expect style
+//const should = chai.should(); // Using Should style
 const chaiAsPromised = require('chai-as-promised');
 const chaiRoughly = require('chai-roughly');
 const describe = global.describe;
 const it = global.it;
 const before = global.before;
 const after = global.after;
-const beforeEach = global.beforeEach;
-const afterEach = global.afterEach;
+//const beforeEach = global.beforeEach;
+//const afterEach = global.afterEach;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));

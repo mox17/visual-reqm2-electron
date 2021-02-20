@@ -330,7 +330,7 @@ ipcMain.on('restart_app', () => {
    * Start or update a progress bar
    * @param {string} text to be displayed
    */
-  function progressbar_start(text) {
+  function progressbar_start(_text) {
     //console.log(text)
     if (progressBar === null) {
       progressBar = new ProgressBar({

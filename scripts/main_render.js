@@ -1,11 +1,10 @@
   "use strict";
-  import _ from './util.js'
   import { xml_escape, set_limit_reporter } from './diagrams.js'
   import { get_color, save_colors_fs, load_colors_fs } from './color.js'
   import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
   import { get_ignored_fields, program_settings } from './settings.js'
   import { ipcRenderer, remote, shell } from 'electron'
-  import { base64StringToBlob, arrayBufferToBlob } from 'blob-util'
+  import { base64StringToBlob } from 'blob-util'
   import fs from 'fs'
   import https from 'https'
   import showToast from 'show-toast';
@@ -172,9 +171,10 @@
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
   document.getElementById("auto_update").checked = auto_update
 
+  /*
   function viz_working_set() {
     document.getElementById("viz_working").innerHTML = '<span style="color: #ff0000">WORKING</span>'
-  }
+  } */
 
   function viz_loading_set() {
     document.getElementById("viz_working").innerHTML = '<span style="color: #ff0000">LOADING</span>'
@@ -192,15 +192,17 @@
     document.getElementById("viz_working").innerHTML = '<span style="color: #000000"></span>'
   }
 
+  /*
   function html_viz_processing_show() {
     document.querySelector("#output").classList.add("working");
     document.querySelector("#output").classList.remove("error");
-  }
+  } */
 
+  /*
   function html_viz_processing_clear() {
     document.querySelector("#output").classList.remove("working");
     document.querySelector("#output").classList.remove("error");
-  }
+  } */
 
   function html_viz_processing_error(message) {
     document.querySelector("#output").classList.remove("working");
@@ -241,7 +243,7 @@
    * Render generated diagram in window, considering the selected output format
    * and set up event handlers for resizing, pan/zoom and context menu
    */
-  function updateOutput(result) {
+  function updateOutput(_result) {
     const graph = document.querySelector("#output");
 
     var svg = graph.querySelector("svg");
@@ -383,8 +385,11 @@
       plain_text.id = "text";
       plain_text.appendChild(document.createTextNode(svg_result));
       graph.appendChild(plain_text);
+      // eslint-disable-next-line no-unused-vars
       image_type = 'txt'
+      // eslint-disable-next-line no-unused-vars
       image_mime = 'text/plain'
+      // eslint-disable-next-line no-unused-vars
       image_data = svg_result
     }
   }
@@ -524,7 +529,8 @@
     updateOutput();
   });
 
-  function spinner_show(text) {
+  /*
+  function spinner_show(_text) {
     html_viz_processing_show();
     viz_working_set();
   }
@@ -533,6 +539,7 @@
     html_viz_processing_clear();
     viz_working_clear();
   }
+  */
 
   function diagram_error(message) {
     html_viz_processing_error(message);

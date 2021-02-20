@@ -2,7 +2,7 @@
 
 const settings = _interopRequireDefault(require("../lib/settings.js"));
 const ReqM2Oreqm = _interopRequireDefault(require("../lib/diagrams.js"));
-const main_data = _interopRequireDefault(require("../lib/main_data.js"));
+//const main_data = _interopRequireDefault(require("../lib/main_data.js"));
 const fs = require("fs");
 const eol = require("eol");
 const mkdirp = require('mkdirp')
@@ -27,6 +27,12 @@ function alert(txt) {
 }
 
 global.alert = alert;
+const describe = global.describe;
+const it = global.it;
+const before = global.before;
+//const after = global.after;
+//const beforeEach = global.beforeEach;
+//const afterEach = global.afterEach;
 
 function select_all(_node_id, rec, _node_color) {
   // Select all - no need to inspect input
@@ -52,7 +58,7 @@ describe("ReqM2Oreqm tests", function () {
   );
 
   it("Verify no doctypes blocked", function () {
-    console.log(oreqm.excluded_doctypes);
+    // console.log(oreqm.excluded_doctypes);
     assert.strictEqual(oreqm.filename, test_oreqm_file_name);
   });
 
