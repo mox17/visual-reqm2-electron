@@ -35,12 +35,16 @@
     "@babel/preset-env": "^7.12.16",
     "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
+    "chai-roughly": "^1.0.0",
     "electron": "^11.0.0",
     "electron-builder": "^20.44.4",
     "electron-chromedriver": "^11.0.0",
     "electron-icon-maker": "0.0.5",
     "electron-mocha": "^10.0.0",
+    "eol": "^0.9.1",
     "eslint": "^7.20.0",
+    "jsdom": "^16.4.0",
+    "mkdirp": "^1.0.4",
     "mocha": "^8.3.0",
     "nyc": "^15.1.0",
     "shx": "^0.3.3",
@@ -50,15 +54,11 @@
   "dependencies": {
     "argparse": "^2.0.1",
     "blob-util": "^2.0.2",
-    "chai-roughly": "^1.0.0",
     "diff": "^4.0.2",
     "electron-log": "^4.3.1",
     "electron-progressbar": "^2.0.0",
     "electron-settings": "^3.2.0",
     "electron-updater": "^4.3.5",
-    "eol": "^0.9.1",
-    "jsdom": "^16.4.0",
-    "mkdirp": "^1.0.4",
     "shell": "^0.8.4",
     "show-toast": "^1.1.4",
     "split.js": "^1.6.2",
@@ -128,5 +128,8 @@
         }
       ]
     }
+  },
+  "optionalDependencies": {
+    "utf-8-validate": "^5.0.4"
   }
 }
