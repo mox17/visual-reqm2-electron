@@ -35,7 +35,7 @@
     "@babel/preset-env": "^7.12.16",
     "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
-    "electron": "^10.0.0",
+    "electron": "^11.0.0",
     "electron-builder": "^20.44.4",
     "electron-chromedriver": "^11.0.0",
     "electron-icon-maker": "0.0.5",
@@ -44,11 +44,13 @@
     "mocha": "^8.3.0",
     "nyc": "^15.1.0",
     "shx": "^0.3.3",
-    "spectron": "^12.0.0"
+    "spectron": "^13.0.0",
+    "spectron-fake-menu": "0.0.1"
   },
   "dependencies": {
     "argparse": "^2.0.1",
     "blob-util": "^2.0.2",
+    "chai-roughly": "^1.0.0",
     "diff": "^4.0.2",
     "electron-log": "^4.3.1",
     "electron-progressbar": "^2.0.0",

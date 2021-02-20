@@ -139,8 +139,8 @@ function settings_dialog_results() {
       setTimeout(function(){document.getElementById('safety_rules').focus();}, 1);
     }
   } catch(e) {
-    document.getElementById('regex_error').innerHTML = e
-    alert(e)
+    document.getElementById('regex_error').innerHTML = e;
+    //alert(e)
   }
   remote.getCurrentWindow().focus()
   //document.getElementById('safety_rules').readOnly = "false"
