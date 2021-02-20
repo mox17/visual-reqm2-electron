@@ -100,7 +100,7 @@ describe("Application launch", function () {
   describe('Settings dialog', function () {
     it('open modal', async function () {
       await app.client.waitUntilWindowLoaded();
-      fakeMenu.clickMenu('Edit', 'Settings...'); // File->CloseTab Menu click
+      fakeMenu.clickMenu('Edit', 'Settings...');
       const settings_menu = await app.client.$('#settingsPopup');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('block'));
@@ -123,6 +123,17 @@ describe("Application launch", function () {
       //console.log(style);
       //await sleep(5000);
       assert.ok(!style.includes('block;'));
+    });
+  });
+
+  describe('Issues dialog', function () {
+    it('open modal', async function () {
+      await app.client.waitUntilWindowLoaded();
+      fakeMenu.clickMenu('View', 'Show issues');
+      const issues_modal = await app.client.$('#problemPopup');
+      let style = await issues_modal.getAttribute('style');
+      assert.ok(style.includes('block'));
+      await sleep(2000);
     });
   });
 
