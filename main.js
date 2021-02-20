@@ -6,6 +6,8 @@ const ipcMain = electron.ipcMain;
 
 const path = require('path');
 const url = require('url');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 const { ArgumentParser } = require('argparse');
 const { version } = require('./package.json');
 const log = require('electron-log');
@@ -212,6 +214,42 @@ const parser = new ArgumentParser({
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  let xx = yargs(hideBin(process.argv))
+    .scriptName('VisualReqM2')
+    .options({
+      version:          { type: 'boolean', alias: 'v', desc: 'Show version', default: false },
+      debug:            { type: 'boolean', alias: 'd', desc: 'Enable debug', default: false },
+      update:           { type: 'boolean', alias: 'u', desc: 'Check for updates', default: false },
+      select:           { type: 'string',  alias: 's', desc: 'Selection criteria', default: undefined },
+      idOnly:           { type: 'boolean', alias: 'i', desc: 'Search id only', default: false },
+      excludedIds:      { type: 'string',  alias: 'e', desc: 'Excluded ids, comma separated', default: undefined },
+      excludedDoctypes: { type: 'string',  alias: 'c', desc: 'Excluded doctypes, comma separated', default: undefined },
+      format:           { type: 'string',  alias: 'f', desc: 'svg, png or dot graph', default: 'svg' },
+      output:           { type: 'string',  alias: 'o', desc: 'Name of output file (extension .svg, .png or .dot will be added)', default: undefined },
+      diagram:          { type: 'boolean', alias: 'g', desc: 'Generate specobject diagram', default: false },
+      hierarchy:        { type: 'boolean', alias: 't', desc: 'Generate hierarchy diagram', default: false },
+      safety:           { type: 'boolean', alias: 'a', desc: 'Generate safety check diagram', default: false },
+      rules:            { type: 'string',  alias: 'r', desc: 'Safety rules json file', default: undefined },
+      oreqm_main:       { type: 'string',  alias: 'm', desc: 'main oreqm file', default: undefined },
+      oreqm_ref:        { type: 'string',  alias: 'z', desc: 'ref oreqm file (older)', default: undefined }
+    })
+     /*
+    .usage('$0 [<options>] [<main oreqm> [<ref oreqm>]]', 'Visualize oreqm data', (yargs) => {
+      yargs.positional({
+        oreqm_main: { type: 'string', desc: 'main oreqm file'},
+        oreqm_ref: { type: 'string', desc: 'reference oreqm file (older)'}
+      })
+    })
+    .showHelp() */
+    .argv;
+  if (!xx.oreqm_main && xx._.length > 0) {
+    xx.oreqm_main = xx._[0];
+    if (!xx.oreqm_ref && xx._.length > 1) {
+      xx.oreqm_ref = xx._[1];
+    }
+  }
+  console.dir(xx);
+
   parser.add_argument('-v', '--version',           { action: 'version', version });
   parser.add_argument('-d', '--debug',             { help: 'Enable debug', action: 'store_true' });
   parser.add_argument('-u', '--update',            { help: 'Check for updates', action: 'store_true' });
@@ -248,7 +286,8 @@ app.on('ready', () => {
     //console.log("Effective options are:", argv)
     args = parser.parse_args(argv)
   }
-  //console.log("effective args: ", args)
+  console.log('argparse args')
+  console.dir(args)
 
   debug = args.debug
   run_autoupdater = args.update
