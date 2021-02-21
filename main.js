@@ -8,8 +8,7 @@ const path = require('path');
 const url = require('url');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
-const { ArgumentParser } = require('argparse');
-const { version } = require('./package.json');
+//const { version } = require('./package.json');
 const log = require('electron-log');
 const {autoUpdater} = require('electron-updater');
 const {settings} = require('./lib/settings_dialog.js')
@@ -52,16 +51,9 @@ function calc_icon_path(argv0) {
 let icon_path
 function createWindow() {
   if (process.platform === 'linux') {
-    //icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
-    // TODO: There must be a better way to determine the path to main icon file
-    //icon_path = './build/icon.png'
-    //icon_path = 'C:\\Users\\erlin\\Documents\\src\\visual-reqm2-electron\\build\\icon.png'
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
-    //console.log("process.resourcesPath: ",process.resourcesPath)
-    //console.log("__dirname: ", __dirname)
-    //console.log("calc_icon_path: ", calc_icon_path(process.argv[0]))
   } else {
     icon_path = path.join(__dirname, './src/icons/mac/icon.icns')
   }
@@ -73,6 +65,7 @@ function createWindow() {
     show: false,
     webPreferences: {
       nodeIntegrationInWorker: true,
+      contextIsolation: false,
       nodeIntegration: true,
       enableRemoteModule: true,
     }
@@ -206,15 +199,11 @@ function createWindow() {
   });
 }
 
-const parser = new ArgumentParser({
-  description: 'Visual ReqM2\nShow specobjects as diagrams.'
-});
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  let xx = yargs(hideBin(process.argv))
+  let args = yargs(hideBin(process.argv))
     .scriptName('VisualReqM2')
     .options({
       version:          { type: 'boolean', alias: 'v', desc: 'Show version', default: false },
@@ -233,62 +222,24 @@ app.on('ready', () => {
       oreqm_main:       { type: 'string',  alias: 'm', desc: 'main oreqm file', default: undefined },
       oreqm_ref:        { type: 'string',  alias: 'z', desc: 'ref oreqm file (older)', default: undefined }
     })
-     /*
-    .usage('$0 [<options>] [<main oreqm> [<ref oreqm>]]', 'Visualize oreqm data', (yargs) => {
-      yargs.positional({
-        oreqm_main: { type: 'string', desc: 'main oreqm file'},
-        oreqm_ref: { type: 'string', desc: 'reference oreqm file (older)'}
-      })
-    })
-    .showHelp() */
+    .usage('$0 options [main_oreqm [ref_oreqm]]')
     .argv;
-  if (!xx.oreqm_main && xx._.length > 0) {
-    xx.oreqm_main = xx._[0];
-    if (!xx.oreqm_ref && xx._.length > 1) {
-      xx.oreqm_ref = xx._[1];
+  //console.dir(args);
+
+  // Allow 1 or 2 positional parameters
+  // yargs lets other arguments sneak in, which happens in test scenarios.
+  // Therefore positional parameters have to end with '.oreqm' to be accepted.
+  if (!args.oreqm_main && args._.length > 0) {
+    if (args._[0].endsWith('.oreqm')) {
+      args.oreqm_main = args._[0];
+      if (!args.oreqm_ref && args._.length > 1) {
+        if (args._[1].endsWith('.oreqm')) {
+          args.oreqm_ref = args._[1];
+        }
+      }
     }
   }
-  console.dir(xx);
-
-  parser.add_argument('-v', '--version',           { action: 'version', version });
-  parser.add_argument('-d', '--debug',             { help: 'Enable debug', action: 'store_true' });
-  parser.add_argument('-u', '--update',            { help: 'Check for updates', action: 'store_true' });
-  parser.add_argument('-s', '--select',            { help: 'selection criteria', type: 'str' });
-  parser.add_argument('-i', '--id-only',           { help: 'search id only', action: 'store_true' });
-  parser.add_argument('-e', '--excluded-ids',      { help: 'excluded ids, comma separated', type: 'str' });
-  parser.add_argument('-c', '--excluded-doctypes', { help: 'excluded doctypes, comma separated', type: 'str' });
-  parser.add_argument('-f', '--format',            { help: 'svg, png or dot graph', type: 'str' });
-  parser.add_argument('-o', '--output',            { help: 'name of ouput', type: 'str' });
-  parser.add_argument('-a', '--safety',            { help: 'Generate safety check diagram', action: 'store_true' });
-  parser.add_argument('-t', '--hierarchy',         { help: 'Generate hierarchy diagram', action: 'store_true' });
-  parser.add_argument('-g', '--diagram',           { help: 'Generate specobject diagram', action: 'store_true' });
-  parser.add_argument('-r', '--rules',             { help: 'Safety rules json file', type: 'str' });
-  parser.add_argument('oreqm_main',                { help: 'main oreqm', nargs: '?' });
-  parser.add_argument('oreqm_ref',                 { help: 'ref. oreqm', nargs: '?' });
-
-  let argv = process.argv.slice() // Manipulate a copy in following
-  //console.log("The options are:", argv)
-  //console.log("spectron env setting", process.env.RUNNING_IN_SPECTRON)
-  let args
-  // TODO: Current parameter handling conflicts with spectron testing, so as a work-around
-  // command line parameter handling is disabled when automated testing is detected.
-
-  // eslint-disable-next-line no-prototype-builtins
-  var isInTest = process.env.hasOwnProperty('RUNNING_IN_SPECTRON')
-  if (isInTest) {
-    args = parser.parse_args([]);
-  } else {
-    // Ugly work-around for command line difference when compiled to app compared to pure nodejs
-    if ((argv.length > 1) && argv[1] !== '.') {
-      argv.splice(1, 0, '.');
-    }
-    argv.splice(0,2) // remove ['electron', '.']
-    //console.log("Effective options are:", argv)
-    args = parser.parse_args(argv)
-  }
-  console.log('argparse args')
-  console.dir(args)
-
+  //console.dir(args);
   debug = args.debug
   run_autoupdater = args.update
   // Check if a command-line only action requested
@@ -326,9 +277,7 @@ app.on('activate', function () {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-
+// Handle automatic updates
 autoUpdater.on('update-available', () => {
   mainWindow.webContents.send('update_available');
 });
@@ -362,45 +311,44 @@ ipcMain.on('restart_app', () => {
 
 // ProgressBar handling
 
-  /**  */
-  let progressBar = null;
+/**  */
+let progressBar = null;
 
-  /**
-   * Start or update a progress bar
-   * @param {string} text to be displayed
-   */
-  function progressbar_start(_text) {
-    //console.log(text)
-    if (progressBar === null) {
-      progressBar = new ProgressBar({
-        /*
-        title: 'Diagram being calculated',
-        text: 'Processing...',
-        detail: text,
-        indeterminate: true,
-        */
-        browserWindow: {
-          icon: icon_path,
-          webPreferences: {
-            nodeIntegration: true
-          }
+/**
+ * Start or update a progress bar
+ * @param {string} text to be displayed
+ */
+function progressbar_start(_text) {
+  //console.log(text)
+  if (progressBar === null) {
+    progressBar = new ProgressBar({
+      /*
+      title: 'Diagram being calculated',
+      text: 'Processing...',
+      detail: text,
+      indeterminate: true,
+      */
+      browserWindow: {
+        icon: icon_path,
+        webPreferences: {
+          nodeIntegration: true
         }
-      });
+      }
+    });
 
-      progressBar.on('completed', function() {
-        //progressBar.text = '';
-        //progressBar.detail = 'Task completed. Exiting...';
-        progressBar = null;
-      });
+    progressBar.on('completed', function() {
+      //progressBar.text = '';
+      //progressBar.detail = 'Task completed. Exiting...';
+      progressBar = null;
+    });
 
-    } else {
-      //progressBar.detail = text;
-    }
+  } else {
+    //progressBar.detail = text;
   }
+}
 
-  function progressbar_stop() {
-    if (progressBar) {
-      progressBar.setCompleted();
-    }
+function progressbar_stop() {
+  if (progressBar) {
+    progressBar.setCompleted();
   }
-
+}

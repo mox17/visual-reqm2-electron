@@ -52,7 +52,6 @@
     "spectron-fake-menu": "0.0.1"
   },
   "dependencies": {
-    "argparse": "^2.0.1",
     "blob-util": "^2.0.2",
     "diff": "^4.0.2",
     "electron-log": "^4.3.1",
@@ -102,6 +101,17 @@
         }
       ],
       "icon": "build/icons/Icon-512x512.png"
+    },
+    "portable": {
+      "artifactName": "${productName}.${version}.${ext}"
+    },
+    "nsis": {
+      "shortcutName": "Visual ReqM2",
+      "deleteAppDataOnUninstall": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "${productName}.Setup.${version}.${ext}",
+      "license": "LICENSE"
     },
     "linux": {
       "category": "Utility",
