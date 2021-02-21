@@ -798,6 +798,10 @@
     mainWindow.setTitle(title);
   }
 
+  /**
+   * Load and process a single oreqm file
+   * @param {string} file 
+   */
   export function load_file_main(file) {
     //console.log("load_file_main", file);
     clear_diagram()
@@ -811,6 +815,11 @@
     }
   }
 
+  /**
+   * Load and process both main and reference oreqm files
+   * @param {string} file 
+   * @param {string} ref_file 
+   */
   function load_file_main_fs(file, ref_file) {
     //console.log("load_file_main", file);
     clear_diagram()
@@ -832,17 +841,15 @@
 
   function get_main_oreqm_file() {
     //rq: ->(rq_filesel_main_oreqm)
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.oreqm'
-
-    input.onchange = e => {
-      // getting a hold of the file reference
-      let file = e.target.files[0];
-      clear_diagram()
-      load_file_main(file)
+    let filePath = remote.dialog.showOpenDialogSync(
+      {
+        filters: [{ name: 'OREQM files', extensions: ['oreqm']}],
+        properties: ['openFile']
+      })
+    //console.log(filePath);
+    if (typeof(filePath) !== 'undefined' && (filePath.length === 1)) {
+      load_file_main_fs(filePath[0], null);
     }
-    input.click();
   }
 
   function process_data_ref(name, data) {
@@ -883,6 +890,10 @@
     }
   }
 
+  /**
+   * Load reference oreqm file. Main oreqm file is expected to be present.
+   * @param {string} file 
+   */
   function load_file_ref_fs(file) {
     // Load reference file
     if (oreqm_main) {
@@ -900,6 +911,9 @@
     get_ref_oreqm_file()
   });
 
+  /**
+   * Interactive selection of input file
+   */
   function get_ref_oreqm_file() {
     //rq: ->(rq_filesel_ref_oreqm)
     let input = document.createElement('input');

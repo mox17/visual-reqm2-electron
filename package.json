@@ -49,6 +49,7 @@
     "nyc": "^15.1.0",
     "shx": "^0.3.3",
     "spectron": "^13.0.0",
+    "spectron-fake-dialog": "0.0.1",
     "spectron-fake-menu": "0.0.1"
   },
   "dependencies": {

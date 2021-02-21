@@ -1,5 +1,6 @@
 const Application = require("spectron").Application;
 const fakeMenu = require('spectron-fake-menu');
+const fakeDialog = require('spectron-fake-dialog');
 const electronPath = require("electron");
 const path = require("path");
 const mkdirp = require('mkdirp')
@@ -39,7 +40,8 @@ describe("Application launch", function () {
       args: [path.join(__dirname, "..")],
       chromeDriverLogPath: path.join(__dirname, "..", "./tmp/chromedriver.log"),
     });
-    fakeMenu.apply(app); // apply fake menu
+    fakeMenu.apply(app);
+    fakeDialog.apply(app);
     return app.start().then(function () {
       assert.strictEqual(app.isRunning(), true);
       chaiAsPromised.transferPromiseness = app.transferPromiseness;
@@ -133,9 +135,24 @@ describe("Application launch", function () {
       const issues_modal = await app.client.$('#problemPopup');
       let style = await issues_modal.getAttribute('style');
       assert.ok(style.includes('block'));
-      await sleep(2000);
+      //await sleep(2000);
+      const aboutClose = await app.client.$('#problemPopupClose');
+      await aboutClose.click();
     });
   });
+
+  describe('Load files', function () {
+    it('main oreqm', async function () {
+      await app.client.waitUntilWindowLoaded();
+      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ])
+      // const main_filename = await app.client.$('#hid_oreqm_main');
+      // await main_filename.setValue("./testdata/oreqm_testdata_no_ogre.oreqm");
+      const main_button = await app.client.$('#get_main_oreqm_file');
+      await main_button.click();
+      await sleep(5000);
+    });
+  });
+
 
 /*
   it("shows an initial window", async function () {
