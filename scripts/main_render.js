@@ -95,7 +95,7 @@
 
   /**
    * Main processing triggered from main process starts here.
-   * Command line parameters are received here
+   * Processed command line parameters are received here
    */
   ipcRenderer.on('argv', (event, parameters, args) => {
     let ok = true;
@@ -103,15 +103,7 @@
     let ref = false;
 
     set_limit_reporter(report_limit_as_toast);
-
     handle_settings(settings_updated);
-    /*
-    let c_args = ''
-    for (let i = 0; i < parameters.length; i++) {
-        c_args += parameters[i] + '  \n'
-    }
-    alert(c_args)
-    */
 
     if (program_settings.check_for_updates) {
       check_newer_release_available();
@@ -916,16 +908,15 @@
    */
   function get_ref_oreqm_file() {
     //rq: ->(rq_filesel_ref_oreqm)
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.oreqm'
-
-    input.onchange = e => {
-      // getting a hold of the file reference
-      let file = e.target.files[0];
-      load_file_ref(file)
+    let filePath = remote.dialog.showOpenDialogSync(
+      {
+        filters: [{ name: 'OREQM files', extensions: ['oreqm']}],
+        properties: ['openFile']
+      })
+    //console.log(filePath);
+    if (typeof(filePath) !== 'undefined' && (filePath.length === 1)) {
+      load_file_ref_fs(filePath[0]);
     }
-    input.click();
   }
 
   /**

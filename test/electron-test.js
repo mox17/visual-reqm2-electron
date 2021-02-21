@@ -4,10 +4,10 @@ const fakeDialog = require('spectron-fake-dialog');
 const electronPath = require("electron");
 const path = require("path");
 const mkdirp = require('mkdirp')
-//const fs = require('fs');
+const fs = require('fs');
 const chai = require("chai");
 const assert = chai.assert; // Using Assert style
-//const expect = chai.expect; // Using Expect style
+const expect = chai.expect; // Using Expect style
 //const should = chai.should(); // Using Should style
 const chaiAsPromised = require('chai-as-promised');
 const chaiRoughly = require('chai-roughly');
@@ -144,12 +144,44 @@ describe("Application launch", function () {
   describe('Load files', function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
-      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ])
-      // const main_filename = await app.client.$('#hid_oreqm_main');
-      // await main_filename.setValue("./testdata/oreqm_testdata_no_ogre.oreqm");
+      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]);
       const main_button = await app.client.$('#get_main_oreqm_file');
       await main_button.click();
-      await sleep(5000);
+      await sleep(1000);
+    });
+
+    it('save main as svg', async function () {
+      await app.client.waitUntilWindowLoaded();
+      let svg_filename = './tmp/main_1.svg'
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: ['./tmp/main_1.svg'] } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await sleep(3000);
+      //assert.ok(fs.existsSync(svg_filename));
+      //expect(fs.existsSync(svg_filename)).to.eventually.be.true;
+    });
+
+    it('ref oreqm', async function () {
+      await app.client.waitUntilWindowLoaded();
+      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
+      const ref_button = await app.client.$('#get_ref_oreqm_file');
+      await ref_button.click();
+      await sleep(1000);
+    });
+  });
+
+  describe('Show diagrams', function () {
+    it('hierarchy diagram', async function () {
+      await app.client.waitUntilWindowLoaded();
+      const button = await app.client.$('#show_doctypes');
+      await button.click();
+      await sleep(1000);
+    });
+
+    it('safety diagram', async function () {
+      await app.client.waitUntilWindowLoaded();
+      const button = await app.client.$('#show_doctypes_safety');
+      await button.click();
+      await sleep(1000);
     });
   });
 
