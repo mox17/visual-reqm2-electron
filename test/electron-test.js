@@ -4,10 +4,10 @@ const fakeDialog = require('spectron-fake-dialog');
 const electronPath = require("electron");
 const path = require("path");
 const mkdirp = require('mkdirp')
-const fs = require('fs');
+//const fs = require('fs');
 const chai = require("chai");
 const assert = chai.assert; // Using Assert style
-const expect = chai.expect; // Using Expect style
+//const expect = chai.expect; // Using Expect style
 //const should = chai.should(); // Using Should style
 const chaiAsPromised = require('chai-as-promised');
 const chaiRoughly = require('chai-roughly');
@@ -134,7 +134,7 @@ describe("Application launch", function () {
       fakeMenu.clickMenu('View', 'Show issues');
       const issues_modal = await app.client.$('#problemPopup');
       let style = await issues_modal.getAttribute('style');
-      assert.ok(style.includes('block'));
+      assert.ok(style.includes('block')); //rq: ->(rq_issues_log)
       //await sleep(2000);
       const aboutClose = await app.client.$('#problemPopupClose');
       await aboutClose.click();
@@ -147,15 +147,17 @@ describe("Application launch", function () {
       fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]);
       const main_button = await app.client.$('#get_main_oreqm_file');
       await main_button.click();
+      //rq: ->(rq_filesel_main_oreqm)
       await sleep(1000);
+      // TODO: assert needed here
     });
 
     it('save main as svg', async function () {
       await app.client.waitUntilWindowLoaded();
-      let svg_filename = './tmp/main_1.svg'
+      //let svg_filename = './tmp/main_1.svg'
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: ['./tmp/main_1.svg'] } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      await sleep(3000);
+      await sleep(1000);
       //assert.ok(fs.existsSync(svg_filename));
       //expect(fs.existsSync(svg_filename)).to.eventually.be.true;
     });
@@ -166,6 +168,8 @@ describe("Application launch", function () {
       const ref_button = await app.client.$('#get_ref_oreqm_file');
       await ref_button.click();
       await sleep(1000);
+      //rq: ->(rq_filesel_ref_oreqm)
+      // TODO: assert of visible diagram needed here
     });
   });
 
@@ -193,7 +197,7 @@ describe("Application launch", function () {
     //console.dir(await app.electron.clipboard.availableFormats())
     //app.client.click('#aboutButton');
     await app.webContents.executeJavaScript("alert('Kilroy was here');");
-    await sleep(2000);
+    await sleep(1000);
   });
 */
 });

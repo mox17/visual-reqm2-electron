@@ -1,13 +1,14 @@
 var chai = require('chai');
-var chaiAsPromised = require('chai-as-promised');
-const util = require('../lib/util.js');
+//var chaiAsPromised = require('chai-as-promised');
 const color = _interopRequireDefault(require('../lib/color.js'));
 const fs = require('fs');
 
-//const assert = require('assert')
 var assert = chai.assert;    // Using Assert style
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+const describe = global.describe;
+const it = global.it;
 
 const pal_file = "tmp/test_palette.json";
 

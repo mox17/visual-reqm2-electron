@@ -536,15 +536,17 @@
     viz_working_clear()
   }
 
+  /*
   function progressbar_start(text) {
     //console.log("progressbar_start", text);
     ipcRenderer.send('progress_start', text);
-  }
+  } */
 
+  /*
   function progressbar_stop() {
     //console.log("progressbar_stop");
     ipcRenderer.send('progress_stop');
-  }
+  } */
 
   function update_diagram(selected_format) {
     clear_diagram()
@@ -1798,7 +1800,6 @@
   }
 
   // some ways to select a subset of specobjects
-  // eslint-disable-next-line no-unused-vars
   function select_all(_node_id, rec, _node_color) {
     // Select all - no need to inspect input
     if (no_rejects) {

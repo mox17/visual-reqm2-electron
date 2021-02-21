@@ -1,17 +1,19 @@
-var chai = require("chai");
+const chai = require("chai");
 //const util = require('../lib/util.js');
 const settings = _interopRequireDefault(require("../lib/settings.js"));
 //const fs = require('fs');
 
 //const assert = require('assert')
-var assert = chai.assert; // Using Assert style
+const assert = chai.assert; // Using Assert style
+const describe = global.describe;
+const it = global.it;
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
 describe("Settings tests", function () {
-  // eslint-disable-next-line no-undef
+
   it("New settings", function () {
     // Force settings to default
     settings.check_and_upgrade_settings(null);
