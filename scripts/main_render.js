@@ -184,20 +184,18 @@
     document.getElementById("viz_working").innerHTML = '<span style="color: #000000"></span>'
   }
 
-  /*
   function html_viz_processing_show() {
-    document.querySelector("#output").classList.add("working");
+    document.querySelector("#output").classList.add("loader");
     document.querySelector("#output").classList.remove("error");
-  } */
+  }
 
-  /*
   function html_viz_processing_clear() {
-    document.querySelector("#output").classList.remove("working");
+    document.querySelector("#output").classList.remove("loader");
     document.querySelector("#output").classList.remove("error");
-  } */
+  }
 
   function html_viz_processing_error(message) {
-    document.querySelector("#output").classList.remove("working");
+    document.querySelector("#output").classList.remove("loader");
     document.querySelector("#output").classList.add("error");
     let error = document.querySelector("#error");
     while (error.firstChild) {
@@ -550,7 +548,8 @@
 
   function update_diagram(selected_format) {
     clear_diagram()
-    update_graph(selected_format, progressbar_start, progressbar_stop, updateOutput, diagram_error);
+    update_graph(selected_format, html_viz_processing_show, html_viz_processing_clear, updateOutput, diagram_error);
+    //update_graph(selected_format, progressbar_start, progressbar_stop, updateOutput, diagram_error);
     //update_graph(selected_format, spinner_show, spinner_stop, updateOutput, diagram_error);
   }
 
