@@ -1,0 +1,24 @@
+const Application = require('spectron').Application
+const assert = require('assert')
+const electronPath = require('electron') // Require Electron from the binaries included in node_modules.
+const path = require('path')
+
+describe ('Application launch', function() {
+    this.timeout(30000);
+  
+    const app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..')],
+    });
+  
+    before(() => app.start());
+    after(() => app.stop());
+  
+  it('shows an initial window', async (done) =>  {
+    await app.client.waitUntilWindowLoaded();
+    const count = app.client.getwindowcount();
+    assert.equal(count,1);
+    done();
+    });
+  
+  });

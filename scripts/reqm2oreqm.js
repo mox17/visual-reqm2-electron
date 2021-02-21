@@ -151,13 +151,17 @@ function stringEqual(a_in, b_in, ignore_list) {
 /**
  * This class reads and manages information in ReqM2 .oreqm files
  */
-export default class ReqM2Specobjects {
+export class ReqM2Specobjects {
   constructor(filename, content, excluded_doctypes, excluded_ids) {
     this.filename = filename;      // basename of oreqm file
     this.timestamp = ''            // recorded time of ReqM2 run
     this.root = null;              // xml tree
-    this.doctypes = new Map();     // { doctype : [id] }  List of ids of a specific doctype
-    this.requirements = new Map(); // { id : Requirement}
+    /** Map<doctype, id[]>  List of ids of a specific doctype */
+    this.doctypes = new Map();
+    /** Map<key, Requirement[]> Where key is === \<id> except for duplicates, where a :\<version> is suffixed for subsequent instances of \<id> */
+    this.requirements = new Map();
+    /** Map<id, {id:, version:}[]> where 2nd id is the effective (unique) key */
+    this.duplicates = new Map();
     this.rules = new Map();        // {rule_id : description}
     this.color = new Map();        // {id:[color]} When traversing the graph of nodes a 'color' is associated with each visited node
     this.linksto = new Map();      // {id:{id}} -- map to set of linked ids
@@ -177,7 +181,7 @@ export default class ReqM2Specobjects {
 
     // Initialization logic
     this.clear_problems()
-    let success = this.process_oreqm_content(content);
+    let success = this.process_oreqm_content(content); //rq: ->(rq_read_oreqm)
     if (success) {
       this.read_reqm2_rules();
       this.read_req_descriptions();
@@ -186,7 +190,7 @@ export default class ReqM2Specobjects {
       this.timestamp = this.get_time()
       let problems = this.get_problems()
       if (problems) {
-        //alert(problems)
+        alert(problems);
       }
     }
   }
@@ -207,6 +211,7 @@ export default class ReqM2Specobjects {
     try {
       this.root = tryParseXML(content)
     } catch (err) {
+      console.log(err);
       alert(err)
       return false
     }
@@ -253,51 +258,75 @@ export default class ReqM2Specobjects {
     // Read individual specobject
     let specobject_list = node.getElementsByTagName("specobject");
     for (const comp of specobject_list) {
-      let req = new Object();
-      req.id              = get_xml_text(comp, 'id');
-      req.comment         = get_xml_text(comp, 'comment'),
-      req.covstatus       = get_xml_text(comp, 'covstatus'),
-      req.dependson       = get_list_of(comp, 'dependson'),
-      req.description     = get_xml_text(comp, 'description');
-      req.doctype         = doctype,
-      req.fulfilledby     = get_fulfilledby(comp),
-      req.furtherinfo     = get_xml_text(comp, 'furtherinfo'),
-      req.linksto         = get_linksto(comp),
-      req.needsobj        = get_list_of(comp, 'needsobj'),
-      req.platform        = get_list_of(comp, 'platform'),
-      req.rationale       = get_xml_text(comp, 'rationale'),
-      req.safetyclass     = get_xml_text(comp, 'safetyclass'),
-      req.safetyrationale = get_xml_text(comp, 'safetyrationale'),
-      req.shortdesc       = get_xml_text(comp, 'shortdesc'),
-      req.source          = get_xml_text(comp, 'source'),
-      req.sourcefile      = get_xml_text(comp, 'sourcefile'),
-      req.sourceline      = get_xml_text(comp, 'sourceline'),
-      req.status          = get_xml_text(comp, 'status'),
-      req.tags            = get_list_of(comp, 'tag'),
-      req.usecase         = get_xml_text(comp, 'usecase'),
-      req.verifycrit      = get_xml_text(comp, 'verifycrit'),
-      req.version         = get_xml_text(comp, 'version'),
-      req.violations      = get_list_of(comp, 'ruleid');
-      req.ffb_placeholder = false;
+      this.add_one_specobject(comp, doctype);
+    }
+  }
 
-      if (this.requirements.has(req.id)) {
-        let problem = "<id> duplicated: {} ".format(req.id)
-        //console.log("redefinition of ", req.id)
-        this.problem_report(problem)
+  /**
+   * Add one specobject to oreqm container
+   * @param {object} comp 
+   */
+  add_one_specobject(comp, doctype) {
+    let req = new Object();
+    req.id              = get_xml_text(comp, 'id');
+    req.comment         = get_xml_text(comp, 'comment'),
+    req.covstatus       = get_xml_text(comp, 'covstatus'),
+    req.dependson       = get_list_of(comp, 'dependson'),
+    req.description     = get_xml_text(comp, 'description');
+    req.doctype         = doctype,
+    req.fulfilledby     = get_fulfilledby(comp),
+    req.furtherinfo     = get_xml_text(comp, 'furtherinfo'),
+    req.linksto         = get_linksto(comp),
+    req.needsobj        = get_list_of(comp, 'needsobj'),
+    req.platform        = get_list_of(comp, 'platform'),
+    req.rationale       = get_xml_text(comp, 'rationale'),
+    req.safetyclass     = get_xml_text(comp, 'safetyclass'),
+    req.safetyrationale = get_xml_text(comp, 'safetyrationale'),
+    req.shortdesc       = get_xml_text(comp, 'shortdesc'),
+    req.source          = get_xml_text(comp, 'source'),
+    req.sourcefile      = get_xml_text(comp, 'sourcefile'),
+    req.sourceline      = get_xml_text(comp, 'sourceline'),
+    req.status          = get_xml_text(comp, 'status'),
+    req.tags            = get_list_of(comp, 'tag'),
+    req.usecase         = get_xml_text(comp, 'usecase'),
+    req.verifycrit      = get_xml_text(comp, 'verifycrit'),
+    req.version         = get_xml_text(comp, 'version'),
+    req.violations      = get_list_of(comp, 'ruleid');
+    req.ffb_placeholder = false;
+
+    // There may be duplicate <id>'s in use.
+    let key = req.id;
+    let report_duplicate = true;
+    while (this.requirements.has(key)) {
+      //rq: ->(rq_dup_req)
+      // Check for unique versions
+      if (report_duplicate && this.requirements.get(key).version === req.version) {
+        let problem = `specobject '${req.id}' is duplicated with same version '${req.version}'`;
+        console.log(problem);
+        // `  this is a work-around for bugs in ReqM2's parsing of JavaScript
+        //rq: ->(rq_dup_same_version)
+        this.problem_report(problem);
+        report_duplicate = false;
       }
-      while (this.requirements.has(req.id)) {
-        // Add suffix until id is unique
-        req.id += '_dup_'
+      // Add suffix until id is unique
+      key += ':'+req.version;
+    }
+    this.requirements.set(key, req);
+    // Keep track of duplicates and their versions
+    if (key !== req.id) {
+      if (!this.duplicates.has(req.id)) {
+        // Create list of duplicates for this <id>
+        let first_req = this.requirements.get(req.id);
+        this.duplicates.set(req.id, [{id: first_req.id, version: first_req.version}])
       }
-      this.requirements.set(req.id, req)
-      let dt_arr = this.doctypes.get(doctype)
-      if (!dt_arr.includes(req.id)) {
-        dt_arr.push(req.id)
-        this.doctypes.set(doctype, dt_arr) // keep status per doctype
-      } else {
-        //console.log("duplicate id ", req.id)
-      }
-      //console.log(req);
+      // Add duplicate
+      this.duplicates.get(req.id).push({id: key, version: req.version});
+    }
+
+    let dt_arr = this.doctypes.get(doctype)
+    if (!dt_arr.includes(key)) {
+      dt_arr.push(key)
+      this.doctypes.set(doctype, dt_arr) // keep status per doctype
     }
   }
 
@@ -306,6 +335,7 @@ export default class ReqM2Specobjects {
    * Add doctype to needsobj if not present
    */
   add_fulfilledby_nodes() {
+    //rq: ->(rq_ffb_placeholder)
     const ids = Array.from(this.requirements.keys())
     let new_nodes = new Map() // need a new container to add after loop
     for (let req_id of ids) {
@@ -348,14 +378,14 @@ export default class ReqM2Specobjects {
           // check for matching doctype
           const real_dt = this.requirements.get(ff_id).doctype
           if (real_dt !== ff_doctype) {
-            let problem = "ffbType {} does not match {} for <id> {}".format(ff_doctype, real_dt, ff_id)
+            let problem = `ffbType ${ff_doctype} does not match ${real_dt} for <id> ${ff_id}`
             this.problem_report(problem)
           }
         }
         // Add pseudo needsobj with '*' suffix
         if (!rec.needsobj.includes(ff_doctype) &&
             !rec.needsobj.includes(ff_doctype+'*')) {
-          rec.needsobj.push(ff_doctype+'*')
+          rec.needsobj.push(ff_doctype+'*'); //rq: ->(rq_ffb_needsobj) 
           this.requirements.set(req_id, rec)
         }
         // Add new doctype list if unknown
@@ -380,6 +410,25 @@ export default class ReqM2Specobjects {
   }
 
   /**
+   * Get the effective key for a (id, version) pair
+   * @param {string} id Possibly duplicate <id>
+   * @param {string} version id+version unique
+   * @return {string} effective key. If matching version not found an unspecified key with matching id will be returned
+   */
+  get_key_for_id_ver(id, version) {
+    let key = id;
+    if (this.duplicates.has(id)) {
+        for (const id_ver of this.duplicates.get(id)) {
+          if (id_ver.version === version) {
+            return id_ver.id;
+          }
+        }
+        console.log("No match to multiple versions of:", id, version)
+    }
+    return key;
+  }
+
+  /**
    * Populate the linksto and reverse linksto_rev dicts with the linkages in the requirements.
    * Ensure that color dict has all valid ids
    */
@@ -388,50 +437,43 @@ export default class ReqM2Specobjects {
     // Clear any previous results
     this.linksto = new Map()
     this.linksto_rev = new Map()
-    let lt_set
     // Check all requirements
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       for (const link of rec.linksto) {
-        //console.log(req_id, link)
+        // key to speobjects, can be != id for duplicated id's
+        const lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
+
         // bottom-up
         if (!this.linksto.has(req_id)) {
             this.linksto.set(req_id, new Set())
         }
-        this.linksto.set(req_id, this.linksto.get(req_id).add(link.linksto))
+        this.linksto.get(req_id).add(lt_key)
 
         // top-down
-        if (!this.linksto_rev.has(link.linksto)) {
-          this.linksto_rev.set(link.linksto, new Set())
+        if (!this.linksto_rev.has(lt_key)) {
+          this.linksto_rev.set(lt_key, new Set())
         }
-        lt_set = this.linksto_rev.get(link.linksto)
-        lt_set.add(req_id)
-        this.linksto_rev.set(link.linksto, lt_set)
+        this.linksto_rev.get(lt_key).add(req_id)
       }
       for (const ffb_arr of rec.fulfilledby) {
-        const ffb_link = ffb_arr.id
+        const ffb_link = this.get_key_for_id_ver(ffb_arr.id, ffb_arr.version)
         // top-down
         if (!this.linksto_rev.has(req_id)) {
           this.linksto_rev.set(req_id, new Set())
         }
-        let ffb_set = this.linksto_rev.get(req_id)
-        ffb_set.add(ffb_link)
-        this.linksto_rev.set(req_id, ffb_set)
+        this.linksto_rev.get(req_id).add(ffb_link)
 
         if (!this.fulfilledby.has(ffb_link)) {
           this.fulfilledby.set(ffb_link, new Set())
         }
-        ffb_set = this.fulfilledby.get(ffb_link)
-        ffb_set.add(req_id)
-        this.fulfilledby.set(ffb_link, ffb_set)
+        this.fulfilledby.get(ffb_link).add(req_id)
 
         // bottom-up
         if (!this.linksto.has(ffb_link)) {
           this.linksto.set(ffb_link, new Set())
         }
-        lt_set = this.linksto.get(ffb_link)
-        lt_set.add(req_id)
-        this.linksto.set(ffb_link, lt_set)
+        this.linksto.get(ffb_link).add(req_id)
       }
       this.color.set(req_id, new Set())
     }
@@ -464,14 +506,14 @@ export default class ReqM2Specobjects {
       return // already visited
     }
     //console.log(this.requirements.get(req_id).doctype)
-    if (this.excluded_doctypes.includes(rec.doctype)) {
+    if (this.excluded_doctypes.includes(rec.doctype)) { //rq: ->(rq_sel_doctype)
       return // blacklisted doctype
     }
     //Is this requirement rejected
-    if (this.no_rejects && rec.status === 'rejected') {
+    if (this.no_rejects && rec.status === 'rejected') { //rq: ->(rq_excl_rejected)
       return // rejected specobject
     }
-    if (this.excluded_ids.includes(req_id)) {
+    if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
     let col_set = this.color.get(req_id)
@@ -502,14 +544,14 @@ export default class ReqM2Specobjects {
     if (this.color.get(req_id).has(color)) {
       return // already visited
     }
-    if (this.excluded_doctypes.includes(rec.doctype)) {
+    if (this.excluded_doctypes.includes(rec.doctype)) { //rq: ->(rq_sel_doctype)
       return // blacklisted doctype
     }
     //Is this requirement rejected
-    if (this.no_rejects && rec.status === 'rejected') {
+    if (this.no_rejects && rec.status === 'rejected') { //rq: ->(rq_excl_rejected)
       return // rejected specobject
     }
-    if (this.excluded_ids.includes(req_id)) {
+    if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
     let col_set = this.color.get(req_id)
@@ -575,7 +617,7 @@ export default class ReqM2Specobjects {
    * @param {string[]} ignore_fields list of fields to ignore
    * @return {object} with new, updated and removed ids
    */
-  compare_requirements(old_reqs, ignore_fields) {
+  compare_requirements(old_reqs, ignore_fields) { //rq: ->(rq_oreqm_diff_calc)
     const new_ids = Array.from(this.requirements.keys())
     let new_reqs = []
     let updated_reqs = []
@@ -612,9 +654,7 @@ export default class ReqM2Specobjects {
           this.doctypes.set(old_rec.doctype, [])
         }
         // Update doctype table with new counts (and types)
-        let dt_arr = this.doctypes.get(old_rec.doctype)
-        dt_arr.push(req_id)
-        this.doctypes.set(old_rec.doctype, dt_arr)
+        this.doctypes.get(old_rec.doctype).push(req_id)
       }
     }
     this.build_graph_traversal_links() // Select the changed ones (if wanted)
@@ -656,7 +696,7 @@ export default class ReqM2Specobjects {
     let matches = []
     for (const id of ids) {
       const decorated_id = this.decorate_id(id)
-      if (decorated_id.search(rx) >= 0)
+      if (decorated_id.search(rx) >= 0) //rq: ->(rq_search_id_only)
         matches.push(id)
     }
     return matches
@@ -666,7 +706,7 @@ export default class ReqM2Specobjects {
    * Return tagged text format for specobject.
    * There is a cache for previously created strings which is used for speedup.
    * Each xml tag has a corresponding 2 or 3 letter tag prefix.
-   * @param {string} req_id id of specobject
+   * @param {string} req_id key of specobject, === id for non-duplicates
    * @return {string} tagged string
    */
   get_all_text(req_id) {
@@ -675,7 +715,7 @@ export default class ReqM2Specobjects {
     } else {
       // Get all text fields as combined string
       const rec = this.requirements.get(req_id)
-      let id_str = this.decorate_id(req_id)
+      let id_str = this.decorate_id(rec.id)
       let ffb = ''
       rec.fulfilledby.forEach(element =>
         ffb += '\nffb:'+element.id)
@@ -689,6 +729,7 @@ export default class ReqM2Specobjects {
       rec.needsobj.forEach(element =>
         needsobj += '\nno:'+element)
       let all_text = 'dt:' + rec.doctype
+        + '\nve:' + rec.version
         + '\nst:' + rec.status
         + '\nde:' + rec.description
         + '\nfi:' + rec.furtherinfo
@@ -704,7 +745,7 @@ export default class ReqM2Specobjects {
         + ffb
         + tags
         + plat
-        + '\nid:' + id_str;  // req_id is last to ensure regex search for <id>$ will succeed
+        + '\nid:' + id_str;
 
       this.search_cache.set(req_id, all_text)
       return all_text
@@ -727,18 +768,21 @@ export default class ReqM2Specobjects {
       }
     }
     catch(err) {
-      alert('Selection criteria error:\n{}'.format(err.message))
+      let msg = `Selection criteria error:\n${err.message}`;
+      console.log(msg);
+      alert(msg);
     }
     return matches
   }
 
   /**
    * Mark all reachable nodes from id_list both up and down the graph
-   * @param {*} id_list
-   * @param {*} color_up_value
-   * @param {*} color_down_value
+   * @param {string[]} id_list
+   * @param {integer} color_up_value
+   * @param {integer} color_down_value
    */
   mark_and_flood_up_down(id_list, color_up_value, color_down_value) {
+    //rq: ->(	rq_calc_shown_graph)
     for (const res of id_list) {
       this.mark_and_flood_down(color_down_value, res)
       this.mark_and_flood_up(color_up_value, res)
@@ -808,10 +852,10 @@ export default class ReqM2Specobjects {
    * @param {string} report string with description (possibly multiple lines)
    */
   problem_report(report) {
-    if (!this.problems.includes(report)) {
+    //rq: ->(rq_issues_log)
+    //if (!this.problems.includes(report)) {
       this.problems.push(report)
-      document.getElementById('issueCount').innerHTML = this.problems.length
-    }
+    //}
   }
 
   get_problems() {
@@ -819,9 +863,13 @@ export default class ReqM2Specobjects {
     return this.problems.join('\n')
   }
 
+  get_problem_count() {
+    // Get a count of problems strings
+    return this.problems.length;
+  }
+
   clear_problems() {
     this.problems = []
-    document.getElementById('issueCount').innerHTML = this.problems.length
   }
 
   /**
@@ -834,9 +882,9 @@ export default class ReqM2Specobjects {
     let xml_txt = ''
     if (Object.prototype.hasOwnProperty.call(rec, tag)) {
       let txt = rec[tag]
-      let template = "\n    <{}>{}</{}>"
+      let template = `\n    <${tag}>${txt}</${tag}>`
       if (txt.length) {
-        xml_txt = template.format(tag, txt, tag)
+        xml_txt = template;
       }
     }
     return xml_txt
@@ -844,25 +892,24 @@ export default class ReqM2Specobjects {
 
   /**
    * Recreate XML lists for presentation purposes
-   * @param {*} rec
-   * @param {*} field
+   * @param {object} rec object representing specobject
+   * @param {string} field xml tag name
    * @return {string} in XML format
    */
   get_list_formatted(rec, field) {
     let xml_txt = ''
     if (Object.prototype.hasOwnProperty.call(rec, field)) {
       let list = rec[field]
-      let template = "\n    <{}>{}</{}>"
       if (list.length) {
-        xml_txt = "\n{}: ".format(field)
+        xml_txt = `\n${field}: `
         if (field==='linksto') {
           xml_txt = '\n    <providescoverage>'
           for (let i=0; i<list.length; i++) {
             xml_txt += `
       <provcov>
-        <linksto>{}</linksto>
-        <dstversion>{}</dstversion>
-      </provcov>`.format(list[i].linksto, list[i].dstversion)
+        <linksto>${list[i].linksto}</linksto>
+        <dstversion>${list[i].dstversion}</dstversion>
+      </provcov>`
           }
           xml_txt += '\n    </providescoverage>'
         } else if (field==='needsobj') {
@@ -870,21 +917,21 @@ export default class ReqM2Specobjects {
           for (let i=0; i<list.length; i++) {
             if (list[i].includes('*')) continue;
             xml_txt += `
-      <needscov><needsobj>{}</needsobj></needscov>`.format(list[i])
+      <needscov><needsobj>${list[i]}</needsobj></needscov>`
           }
           xml_txt += '\n    </needscoverage>'
         } else if (field==='tags') {
           xml_txt = '\n    <tags>'
           for (let i=0; i<list.length; i++) {
             xml_txt += `
-      <tag>{}</tag>`.format(list[i])
+      <tag>${list[i]}</tag>`
           }
           xml_txt += '\n    </tags>'
         } else if (field==='platform') {
           xml_txt = '\n    <platforms>'
           for (let i=0; i<list.length; i++) {
             xml_txt += `
-      <platform>{}</platform>`.format(list[i])
+      <platform>${list[i]}</platform>`
           }
           xml_txt += '\n    </platforms>'
         } else if (field==='fulfilledby') {
@@ -892,14 +939,14 @@ export default class ReqM2Specobjects {
           for (let i=0; i<list.length; i++) {
             xml_txt += `
       <ffbObj>
-        <ffbId>{}</ffbId>
-        <ffbType>{}</ffbType>
-        <ffbVersion>{}</ffbVersion>
-      </ffbObj>`.format(list[i].id, list[i].doctype, list[i].version)
+        <ffbId>${list[i].id}</ffbId>
+        <ffbType>${list[i].doctype}</ffbType>
+        <ffbVersion>${list[i].version}</ffbVersion>
+      </ffbObj>`
           }
           xml_txt += '\n    </fulfilledby>'
         } else {
-          xml_txt = template.format(field, list.join(', '), field)
+          xml_txt = `\n    <${field}>${list.join(', ')}</${field}>`
         }
       }
     }
@@ -916,14 +963,6 @@ export default class ReqM2Specobjects {
     if (this.requirements.has(id)) {
       let rec = this.requirements.get(id)
       let indent = '      '
-      let template = `\
-<specobjects doctype="{}">
-  <specobject>
-    <id>{}</id>
-    <status>{}</status>{}
-  </specobject>
-</specobjects>
-`
       let optional = ''
       optional    += this.get_tag_text_formatted(rec, 'source', indent)
       optional    += this.get_tag_text_formatted(rec, 'version', indent)
@@ -943,7 +982,14 @@ export default class ReqM2Specobjects {
       optional    += this.get_list_formatted(rec, 'platform', indent)
       optional    += this.get_list_formatted(rec, 'needsobj', indent)
       optional    += this.get_list_formatted(rec, 'linksto', indent)
-      xml_txt = template.format(rec.doctype, rec.id, rec.status, optional)
+      xml_txt = `\
+<specobjects doctype="${rec.doctype}">
+  <specobject>
+    <id>${rec.id}</id>
+    <status>${rec.status}</status>${optional}
+  </specobject>
+</specobjects>
+`
     }
     return xml_txt
   }

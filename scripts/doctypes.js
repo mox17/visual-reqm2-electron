@@ -4,7 +4,7 @@
 /**
  * @classdesc This class represent what relationships a doctype has
  */
-export default class DoctypeRelations {
+export class DoctypeRelations {
   constructor(name) {
     this.name = name
     this.count = 0               // Number of instances

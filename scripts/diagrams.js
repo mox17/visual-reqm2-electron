@@ -1,11 +1,10 @@
 /* Main class for managing oreqm xml data */
 "use strict";
 
-import ReqM2Specobjects from './reqm2oreqm.js'
-import get_color from './color.js'
-import DoctypeRelations from './doctypes.js'
+import { ReqM2Specobjects } from './reqm2oreqm.js'
+import { get_color } from './color.js'
+import { DoctypeRelations } from './doctypes.js'
 import { program_settings } from './settings.js'
-import showToast from 'show-toast';
 
 /**
  * Escape XML special characters
@@ -22,7 +21,7 @@ export function xml_escape(txt) {
  * @param {string} txt Multi-line string
  * @return {string} Adjusted string
  */
-function normalize_indent(txt) {
+export function normalize_indent(txt) {
   txt = txt.replace(/\r/, '')  // no cr
   txt = txt.replace(/\t/, '  ')  // no tabs
   txt = txt.replace(/^(\s*\n)+/, '') // empty initial line
@@ -75,10 +74,11 @@ const re_empty_lines  = new RegExp(/<BR ALIGN="LEFT"\/>(\s*&nbsp;<BR ALIGN="LEFT
 
 /**
  * Remove xml style formatting not compliant with 'dot' tables
- * @param {*} txt Text with various markup (for example docbook)
+ * @param {string} txt Text with various markup (for example docbook)
  * @return {string} 'dot' html table friendly text.
  */
-function dot_format(txt) {
+export function dot_format(txt) {
+  //rq: ->(rq_markup_remove)
   let txt2
   let new_txt = ''
   if (txt.length) {
@@ -124,6 +124,7 @@ function dot_format(txt) {
  * @return {string} docbook formatted list
  */
 function format_violations(vlist, rules) {
+  //rq: ->(rq_node_probs)
   let str = 'violations:\n  <itemizedlist>\n'
   for (const v of vlist) {
     if (rules.has(v)) {
@@ -144,10 +145,12 @@ function format_violations(vlist, rules) {
  * @return {string} dot html table
  */
 function status_cell(rec, show_coverage, color_status) {
+  //rq: ->(rq_status_color)
+  //rq: ->(rq_cov_color)
   let cov_color = (rec.covstatus === 'covered') ? '' : (rec.covstatus === 'partially') ? 'BGCOLOR="yellow"' : 'BGCOLOR="red"'
   let status_color = (!color_status || (rec.status === 'approved')) ? '' : (rec.status === 'proposed') ? 'BGCOLOR="yellow"' :  'BGCOLOR="red"'
-  let covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : ''
-  let str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`
+  let covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : '';
+  let str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`;
   return str
 }
 
@@ -183,6 +186,7 @@ function format_nonexistent_links(rec) {
  * @return {string} dot html table representing the specobject
  */
 function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
+  //rq: ->(rq_doctype_color)
   let node_table = ""
   let nonexist_link = format_nonexistent_links(rec)
   let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
@@ -201,7 +205,7 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
                         get_color(rec.doctype),
                         ghost ? ':white' : '',
                         ghost ? 'grey' : 'black',
-                        node_id, rec.version, rec.doctype,
+                        rec.id, rec.version, rec.doctype,
                         dot_format(rec.description), rec.needsobj.join('<BR/>'),
                         shortdesc,
                         rationale,
@@ -232,9 +236,11 @@ function format_edge(from_node, to_node, kind, error) {
   let formatting = ''
   let label = ''
   if (error && error.length) {
+    //rq: ->(rq_edge_probs)
     error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
   }
   if (kind === "fulfilledby") {
+    //rq: ->(rq_edge_pcov_ffb)
     formatting = ' [style=bold color=purple dir=back fontname="Arial" label="{}"]'
     label = 'ffb'
     if (error.length) {
@@ -306,9 +312,28 @@ function quote_id(id) {
 }
 
 /**
+ * Report when number of nodes are limited to console
+ * @param {integer} max_nodes
+ */
+function report_limit_exeeded(max_nodes) {
+  console.log(`More than ${max_nodes} specobjects. Graph is limited to 1st ${max_nodes} encountered.`)
+}
+
+/** function pointer to reporting function */
+let limit_reporter = report_limit_exeeded
+
+/**
+ * Set reporting function
+ * @param {function} reporting_function some_function(max_limit)
+ */
+export function set_limit_reporter(reporting_function) {
+  limit_reporter = reporting_function;
+}
+
+/**
  * @classdesc Derived class with capability to generate diagrams of contained oreqm data.
  */
-export default class ReqM2Oreqm extends ReqM2Specobjects {
+export class ReqM2Oreqm extends ReqM2Specobjects {
 
   /**
    * Construct new object
@@ -378,101 +403,54 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} dot graph
    */
   create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage, color_status) {
+    //rq: ->(rq_dot) D(* Function shall output a dot graph*)
     let graph = ReqM2Oreqm.DOT_PREAMBLE;
     let subset = []
     const ids = this.requirements.keys()
     let node_count = 0
     let edge_count = 0
-    let doctype_dict = new Map()
-    let selected_dict = new Map()
-    let sel_arr = []
+    let doctype_dict = new Map()  // { doctype : [id] }  list of id's per doctype
+    let selected_dict = new Map() // { doctype : [id] } list of selected id's per doctype
     let selected_nodes = []
+    let limited = false
     for (const req_id of ids) {
-      const rec = this.requirements.get(req_id)
-      if (!doctype_dict.has(rec.doctype)) {
-        doctype_dict.set(rec.doctype, [])
-        selected_dict.set(rec.doctype, [])
-      }
-      if (selection_function(req_id, rec, this.color.get(req_id)) &&
-          !this.excluded_doctypes.includes(rec.doctype) &&
-          !this.excluded_ids.includes(req_id)) {
-        subset.push(req_id)
-        let dt = doctype_dict.get(rec.doctype)
-        dt.push(req_id)
-        doctype_dict.set(rec.doctype, dt)
-        if (highlights.includes(req_id)) {
-          sel_arr = selected_dict.get(rec.doctype)
-          sel_arr.push(req_id)
-          selected_dict.set(rec.doctype, sel_arr)
-          selected_nodes.push(req_id)
-        }
-      }
+      this.doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes);
       if (subset.length > max_nodes) {
-        showToast({
-          str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
-          time: 10000,
-          position: 'middle'
-        })
+        limited = true;
+        limit_reporter(max_nodes); //rq: ->(rq_config_node_limit)
         break; // hard limit on node count
       }
     }
-    let show_top = false
-    for (let top_dt of top_doctypes) {
-      if (this.doctypes.has(top_dt) && !this.excluded_doctypes.includes(top_dt)) {
-        show_top = true;
+    let show_top;
+    ({ show_top, graph } = this.handle_top_node(top_doctypes, graph));
+
+    // babel artifact? below names must match what is used in return from visible_duplicates()
+    let arrays_of_duplicates
+    let not_duplicates
+    ({arrays_of_duplicates, not_duplicates} = this.visible_duplicates(subset));
+    //console.log(arrays_of_duplicates)
+    //console.log(not_duplicates)
+    for (const dup_list of arrays_of_duplicates) {
+      //rq: ->(rq_dup_req_display)
+      let dup_cluster_id = this.requirements.get(dup_list[0]).id;
+      graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=1 label="duplicates" fontname="Arial" labelloc="t"\n`;
+      for (const req_id of dup_list) {
+        // duplicate nodes
+        ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));
       }
+      graph += `}`;
     }
-    if (show_top) {
-      graph += '  "TOP" [fontcolor=lightgray];\n\n'
-    }
-    for (const req_id of subset) {
+    for (const req_id of not_duplicates) {
         // nodes
-        const ghost = this.removed_reqs.includes(req_id)
-        let node = this.get_format_node(req_id, ghost, show_coverage, color_status) // format_node(req_id, this.requirements.get(req_id), ghost, this)
-        let dot_id = req_id //.replace(/\./g, '_').replace(' ', '_')
-        if (this.new_reqs.includes(req_id)) {
-          node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
-        } else if (this.updated_reqs.includes(req_id)) {
-          node = 'subgraph "cluster_{}_changed" { color=goldenrod1 penwidth=1 label="changed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
-        } else if (this.removed_reqs.includes(req_id)) {
-          node = 'subgraph "cluster_{}_removed" { color=red penwidth=1 label="removed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node)
-        }
-        if (highlights.includes(req_id)) {
-          node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label=""\n{}}\n'.format(dot_id, dot_id, node)
-        }
-        graph += node + '\n'
-        node_count += 1
+        ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));
     }
     graph += '\n  # Edges\n'
-    if (show_top) {
-      for (const req_id of subset) {
-        if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
-          graph += format_edge(req_id, 'TOP', '', '')
-        }
-      }
-    }
-    let kind = ''
-    let linkerror = ''
+    graph = this.handle_top_node_edges(show_top, subset, top_doctypes, graph);
     for (const req_id of subset) {
       // edges
-      if (this.linksto.has(req_id)) {
-        for (const link of this.linksto.get(req_id)) {
-          // Do not reference non-selected specobjets
-          if (subset.includes(link)) {
-            if (this.fulfilledby.has(req_id) && this.fulfilledby.get(req_id).has(link)) {
-              kind = "fulfilledby"
-              linkerror = this.get_ffb_link_error(link, req_id)
-            } else {
-              kind = null
-              linkerror = this.get_link_error(req_id, link)
-            }
-            graph += format_edge(req_id, link, kind, linkerror)
-            edge_count += 1
-          }
-        }
-      }
+      ({ graph, edge_count } = this.add_dot_edge(req_id, subset, graph, edge_count));
     }
-    graph += '\n  label={}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n'.format(title)
+    graph += '\n  label={}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n'.format(title); //rq: ->(rq_diagram_legend)
     graph += ReqM2Oreqm.DOT_EPILOGUE
     this.dot = graph
     let result = new Object()
@@ -481,9 +459,157 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
     result.edge_count = edge_count
     result.doctype_dict = doctype_dict
     result.selected_dict = selected_dict
+    result.limited = limited
     selected_nodes.sort()
     result.selected_nodes = selected_nodes
     return result
+  }
+
+  add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count) {
+    const ghost = this.removed_reqs.includes(req_id);
+    let node = this.get_format_node(req_id, ghost, show_coverage, color_status);
+    node = this.add_node_emphasis(req_id, node, req_id, highlights);
+    graph += node + '\n';
+    node_count += 1;
+    return { graph, node_count };
+  }
+
+  /**
+   * Calculate the subset of visible nodes that are duplicates
+   * @param {string[]} subset keys of visible nodes
+   * @return { string[][], string[] } An array of visible duplicate sets, array of rest
+   */
+  visible_duplicates(subset) {
+    let set_copy = subset.slice();
+    let not_duplicates = [];
+    let arrays_of_duplicates = [];
+    while (set_copy.length > 0) {
+      let key = set_copy[0];
+      let id = this.requirements.get(set_copy[0]).id;
+      if (this.duplicates.has(id)) {
+        // Add the duplicates on the list to dup_set which are also in the subset
+        let dup_set = [];
+        let dup_arr = this.duplicates.get(id);
+        for (const dup_pair of dup_arr) {
+          if (set_copy.includes(dup_pair.id)) {
+            dup_set.push(dup_pair.id);
+          }
+        }
+        // Remove these ids/keys from set_copy
+        let temp_copy = set_copy.filter(function(value, _index, _arr){
+          return !dup_set.includes(value);
+        })
+        set_copy = temp_copy;
+        arrays_of_duplicates.push(dup_set)
+      } else {
+        not_duplicates.push(key)
+        set_copy = set_copy.slice(1);
+      }
+    }
+    //console.log("visible_duplicates", subset, arrays_of_duplicates, not_duplicates);
+    return { arrays_of_duplicates, not_duplicates };
+  }
+
+  handle_top_node_edges(show_top, subset, top_doctypes, graph) {
+    if (show_top) {
+      for (const req_id of subset) {
+        if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
+          graph += format_edge(req_id, 'TOP', '', '');
+        }
+      }
+    }
+    return graph;
+  }
+
+  /**
+   * Add 'TOP' node if there will be edges to it.
+   * @param {string[]} top_doctypes
+   * @param {string} graph
+   */
+  handle_top_node(top_doctypes, graph) {
+    let show_top = false;
+    for (let top_dt of top_doctypes) {
+      if (this.doctypes.has(top_dt) && !this.excluded_doctypes.includes(top_dt)) {
+        show_top = true;
+      }
+    }
+    if (show_top) {
+      graph += '  "TOP" [fontcolor=lightgray];\n\n';
+    }
+    return { show_top, graph };
+  }
+
+  add_dot_edge(req_id, subset, graph, edge_count) {
+    let kind = ''
+    let linkerror = ''
+    if (this.linksto.has(req_id)) {
+      for (const link of this.linksto.get(req_id)) {
+        // Do not reference non-selected specobjets
+        if (subset.includes(link)) {
+          if (this.fulfilledby.has(req_id) && this.fulfilledby.get(req_id).has(link)) {
+            kind = "fulfilledby";
+            linkerror = this.get_ffb_link_error(link, req_id);
+          } else {
+            kind = null;
+            linkerror = this.get_link_error(req_id, link);
+          }
+          graph += format_edge(req_id, link, kind, linkerror);
+          edge_count += 1;
+        }
+      }
+    }
+    return { graph, edge_count };
+  }
+
+  /**
+   * Calculate categories of nodes in diagram
+   * @param {string} req_id of current node
+   * @param {Map<string, string[]>} doctype_dict
+   * @param {Map<string, string[]>} selected_dict
+   * @param {function(string, Object, Set<number>)} selection_function
+   * @param {string[]} subset List of selected and reachable ids
+   * @param {string[]} highlights list of selected ids
+   * @param {string[]} selected_nodes
+   */
+  doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes) {
+    const rec = this.requirements.get(req_id);
+    if (!doctype_dict.has(rec.doctype)) {
+      doctype_dict.set(rec.doctype, []);
+      selected_dict.set(rec.doctype, []);
+    }
+    if (selection_function(req_id, rec, this.color.get(req_id)) &&
+      !this.excluded_doctypes.includes(rec.doctype) &&
+      !this.excluded_ids.includes(req_id)) {
+      subset.push(req_id);
+      doctype_dict.get(rec.doctype).push(req_id);
+      if (highlights.includes(req_id)) {
+        selected_dict.get(rec.doctype).push(req_id);
+        selected_nodes.push(req_id);
+      }
+    }
+  }
+
+  /**
+   * Decorate the node with a colored 'cluster¨' if one of special categories.
+   * @param {string} req_id specobject id
+   * @param {string} node 'dot' language node
+   * @param {string} dot_id svg level id
+   * @param {string[]} highlights id's of selected nodes
+   */
+  add_node_emphasis(req_id, node, dot_id, highlights) {
+    //rq: ->(rq_req_diff_show)
+    if (this.new_reqs.includes(req_id)) {
+      node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+    } else if (this.updated_reqs.includes(req_id)) {
+      node = 'subgraph "cluster_{}_changed" { color=goldenrod1 penwidth=1 label="changed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+    } else if (this.removed_reqs.includes(req_id)) {
+      node = 'subgraph "cluster_{}_removed" { color=red penwidth=1 label="removed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+    }
+    if (highlights.includes(req_id)) {
+      //rq: ->(	rq_highlight_sel)
+      node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label=""\n{}}\n'.format(dot_id, dot_id, node);
+    }
+    return node;
   }
 
   /**
@@ -643,6 +769,8 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} dot language diagram
    */
   scan_doctypes(doctype_safety) {
+    //rq: ->(rq_doctype_hierarchy)
+    //rq: ->(rq_doctype_aggr_safety)
     this.dt_map = new Map() // A map of { doctype_name : DoctypeRelations }
     this.build_doctype_mapping(doctype_safety)
     // DOT language start of diagram
@@ -747,6 +875,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
       rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ')
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
     }
+    //rq: ->(rq_diagram_legend)
     graph += '\n  label={}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n'.format(
       this.construct_graph_title(false, rules, null, false, null))
     graph += '\n}\n'
@@ -764,7 +893,7 @@ export default class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {string} search_pattern 'selection criteria' string
    * @return {string} 'dot' table
    */
-  construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) {
+  construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) { //rq: ->(rq_diagram_legend)
     let title = '""'
     title  = '<\n    <table border="1" cellspacing="0" cellborder="1">\n'
     title += '      <tr><td cellspacing="0" >File</td><td>{}</td><td>{}</td></tr>\n'.format(this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), this.timestamp)

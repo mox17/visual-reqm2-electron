@@ -2,22 +2,23 @@
   "name": "visualreqm2",
   "version": "1.4.7",
   "description": "Visual ReqM2 - oreqm file viewer.",
-  "main": "mainwin.js",
+  "main": "main.js",
   "scripts": {
     "start": "babel scripts -d lib && electron .",
     "start_w_args": "babel scripts -d lib && electron . --debug --id-only --excluded-ids foobar --excluded-doctypes fea --select maze ./testdata/oreqm_testdata_del_movement.oreqm",
     "start_w_args_1": "babel scripts -d lib && electron . --debug  ./testdata/oreqm_testdata_del_movement.oreqm",
     "start_w_args_2": "babel scripts -d lib && electron . --debug ./testdata/oreqm_testdata_del_movement.oreqm ./testdata/oreqm_testdata_no_ogre.oreqm",
-    "start_w_h": "babel scripts -d lib && electron . -g",
     "babel": "babel scripts -d lib",
     "dev": "babel scripts -d lib && electron . --debug",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "babel scripts -d lib && nyc --reporter=html mocha",
+    "test:elec": "babel scripts -d lib && nyc --reporter=html electron-mocha --renderer --full-trace './test/*.unit.js'",
     "pack": "babel scripts -d lib && electron-builder --dir",
     "dist": "babel scripts -d lib && electron-builder",
     "win": "babel scripts -d lib && electron-builder -w",
     "linux": "babel scripts -d lib && electron-builder -l",
     "build": "babel scripts -d lib && electron-builder build --win --publish never",
-    "deploy": "babel scripts -d lib && electron-builder build --win --publish always"
+    "deploy": "babel scripts -d lib && electron-builder build --win --publish always",
+    "reqm2": "bash ./run_reqm2.sh"
   },
   "author": {
     "name": "Erling Stage",
@@ -29,26 +30,41 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.11.6",
-    "@babel/core": "^7.11.6",
-    "@babel/preset-env": "^7.11.5",
-    "electron": "^9.0.0",
+    "@babel/cli": "^7.12.16",
+    "@babel/core": "^7.12.16",
+    "@babel/preset-env": "^7.12.16",
+    "chai": "^4.3.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-roughly": "^1.0.0",
+    "electron": "^11.0.0",
     "electron-builder": "^20.44.4",
+    "electron-chromedriver": "^11.0.0",
     "electron-icon-maker": "0.0.5",
-    "eslint": "^7.8.0"
+    "electron-mocha": "^10.0.0",
+    "eol": "^0.9.1",
+    "eslint": "^7.20.0",
+    "jsdom": "^16.4.0",
+    "mkdirp": "^1.0.4",
+    "mocha": "^8.3.0",
+    "nyc": "^15.1.0",
+    "shx": "^0.3.3",
+    "spectron": "^13.0.0",
+    "spectron-fake-dialog": "0.0.1",
+    "spectron-fake-menu": "0.0.1"
   },
   "dependencies": {
-    "argparse": "^2.0.1",
     "blob-util": "^2.0.2",
     "diff": "^4.0.2",
-    "electron-log": "^4.2.4",
+    "electron-log": "^4.3.1",
+    "electron-progressbar": "^2.0.0",
     "electron-settings": "^3.2.0",
     "electron-updater": "^4.3.5",
-    "shell": "^0.5.0",
+    "shell": "^0.8.4",
     "show-toast": "^1.1.4",
     "split.js": "^1.6.2",
     "svg-pan-zoom": "^3.6.0",
-    "viz.js": "^1.8.2"
+    "viz.js": "^1.8.2",
+    "yargs": "^16.2.0"
   },
   "build": {
     "appId": "com.mox17.visualreqm2",
@@ -87,6 +103,20 @@
       ],
       "icon": "build/icons/Icon-512x512.png"
     },
+    "portable": {
+      "artifactName": "${productName}.${version}.${ext}"
+    },
+    "appImage": {
+      "systemIntegration": "doNotAsk"
+    },
+    "nsis": {
+      "shortcutName": "Visual ReqM2",
+      "deleteAppDataOnUninstall": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "${productName}.Setup.${version}.${ext}",
+      "license": "LICENSE"
+    },
     "linux": {
       "category": "Utility",
       "description": "Visual ReqM2 is an unofficial app to visualize requirement relationships.",
@@ -113,5 +143,8 @@
         }
       ]
     }
+  },
+  "optionalDependencies": {
+    "utf-8-validate": "^5.0.4"
   }
 }

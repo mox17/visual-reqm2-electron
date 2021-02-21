@@ -1,0 +1,53 @@
+digraph "" {
+      rankdir="TD"
+      node [shape=plaintext fontname="Arial" fontsize=16]
+      edge [color="black" dir="forward" arrowhead="normal" arrowtail="normal" fontname="Arial" fontsize=11];
+
+      "fea" [label=<
+        <TABLE BGCOLOR="#FDB1D0" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: fea</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 3</TD></TR>
+      </TABLE>>];
+
+      "swrs" [label=<
+        <TABLE BGCOLOR="#B1E6FD" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: swrs</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 12</TD></TR>
+      </TABLE>>];
+
+      "swdd" [label=<
+        <TABLE BGCOLOR="#FCFDB1" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: swdd</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 9</TD></TR>
+      </TABLE>>];
+
+      "impl" [label=<
+        <TABLE BGCOLOR="#E7B1FD" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: impl</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 1</TD></TR>
+      </TABLE>>];
+
+# linkage from fea
+ "fea" -> "fea" [label="need(1) " style="dotted"]
+ "fea" -> "swrs" [label="need(2) " style="dotted"]
+ "fea" -> "fea" [label="linksto(2) " color="black"]
+# linkage from swrs
+ "swrs" -> "swdd" [label="need(11) " style="dotted"]
+ "swrs" -> "fea" [label="linksto(12) " color="black"]
+ "swrs" -> "vaporware" [label="fulfilledby(1) " color="purple" style="dashed"]
+# linkage from swdd
+ "swdd" -> "swdd" [label="need(9) " style="dotted"]
+ "swdd" -> "swrs" [label="linksto(9) " color="black"]
+# linkage from impl
+ "impl" -> "swrs" [label="linksto(1) " color="black"]
+
+  label=<
+    <table border="1" cellspacing="0" cellborder="1">
+      <tr><td cellspacing="0" >File</td><td>./testdata/oreqm_testdata_del_movement.oreqm</td><td>Tue Feb 11 15:46:12 2020</td></tr>
+    </table>>
+  labelloc=b
+  fontsize=14
+  fontcolor=black
+  fontname="Arial"
+
+}

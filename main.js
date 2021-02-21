@@ -6,11 +6,13 @@ const ipcMain = electron.ipcMain;
 
 const path = require('path');
 const url = require('url');
-const { ArgumentParser } = require('argparse');
-const { version } = require('./package.json');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+//const { version } = require('./package.json');
 const log = require('electron-log');
 const {autoUpdater} = require('electron-updater');
-const {settings} = require('./lib/settings.js')
+const {settings} = require('./lib/settings_dialog.js')
+const ProgressBar = require('electron-progressbar');
 
 // Optional logging
 autoUpdater.logger = log;
@@ -46,19 +48,12 @@ function calc_icon_path(argv0) {
   }
 }
 
+let icon_path
 function createWindow() {
-  let icon_path
   if (process.platform === 'linux') {
-    //icon_path = path.join(__dirname, '/build/icons/Icon-512x512.png')
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
-    // TODO: There must be a better way to determine the path to main icon file
-    //icon_path = './build/icon.png'
-    //icon_path = 'C:\\Users\\erlin\\Documents\\src\\visual-reqm2-electron\\build\\icon.png'
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
-    //console.log("process.resourcesPath: ",process.resourcesPath)
-    //console.log("__dirname: ", __dirname)
-    //console.log("calc_icon_path: ", calc_icon_path(process.argv[0]))
   } else {
     icon_path = path.join(__dirname, './src/icons/mac/icon.icns')
   }
@@ -70,6 +65,7 @@ function createWindow() {
     show: false,
     webPreferences: {
       nodeIntegrationInWorker: true,
+      contextIsolation: false,
       nodeIntegration: true,
       enableRemoteModule: true,
     }
@@ -82,6 +78,9 @@ function createWindow() {
     slashes: true,
     backgroundColor: '#000000'
   }));
+
+  ipcMain.on('progress_start', progressbar_start);
+  ipcMain.on('progress_stop', progressbar_stop);
 
   // Open the DevTools.
   if (debug) {
@@ -130,6 +129,7 @@ function createWindow() {
         {type: 'separator'},
         {
           label:'Settings...',
+          id: 'menu_settings',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('open_settings')}
         }
       ]
@@ -174,6 +174,7 @@ function createWindow() {
       mainWindow.show()
       //log.info("run_autoupdater:", run_autoupdater)
       if (run_autoupdater) {
+        //rq: ->(rq_autoupdate_win)
         autoUpdater.checkForUpdatesAndNotify();
       }
     }
@@ -198,39 +199,49 @@ function createWindow() {
   });
 }
 
-const parser = new ArgumentParser({
-  description: 'Visual ReqM2\nShow specobjects as diagrams.'
-});
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  parser.add_argument('-v', '--version',           { action: 'version', version });
-  parser.add_argument('-d', '--debug',             { help: 'Enable debug', action: 'store_true' });
-  parser.add_argument('-u', '--update',            { help: 'Check for updates', action: 'store_true' });
-  parser.add_argument('-s', '--select',            { help: 'selection criteria', type: 'str' });
-  parser.add_argument('-i', '--id-only',           { help: 'search id only', action: 'store_true' });
-  parser.add_argument('-e', '--excluded-ids',      { help: 'excluded ids, comma separated', type: 'str' });
-  parser.add_argument('-c', '--excluded-doctypes', { help: 'excluded doctypes, comma separated', type: 'str' });
-  parser.add_argument('-f', '--format',            { help: 'svg, png or dot graph', type: 'str' });
-  parser.add_argument('-o', '--output',            { help: 'name of ouput', type: 'str' });
-  parser.add_argument('-a', '--safety',            { help: 'Generate safety check diagram', action: 'store_true' });
-  parser.add_argument('-t', '--hierarchy',         { help: 'Generate hierarchy diagram', action: 'store_true' });
-  parser.add_argument('-g', '--diagram',           { help: 'Generate specobject diagram', action: 'store_true' });
-  parser.add_argument('-r', '--rules',             { help: 'Safety rules json file', type: 'str' });
-  parser.add_argument('oreqm_main',                { help: 'main oreqm', nargs: '?' });
-  parser.add_argument('oreqm_ref',                 { help: 'ref. oreqm', nargs: '?' });
+  let args = yargs(hideBin(process.argv))
+    .scriptName('VisualReqM2')
+    .options({
+      version:          { type: 'boolean', alias: 'v', desc: 'Show version', default: false },
+      debug:            { type: 'boolean', alias: 'd', desc: 'Enable debug', default: false },
+      update:           { type: 'boolean', alias: 'u', desc: 'Check for updates', default: false },
+      select:           { type: 'string',  alias: 's', desc: 'Selection criteria', default: undefined },
+      idOnly:           { type: 'boolean', alias: 'i', desc: 'Search id only', default: false },
+      excludedIds:      { type: 'string',  alias: 'e', desc: 'Excluded ids, comma separated', default: undefined },
+      excludedDoctypes: { type: 'string',  alias: 'c', desc: 'Excluded doctypes, comma separated', default: undefined },
+      format:           { type: 'string',  alias: 'f', desc: 'svg, png or dot graph', default: 'svg' },
+      output:           { type: 'string',  alias: 'o', desc: 'Name of output file (extension .svg, .png or .dot will be added)', default: undefined },
+      diagram:          { type: 'boolean', alias: 'g', desc: 'Generate specobject diagram', default: false },
+      hierarchy:        { type: 'boolean', alias: 't', desc: 'Generate hierarchy diagram', default: false },
+      safety:           { type: 'boolean', alias: 'a', desc: 'Generate safety check diagram', default: false },
+      rules:            { type: 'string',  alias: 'r', desc: 'Safety rules json file', default: undefined },
+      oreqm_main:       { type: 'string',  alias: 'm', desc: 'main oreqm file', default: undefined },
+      oreqm_ref:        { type: 'string',  alias: 'z', desc: 'ref oreqm file (older)', default: undefined }
+    })
+    .usage('$0 options [main_oreqm [ref_oreqm]]')
+    .argv;
+  //console.dir(args);
 
-  // Ugly work-around for command line difference when compiled to app compared to pure nodejs
-  if (process.argv[1] != '.') {
-    process.argv.splice(1, 0, '.');
+  // Allow 1 or 2 positional parameters
+  // yargs lets other arguments sneak in, which happens in test scenarios.
+  // Therefore positional parameters have to end with '.oreqm' to be accepted.
+  if (!args.oreqm_main && args._.length > 0) {
+    if (args._[0].endsWith('.oreqm')) {
+      args.oreqm_main = args._[0];
+      if (!args.oreqm_ref && args._.length > 1) {
+        if (args._[1].endsWith('.oreqm')) {
+          args.oreqm_ref = args._[1];
+        }
+      }
+    }
   }
-  let args = parser.parse_args()
+  //console.dir(args);
   debug = args.debug
   run_autoupdater = args.update
-  //console.log(process.argv);
-  //console.log(args);
   // Check if a command-line only action requested
   if (args.safety || args.hierarchy || args.diagram) {
     cmd_line_only = true
@@ -266,9 +277,7 @@ app.on('activate', function () {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-
+// Handle automatic updates
 autoUpdater.on('update-available', () => {
   mainWindow.webContents.send('update_available');
 });
@@ -299,3 +308,47 @@ autoUpdater.on('download-progress', (progressObj) => {
 ipcMain.on('restart_app', () => {
   autoUpdater.quitAndInstall();
 });
+
+// ProgressBar handling
+
+/**  */
+let progressBar = null;
+
+/**
+ * Start or update a progress bar
+ * @param {string} text to be displayed
+ */
+function progressbar_start(_text) {
+  //console.log(text)
+  if (progressBar === null) {
+    progressBar = new ProgressBar({
+      /*
+      title: 'Diagram being calculated',
+      text: 'Processing...',
+      detail: text,
+      indeterminate: true,
+      */
+      browserWindow: {
+        icon: icon_path,
+        webPreferences: {
+          nodeIntegration: true
+        }
+      }
+    });
+
+    progressBar.on('completed', function() {
+      //progressBar.text = '';
+      //progressBar.detail = 'Task completed. Exiting...';
+      progressBar = null;
+    });
+
+  } else {
+    //progressBar.detail = text;
+  }
+}
+
+function progressbar_stop() {
+  if (progressBar) {
+    progressBar.setCompleted();
+  }
+}
