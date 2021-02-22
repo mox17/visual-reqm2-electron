@@ -171,40 +171,18 @@
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
   document.getElementById("auto_update").checked = auto_update
 
-  /*
-  function viz_working_set() {
-    document.getElementById("viz_working").innerHTML = '<span style="color: #ff0000">WORKING</span>'
-  } */
-
-  function viz_loading_set() {
-    document.getElementById("viz_working").innerHTML = '<span style="color: #ff0000">LOADING</span>'
-  }
-
-  function viz_parsing_set() {
-    document.getElementById("viz_working").innerHTML = '<span style="color: #ff0000">PARSING</span>'
-  }
-
-  function viz_comparing_set() {
-    document.getElementById("viz_working").innerHTML = '<span style="color: #ff0000">COMPARING</span>'
-  }
-
-  function viz_working_clear() {
-    document.getElementById("viz_working").innerHTML = '<span style="color: #000000"></span>'
-  }
-
-  function html_viz_processing_show() {
+  function spinner_show() {
     document.querySelector("#output").classList.add("loader");
     document.querySelector("#output").classList.remove("error");
   }
 
-  function html_viz_processing_clear() {
+  function spinner_clear() {
     document.querySelector("#output").classList.remove("loader");
     document.querySelector("#output").classList.remove("error");
   }
 
-  function html_viz_processing_error(message) {
-    document.querySelector("#output").classList.remove("loader");
-    document.querySelector("#output").classList.add("error");
+  function error_show(message) {
+    spinner_clear();
     let error = document.querySelector("#error");
     while (error.firstChild) {
       error.removeChild(error.firstChild);
@@ -527,40 +505,13 @@
     updateOutput();
   });
 
-  /*
-  function spinner_show(_text) {
-    html_viz_processing_show();
-    viz_working_set();
-  }
-
-  function spinner_stop() {
-    html_viz_processing_clear();
-    viz_working_clear();
-  }
-  */
-
   function diagram_error(message) {
-    html_viz_processing_error(message);
-    viz_working_clear()
+    error_show(message);
   }
-
-  /*
-  function progressbar_start(text) {
-    //console.log("progressbar_start", text);
-    ipcRenderer.send('progress_start', text);
-  } */
-
-  /*
-  function progressbar_stop() {
-    //console.log("progressbar_stop");
-    ipcRenderer.send('progress_stop');
-  } */
 
   function update_diagram(selected_format) {
     clear_diagram()
-    update_graph(selected_format, html_viz_processing_show, html_viz_processing_clear, updateOutput, diagram_error);
-    //update_graph(selected_format, progressbar_start, progressbar_stop, updateOutput, diagram_error);
-    //update_graph(selected_format, spinner_show, spinner_stop, updateOutput, diagram_error);
+    update_graph(selected_format, spinner_show, spinner_clear, updateOutput, diagram_error);
   }
 
   /**
@@ -767,17 +718,14 @@
    * @param {string} data xml data
    */
   function process_data_main(name, data) {
-    viz_parsing_set()
     create_oreqm_main(name, data);
     document.getElementById('name').innerHTML = oreqm_main.filename
     document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB"
     document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
     if (oreqm_ref) { // if we have a reference do a compare
-      viz_comparing_set()
       let gr = compare_oreqm(oreqm_main, oreqm_ref)
       set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
     }
-    viz_working_clear()
     display_doctypes_with_count(oreqm_main.get_doctypes())
     if (auto_update) {
       filter_graph()
@@ -807,7 +755,7 @@
     //console.log("load_file_main", file);
     clear_diagram()
     clear_doctypes_table()
-    html_viz_processing_show()
+    spinner_show()
     // setting up the reader
     let reader = new FileReader();
     reader.readAsText(file, 'UTF-8');
@@ -825,7 +773,7 @@
     //console.log("load_file_main", file);
     clear_diagram()
     clear_doctypes_table()
-    html_viz_processing_show()
+    spinner_show()
     // read file asynchronously
     fs.readFile(file, 'UTF-8', (err, data) => {
       process_data_main(file, data)
@@ -857,14 +805,11 @@
     // Process the loaded data
     oreqm_main.remove_ghost_requirements(true)
     update_doctype_table()
-    viz_parsing_set()
     create_oreqm_ref(name, data)
     document.getElementById('ref_name').innerHTML = name
     document.getElementById('ref_size').innerHTML = (Math.round(data.length/1024))+" KiB"
     document.getElementById('ref_timestamp').innerHTML = oreqm_ref.get_time()
-    viz_comparing_set()
     let gr = compare_oreqm(oreqm_main, oreqm_ref)
-    viz_working_clear();
     set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
     display_doctypes_with_count(oreqm_main.get_doctypes())
     if (auto_update) {
@@ -880,7 +825,7 @@
   function load_file_ref(file) {
     // Load reference file
     if (oreqm_main) {
-      html_viz_processing_show();
+      spinner_show();
       let reader = new FileReader();
       reader.readAsText(file, 'UTF-8');
       reader.onload = readerEvent => {
@@ -898,7 +843,7 @@
   function load_file_ref_fs(file) {
     // Load reference file
     if (oreqm_main) {
-      html_viz_processing_show();
+      spinner_show();
       // read file asynchronously
       fs.readFile(file, 'UTF-8', (err, data) => {
         process_data_ref(file, data)
