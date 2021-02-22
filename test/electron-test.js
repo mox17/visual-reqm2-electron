@@ -4,7 +4,7 @@ const fakeDialog = require('spectron-fake-dialog');
 const electronPath = require("electron");
 const path = require("path");
 const mkdirp = require('mkdirp')
-//const fs = require('fs');
+const fs = require('fs');
 const chai = require("chai");
 const assert = chai.assert; // Using Assert style
 //const expect = chai.expect; // Using Expect style
@@ -20,6 +20,18 @@ const after = global.after;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+let screenshot_count = 1
+
+function screenshot(app, title="screenshot") {
+  //console.log('screenshot 1');
+  app.browserWindow.capturePage().then(function (imageBuffer) {
+    let filename = `./tmp/${title}-${screenshot_count}.png`;
+    //console.log('screenshot 2:', filename);
+    fs.writeFileSync(filename, imageBuffer);
+    screenshot_count += 1;
+  })
 }
 
 describe("Application launch", function () {
@@ -158,6 +170,7 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: ['./tmp/main_1.svg'] } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await sleep(1000);
+      await screenshot(app);
       //assert.ok(fs.existsSync(svg_filename));
       //expect(fs.existsSync(svg_filename)).to.eventually.be.true;
     });
@@ -179,6 +192,7 @@ describe("Application launch", function () {
       const button = await app.client.$('#show_doctypes');
       await button.click();
       await sleep(1000);
+      await screenshot(app);
     });
 
     it('safety diagram', async function () {
@@ -186,6 +200,7 @@ describe("Application launch", function () {
       const button = await app.client.$('#show_doctypes_safety');
       await button.click();
       await sleep(1000);
+      await screenshot(app);
     });
   });
 
