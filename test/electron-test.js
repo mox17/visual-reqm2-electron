@@ -160,8 +160,8 @@ describe("Application launch", function () {
       const main_button = await app.client.$('#get_main_oreqm_file');
       await main_button.click();
       //rq: ->(rq_filesel_main_oreqm)
-      await sleep(1000);
-      // TODO: assert needed here
+      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+      await screenshot(app);
     });
 
     it('save main as svg', async function () {
@@ -169,10 +169,6 @@ describe("Application launch", function () {
       //let svg_filename = './tmp/main_1.svg'
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: ['./tmp/main_1.svg'] } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      await sleep(1000);
-      await screenshot(app);
-      //assert.ok(fs.existsSync(svg_filename));
-      //expect(fs.existsSync(svg_filename)).to.eventually.be.true;
     });
 
     it('ref oreqm', async function () {
@@ -180,9 +176,9 @@ describe("Application launch", function () {
       fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
       const ref_button = await app.client.$('#get_ref_oreqm_file');
       await ref_button.click();
-      await sleep(1000);
+      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       //rq: ->(rq_filesel_ref_oreqm)
-      // TODO: assert of visible diagram needed here
+      await screenshot(app);
     });
   });
 
@@ -191,7 +187,7 @@ describe("Application launch", function () {
       await app.client.waitUntilWindowLoaded();
       const button = await app.client.$('#show_doctypes');
       await button.click();
-      await sleep(1000);
+      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       await screenshot(app);
     });
 
@@ -199,7 +195,7 @@ describe("Application launch", function () {
       await app.client.waitUntilWindowLoaded();
       const button = await app.client.$('#show_doctypes_safety');
       await button.click();
-      await sleep(1000);
+      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       await screenshot(app);
     });
   });
