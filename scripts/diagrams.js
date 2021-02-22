@@ -433,7 +433,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     for (const dup_list of arrays_of_duplicates) {
       //rq: ->(rq_dup_req_display)
       let dup_cluster_id = this.requirements.get(dup_list[0]).id;
-      graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=1 label="duplicates" fontname="Arial" labelloc="t"\n`;
+      graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=2 label="duplicates" fontname="Arial" labelloc="t" style="rounded"\n`;
       for (const req_id of dup_list) {
         // duplicate nodes
         ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));
@@ -599,15 +599,15 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   add_node_emphasis(req_id, node, dot_id, highlights) {
     //rq: ->(rq_req_diff_show)
     if (this.new_reqs.includes(req_id)) {
-      node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=1 label="new" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+      node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=2 label="new" fontname="Arial" labelloc="t" style="rounded"\n{}}\n'.format(dot_id, node);
     } else if (this.updated_reqs.includes(req_id)) {
-      node = 'subgraph "cluster_{}_changed" { color=goldenrod1 penwidth=1 label="changed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+      node = 'subgraph "cluster_{}_changed" { color=goldenrod1 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"\n{}}\n'.format(dot_id, node);
     } else if (this.removed_reqs.includes(req_id)) {
-      node = 'subgraph "cluster_{}_removed" { color=red penwidth=1 label="removed" fontname="Arial" labelloc="t"\n{}}\n'.format(dot_id, node);
+      node = 'subgraph "cluster_{}_removed" { color=red penwidth=2 label="removed" fontname="Arial" labelloc="t" style="rounded"\n{}}\n'.format(dot_id, node);
     }
     if (highlights.includes(req_id)) {
       //rq: ->(	rq_highlight_sel)
-      node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label=""\n{}}\n'.format(dot_id, dot_id, node);
+      node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label="" style="rounded"\n{}}\n'.format(dot_id, dot_id, node);
     }
     return node;
   }

@@ -1081,7 +1081,7 @@
    */
   function set_selection_highlight(node) {
     clear_selection_highlight()
-    let outline = node.querySelector('.cluster > polygon');
+    let outline = node.querySelector('.cluster > path');
     if (outline) {
       selected_polygon = outline
       selected_width = selected_polygon.getAttribute('stroke-width')
