@@ -93,6 +93,14 @@
     })
   }
 
+  function clear_toast() {
+    showToast({
+      str: ``,
+      time: 0,
+      position: 'middle'
+    })
+  }
+
   /**
    * Main processing triggered from main process starts here.
    * Processed command line parameters are received here
@@ -799,7 +807,7 @@
     //console.log("load_file_main", file);
     clear_diagram()
     clear_doctypes_table()
-    viz_loading_set()
+    html_viz_processing_show()
     // setting up the reader
     let reader = new FileReader();
     reader.readAsText(file, 'UTF-8');
@@ -817,7 +825,7 @@
     //console.log("load_file_main", file);
     clear_diagram()
     clear_doctypes_table()
-    viz_loading_set()
+    html_viz_processing_show()
     // read file asynchronously
     fs.readFile(file, 'UTF-8', (err, data) => {
       process_data_main(file, data)
@@ -872,7 +880,7 @@
   function load_file_ref(file) {
     // Load reference file
     if (oreqm_main) {
-      viz_loading_set();
+      html_viz_processing_show();
       let reader = new FileReader();
       reader.readAsText(file, 'UTF-8');
       reader.onload = readerEvent => {
@@ -890,7 +898,7 @@
   function load_file_ref_fs(file) {
     // Load reference file
     if (oreqm_main) {
-      viz_loading_set();
+      html_viz_processing_show();
       // read file asynchronously
       fs.readFile(file, 'UTF-8', (err, data) => {
         process_data_ref(file, data)
@@ -1018,6 +1026,7 @@
    */
   function filter_graph() {
     reset_selection()
+    clear_toast()
     if (oreqm_main) {
       oreqm_main.set_no_rejects(no_rejects)
       handle_pruning()

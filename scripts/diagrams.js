@@ -320,7 +320,7 @@ function report_limit_exeeded(max_nodes) {
 }
 
 /** function pointer to reporting function */
-let limit_reporter = report_limit_exeeded
+let limit_reporter = report_limit_exeeded;
 
 /**
  * Set reporting function
