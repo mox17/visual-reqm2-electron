@@ -190,7 +190,7 @@ export class ReqM2Specobjects {
       this.timestamp = this.get_time()
       let problems = this.get_problems()
       if (problems) {
-        alert(problems);
+        //alert(problems);
       }
     }
   }
@@ -302,7 +302,7 @@ export class ReqM2Specobjects {
       // Check for unique versions
       if (report_duplicate && this.requirements.get(key).version === req.version) {
         let problem = `specobject '${req.id}' is duplicated with same version '${req.version}'`;
-        console.log(problem);
+        //console.log(problem);
         // `  this is a work-around for bugs in ReqM2's parsing of JavaScript
         //rq: ->(rq_dup_same_version)
         this.problem_report(problem);
