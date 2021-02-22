@@ -4,28 +4,28 @@ digraph "" {
       edge [color="black" dir="forward" arrowhead="normal" arrowtail="normal" fontname="Arial" fontsize=11];
 
       "fea" [label=<
-        <TABLE BGCOLOR="#FDB1D0" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: fea</TD></TR>
         <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 3</TD></TR>
           <TR><TD>safetyclass:</TD><TD port="QM">QM: 3 </TD></TR>
       </TABLE>>];
 
       "swrs" [label=<
-        <TABLE BGCOLOR="#B1E6FD" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: swrs</TD></TR>
         <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 12</TD></TR>
           <TR><TD>safetyclass:</TD><TD port="QM">QM: 12 </TD></TR>
       </TABLE>>];
 
       "swdd" [label=<
-        <TABLE BGCOLOR="#FCFDB1" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: swdd</TD></TR>
         <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 9</TD></TR>
           <TR><TD>safetyclass:</TD><TD port="QM">QM: 9 </TD></TR>
       </TABLE>>];
 
       "impl" [label=<
-        <TABLE BGCOLOR="#E7B1FD" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TABLE BGCOLOR="#E7B1FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: impl</TD></TR>
         <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 1</TD></TR>
           <TR><TD>safetyclass:</TD><TD port="none">none: 1 </TD></TR>
@@ -43,7 +43,7 @@ QM>QM " color="#00AA00" style="dashed"]
  "impl" -> "swrs" [label="linksto(1)\lnone>QM " color="#00AA00"]
 
   label=<
-    <table border="1" cellspacing="0" cellborder="1">
+    <table border="0" cellspacing="0" cellborder="1">
       <tr><td cellspacing="0" >File</td><td>./testdata/oreqm_testdata_del_movement.oreqm</td><td>Tue Feb 11 15:46:12 2020</td></tr>
       <tr><td>Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass</td><td colspan="2">[<BR ALIGN="LEFT"/>   "^\\\\w+:&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "^\\\\w+:QM&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "^\\\\w+:SIL-2&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "^\\\\w+:QM&gt;\\\\w+:QM$",<BR ALIGN="LEFT"/>   "^\\\\w+:SIL-2&gt;\\\\w+:QM$",<BR ALIGN="LEFT"/>   "^\\\\w+:SIL-2&gt;\\\\w+:SIL-2$",<BR ALIGN="LEFT"/>   "^impl.*&gt;.*$",<BR ALIGN="LEFT"/>   "^swintts.*&gt;.*$",<BR ALIGN="LEFT"/>   "^swuts.*&gt;.*$"<BR ALIGN="LEFT"/> ]<BR ALIGN="LEFT"/></td></tr>
     </table>>

@@ -199,7 +199,7 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   let source          = rec.source          ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">source: {}</TD></TR>\n'.format(dot_format(rec.source)) : ''
   let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, status_cell(rec, show_coverage, color_status)) : ''
   node_table     = `
-      <TABLE BGCOLOR="{}{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
+      <TABLE BGCOLOR="{}{}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
         <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
                         get_color(rec.doctype),
@@ -800,7 +800,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       }
       let dt_node = `\
       "{}" [label=<
-        <TABLE BGCOLOR="{}" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TABLE BGCOLOR="{}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: {}</TD></TR>
         <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: {}</TD></TR>{}
       </TABLE>>];\n\n`.format(
@@ -895,7 +895,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    */
   construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) { //rq: ->(rq_diagram_legend)
     let title = '""'
-    title  = '<\n    <table border="1" cellspacing="0" cellborder="1">\n'
+    title  = '<\n    <table border="0" cellspacing="0" cellborder="1">\n'
     title += '      <tr><td cellspacing="0" >File</td><td>{}</td><td>{}</td></tr>\n'.format(this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), this.timestamp)
 
     if (show_filters) {
