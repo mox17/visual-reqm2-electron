@@ -6,11 +6,30 @@ import fs from 'fs';
 export const settings = require('electron-settings');
 
 /**
+ * Sets the settings directory and settings filename.
+ * Directory is expected to exist.
+ * @param {string} pathname 
+ */
+export function set_settings_path(pathname) {
+  if (pathname.includes('\\')) {
+    pathname.replace('\\', '/')
+  }
+  let basename = new String(pathname).substring(pathname.lastIndexOf('/') + 1);
+  let path = new String(pathname).substring(0, pathname.lastIndexOf('/') + 1);
+  if (path.endsWith('/')) {
+    path = path.substring(0, path.length);
+  }
+  console.log(path, basename);
+  //settings.configure({ dir: path, file: basename })
+}
+
+/**
  * Read setting from electron-settings interface and check for data elements.
  * @param {function} settings_updated_callback callback to put new settings into effect
  */
 export function handle_settings(settings_updated_callback) {
   //rq: ->(rq_settings_file)
+  settings.configure({ prettify: true, numSpaces: 2 })
   let doctype_colors = null;
   if (settings.has('doctype_colors')) {
     doctype_colors = settings.get('doctype_colors');
