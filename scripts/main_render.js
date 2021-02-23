@@ -274,7 +274,7 @@
         });
       }, svg_element);
 
-      document.getElementById('graph').onkeyup = function(e) {
+      document.getElementById('graph').onkeydown = function(e) {
         //rq: ->(rq_navigate_sel)
         if (e.key == 'n') {
           // alert("N key was pressed");
@@ -282,8 +282,26 @@
         } else if (e.key == 'p') {
           // alert("P key was pressed");
           prev_selected()
+        } else if (e.key == ' ') {
+          panZoom.reset();
+        } else if (e.key == '+') {
+          panZoom.zoomIn();
+        } else if (e.key == '-') {
+          panZoom.zoomOut();
+        } else if (e.key == '?') {
+          console.dir(panZoom.getPan());
+        } else if (e.key == 'a' || e.key == 'ArrowLeft') {
+          panZoom.panBy({x: 100, y:0});
+        } else if (e.key == 'd' || e.key == 'ArrowRight') {
+          panZoom.panBy({x: -100, y:0});
+        } else if (e.key == 'w' || e.key == 'ArrowUp') {
+          panZoom.panBy({x: 0, y: 100});
+        } else if (e.key == 's' || e.key == 'ArrowDown') {
+          panZoom.panBy({x: 0, y: -100});
+        } else {
+          //console.log(e)
         }
-        //console.log(e)
+
       };
 
       // context menu setup
