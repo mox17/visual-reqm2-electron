@@ -167,7 +167,7 @@ describe("Application launch", function () {
     it('save main as svg', async function () {
       await app.client.waitUntilWindowLoaded();
       //let svg_filename = './tmp/main_1.svg'
-      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: ['./tmp/main_1.svg'] } ]);
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/main_1.svg' } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
     });
 

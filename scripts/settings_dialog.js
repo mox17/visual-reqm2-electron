@@ -29,7 +29,7 @@ export function set_settings_path(pathname) {
  */
 export function handle_settings(settings_updated_callback) {
   //rq: ->(rq_settings_file)
-  settings.configure({ prettify: true, numSpaces: 2 })
+  //settings.configure({ prettify: true, numSpaces: 2 })
   let doctype_colors = null;
   if (settings.has('doctype_colors')) {
     doctype_colors = settings.get('doctype_colors');
