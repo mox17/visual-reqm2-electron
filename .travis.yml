@@ -1,7 +1,6 @@
 language: node_js
 
-node_js:
-  - '14.9.0'
+node_js: 14
 
 # Always run two parallel builds: one on mac and one on linux
 # the linux build will use wine to be able to build windows and
@@ -9,54 +8,16 @@ node_js:
 matrix:
   include:
     - os: linux
-      dist: trusty
       sudo: required
-      services: docker
-      language: generic
 
-notifications:
-  email: false
-
-# cache some files for faster builds
-cache:
-  directories:
-    - node_modules
-    - $HOME/.cache/electron
-    - $HOME/.cache/electron-builder
-
-# add git lfs for large file support
 before_install:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v2.3.1/git-lfs-$([ "$TRAVIS_OS_NAME" == "linux" ] && echo "linux" || echo "darwin")-amd64-2.3.1.tar.gz | tar -xz -C /tmp/git-lfs --strip-components 1
-      export PATH="/tmp/git-lfs:$PATH"
-    fi
+  - npm i -g npm@7
 
-before_script:
-  - git lfs pull
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
+install:
+  - npm install
 
-# on PRs and merges to master and prod run tests and build the app
 script:
-  - |
-    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      docker run --rm \
-        -v ${PWD}:/project \
-        -v ~/.cache/electron:/root/.cache/electron \
-        -v ~/.cache/electron-builder:/root/.cache/electron-builder \
-        electronuserland/builder:wine \
-        /bin/bash -c "npm test"
-    else
-      npm test
-    fi
-    
-before_cache:
-  - rm -rf $HOME/.cache/electron-builder/wine
+  - npm test
 
-# only run this script on pull requests and merges into 
-# the 'master' branch
-branches:
-  only:
-  - master
+services:
+  - xvfb
