@@ -97,7 +97,7 @@ describe("ReqM2Oreqm tests", function () {
     assert.strictEqual(graph.edge_count, 25);
   });
 
-  
+
   it("Check generated dot string", function () {
     let dot_str = eol.auto(oreqm.get_dot());
     fs.writeFileSync("tmp/dot_file_1_test.dot", dot_str, {

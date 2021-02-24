@@ -164,10 +164,10 @@ describe("Application launch", function () {
       await screenshot(app);
     });
 
-    it('save main as svg', async function () {
+    it('save main as dot', async function () {
       await app.client.waitUntilWindowLoaded();
       //let svg_filename = './tmp/main_1.svg'
-      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/main_1.svg' } ]);
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/main_1.dot' } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
     });
 
@@ -178,8 +178,18 @@ describe("Application launch", function () {
       await ref_button.click();
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       //rq: ->(rq_filesel_ref_oreqm)
-      await screenshot(app);
+      await screenshot(app, 'reference');
+      //let node = await app.client.$('#svg_output').$('#cc.game.overview');
+      //console.dir(node);
     });
+
+    it('save comparison as dot', async function () {
+      await app.client.waitUntilWindowLoaded();
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/main_ref_1.dot' } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await sleep(1000)
+    });
+
   });
 
   describe('Show diagrams', function () {
@@ -191,6 +201,12 @@ describe("Application launch", function () {
       await screenshot(app);
     });
 
+    it('save doctypes as dot', async function () {
+      await app.client.waitUntilWindowLoaded();
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/doctypes_1.dot' } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+    });
+
     it('safety diagram', async function () {
       await app.client.waitUntilWindowLoaded();
       const button = await app.client.$('#show_doctypes_safety');
@@ -198,8 +214,14 @@ describe("Application launch", function () {
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       await screenshot(app);
     });
-  });
 
+    it('save safety as dot', async function () {
+      await app.client.waitUntilWindowLoaded();
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/safety_1.dot' } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+    });
+
+  });
 
 /*
   it("shows an initial window", async function () {
