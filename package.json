@@ -36,6 +36,7 @@
     "@babel/preset-env": "^7.12.16",
     "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
+    "chai-files": "^1.4.0",
     "chai-roughly": "^1.0.0",
     "electron": "^11.0.0",
     "electron-builder": "^20.44.4",

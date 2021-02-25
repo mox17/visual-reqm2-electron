@@ -12,12 +12,16 @@ const expect = chai.expect; // Using Expect style
 //const should = chai.should(); // Using Should style
 const chaiAsPromised = require('chai-as-promised');
 const chaiRoughly = require('chai-roughly');
+var chaiFiles = require('chai-files');
 const describe = global.describe;
 const it = global.it;
 const before = global.before;
 const after = global.after;
 //const beforeEach = global.beforeEach;
 //const afterEach = global.afterEach;
+
+const file = chaiFiles.file;
+const dir = chaiFiles.dir;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -35,9 +39,15 @@ function screenshot(app, title="screenshot") {
   })
 }
 
-function compare_files(main_file, ref_file) {
-  assert.ok(fs.existsSync(main_file));
-  assert.ok(fs.existsSync(ref_file));
+function remove_file(path) {
+  if (fs.existsSync(path)) {
+    fs.unlinkSync(path);
+  }
+}
+
+async function compare_files(main_file, ref_file) {
+  await expect(file(main_file)).to.exist;
+  await expect(file(ref_file)).to.exist;
   let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
   let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
   expect(main_txt).to.equal(ref_txt);
@@ -103,20 +113,22 @@ describe("Application launch", function () {
       const about = await app.client.$('#aboutButton');
       await about.click();
       //console.dir(aboutpane);
-      style = await aboutpane.getAttribute('style');
-      assert.ok(style.includes('display: block;'));
-      await sleep(500);
+      expect(aboutpane.getAttribute('style')).to.eventually.include('block');
+      // style = await aboutpane.getAttribute('style');
+      // assert.ok(style.includes('display: block;'));
+      // await sleep(500);
     });
 
     it('close about again', async function () {
       const aboutpane = await app.client.$('#aboutPane');
       const aboutClose = await app.client.$('#aboutPaneClose');
       await aboutClose.click();
-      await sleep(500);
-      //aboutpane.should.have.property('style', 'block');
-      let style = await aboutpane.getAttribute('style');
-      //console.log(typeof style, style);
-      assert.ok(!style.includes('block'));
+      expect(aboutpane.getAttribute('style')).to.eventually.not.include('block');
+      // await sleep(500); // give style time to change
+      // //aboutpane.should.have.property('style', 'block');
+      // let style = await aboutpane.getAttribute('style');
+      // //console.log(typeof style, style);
+      // assert.ok(!style.includes('block'));
     });
   });
 
@@ -182,8 +194,10 @@ describe("Application launch", function () {
     it('save main as dot', async function () {
       await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/main_1.dot'
+      remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      //await sleep(1000);
       compare_files(dot_filename, './test/refdata/main_1.dot');
     });
 
@@ -201,15 +215,19 @@ describe("Application launch", function () {
 
     it('save comparison as dot', async function () {
       await app.client.waitUntilWindowLoaded();
-      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/main_ref_1.dot' } ]);
+      let dot_filename = './tmp/main_ref_1.dot';
+      remove_file(dot_filename);
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      await sleep(1000)
+      expect(file(dot_filename)).to.exist;
+      //await sleep(300);
+      compare_files(dot_filename, './test/refdata/main_ref_1.dot');
     });
 
   });
 
-  describe('Show diagrams', function () {
-    it('hierarchy diagram', async function () {
+  describe('Show special diagrams', function () {
+    it('doctype hierarchy diagram', async function () {
       await app.client.waitUntilWindowLoaded();
       const button = await app.client.$('#show_doctypes');
       await button.click();
@@ -217,10 +235,15 @@ describe("Application launch", function () {
       await screenshot(app);
     });
 
-    it('save doctypes as dot', async function () {
+    it('save doctype hierarchy diagram as dot', async function () {
       await app.client.waitUntilWindowLoaded();
-      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/doctypes_1.dot' } ]);
+      let dot_filename = './tmp/doctypes_1.dot';
+      remove_file(dot_filename);
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      expect(file(dot_filename)).to.exist;
+      //await sleep(1000);
+      compare_files(dot_filename, './test/refdata/doctypes_1.dot');
     });
 
     it('safety diagram', async function () {
@@ -233,8 +256,13 @@ describe("Application launch", function () {
 
     it('save safety as dot', async function () {
       await app.client.waitUntilWindowLoaded();
-      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/safety_1.dot' } ]);
+      let dot_filename = './tmp/safety_1.dot';
+      remove_file(dot_filename);
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      expect(file(dot_filename)).to.exist;
+      //await sleep(1000);
+      compare_files(dot_filename, './test/refdata/safety_1.dot');
     });
 
   });
