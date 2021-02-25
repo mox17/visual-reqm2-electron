@@ -5,9 +5,10 @@ const electronPath = require("electron");
 const path = require("path");
 const mkdirp = require('mkdirp')
 const fs = require('fs');
+const eol = require("eol");
 const chai = require("chai");
 const assert = chai.assert; // Using Assert style
-//const expect = chai.expect; // Using Expect style
+const expect = chai.expect; // Using Expect style
 //const should = chai.should(); // Using Should style
 const chaiAsPromised = require('chai-as-promised');
 const chaiRoughly = require('chai-roughly');
@@ -32,6 +33,14 @@ function screenshot(app, title="screenshot") {
     fs.writeFileSync(filename, imageBuffer);
     screenshot_count += 1;
   })
+}
+
+function compare_files(main_file, ref_file) {
+  assert.ok(fs.existsSync(main_file));
+  assert.ok(fs.existsSync(ref_file));
+  let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
+  let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
+  expect(main_txt).to.equal(ref_txt);
 }
 
 describe("Application launch", function () {
@@ -141,15 +150,21 @@ describe("Application launch", function () {
   });
 
   describe('Issues dialog', function () {
-    it('open modal', async function () {
+    it('open issues modal', async function () {
       await app.client.waitUntilWindowLoaded();
       fakeMenu.clickMenu('View', 'Show issues');
       const issues_modal = await app.client.$('#problemPopup');
       let style = await issues_modal.getAttribute('style');
       assert.ok(style.includes('block')); //rq: ->(rq_issues_log)
       //await sleep(2000);
-      const aboutClose = await app.client.$('#problemPopupClose');
+    });
+
+    it('close issues modal', async function () {
+        const aboutClose = await app.client.$('#problemPopupClose');
       await aboutClose.click();
+      const issues_modal = await app.client.$('#problemPopup');
+      style = await issues_modal.getAttribute('style');
+      assert.ok(!style.includes('block'));
     });
   });
 
@@ -166,9 +181,10 @@ describe("Application launch", function () {
 
     it('save main as dot', async function () {
       await app.client.waitUntilWindowLoaded();
-      //let svg_filename = './tmp/main_1.svg'
-      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: './tmp/main_1.dot' } ]);
+      let dot_filename = './tmp/main_1.dot'
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      compare_files(dot_filename, './test/refdata/main_1.dot');
     });
 
     it('ref oreqm', async function () {
