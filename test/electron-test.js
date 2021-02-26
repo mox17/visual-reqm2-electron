@@ -277,31 +277,33 @@ describe("Application launch", function () {
       await clear_ref_button.click();
       //await sleep(200);
       const sample_dir = './test/sample_oreqm';
-      const oreqm_list = fs.readdirSync(sample_dir);
-      //console.dir(oreqm_list);
-      for (const filename of oreqm_list) {
-        if (filename.endsWith('.oreqm')) {
-          const oreqm_name = `${sample_dir}/${filename}`
-          console.log("        loading:", oreqm_name)
-          fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
-          const main_button = await app.client.$('#get_main_oreqm_file');
-          await main_button.click();
-          const filter_button = await app.client.$('#filter_graph');
-          await filter_button.click();
-          assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
-          const basename = path.basename(filename, '.oreqm');
-          const dot_filename = `./tmp/${basename}.dot`;
-          const ref_file = `./test/refdata/${basename}.dot`;
-          //console.log(basename, dot_filename);
-          await screenshot(app, basename);
-          remove_file(dot_filename);
-          await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
-          await fakeMenu.clickMenu('File', 'Save diagram as...');
-          console.log("        saving: ", dot_filename);
-          await expect(file(dot_filename)).to.exist;
-          if (fs.existsSync(ref_file)) {
-            console.log(`        Checking: ${ref_file}`)
-            compare_files(dot_filename, ref_file);
+      if (fs.existsSync(sample_dir)) {
+        const oreqm_list = fs.readdirSync(sample_dir);
+        //console.dir(oreqm_list);
+        for (const filename of oreqm_list) {
+          if (filename.endsWith('.oreqm')) {
+            const oreqm_name = `${sample_dir}/${filename}`
+            console.log("        loading:", oreqm_name)
+            fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
+            const main_button = await app.client.$('#get_main_oreqm_file');
+            await main_button.click();
+            const filter_button = await app.client.$('#filter_graph');
+            await filter_button.click();
+            assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+            const basename = path.basename(filename, '.oreqm');
+            const dot_filename = `./tmp/${basename}.dot`;
+            const ref_file = `./test/refdata/${basename}.dot`;
+            //console.log(basename, dot_filename);
+            await screenshot(app, basename);
+            remove_file(dot_filename);
+            await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
+            await fakeMenu.clickMenu('File', 'Save diagram as...');
+            console.log("        saving: ", dot_filename);
+            await expect(file(dot_filename)).to.exist;
+            if (fs.existsSync(ref_file)) {
+              console.log(`        Checking: ${ref_file}`)
+              compare_files(dot_filename, ref_file);
+            }
           }
         }
       }
