@@ -29,7 +29,7 @@
           <p/>
           <div id="drop_area_ref"  class="dropdiv">
             <b>Reference .oreqm file</b>
-            <button id="clear_ref_oreqm" type="button" disabled="true" >clear</button>
+            <button id="clear_ref_oreqm" type="button" disabled="true" style="float:right;">clear</button>
             <table class="oreqm_file_table">
               <tr><td width="1%">name</td><td id="ref_name" class="absorbing-column"></td></tr>
               <tr><td width="1%">size</td><td id="ref_size"></td></tr>
@@ -40,7 +40,7 @@
           </div>
           <p></p>
           <hr>
-          <span class="tooltip"><b>Selection criteria</b>
+          <span class="tooltip" style="float:left;"><b>Selection criteria</b>
             <span class="tooltiptext">&nbsp;Search qualifiers - use in this order&nbsp;<br/>
               <b>&nbsp;dt:</b>&lt;doctype&gt;<br/>
               <b>&nbsp;ve:</b>&lt;version&gt;<br/>
@@ -61,8 +61,8 @@
               <b>&nbsp;plt:</b>&lt;platform&gt;<br/>
               <b>&nbsp;id:?(rem:|chg:|new:)?</b>&lt;id&gt;
             </span>
-            <button id="clear_search_regex" type="button" title="Erase input field below">clear</button>
           </span>
+          <button id="clear_search_regex" type="button" title="Erase input field below" style="float:right;">clear</button>
 
           <textarea class="search_terms" id="search_regex" rows="3" cols="34"
                     wrap="off" placeholder="search regex&#13;&#10;newlines are ignored&#13;&#10;rem:|chg:|new: select changes"
@@ -73,14 +73,14 @@
           </label>
           <p/>
 
-          <span class="tooltip"><b>Excluded &lt;id&gt;s</b>
+          <span class="tooltip" style="float:left;"><b>Excluded &lt;id&gt;s</b>
             <span class="tooltiptext">Excluded &lt;id&gt;s are
               not shown and stops
               dependency tracing to
               nodes beyond them.
             </span>
-            <button id="clear_excluded_ids" type="button" >clear</button>
           </span>
+          <button id="clear_excluded_ids" type="button" style="float:right;">clear</button>
           <textarea class="search_terms" id="excluded_ids" rows="3" cols="25" spellcheck="false"
           wrap="off" placeholder="excluded <id>s&#13;&#10;separate with ',' or newline" ></textarea>
             <br>
