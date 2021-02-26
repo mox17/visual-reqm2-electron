@@ -1,0 +1,81 @@
+digraph "" {
+  rankdir="RL"
+  node [shape=plaintext fontname="Arial" fontsize=16]
+  edge [color="blue",dir="forward",arrowhead="normal",arrowtail="normal"];
+
+subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="duplicates" fontname="Arial" labelloc="t" style="rounded"
+  "TestDemoSpec.Object004" [id="TestDemoSpec.Object004" label=<
+      <TABLE BGCOLOR="#D3FDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-1<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
+      </TABLE>>];
+
+  "TestDemoSpec.Object004:2" [id="TestDemoSpec.Object004:2" label=<
+      <TABLE BGCOLOR="#D3FDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>2</TD><TD>demospec2</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-2<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
+      </TABLE>>];
+
+}  "DemoSpec.Object001" [id="DemoSpec.Object001" label=<
+      <TABLE BGCOLOR="#B1BDFD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >DemoSpec.Object001</TD><TD>0</TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001<BR ALIGN="LEFT"/></TD><TD>demospec1<BR/>demospec2</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Some short description<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "DemoSpec.Object001a" [id="DemoSpec.Object001a" label=<
+      <TABLE BGCOLOR="#B1BDFD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >DemoSpec.Object001a</TD><TD>1</TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001a<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>ASIL-B(D)</TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "TestDemoSpec.Object002" [id="TestDemoSpec.Object002" label=<
+      <TABLE BGCOLOR="#D3FDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >TestDemoSpec.Object002</TD><TD>1</TD><TD>demospec2</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is demo specobject 002<BR ALIGN="LEFT"/>&lt;table&gt;<BR ALIGN="LEFT"/>  &lt;tr&gt;<BR ALIGN="LEFT"/>    &lt;td&gt;This is a &lt;b&gt;bold&lt;/b&gt; field&lt;/td&gt;<BR ALIGN="LEFT"/>    &lt;td&gt;This is a list<BR ALIGN="LEFT"/>        &nbsp;&nbsp;* bla<BR ALIGN="LEFT"/>        &nbsp;&nbsp;* bla &lt;i&gt;blubb&lt;/i&gt;<BR ALIGN="LEFT"/>    &lt;/td&gt;<BR ALIGN="LEFT"/>  &lt;/tr&gt;<BR ALIGN="LEFT"/>&lt;/table&gt;<BR ALIGN="LEFT"/></TD><TD>defaultobj</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Demo object 002<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: This is just a comment<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>tags: tag1, tag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "TestDemoSpec.Object003" [id="TestDemoSpec.Object003" label=<
+      <TABLE BGCOLOR="#D3FDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >TestDemoSpec.Object003</TD><TD>1</TD><TD>demospec2</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is demo specobject 003, demonstrating the<BR ALIGN="LEFT"/>xref capabilities of the description tag. Here we link to<BR ALIGN="LEFT"/>object 002:<BR ALIGN="LEFT"/>&lt;b&gt;now some bold &lt;i&gt;italic&lt;/i&gt; text&nbsp;<BR ALIGN="LEFT"/>&lt;/b&gt;<BR ALIGN="LEFT"/>Now some &lt;i&gt;italic &lt;b&gt;and bold&lt;/b&gt; further text&lt;/i&gt; and a link<BR ALIGN="LEFT"/>to &lt;a href=&quot;http://www.elektrobit.com&quot;&gt;none,<BR ALIGN="LEFT"/>to &lt;a href=&quot;http://www.elektrobit.com&quot; type=&quot;xref&quot;&gt;xref,<BR ALIGN="LEFT"/>to &lt;a href=&quot;http://www.elektrobit.com&quot; type=&quot;glossterm&quot;&gt;glossary,<BR ALIGN="LEFT"/>to &lt;a href=&quot;http://www.elektrobit.com&quot; type=&quot;biblioref&quot;&gt;bibliography,<BR ALIGN="LEFT"/>Finally, again some text.<BR ALIGN="LEFT"/></TD><TD>defaultobj</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Demo Object 003<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">Does not need to be verified.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>tags: tag2, tag3</TD><TD>NONE</TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* MyRule1<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;DemoSpec.Object001<BR ALIGN="LEFT"/></TD></TR>
+      </TABLE>>];
+
+
+  # Edges
+  "DemoSpec.Object001a" -> "DemoSpec.Object001" [style=bold fontname="Arial" fontcolor="red" label=""];
+  "DemoSpec.Object001a" -> "TestDemoSpec.Object004:2" [style=bold fontname="Arial" fontcolor="red" label=""];
+  "TestDemoSpec.Object002" -> "DemoSpec.Object001" [style=bold fontname="Arial" fontcolor="red" label=""];
+  "TestDemoSpec.Object003" -> "DemoSpec.Object001" [style=bold fontname="Arial" fontcolor="red" label="referenced object does 
+not exist."];
+
+  label=<
+    <table border="0" cellspacing="0" cellborder="1">
+      <tr><td cellspacing="0" >File</td><td>./test/sample_oreqm/0007_violations.oreqm</td><td>Mon Jul 27 19:05:38 2020</td></tr>
+    </table>>
+  labelloc=b
+  fontsize=18
+  fontcolor=black
+  fontname="Arial"
+
+}
