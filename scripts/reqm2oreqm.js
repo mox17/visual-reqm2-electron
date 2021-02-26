@@ -264,7 +264,7 @@ export class ReqM2Specobjects {
 
   /**
    * Add one specobject to oreqm container
-   * @param {object} comp 
+   * @param {object} comp
    */
   add_one_specobject(comp, doctype) {
     let req = new Object();
@@ -385,7 +385,7 @@ export class ReqM2Specobjects {
         // Add pseudo needsobj with '*' suffix
         if (!rec.needsobj.includes(ff_doctype) &&
             !rec.needsobj.includes(ff_doctype+'*')) {
-          rec.needsobj.push(ff_doctype+'*'); //rq: ->(rq_ffb_needsobj) 
+          rec.needsobj.push(ff_doctype+'*'); //rq: ->(rq_ffb_needsobj)
           this.requirements.set(req_id, rec)
         }
         // Add new doctype list if unknown

@@ -81,11 +81,70 @@
     open_settings();
   });
 
+  /** Keyboard accelerators for svg pan zoom */
+  ipcRenderer.on('svg_reset_zoom', () => {
+    if (document.getElementById('svg_output')) {
+      panZoom.reset();
+    }
+  });
+
+  ipcRenderer.on('svg_pan_left', () => {
+    if (document.getElementById('svg_output')) {
+      panZoom.panBy({x: 100, y:0});
+    }
+  });
+
+  ipcRenderer.on('svg_pan_right', () => {
+    if (document.getElementById('svg_output')) {
+      panZoom.panBy({x: -100, y:0});
+    }
+  });
+
+  ipcRenderer.on('svg_pan_up', () => {
+    if (document.getElementById('svg_output')) {
+      panZoom.panBy({x: 0, y: 100});
+    }
+  });
+
+  ipcRenderer.on('svg_pan_down', () => {
+    if (document.getElementById('svg_output')) {
+      panZoom.panBy({x: 0, y: -100});
+    }
+  });
+
+  ipcRenderer.on('svg_zoom_in', () => {
+    if (document.getElementById('svg_output')) {
+      panZoom.zoomIn();
+    }
+  });
+
+  ipcRenderer.on('svg_zoom_out', () => {
+    if (document.getElementById('svg_output')) {
+      panZoom.zoomOut();
+    }
+  });
+
+  ipcRenderer.on('selected_next', () => {
+    if (document.getElementById('svg_output')) {
+      next_selected();
+    }
+  });
+
+  ipcRenderer.on('selected_prev', () => {
+    if (document.getElementById('svg_output')) {
+      prev_selected()
+    }
+  });
+
+
+  /** Avoid flickering of toast 'killer' */
+  let toast_maybe_visible = false;
   /**
    * Show a toast when graph has been limited to max_nodes nodes
    * @param {number} max_nodes The limit
    */
   function report_limit_as_toast(max_nodes) {
+    toast_maybe_visible = true;
     showToast({
       str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
       time: 10000,
@@ -94,11 +153,14 @@
   }
 
   function clear_toast() {
-    showToast({
-      str: ``,
-      time: 0,
-      position: 'middle'
-    })
+    if (toast_maybe_visible) {
+      showToast({
+        str: ``,
+        time: 0,
+        position: 'middle'
+      })
+      toast_maybe_visible = false;
+    }
   }
 
   /**
@@ -767,7 +829,7 @@
 
   /**
    * Load and process a single oreqm file
-   * @param {string} file 
+   * @param {string} file
    */
   export function load_file_main(file) {
     //console.log("load_file_main", file);
@@ -784,8 +846,8 @@
 
   /**
    * Load and process both main and reference oreqm files
-   * @param {string} file 
-   * @param {string} ref_file 
+   * @param {string} file
+   * @param {string} ref_file
    */
   function load_file_main_fs(file, ref_file) {
     //console.log("load_file_main", file);
@@ -856,7 +918,7 @@
 
   /**
    * Load reference oreqm file. Main oreqm file is expected to be present.
-   * @param {string} file 
+   * @param {string} file
    */
   function load_file_ref_fs(file) {
     // Load reference file

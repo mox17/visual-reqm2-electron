@@ -1,7 +1,8 @@
 "use strict";
-const electron = require('electron')
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
+const electron = require('electron');
+const app = electron.app;
+const globalShortcut = electron.globalShortcut;
+const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
 
 const path = require('path');
@@ -11,7 +12,7 @@ const { hideBin } = require('yargs/helpers');
 //const { version } = require('./package.json');
 const log = require('electron-log');
 const {autoUpdater} = require('electron-updater');
-const {settings} = require('./lib/settings_dialog.js')
+const {settings} = require('./lib/settings_dialog.js');
 
 // Optional logging
 autoUpdater.logger = log;
@@ -195,6 +196,21 @@ function createWindow() {
   });
 }
 
+function accelerators_setup() {
+  globalShortcut.register('Alt+Space',    () => { mainWindow.webContents.send('svg_reset_zoom'); });
+  globalShortcut.register('Alt+0',        () => { mainWindow.webContents.send('svg_reset_zoom'); });
+  globalShortcut.register('Alt+Left',     () => { mainWindow.webContents.send('svg_pan_left'); });
+  globalShortcut.register('Alt+Right',    () => { mainWindow.webContents.send('svg_pan_right'); });
+  globalShortcut.register('Alt+Up',       () => { mainWindow.webContents.send('svg_pan_up'); });
+  globalShortcut.register('Alt+Down',     () => { mainWindow.webContents.send('svg_pan_down'); });
+  globalShortcut.register('Alt+Plus',     () => { mainWindow.webContents.send('svg_zoom_in'); });
+  globalShortcut.register('Alt+PageUp',   () => { mainWindow.webContents.send('svg_zoom_in'); });
+  globalShortcut.register('Alt+-',        () => { mainWindow.webContents.send('svg_zoom_out'); });
+  globalShortcut.register('Alt+PageDown', () => { mainWindow.webContents.send('svg_zoom_out'); });
+  globalShortcut.register('Alt+N',        () => { mainWindow.webContents.send('selected_next'); });
+  globalShortcut.register('Alt+P',        () => { mainWindow.webContents.send('selected_prev'); });
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -245,6 +261,7 @@ app.on('ready', () => {
     app.quit()
   }
 
+  accelerators_setup();
   mainWindow_width = settings.get('mainWindow_width', 1024);
   mainWindow_height = settings.get('mainWindow_height', 768);
   createWindow();

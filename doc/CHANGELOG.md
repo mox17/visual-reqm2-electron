@@ -3,14 +3,19 @@
 
 ## 1.4.7
 
- * Keyboard shortcuts for pan-zoom, when focus is on svg
-   * ' ' (space key) in diagram will reset zoom.
-   * '+' zoom in
-   * '-' zoom out
-   * 'a' or 'ArrowLeft' pan left
-   * 'd or 'ArrowRight' pan right
-   * 'w' or 'ArrowUp' pan up
-   * 's' or 'ArrowDown' pan down
+ * Keyboard shortcuts for svg pan-zoom
+   * `Alt+Space` reset zoom.
+   * `Alt+0`     reset zoom.
+   * `Alt+'+'`   zoom in
+   * `Alt+PgUp`  zoom in
+   * `Alt+'-'`   zoom out
+   * `Alt+PgDn`  zoom out
+   * `Alt+Left`  pan left
+   * `Alt+Right` pan right
+   * `Alt+Up`    pan up
+   * `Alt+Down`  pan down
+   * `Alt+N`     Next selected node
+   * `Alt+P`     Previous selected node
  * Specobject boxes have cleaner outline. Graphviz would sometimes show a double outline.
  * Cluster outlines have rounded corners and slightly thicker. This is for selected nodes, new, changed and modified nodes.
  * Logic for handling duplicates much improved. Now believed to follow what is specified for ReqM2 itself.
@@ -23,9 +28,9 @@
    * When several duplicates share the SAME \<version>, The key is constructed from \<id> with the string
    `:<version>` appended repeatedly until the key is unique.
  * Save diagram in `.dot` format is a new option.
- * Automated tests are added. run `npm install ; npm test` to see them in action. A folder `./tmp/` is generated,
+ * Automated tests are added. run `npm install && npm test` to see them in action. A folder `./tmp/` is generated,
    which contains a variety of generated artifacts, screenshots etc.
- * Integration of Travis CI. Tests are run on every push to github and status is reflected in README.md.  [![Build Status](https://travis-ci.com/mox17/visual-reqm2-electron.svg?branch=master)](https://travis-ci.com/mox17/visual-reqm2-electron)
+ * Integration of **Travis CI**. Tests are run on every push to github and status is reflected in README.md.  [![Build Status](https://travis-ci.com/mox17/visual-reqm2-electron.svg?branch=master)](https://travis-ci.com/mox17/visual-reqm2-electron)
  * Requirements have been added. The file `./docs/requirements.xlsx` contain current set of requirements.
  * Requirements tracing has been added. Should you happen to have a ReqM2 installation available,
    the script `run_reqm2.sh` will generate a requirements trace in `./reqm2`. Be aware that ReqM2 appears to have

@@ -8,7 +8,7 @@ export const settings = require('electron-settings');
 /**
  * Sets the settings directory and settings filename.
  * Directory is expected to exist.
- * @param {string} pathname 
+ * @param {string} pathname
  */
 export function set_settings_path(pathname) {
   if (pathname.includes('\\')) {
