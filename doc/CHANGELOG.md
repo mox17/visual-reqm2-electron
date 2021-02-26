@@ -16,6 +16,7 @@
    * `Alt+Down`  pan down
    * `Alt+N`     Next selected node
    * `Alt+P`     Previous selected node
+   * `Alt+Enter` Update graph
  * Specobject boxes have cleaner outline. Graphviz would sometimes show a double outline.
  * Cluster outlines have rounded corners and slightly thicker. This is for selected nodes, new, changed and modified nodes.
  * Logic for handling duplicates much improved. Now believed to follow what is specified for ReqM2 itself.
