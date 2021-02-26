@@ -209,6 +209,7 @@ function accelerators_setup() {
   globalShortcut.register('Alt+PageDown', () => { mainWindow.webContents.send('svg_zoom_out'); });
   globalShortcut.register('Alt+N',        () => { mainWindow.webContents.send('selected_next'); });
   globalShortcut.register('Alt+P',        () => { mainWindow.webContents.send('selected_prev'); });
+  globalShortcut.register('Alt+Enter',    () => { mainWindow.webContents.send('filter_graph'); });
 }
 
 // This method will be called when Electron has finished

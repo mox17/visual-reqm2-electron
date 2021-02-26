@@ -136,6 +136,11 @@
     }
   });
 
+  ipcRenderer.on('filter_graph', () => {
+    if (document.getElementById('svg_output')) {
+      filter_graph()
+    }
+  });
 
   /** Avoid flickering of toast 'killer' */
   let toast_maybe_visible = false;
