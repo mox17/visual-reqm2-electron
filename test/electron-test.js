@@ -172,10 +172,10 @@ describe("Application launch", function () {
     });
 
     it('close issues modal', async function () {
-        const aboutClose = await app.client.$('#problemPopupClose');
+      const aboutClose = await app.client.$('#problemPopupClose');
       await aboutClose.click();
       const issues_modal = await app.client.$('#problemPopup');
-      style = await issues_modal.getAttribute('style');
+      let style = await issues_modal.getAttribute('style');
       assert.ok(!style.includes('block'));
     });
   });
@@ -246,7 +246,7 @@ describe("Application launch", function () {
       compare_files(dot_filename, './test/refdata/doctypes_1.dot');
     });
 
-    it('safety diagram', async function () {
+    it('Safety diagram', async function () {
       await app.client.waitUntilWindowLoaded();
       const button = await app.client.$('#show_doctypes_safety');
       await button.click();
@@ -254,7 +254,7 @@ describe("Application launch", function () {
       await screenshot(app);
     });
 
-    it('save safety as dot', async function () {
+    it('Save safety diagram as dot', async function () {
       await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/safety_1.dot';
       remove_file(dot_filename);
@@ -263,6 +263,48 @@ describe("Application launch", function () {
       expect(file(dot_filename)).to.exist;
       //await sleep(1000);
       compare_files(dot_filename, './test/refdata/safety_1.dot');
+    });
+
+  });
+
+  describe('Load and verify a directory of oreqm files', function () {
+    it('main oreqm', async function () {
+      await app.client.waitUntilWindowLoaded();
+      const clear_search_button = await app.client.$('#clear_search_regex');
+      await clear_search_button.click();
+      //await sleep(500);
+      const clear_ref_button = await app.client.$('#clear_ref_oreqm');
+      await clear_ref_button.click();
+      //await sleep(200);
+      const sample_dir = './test/sample_oreqm';
+      const oreqm_list = fs.readdirSync(sample_dir);
+      //console.dir(oreqm_list);
+      for (const filename of oreqm_list) {
+        if (filename.endsWith('.oreqm')) {
+          const oreqm_name = `${sample_dir}/${filename}`
+          console.log("        loading:", oreqm_name)
+          fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
+          const main_button = await app.client.$('#get_main_oreqm_file');
+          await main_button.click();
+          const filter_button = await app.client.$('#filter_graph');
+          await filter_button.click();
+          assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+          const basename = path.basename(filename, '.oreqm');
+          const dot_filename = `./tmp/${basename}.dot`;
+          const ref_file = `./test/refdata/${basename}.dot`;
+          //console.log(basename, dot_filename);
+          await screenshot(app, basename);
+          remove_file(dot_filename);
+          await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
+          await fakeMenu.clickMenu('File', 'Save diagram as...');
+          console.log("        saving: ", dot_filename);
+          await expect(file(dot_filename)).to.exist;
+          if (fs.existsSync(ref_file)) {
+            console.log(`        Checking: ${ref_file}`)
+            compare_files(dot_filename, ref_file);
+          }
+        }
+      }
     });
 
   });
