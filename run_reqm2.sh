@@ -14,7 +14,7 @@ else
   echo "Using $REQM2 to process requirements."
 fi
 
-perl $REQM2 -q -i doc/requirements.xlsx -x ReqM_2::Importer::XLSX -p 'doctype=requirements;sheettitle=Sheet1' -O reqm2 -o requirements.reqm
+perl $REQM2 -q -i doc/requirements.xlsx -x ReqM_2::Importer::XLSX -p 'doctype=requirements;sheettitle=requirements' -O reqm2 -o requirements.reqm
 perl $REQM2 -q -i main.js scripts/*.js -x ReqM_2::Importer::TerseMultiLang -p 'doctype=sourcecode;language=JavaScript' -O reqm2 -o implementation.reqm
 perl $REQM2 -q -i test/*.js -x ReqM_2::Importer::TerseMultiLang -p 'doctype=testcode;language=JavaScript' -O reqm2 -o tests.reqm
 perl $REQM2 -q -t reqm2/*.reqm  -O reqm2 -o visual_reqm2.oreqm
