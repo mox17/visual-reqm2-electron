@@ -64,6 +64,20 @@ async function get_svg_node_map(app) {
   return id_map;
 }
 
+
+/**
+ * Click context menu item
+ * @param {object} app Application
+ * @param {Map<id, element>} map id mapping to svg elements
+ * @param {String} node Name of specobject
+ * @param {String} item Name of context menu item
+ */
+async function context_menu_click(app, map, node, item) {
+  await map.get(node).click({ button: 2 });
+  let menu_copy_id = await app.client.$(item);
+  await menu_copy_id.click();
+}
+
 describe("Application launch", function () {
   this.timeout(10000);
   let app;
@@ -201,10 +215,16 @@ describe("Application launch", function () {
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); // A svg diagram was created
 
       let svg_map = await get_svg_node_map(app);
-      //console.dir(map)
 
-      await svg_map.get('cc.game.overview').click({ button: 2 });
-      await screenshot(app);
+      await context_menu_click(app, svg_map, 'cc.game.overview', '#menu_copy_id');
+      assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview'); //rq: ->(rq_ctx_copy_id,rq_svg_context_menu)
+
+      await context_menu_click(app, svg_map, 'cc.game.overview', '#menu_copy_ffb');
+      assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview:fea:1'); //rq: ->(rq_ctx_copy_id_dt_ver)
+
+      await context_menu_click(app, svg_map, 'cc.game.overview', '#menu_copy_png');
+      let png = await app.electron.clipboard.readImage();
+      assert.property(png, 'toPNG'); //rq: ->(rq_ctx_copy_png)
     });
 
     it('save main as dot', async function () {
