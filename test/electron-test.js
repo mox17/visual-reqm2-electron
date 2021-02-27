@@ -53,13 +53,21 @@ async function compare_files(main_file, ref_file) {
   expect(main_txt).to.equal(ref_txt);
 }
 
-async function get_svg_node_map(app) {
+/**
+ * Searching for ids defined in the svg seems not to work with Webdriver,
+ * but is it possible to look for a list of elements with a particular class
+ * and then ask for the id attribtute. So this work-around provides named
+ * lookup of svg diagram elements.
+ * @param {Object} app Application
+ * @param {string} dom_class looking for class="<dom_class>"
+ * @return Map<id,element>
+ */
+async function get_svg_node_map(app, dom_class='node') {
   let id_map = new Map();
-  let svg = await app.client.$$('.node');
-  //console.dir(svg[0]);
-  for (const node of svg) {
-    const id = await node.getAttribute('id');
-    id_map.set(id, node);
+  let svg_elements = await app.client.$$(`.${dom_class}`);
+  for (const element of svg_elements) {
+    const id = await element.getAttribute('id');
+    id_map.set(id, element);
   }
   return id_map;
 }
@@ -75,6 +83,11 @@ async function context_menu_click(app, map, node, item) {
   await map.get(node).click({ button: 2 });
   let menu_copy_id = await app.client.$(item);
   await menu_copy_id.click();
+}
+
+async function click_button(app, id) {
+  const button = await app.client.$(id);
+  await button.click();
 }
 
 describe("Application launch", function () {
@@ -134,25 +147,15 @@ describe("Application launch", function () {
       let style = await aboutpane.getAttribute('style');
       //console.log(typeof style, style);
       assert.ok(!style.includes('block'));
-      const about = await app.client.$('#aboutButton');
-      await about.click();
+      await click_button(app, '#aboutButton');
       //console.dir(aboutpane);
       expect(aboutpane.getAttribute('style')).to.eventually.include('block');
-      // style = await aboutpane.getAttribute('style');
-      // assert.ok(style.includes('display: block;'));
-      // await sleep(500);
     });
 
     it('close about again', async function () {
       const aboutpane = await app.client.$('#aboutPane');
-      const aboutClose = await app.client.$('#aboutPaneClose');
-      await aboutClose.click();
+      await click_button(app, '#aboutPaneClose');
       expect(aboutpane.getAttribute('style')).to.eventually.not.include('block');
-      // await sleep(500); // give style time to change
-      // //aboutpane.should.have.property('style', 'block');
-      // let style = await aboutpane.getAttribute('style');
-      // //console.log(typeof style, style);
-      // assert.ok(!style.includes('block'));
     });
   });
 
@@ -170,17 +173,15 @@ describe("Application launch", function () {
       const safety_rules = await app.client.$('#safety_rules');
       const rules_txt = await safety_rules.getValue()
       //console.log("Safety rules are:", rules_txt);
+      // Test validation of well-formed regular expressions
       await safety_rules.setValue("Not a [ valid( regex");
-      let ok_button = await app.client.$("#sett_ok");
-      await ok_button.click();
+      await click_button(app, '#sett_ok');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('display: block;'));
       // restore values
       await safety_rules.setValue(rules_txt);
-      await ok_button.click();
+      await click_button(app, '#sett_ok');
       style = await settings_menu.getAttribute('style');
-      //console.log(style);
-      //await sleep(5000);
       assert.ok(!style.includes('block;'));
     });
   });
@@ -196,8 +197,7 @@ describe("Application launch", function () {
     });
 
     it('close issues modal', async function () {
-      const aboutClose = await app.client.$('#problemPopupClose');
-      await aboutClose.click();
+      await click_button(app, '#problemPopupClose');
       const issues_modal = await app.client.$('#problemPopup');
       let style = await issues_modal.getAttribute('style');
       assert.ok(!style.includes('block'));
@@ -208,8 +208,7 @@ describe("Application launch", function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
       fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]);
-      const main_button = await app.client.$('#get_main_oreqm_file');
-      await main_button.click();
+      await click_button(app, '#get_main_oreqm_file');
       //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); // A svg diagram was created
 
@@ -239,13 +238,10 @@ describe("Application launch", function () {
     it('ref oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
       fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
-      const ref_button = await app.client.$('#get_ref_oreqm_file');
-      await ref_button.click();
+      await click_button(app, '#get_ref_oreqm_file');
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       //rq: ->(rq_filesel_ref_oreqm)
       await screenshot(app, 'reference');
-      //let node = await app.client.$('#svg_output').$('#cc.game.overview');
-      //console.dir(node);
     });
 
     it('save comparison as dot', async function () {
@@ -255,7 +251,6 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
-      //await sleep(300);
       compare_files(dot_filename, './test/refdata/main_ref_1.dot');
     });
 
@@ -264,8 +259,7 @@ describe("Application launch", function () {
   describe('Show special diagrams', function () {
     it('doctype hierarchy diagram', async function () {
       await app.client.waitUntilWindowLoaded();
-      const button = await app.client.$('#show_doctypes');
-      await button.click();
+      await click_button(app, '#show_doctypes');
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       await screenshot(app);
     });
@@ -277,14 +271,12 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
-      //await sleep(1000);
       compare_files(dot_filename, './test/refdata/doctypes_1.dot'); //rq: ->(rq_doctype_hierarchy)
     });
 
     it('Safety diagram', async function () {
       await app.client.waitUntilWindowLoaded();
-      const button = await app.client.$('#show_doctypes_safety');
-      await button.click();
+      await click_button(app, '#show_doctypes_safety');
       assert.notProperty(await app.client.$('#svg_output'), 'error');
       await screenshot(app);
     });
@@ -296,7 +288,6 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
-      //await sleep(1000);
       compare_files(dot_filename, './test/refdata/safety_1.dot'); //rq: ->(rq_doctype_aggr_safety)
     });
 
@@ -305,12 +296,8 @@ describe("Application launch", function () {
   describe('Load and verify a directory of oreqm files', function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
-      const clear_search_button = await app.client.$('#clear_search_regex');
-      await clear_search_button.click();
-      //await sleep(500);
-      const clear_ref_button = await app.client.$('#clear_ref_oreqm');
-      await clear_ref_button.click();
-      //await sleep(200);
+      await click_button(app, '#clear_search_regex');
+      await click_button(app, '#clear_ref_oreqm');
       const sample_dir = './test/sample_oreqm';
       if (fs.existsSync(sample_dir)) {
         const oreqm_list = fs.readdirSync(sample_dir);
@@ -320,10 +307,8 @@ describe("Application launch", function () {
             const oreqm_name = `${sample_dir}/${filename}`
             console.log("        loading:", oreqm_name)
             fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
-            const main_button = await app.client.$('#get_main_oreqm_file');
-            await main_button.click();
-            const filter_button = await app.client.$('#filter_graph');
-            await filter_button.click();
+            await click_button(app, '#get_main_oreqm_file');
+            await click_button(app, '#filter_graph');
             assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
             const basename = path.basename(filename, '.oreqm');
             const dot_filename = `./tmp/${basename}.dot`;
@@ -346,14 +331,4 @@ describe("Application launch", function () {
 
   });
 
-/*
-  it("shows an initial window", async function () {
-    const count = await app.client.getWindowCount();
-    assert.equal(count, 1);
-    //console.dir(await app.electron.clipboard.availableFormats())
-    //app.client.click('#aboutButton');
-    await app.webContents.executeJavaScript("alert('Kilroy was here');");
-    await sleep(1000);
-  });
-*/
 });
