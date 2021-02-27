@@ -45,12 +45,29 @@ function remove_file(path) {
   }
 }
 
+function holdBeforeFileExists(filePath, timeout) {
+  timeout = timeout < 1000 ? 1000 : timeout;
+  return new Promise((resolve)=>{  
+    const timer = setTimeout(function () {
+      resolve();
+    }, timeout);
+
+    const inter = setInterval(function () {
+      if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
+        clearInterval(inter);
+        clearTimeout(timer);
+        resolve();
+      }
+    }, 100);
+  });
+}
+
 async function compare_files(main_file, ref_file) {
-  await expect(file(main_file)).to.exist;
-  await expect(file(ref_file)).to.exist;
+  await holdBeforeFileExists(main_file, 5000);
   let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
   let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
-  expect(main_txt).to.equal(ref_txt);
+  assert.strictEqual(main_txt, ref_txt);
+  return main_txt;
 }
 
 /**
@@ -193,7 +210,6 @@ describe("Application launch", function () {
       const issues_modal = await app.client.$('#problemPopup');
       let style = await issues_modal.getAttribute('style');
       assert.ok(style.includes('block')); //rq: ->(rq_issues_log)
-      //await sleep(2000);
     });
 
     it('close issues modal', async function () {
@@ -226,13 +242,12 @@ describe("Application launch", function () {
     });
 
     it('save main as dot', async function () {
-      await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/main_1.dot'
-      remove_file(dot_filename);
+      await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      //await sleep(1000);
-      compare_files(dot_filename, './test/refdata/main_1.dot');
+      let main_txt = await compare_files(dot_filename, './test/refdata/main_1.dot');
+      assert.ok(main_txt.includes('BGCOLOR="#')); //rq: ->(rq_doctype_color)
     });
 
     it('ref oreqm', async function () {
@@ -245,9 +260,9 @@ describe("Application launch", function () {
     });
 
     it('save comparison as dot', async function () {
-      await app.client.waitUntilWindowLoaded();
+      //await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/main_ref_1.dot';
-      remove_file(dot_filename);
+      await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
@@ -284,7 +299,7 @@ describe("Application launch", function () {
     it('Save safety diagram as dot', async function () {
       await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/safety_1.dot';
-      remove_file(dot_filename);
+      await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
@@ -315,7 +330,7 @@ describe("Application launch", function () {
             const ref_file = `./test/refdata/${basename}.dot`;
             //console.log(basename, dot_filename);
             await screenshot(app, basename);
-            remove_file(dot_filename);
+            await remove_file(dot_filename);
             await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
             await fakeMenu.clickMenu('File', 'Save diagram as...');
             console.log("        saving: ", dot_filename);
