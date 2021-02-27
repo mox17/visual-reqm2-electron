@@ -53,6 +53,17 @@ async function compare_files(main_file, ref_file) {
   expect(main_txt).to.equal(ref_txt);
 }
 
+async function get_svg_node_map(app) {
+  let id_map = new Map();
+  let svg = await app.client.$$('.node');
+  //console.dir(svg[0]);
+  for (const node of svg) {
+    const id = await node.getAttribute('id');
+    id_map.set(id, node);
+  }
+  return id_map;
+}
+
 describe("Application launch", function () {
   this.timeout(10000);
   let app;
@@ -187,7 +198,12 @@ describe("Application launch", function () {
       const main_button = await app.client.$('#get_main_oreqm_file');
       await main_button.click();
       //rq: ->(rq_filesel_main_oreqm)
-      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); // A svg diagram was created
+
+      let svg_map = await get_svg_node_map(app);
+      //console.dir(map)
+
+      await svg_map.get('cc.game.overview').click({ button: 2 });
       await screenshot(app);
     });
 
