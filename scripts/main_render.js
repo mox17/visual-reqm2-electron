@@ -1949,7 +1949,3 @@
       console.log("Error: " + err.message);
     })
   }
-
-  // process.on('uncaughtException', function (err) {
-  //   console.log("uncaughtException:", err);
-  // })
