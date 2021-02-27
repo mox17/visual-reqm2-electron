@@ -64,7 +64,6 @@ async function get_svg_node_map(app) {
   return id_map;
 }
 
-
 /**
  * Click context menu item
  * @param {object} app Application
@@ -211,7 +210,7 @@ describe("Application launch", function () {
       fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]);
       const main_button = await app.client.$('#get_main_oreqm_file');
       await main_button.click();
-      //rq: ->(rq_filesel_main_oreqm)
+      //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); // A svg diagram was created
 
       let svg_map = await get_svg_node_map(app);
@@ -279,14 +278,14 @@ describe("Application launch", function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
       //await sleep(1000);
-      compare_files(dot_filename, './test/refdata/doctypes_1.dot');
+      compare_files(dot_filename, './test/refdata/doctypes_1.dot'); //rq: ->(rq_doctype_hierarchy)
     });
 
     it('Safety diagram', async function () {
       await app.client.waitUntilWindowLoaded();
       const button = await app.client.$('#show_doctypes_safety');
       await button.click();
-      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+      assert.notProperty(await app.client.$('#svg_output'), 'error');
       await screenshot(app);
     });
 
@@ -298,7 +297,7 @@ describe("Application launch", function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
       //await sleep(1000);
-      compare_files(dot_filename, './test/refdata/safety_1.dot');
+      compare_files(dot_filename, './test/refdata/safety_1.dot'); //rq: ->(rq_doctype_aggr_safety)
     });
 
   });
