@@ -194,7 +194,7 @@ describe("Application launch", function () {
       await safety_rules.setValue("Not a [ valid( regex");
       await click_button(app, '#sett_ok');
       let style = await settings_menu.getAttribute('style');
-      assert.ok(style.includes('display: block;'));
+      assert.ok(style.includes('display: block;')); //rq: ->(rq_safety_rules_config)
       // restore values
       await safety_rules.setValue(rules_txt);
       await click_button(app, '#sett_ok');
@@ -231,7 +231,7 @@ describe("Application launch", function () {
   describe('Load files', function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
-      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]);
+      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]); //rq: ->(rq_filesel_main_oreqm)
       await click_button(app, '#get_main_oreqm_file');
       //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); //rq: ->(rq_svg_pan_zoom)
@@ -361,6 +361,14 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await compare_files(dot_filename, './test/refdata/0007_dup-same-version.dot'); //rq: ->(rq_dup_req_display)
+      await click_button(app, '#issuesButton');
+      let issue_file = './tmp/0007_dup-same-version.txt';
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: issue_file } ]);
+      await click_button(app, '#save_problems');
+      await click_button(app, '#clear_problems');
+      await click_button(app, '#problemPopupClose');
+      await holdBeforeFileExists(issue_file, 5000);
+      assert.ok(fs.existsSync(issue_file)); //rq: ->(rq_issues_file_export)
     });
   });
 
