@@ -179,7 +179,7 @@ describe("Application launch", function () {
   describe('Settings dialog', function () {
     it('open modal', async function () {
       await app.client.waitUntilWindowLoaded();
-      fakeMenu.clickMenu('Edit', 'Settings...');
+      await fakeMenu.clickMenu('Edit', 'Settings...');
       const settings_menu = await app.client.$('#settingsPopup');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('block'));
@@ -206,7 +206,7 @@ describe("Application launch", function () {
   describe('Issues dialog', function () {
     it('open issues modal', async function () {
       await app.client.waitUntilWindowLoaded();
-      fakeMenu.clickMenu('View', 'Show issues');
+      await fakeMenu.clickMenu('View', 'Show issues');
       const issues_modal = await app.client.$('#problemPopup');
       let style = await issues_modal.getAttribute('style');
       assert.ok(style.includes('block')); //rq: ->(rq_issues_log)
@@ -231,7 +231,7 @@ describe("Application launch", function () {
   describe('Load files', function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
-      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]); //rq: ->(rq_filesel_main_oreqm)
+      await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]); //rq: ->(rq_filesel_main_oreqm)
       await click_button(app, '#get_main_oreqm_file');
       //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); //rq: ->(rq_svg_pan_zoom)
@@ -260,7 +260,7 @@ describe("Application launch", function () {
 
     it('ref oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
-      fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
+      await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
       await click_button(app, '#get_ref_oreqm_file');
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       //rq: ->(rq_filesel_ref_oreqm)
@@ -331,7 +331,7 @@ describe("Application launch", function () {
       await click_button(app, '#clear_problems');
       await click_button(app, '#problemPopupClose');
       let oreqm_name = './test/sample_oreqm/0007_violations.oreqm';
-      fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
+      await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
       await click_button(app, '#get_main_oreqm_file');
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
@@ -350,11 +350,12 @@ describe("Application launch", function () {
       await click_button(app, '#clear_problems');
       await click_button(app, '#problemPopupClose');
       let oreqm_name = './test/sample_oreqm/0007_dup-same-version.oreqm';
-      fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
+      await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
       await click_button(app, '#get_main_oreqm_file');
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
       let problem_txt = await problem_div.getAttribute('innerHTML');
+      console.log(problem_txt);
       assert.ok(problem_txt.includes('duplicated')); //rq: ->(rq_dup_same_version)
       await click_button(app, '#problemPopupClose');
       let dot_filename = './tmp/0007_dup-same-version.dot'
@@ -385,7 +386,7 @@ describe("Application launch", function () {
           if (filename.endsWith('.oreqm')) {
             const oreqm_name = `${sample_dir}/${filename}`
             console.log("        loading:", oreqm_name)
-            fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
+            await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
             await click_button(app, '#get_main_oreqm_file');
             await click_button(app, '#filter_graph');
             assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
