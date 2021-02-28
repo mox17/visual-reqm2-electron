@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tracingresults>
+  <baseline>TracingBaseline</baseline>
+  <environment>
+    <toolname>ReqM2</toolname>
+    <toolversion>1.17.1 (stable)</toolversion>
+    <toolcopyright>Copyright 2010 - 2018 Elektrobit Automotive GmbH</toolcopyright>
+    <libxmlversion>2.0014</libxmlversion>
+    <libxml2compileversion>2.9.0</libxml2compileversion>
+    <libxml2runtimeversion>20900</libxml2runtimeversion>
+    <perlversion>v5.14.4</perlversion>
+    <perlptrsize>64</perlptrsize>
+    <commandline>-t -b TracingBaseline -m -c DemoDoc/DemoCfg.xml -s approved,draft,rejected -q -o - DemoDoc/DemoDoc.reqm DemoDoc/DemoDoc_Imported.reqm</commandline>
+    <timestamp>Mon Jul 27 19:05:38 2020</timestamp>
+  </environment>
+  <cmdline>
+    <cmdparam>
+      <name>b</name>
+      <values>
+        <value>TracingBaseline</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>c</name>
+      <values>
+        <value>DemoDoc/DemoCfg.xml</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>m</name>
+    </cmdparam>
+    <cmdparam>
+      <name>o</name>
+      <values>
+        <value>-</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>q</name>
+    </cmdparam>
+    <cmdparam>
+      <name>s</name>
+      <values>
+        <value>approved</value>
+        <value>draft</value>
+        <value>rejected</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>t</name>
+    </cmdparam>
+  </cmdline>
+  <inputfiles>
+    <inputfile>DemoDoc/DemoDoc.reqm</inputfile>
+    <inputfile>DemoDoc/DemoDoc_Imported.reqm</inputfile>
+  </inputfiles>
+  <configuration>
+    <doctypes>
+      <regexs>
+        <regex>demospec\d</regex>
+      </regexs>
+    </doctypes>
+    <rules>
+      <rule>
+        <name>MyRule1</name>
+        <conditionchecks>
+          <conditioncheck>
+            <applyto>//release</applyto>
+            <condition>.="0.1"</condition>
+          </conditioncheck>
+        </conditionchecks>
+        <regexchecks></regexchecks>
+      </rule>
+      <rule>
+        <name>MyRule2</name>
+        <description>This is a sample rule</description>
+        <conditionchecks></conditionchecks>
+        <regexchecks>
+          <regexcheck>
+            <applyto>//id</applyto>
+            <regex>DemoSpec\.Object\d\d[12]</regex>
+          </regexcheck>
+        </regexchecks>
+      </rule>
+      <rule>
+        <name>MyRule3</name>
+        <rationale>blabla</rationale>
+        <comment>just a comment</comment>
+        <conditionchecks>
+          <conditioncheck>
+            <applyto>//specobjects</applyto>
+            <condition>@doctype="demospec2"</condition>
+          </conditioncheck>
+        </conditionchecks>
+        <regexchecks></regexchecks>
+      </rule>
+    </rules>
+  </configuration>
+  <specdocument>
+    <specobjects baseline="http://subversion.ebgroup.elektrobit.com/svn/EB_tresos/ReqM/branches/ReqM2/project/demo2/DemoDoc.xml" doctype="demospec1">
+      <specobject>
+        <id>DemoSpec.Object001</id>
+        <status>draft</status>
+        <shortdesc>Some short description</shortdesc>
+        <source>EB</source>
+        <sourcefile>/cygdrive/c/inst/Projects/trunk/ReqM2/project/demo2/DemoDoc.xml</sourcefile>
+        <sourceline>45</sourceline>
+        <version>0</version>
+        <description>This is &lt;b&gt;demo&lt;/b&gt; specobject 001</description>
+        <releases>
+          <release>0.1</release>
+        </releases>
+        <needscoverage>
+          <needscov>
+            <needsobj>demospec1</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby>
+              <linkedfrom>
+                <srcid>DemoSpec.Object001a</srcid>
+                <srcstatus>source not covered.</srcstatus>
+                <internalId>1</internalId>
+              </linkedfrom>
+            </coveredby>
+          </needscov>
+          <needscov>
+            <needsobj>demospec2</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby>
+              <linkedfrom>
+                <srcid>TestDemoSpec.Object002</srcid>
+                <srcstatus>source not covered.</srcstatus>
+                <internalId>2</internalId>
+              </linkedfrom>
+            </coveredby>
+          </needscov>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </needscoverage>
+        <untracedLinks>
+          <untracedLink>
+            <target>DemoSpec.Object002</target>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>referenced object does not exist.</linkerror>
+          </untracedLink>
+        </untracedLinks>
+        <violations/>
+        <oreqmViolations/>
+        <covstatus>uncovered</covstatus>
+        <internalId>0</internalId>
+      </specobject>
+    </specobjects>
+    <specobjects baseline="http://subversion.ebgroup.elektrobit.com/svn/EB_tresos/ReqM/branches/ReqM2/project/demo2/DemoDoc.xml" doctype="demospec1" title="demotitle">
+      <specobject>
+        <id>DemoSpec.Object001a</id>
+        <status>draft</status>
+        <source>EB</source>
+        <sourcefile>/cygdrive/c/inst/Projects/trunk/ReqM2/project/demo2/DemoDoc.xml</sourcefile>
+        <sourceline>75</sourceline>
+        <version>1</version>
+        <description>This is &lt;b&gt;demo&lt;/b&gt; specobject 001a</description>
+        <safetyclass>ASIL-B(D)</safetyclass>
+        <releases>
+          <release>0.1</release>
+        </releases>
+        <needscoverage>
+          <needscov>
+            <needsobj>demospec1</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby/>
+          </needscov>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </needscoverage>
+        <providescoverage>
+          <provcov>
+            <linksto>DemoSpec.Object001</linksto>
+            <dstversion>0</dstversion>
+            <linkstatus>linkerror</linkstatus>
+            <linkdestdoctype>demospec1</linkdestdoctype>
+            <linkerror>source not covered.</linkerror>
+            <internalId>0</internalId>
+          </provcov>
+          <provcov>
+            <linksto>TestDemoSpec.Object004</linksto>
+            <dstversion>2</dstversion>
+            <linkstatus>linkerror</linkstatus>
+            <linkdestdoctype>demospec2</linkdestdoctype>
+            <linkerror>source not covered.</linkerror>
+            <internalId>5</internalId>
+          </provcov>
+        </providescoverage>
+        <violations/>
+        <oreqmViolations/>
+        <covstatus>uncovered</covstatus>
+        <internalId>1</internalId>
+      </specobject>
+    </specobjects>
+    <specobjects doctype="demospec2">
+      <specobject>
+        <id>TestDemoSpec.Object002</id>
+        <status>approved</status>
+        <shortdesc>Demo object 002</shortdesc>
+        <source>EB2</source>
+        <sourcefile>/cygdrive/c/inst/Projects/trunk/ReqM2/project/demo2/DemoDoc_Include.reqm</sourcefile>
+        <sourceline>20</sourceline>
+        <version>1</version>
+        <description>This is demo specobject 002
+        &lt;table&gt;
+          &lt;tr&gt;
+            &lt;td&gt;This is a &lt;b&gt;bold&lt;/b&gt; field&lt;/td&gt;
+            &lt;td&gt;This is a list
+              &lt;ul&gt;
+                &lt;li&gt;bla&lt;/li&gt;
+                &lt;li&gt;bla &lt;i&gt;blubb&lt;/i&gt;&lt;/li&gt;
+              &lt;/ul&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/table&gt;
+      </description>
+        <releases>
+          <release>0.1</release>
+        </releases>
+        <tags>
+          <tag>tag1</tag>
+          <tag>tag2</tag>
+        </tags>
+        <needscoverage>
+          <needscov>
+            <needsobj>defaultobj</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby/>
+          </needscov>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </needscoverage>
+        <providescoverage>
+          <provcov>
+            <linksto>DemoSpec.Object001</linksto>
+            <dstversion>0</dstversion>
+            <linkstatus>linkerror</linkstatus>
+            <linkdestdoctype>demospec1</linkdestdoctype>
+            <linkerror>source not covered.</linkerror>
+            <internalId>0</internalId>
+          </provcov>
+        </providescoverage>
+        <untracedLinks>
+          <untracedLink>
+            <target>DemoSpec.Object003</target>
+            <comment>This is just a comment</comment>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>referenced object does not exist.</linkerror>
+          </untracedLink>
+          <untracedLink>
+            <target>DemoSpec.DoesNotExist</target>
+            <comment>This does not link to an existing SpecObject</comment>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>referenced object does not exist.</linkerror>
+          </untracedLink>
+        </untracedLinks>
+        <violations/>
+        <oreqmViolations/>
+        <covstatus>uncovered</covstatus>
+        <internalId>2</internalId>
+      </specobject>
+      <specobject>
+        <id>TestDemoSpec.Object003</id>
+        <status>draft</status>
+        <shortdesc>Demo Object 003</shortdesc>
+        <source>EB</source>
+        <sourcefile>/cygdrive/c/inst/Projects/trunk/ReqM2/project/demo2/DemoDoc_Include.reqm</sourcefile>
+        <sourceline>64</sourceline>
+        <version>1</version>
+        <description>This is demo specobject 003, demonstrating the
+        xref capabilities of the description tag. Here we link to
+        object 002:
+        &lt;b&gt;now some bold &lt;i&gt;italic&lt;/i&gt; text&lt;br/&gt;&lt;/b&gt;
+        Now some &lt;i&gt;italic &lt;b&gt;and bold&lt;/b&gt; further text&lt;/i&gt; and a link 
+        to &lt;a href="http://www.elektrobit.com"&gt;none&lt;/a&gt;,
+        to &lt;a href="http://www.elektrobit.com" type="xref"&gt;xref&lt;/a&gt;,
+        to &lt;a href="http://www.elektrobit.com" type="glossterm"&gt;glossary&lt;/a&gt;,
+        to &lt;a href="http://www.elektrobit.com" type="biblioref"&gt;bibliography&lt;/a&gt;,
+        Finally, again some text.
+      </description>
+        <safetyclass>NONE</safetyclass>
+        <safetyrationale/>
+        <verifycrit>Does not need to be verified.</verifycrit>
+        <releases>
+          <release>0.1</release>
+          <release>0.2</release>
+        </releases>
+        <tags>
+          <tag>tag2</tag>
+          <tag>tag3</tag>
+        </tags>
+        <needscoverage>
+          <needscov>
+            <needsobj>defaultobj</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby/>
+          </needscov>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </needscoverage>
+        <providescoverage>
+          <provcov>
+            <linksto>DemoSpec.Object001</linksto>
+            <dstversion>1</dstversion>
+            <linkstatus>linkerror</linkstatus>
+            <linkdestdoctype/>
+            <linkerror>referenced object does not exist.</linkerror>
+          </provcov>
+        </providescoverage>
+        <violations>
+          <ruleid>MyRule1</ruleid>
+          <ruleid>MyRule2</ruleid>
+        </violations>
+        <oreqmViolations/>
+        <covstatus>uncovered</covstatus>
+        <internalId>3</internalId>
+      </specobject>
+      <specobject>
+        <id>TestDemoSpec.Object004</id>
+        <status>approved</status>
+        <source>EB2</source>
+        <sourcefile>/cygdrive/c/inst/Projects/trunk/ReqM2/project/demo2/DemoDoc_Include.reqm</sourcefile>
+        <sourceline>100</sourceline>
+        <version>1</version>
+        <description>This is duplicate demo specobject 004-1
+      </description>
+        <releases>
+          <release>0.1</release>
+        </releases>
+        <tags>
+          <tag>DefaultTag1</tag>
+          <tag>DefaultTag2</tag>
+        </tags>
+        <needscoverage>
+          <needscov>
+            <needsobj>demospec1</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby/>
+          </needscov>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </needscoverage>
+        <violations>
+          <ruleid>MyRule2</ruleid>
+        </violations>
+        <oreqmViolations/>
+        <covstatus>uncovered</covstatus>
+        <internalId>4</internalId>
+      </specobject>
+      <specobject>
+        <id>TestDemoSpec.Object004</id>
+        <status>approved</status>
+        <source>EB2</source>
+        <sourcefile>/cygdrive/c/inst/Projects/trunk/ReqM2/project/demo2/DemoDoc_Include.reqm</sourcefile>
+        <sourceline>115</sourceline>
+        <version>1</version>
+        <description>This is duplicate demo specobject 004-2
+      </description>
+        <releases>
+          <release>0.1</release>
+        </releases>
+        <tags>
+          <tag>DefaultTag1</tag>
+          <tag>DefaultTag2</tag>
+        </tags>
+        <needscoverage>
+          <needscov>
+            <needsobj>demospec1</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby>
+              <linkedfrom>
+                <srcid>DemoSpec.Object001a</srcid>
+                <srcstatus>source not covered.</srcstatus>
+                <internalId>1</internalId>
+              </linkedfrom>
+            </coveredby>
+          </needscov>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </needscoverage>
+        <violations>
+          <ruleid>MyRule2</ruleid>
+        </violations>
+        <oreqmViolations/>
+        <covstatus>uncovered</covstatus>
+        <internalId>5</internalId>
+      </specobject>
+    </specobjects>
+  </specdocument>
+  <violations>
+    <violation>
+      <ruleid>MyRule3</ruleid>
+      <filename>DemoDoc/DemoDoc.reqm</filename>
+      <line>3</line>
+      <xpath>/specdocument/specobjects[1]</xpath>
+    </violation>
+    <violation>
+      <ruleid>MyRule3</ruleid>
+      <filename>DemoDoc/DemoDoc.reqm</filename>
+      <line>27</line>
+      <xpath>/specdocument/specobjects[2]</xpath>
+    </violation>
+  </violations>
+  <oreqmViolations/>
+</tracingresults>
