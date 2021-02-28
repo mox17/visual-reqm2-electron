@@ -1735,7 +1735,7 @@
     if (oreqm_main) {
       problem_txt =  xml_escape(oreqm_main.get_problems())
     }
-    ref.innerHTML = `${header_main}<pre>${problem_txt}</pre>`
+    ref.innerHTML = `${header_main}<pre id="raw_problems">${problem_txt}</pre>`
     problemPopup.style.display = "block";
   }
 
