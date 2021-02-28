@@ -268,13 +268,21 @@ describe("Application launch", function () {
     });
 
     it('save comparison as dot', async function () {
-      //await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/main_ref_1.dot';
       await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
-      compare_files(dot_filename, './test/refdata/main_ref_1.dot'); //rq: ->(rq_oreqm_diff_calc,rq_req_diff_show)
+      await compare_files(dot_filename, './test/refdata/main_ref_1.dot'); //rq: ->(rq_oreqm_diff_calc,rq_req_diff_show)
+    });
+
+    it('save comparison as png', async function () {
+      let png_filename = './tmp/main_ref_1.png';
+      await remove_file(png_filename);
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: png_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await holdBeforeFileExists(png_filename, 5000);
+      assert.ok(fs.existsSync(png_filename)); //rq: ->(rq_save_png_file)
     });
 
   });
@@ -293,7 +301,6 @@ describe("Application launch", function () {
       remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      expect(file(dot_filename)).to.exist;
       compare_files(dot_filename, './test/refdata/doctypes_1.dot'); //rq: ->(rq_doctype_hierarchy)
     });
 
@@ -310,10 +317,51 @@ describe("Application launch", function () {
       await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      expect(file(dot_filename)).to.exist;
-      compare_files(dot_filename, './test/refdata/safety_1.dot'); //rq: ->(rq_doctype_aggr_safety)
+      await compare_files(dot_filename, './test/refdata/safety_1.dot'); //rq: ->(rq_doctype_aggr_safety)
     });
 
+  });
+
+  describe('Handling of duplicate specobjects', function () {
+    it('Duplicates with unique versions', async function () {
+      await click_button(app, '#clear_search_regex');
+      await click_button(app, '#clear_ref_oreqm');
+      // Clear any previous issues
+      await click_button(app, '#issuesButton');
+      await click_button(app, '#clear_problems');
+      await click_button(app, '#problemPopupClose');
+      let oreqm_name = './test/sample_oreqm/0007_violations.oreqm';
+      fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
+      await click_button(app, '#get_main_oreqm_file');
+      await click_button(app, '#issuesButton');
+      let problem_div = await app.client.$('#raw_problems');
+      let problem_txt = await problem_div.getAttribute('innerHTML');
+      assert.ok(!problem_txt.includes('duplicated'));
+      await click_button(app, '#problemPopupClose');
+      let dot_filename = './tmp/0007_violations.dot'
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await compare_files(dot_filename, './test/refdata/0007_violations.dot'); //rq: ->(rq_dup_req)
+    });
+
+    it('Duplicates with same versions', async function () {
+      // Clear any previous issues
+      await click_button(app, '#issuesButton');
+      await click_button(app, '#clear_problems');
+      await click_button(app, '#problemPopupClose');
+      let oreqm_name = './test/sample_oreqm/0007_dup-same-version.oreqm';
+      fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
+      await click_button(app, '#get_main_oreqm_file');
+      await click_button(app, '#issuesButton');
+      let problem_div = await app.client.$('#raw_problems');
+      let problem_txt = await problem_div.getAttribute('innerHTML');
+      assert.ok(problem_txt.includes('duplicated')); //rq: ->(rq_dup_same_version)
+      await click_button(app, '#problemPopupClose');
+      let dot_filename = './tmp/0007_dup-same-version.dot'
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await compare_files(dot_filename, './test/refdata/0007_dup-same-version.dot'); //rq: ->(rq_dup_req_display)
+    });
   });
 
   describe('Load and verify a directory of oreqm files', function () {
@@ -345,13 +393,12 @@ describe("Application launch", function () {
             await expect(file(dot_filename)).to.exist;
             if (fs.existsSync(ref_file)) {
               console.log(`        Checking: ${ref_file}`)
-              compare_files(dot_filename, ref_file);
+              await compare_files(dot_filename, ref_file);
             }
           }
         }
       }
     });
-
   });
 
   describe('Export doctype colors', function () {
