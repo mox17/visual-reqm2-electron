@@ -106,6 +106,12 @@ async function click_button(app, id) {
   await button.click();
 }
 
+async function show_settings(app) {
+  await fakeMenu.clickMenu('Edit', 'Settings...');
+  await screenshot(app, 'settingsdialog');
+  await click_button(app, '#settingsPopupClose');
+}
+
 describe("Application launch", function () {
   this.timeout(10000);
   let app;
@@ -256,7 +262,6 @@ describe("Application launch", function () {
     });
 
     it('ref oreqm', async function () {
-      await app.client.waitUntilWindowLoaded();
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
       await click_button(app, '#get_ref_oreqm_file');
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
@@ -309,6 +314,7 @@ describe("Application launch", function () {
     it('Save safety diagram as dot', async function () {
       let dot_filename = './tmp/safety_1.dot';
       await remove_file(dot_filename);
+      show_settings(app);  // debug
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await compare_files(dot_filename, './test/refdata/safety_1.dot'); //rq: ->(rq_doctype_aggr_safety)

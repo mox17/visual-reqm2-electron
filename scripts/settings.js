@@ -59,7 +59,7 @@ export function check_and_upgrade_settings(sett_data) {
       program_settings.show_coverage = false;
     }
     if (! ('top_doctypes' in program_settings)) {
-      program_settings.top_doctypes = ['reqspec1'];
+      program_settings.top_doctypes = [];
     }
     if (! ('color_status' in program_settings) || (typeof(program_settings.color_status) !== 'boolean')) {
       program_settings.color_status = false;
@@ -71,7 +71,7 @@ export function check_and_upgrade_settings(sett_data) {
       program_settings.check_for_updates = true;
     }
     if (! ('safety_link_rules' in program_settings)) {
-      program_settings.safety_link_rules = default_safety_link_rules;
+      program_settings.safety_link_rules = default_safety_link_rules.slice();
     }
   } else {
     // Establish default settings
@@ -103,11 +103,11 @@ export function check_and_upgrade_settings(sett_data) {
       },
       max_calc_nodes: 1000,
       show_coverage: false,
-      top_doctypes: ['reqspec1'],
+      top_doctypes: [],
       color_status: false,
       show_errors: true,
       check_for_updates: true,
-      safety_link_rules: default_safety_link_rules
+      safety_link_rules: default_safety_link_rules.slice()
     }
     return true;
   }

@@ -31,6 +31,7 @@ export function handle_settings(settings_updated_callback) {
   //rq: ->(rq_settings_file)
   //settings.configure({ prettify: true, numSpaces: 2 })
   let doctype_colors = null;
+  //console.dir(settings)
   if (settings.has('doctype_colors')) {
     doctype_colors = settings.get('doctype_colors');
   }

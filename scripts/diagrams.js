@@ -845,14 +845,14 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     }
     let rules = new Object()
     if (doctype_safety) {
-      //console.log(JSON.stringify(program_settings.safety_link_rules, 0, 2));
-      let ss = JSON.stringify(program_settings.safety_link_rules, 0, 2)
-      if (!ss.includes('^')) {
+      let safety_rules_string = JSON.stringify(program_settings.safety_link_rules, 0, 2);
+      if (!safety_rules_string.includes('^')) {
+        //alert(safety_rules_string);
         console.log(program_settings.safety_link_rules);
-        console.log(ss);
+        console.log(safety_rules_string);
       }
-      rules.text = xml_escape(JSON.stringify(program_settings.safety_link_rules, 0, 2)).replace(/\\/g, '\\\\')
-      rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ')
+      rules.text = xml_escape(safety_rules_string.replace(/\\/g, '\\\\'));
+      rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ');
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
     }
     //rq: ->(rq_diagram_legend)
