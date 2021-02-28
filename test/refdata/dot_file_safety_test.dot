@@ -45,7 +45,7 @@ QM>QM " color="#00AA00" style="dashed"]
   label=<
     <table border="0" cellspacing="0" cellborder="1">
       <tr><td cellspacing="0" >File</td><td>./testdata/oreqm_testdata_del_movement.oreqm</td><td>Tue Feb 11 15:46:12 2020</td></tr>
-      <tr><td>Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass</td><td colspan="2">[<BR ALIGN="LEFT"/>   "^\\\\w+:&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "^\\\\w+:QM&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "^\\\\w+:SIL-2&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "^\\\\w+:QM&gt;\\\\w+:QM$",<BR ALIGN="LEFT"/>   "^\\\\w+:SIL-2&gt;\\\\w+:QM$",<BR ALIGN="LEFT"/>   "^\\\\w+:SIL-2&gt;\\\\w+:SIL-2$",<BR ALIGN="LEFT"/>   "^impl.*&gt;.*$",<BR ALIGN="LEFT"/>   "^swintts.*&gt;.*$",<BR ALIGN="LEFT"/>   "^swuts.*&gt;.*$"<BR ALIGN="LEFT"/> ]<BR ALIGN="LEFT"/></td></tr>
+      <tr><td>Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass</td><td colspan="2">[<BR ALIGN="LEFT"/>   &quot;&#94;\\\\w+:&gt;\\\\w+:$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;\\\\w+:QM&gt;\\\\w+:$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;\\\\w+:SIL-2&gt;\\\\w+:$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;\\\\w+:QM&gt;\\\\w+:QM$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;\\\\w+:SIL-2&gt;\\\\w+:QM$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;\\\\w+:SIL-2&gt;\\\\w+:SIL-2$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;impl.*&gt;.*$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;swintts.*&gt;.*$&quot;,<BR ALIGN="LEFT"/>   &quot;&#94;swuts.*&gt;.*$&quot;<BR ALIGN="LEFT"/> ]<BR ALIGN="LEFT"/></td></tr>
     </table>>
   labelloc=b
   fontsize=14
