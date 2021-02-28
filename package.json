@@ -145,7 +145,4 @@
       ]
     }
   },
-  "optionalDependencies": {
-    "utf-8-validate": "^5.0.4"
-  }
 }

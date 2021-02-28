@@ -47,7 +47,7 @@ function remove_file(path) {
 
 function holdBeforeFileExists(filePath, timeout) {
   timeout = timeout < 1000 ? 1000 : timeout;
-  return new Promise((resolve)=>{  
+  return new Promise((resolve)=>{
     const timer = setTimeout(function () {
       resolve();
     }, timeout);
@@ -263,7 +263,8 @@ describe("Application launch", function () {
       await app.client.waitUntilWindowLoaded();
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
       await click_button(app, '#get_ref_oreqm_file');
-      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
+      //assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       //rq: ->(rq_filesel_ref_oreqm)
       await screenshot(app, 'reference');
     });
@@ -330,6 +331,7 @@ describe("Application launch", function () {
       let oreqm_name = './test/sample_oreqm/0007_violations.oreqm';
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
       await click_button(app, '#get_main_oreqm_file');
+      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
       let problem_txt = await problem_div.getAttribute('innerHTML');
@@ -349,12 +351,15 @@ describe("Application launch", function () {
       let oreqm_name = './test/sample_oreqm/0007_dup-same-version.oreqm';
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
       await click_button(app, '#get_main_oreqm_file');
+      await app.client.$('.svg-pan-zoom_viewport #graph0');
+      await sleep(1000)
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
       let problem_txt = await problem_div.getAttribute('innerHTML');
       console.log(problem_txt);
       assert.ok(problem_txt.includes('duplicated')); //rq: ->(rq_dup_same_version)
       await click_button(app, '#problemPopupClose');
+      await sleep(1000)
       let dot_filename = './tmp/0007_dup-same-version.dot'
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
@@ -385,6 +390,7 @@ describe("Application launch", function () {
             console.log("        loading:", oreqm_name)
             await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
             await click_button(app, '#get_main_oreqm_file');
+            assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
             await click_button(app, '#filter_graph');
             assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
             const basename = path.basename(filename, '.oreqm');
