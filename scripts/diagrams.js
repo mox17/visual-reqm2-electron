@@ -13,7 +13,7 @@ import { program_settings } from './settings.js'
  */
 export function xml_escape(txt) {
   // Escape string for usen in XML
-  return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\^/g, '&#94;');
 }
 
 /**
@@ -818,30 +818,23 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     for (let doctype of doctype_edges) {
       dt = this.dt_map.get(doctype)
       // Needsobj links
-      graph += '# linkage from {}\n'.format(doctype)
+      graph += `# linkage from ${doctype}\n`;
       let need_keys = Array.from(dt.needsobj.keys())
       if (!doctype_safety) {
         for (let nk of need_keys) {
-          count = dt.needsobj.get(nk)
-          graph += ' "{}" -> "{}" [label="need({}){} " style="dotted"]\n'.format(
-            doctype.split(':')[0],
-            nk.split(':')[0],
-            count,
-            doctype_safety ? '\n{}'.format(dt_sc_str(doctype)) : '')
+          count = dt.needsobj.get(nk);
+          graph += ` "${doctype.split(':')[0]}" -> "${nk.split(':')[0]}" [label="need(${count})${doctype_safety ? `\n${dt_sc_str(doctype)}` : ''} " style="dotted"]\n`;
         }
       }
       // linksto links
       let lt_keys = Array.from(dt.linksto.keys())
       for (let lk of lt_keys) {
         count = dt.linksto.get(lk).length
-        graph += ' "{}" -> "{}" [label="linksto({}){} " color="{}"]\n'.format(
-          doctype.split(':')[0],
-          lk.split(':')[0],
-          count,
-          doctype_safety ? '\\l{}>{}'.format(dt_sc_str(doctype), dt_sc_str(lk)) : '',
-          doctype_safety ? this.linksto_safe_color(doctype, lk) : 'black')
+        graph += ` "${doctype.split(':')[0]}" -> "${lk.split(':')[0]}" [label="linksto(${count})${
+          doctype_safety ? `\\l${dt_sc_str(doctype)}>${dt_sc_str(lk)}` : ''} " color="${
+          doctype_safety ? this.linksto_safe_color(doctype, lk) : 'black'}"]\n`;
         if (doctype_safety && !this.check_linksto_safe(doctype, lk)) {
-          let prov_list = dt.linksto.get(lk).map(x => '{} -> {}'.format(quote_id(x[1]), quote_id(x[0])))
+          let prov_list = dt.linksto.get(lk).map(x => `${quote_id(x[1])} -> ${quote_id(x[0])}`)
           let dt2 = doctype
           if (dt2.endsWith(':')) {
             dt2 += '<none>'
@@ -849,7 +842,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
           if (lk.endsWith(':')) {
             lk += '<none>'
           }
-          let problem = "{} provcov to {}\n  {}".format(dt2, lk, prov_list.join('\n  '))
+          let problem = `${dt2} provcov to ${lk}\n  ${prov_list.join('\n  ')}`;
           this.problem_report(problem)
         }
       }
@@ -857,27 +850,24 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       let ffb_keys = Array.from(dt.fulfilledby.keys())
       for (let ffb of ffb_keys) {
         count = dt.fulfilledby.get(ffb).length
-        graph += ' "{}" -> "{}" [label="fulfilledby({}){} " color="{}" style="dashed"]\n'.format(
-          doctype.split(':')[0],
-          ffb.split(':')[0],
-          count,
-          doctype_safety ? '\n{}>{}'.format(dt_sc_str(ffb), dt_sc_str(doctype)) : '',
-          doctype_safety ? this.linksto_safe_color(ffb, doctype) : 'purple')
+        graph += ` "${doctype.split(':')[0]}" -> "${ffb.split(':')[0]}" [label="fulfilledby(${count})${
+          doctype_safety ? `\n${dt_sc_str(ffb)}>${dt_sc_str(doctype)}` : ''} " color="${
+          doctype_safety ? this.linksto_safe_color(ffb, doctype) : 'purple'}" style="dashed"]\n`;
         if (doctype_safety && !this.check_linksto_safe(ffb, doctype)) {
-          let problem = "{} fulfilledby {}".format(ffb, doctype)
+          let problem = `${ffb} fulfilledby ${doctype}`;
           this.problem_report(problem)
         }
       }
     }
     let rules = new Object()
     if (doctype_safety) {
+      //console.log(JSON.stringify(program_settings.safety_link_rules, 0, 2));
       rules.text = xml_escape(JSON.stringify(program_settings.safety_link_rules, 0, 2)).replace(/\\/g, '\\\\')
       rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ')
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
     }
     //rq: ->(rq_diagram_legend)
-    graph += '\n  label={}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n'.format(
-      this.construct_graph_title(false, rules, null, false, null))
+    graph += `\n  label=${this.construct_graph_title(false, rules, null, false, null)}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n`;
     graph += '\n}\n'
     //console.log(graph)
     this.dot = graph
@@ -896,46 +886,34 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) { //rq: ->(rq_diagram_legend)
     let title = '""'
     title  = '<\n    <table border="0" cellspacing="0" cellborder="1">\n'
-    title += '      <tr><td cellspacing="0" >File</td><td>{}</td><td>{}</td></tr>\n'.format(this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), this.timestamp)
+    title += `      <tr><td cellspacing="0" >File</td><td>${this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>')}</td><td>${this.timestamp}</td></tr>\n`;
 
     if (show_filters) {
       if (oreqm_ref) {
-        title += '      <tr><td>Ref. file</td><td>{}</td><td>{}</td></tr>\n'.format(oreqm_ref.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), oreqm_ref.timestamp)
-        /*
-        let diff = oreqm_main.get_main_ref_diff()
-        if (diff.new_reqs.length) {
-          title += '      <tr><td>New reqs</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(diff.new_reqs.join('<BR ALIGN="LEFT"/>'))
-        }
-        if (diff.updated_reqs.length) {
-          title += '      <tr><td>Updated reqs</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(diff.updated_reqs.join('<BR ALIGN="LEFT"/>'))
-        }
-        if (diff.removed_reqs.length) {
-          title += '      <tr><td>Removed reqs</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(diff.removed_reqs.join('<BR ALIGN="LEFT"/>'))
-        }
-        */
+        title += `      <tr><td>Ref. file</td><td>${oreqm_ref.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>')}</td><td>${oreqm_ref.timestamp}</td></tr>\n`;
       }
       if (search_pattern.length) {
         let search_formatted = xml_escape(search_pattern.replace(/&/g, '&amp;'))
         let pattern_string = search_formatted.trim().replace(/([^\n]{40,500}?\|)/g, '$1<BR ALIGN="LEFT"/>').replace(/\n/g, '<BR ALIGN="LEFT"/>')
         if (id_checkbox) {
-          title += '      <tr><td>Search &lt;id&gt;</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(pattern_string.replace(/\\/g, '\\\\'))
+          title += `      <tr><td>Search &lt;id&gt;</td><td colspan="2">${pattern_string.replace(/\\/g, '\\\\')}<BR ALIGN="LEFT"/></td></tr>\n`;
         } else {
-          title += '      <tr><td>Search text</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(pattern_string.replace( /\\/g, '\\\\'))
+          title += `      <tr><td>Search text</td><td colspan="2">${pattern_string.replace( /\\/g, '\\\\')}<BR ALIGN="LEFT"/></td></tr>\n`;
         }
       }
       let ex_dt_list = this.excluded_doctypes
       if (ex_dt_list.length) {
-        title += '      <tr><td>excluded doctypes</td><td colspan="2">{}</td></tr>\n'.format(ex_dt_list.join(", ").replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>'))
+        title += `      <tr><td>excluded doctypes</td><td colspan="2">${ex_dt_list.join(", ").replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>')}</td></tr>\n`;
       }
 
-      let excluded_ids = this.excluded_ids
+      let excluded_ids = this.excluded_ids;
       if (excluded_ids.length) {
-        title += '      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(excluded_ids.join('<BR ALIGN="LEFT"/>'))
+        title += `      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">${excluded_ids.join('<BR ALIGN="LEFT"/>')}<BR ALIGN="LEFT"/></td></tr>\n`;
       }
     }
 
     if (extra && extra.title && extra.text && extra.title.length && extra.text.length) {
-      title += '      <tr><td>{}</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(extra.title, extra.text)
+      title += `      <tr><td>${extra.title}</td><td colspan="2">${extra.text}<BR ALIGN="LEFT"/></td></tr>\n`;
     }
     title += '    </table>>'
     //console.log(title)
