@@ -1,0 +1,55 @@
+digraph "" {
+      rankdir="BT"
+      node [shape=plaintext fontname="Arial" fontsize=16]
+      edge [color="black" dir="forward" arrowhead="normal" arrowtail="normal" fontname="Arial" fontsize=11];
+
+      "fea" [label=<
+        <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: fea</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 4</TD></TR>
+          <TR><TD>safetyclass:</TD><TD port="QM">QM: 4 </TD></TR>
+      </TABLE>>];
+
+      "swrs" [label=<
+        <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: swrs</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 12</TD></TR>
+          <TR><TD>safetyclass:</TD><TD port="QM">QM: 12 </TD></TR>
+      </TABLE>>];
+
+      "swdd" [label=<
+        <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: swdd</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 9</TD></TR>
+          <TR><TD>safetyclass:</TD><TD port="QM">QM: 9 </TD></TR>
+      </TABLE>>];
+
+      "impl" [label=<
+        <TABLE BGCOLOR="#E7B1FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: impl</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: 1</TD></TR>
+          <TR><TD>safetyclass:</TD><TD port="none">none: 1 </TD></TR>
+      </TABLE>>];
+
+# linkage from fea:QM
+ "fea" -> "fea" [label="linksto(3)\lQM>QM " color="#00AA00"]
+# linkage from swrs:QM
+ "swrs" -> "fea" [label="linksto(12)\lQM>QM " color="#00AA00"]
+ "swrs" -> "vaporware" [label="fulfilledby(1)
+QM>QM " color="#00AA00" style="dashed"]
+# linkage from swdd:QM
+ "swdd" -> "swrs" [label="linksto(9)\lQM>QM " color="#00AA00"]
+# linkage from impl:
+ "impl" -> "swrs" [label="linksto(1)\lnone>QM " color="#00AA00"]
+
+  label=<
+    <table border="0" cellspacing="0" cellborder="1">
+      <tr><td cellspacing="0" >File</td><td>./testdata/oreqm_testdata_no_ogre.oreqm</td><td>Tue Feb 11 15:46:12 2020</td></tr>
+      <tr><td>Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass</td><td colspan="2">[<BR ALIGN="LEFT"/>   "\\\\w+:&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "\\\\w+:QM&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "\\\\w+:SIL-2&gt;\\\\w+:$",<BR ALIGN="LEFT"/>   "\\\\w+:QM&gt;\\\\w+:QM$",<BR ALIGN="LEFT"/>   "\\\\w+:SIL-2&gt;\\\\w+:QM$",<BR ALIGN="LEFT"/>   "\\\\w+:SIL-2&gt;\\\\w+:SIL-2$",<BR ALIGN="LEFT"/>   "impl.*&gt;.*$",<BR ALIGN="LEFT"/>   "swintts.*&gt;.*$",<BR ALIGN="LEFT"/>   "swuts.*&gt;.*$"<BR ALIGN="LEFT"/> ]<BR ALIGN="LEFT"/></td></tr>
+    </table>>
+  labelloc=b
+  fontsize=14
+  fontcolor=black
+  fontname="Arial"
+
+}
