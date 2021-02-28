@@ -2,10 +2,12 @@ language: node_js
 
 node_js: 14
 
-matrix:
+os: linux
+dist: xenial
+
+jobs:
   include:
     - os: linux
-      sudo: required
 
 before_install:
   - npm i -g npm@7
