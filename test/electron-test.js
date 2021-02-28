@@ -220,13 +220,21 @@ describe("Application launch", function () {
     });
   });
 
+  describe('Import doctype colors', function () {
+    it('color palette', async function () {
+      let colors_filename = './test/refdata/test_suite_palette.json'
+      await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [colors_filename] } ]);
+      await fakeMenu.clickMenu('File', 'Load color scheme...'); //rq: ->(rq_doctype_color_import)
+    });
+  });
+
   describe('Load files', function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded();
       fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]);
       await click_button(app, '#get_main_oreqm_file');
       //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
-      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); // A svg diagram was created
+      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); //rq: ->(rq_svg_pan_zoom)
 
       let svg_map = await get_svg_node_map(app);
 
@@ -266,7 +274,7 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       expect(file(dot_filename)).to.exist;
-      compare_files(dot_filename, './test/refdata/main_ref_1.dot');
+      compare_files(dot_filename, './test/refdata/main_ref_1.dot'); //rq: ->(rq_oreqm_diff_calc,rq_req_diff_show)
     });
 
   });
@@ -344,6 +352,16 @@ describe("Application launch", function () {
       }
     });
 
+  });
+
+  describe('Export doctype colors', function () {
+    it('color palette', async function () {
+      let colors_filename = './tmp/test_suite_palette.json'
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: colors_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save color scheme as...');
+      await holdBeforeFileExists(colors_filename, 5000);
+      assert.ok(fs.existsSync(colors_filename)); //rq: ->(rq_doctype_color_export)
+    });
   });
 
 });

@@ -218,7 +218,7 @@ export function update_color_settings(color_settings, update_function) {
     // Settings have preference
     _my_palette = color_settings
   } else {
-    // No colors in settings, but settings read from localStorage
+    // No colors in settings, but settings read from localStorage => migrate data to settings file
     if (colors_loaded_from_localStorage && color_settings_updater !== null) {
       color_settings_updater(_my_palette)
     }

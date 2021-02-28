@@ -2,7 +2,7 @@
 
 const settings = _interopRequireDefault(require("../lib/settings.js"));
 const ReqM2Oreqm = _interopRequireDefault(require("../lib/diagrams.js"));
-//const main_data = _interopRequireDefault(require("../lib/main_data.js"));
+const color = _interopRequireDefault(require("../lib/color.js"));
 const fs = require("fs");
 const eol = require("eol");
 const mkdirp = require('mkdirp')
@@ -31,7 +31,7 @@ const describe = global.describe;
 const it = global.it;
 const before = global.before;
 //const after = global.after;
-//const beforeEach = global.beforeEach;
+const beforeEach = global.beforeEach;
 //const afterEach = global.afterEach;
 
 function select_all(_node_id, rec, _node_color) {
@@ -41,6 +41,10 @@ function select_all(_node_id, rec, _node_color) {
 
 before(function () {
   mkdirp.sync('./tmp');
+});
+
+beforeEach(function () {
+  color.load_colors_fs(null, './test/refdata/test_suite_palette.json');
 });
 
 describe("ReqM2Oreqm tests", function () {
@@ -106,7 +110,7 @@ describe("ReqM2Oreqm tests", function () {
     });
     //console.dir(expect(dot_str))
     let dot_ref = eol.auto(
-      fs.readFileSync("./test/refdata/dot_file_1_ref.dot", "utf8")
+      fs.readFileSync("./test/refdata/dot_file_1_test.dot", "utf8")
     );
     expect(dot_str).to.equal(dot_ref); //rq: ->(rq_dot,rq_no_sel_show_all,rq_show_dot)
   });
@@ -144,7 +148,7 @@ describe("ReqM2Oreqm tests", function () {
       flag: "w",
     });
     let dot_ref = eol.auto(
-      fs.readFileSync("./test/refdata/dot_file_hierarchy_ref.dot", "utf8")
+      fs.readFileSync("./test/refdata/dot_file_hierarchy_test.dot", "utf8")
     );
     expect(hierarchy).to.equal(dot_ref);
   });
@@ -158,7 +162,7 @@ describe("ReqM2Oreqm tests", function () {
       flag: "w",
     });
     let dot_ref = eol.auto(
-      fs.readFileSync("./test/refdata/dot_file_safety_ref.dot", "utf8")
+      fs.readFileSync("./test/refdata/dot_file_safety_test.dot", "utf8")
     );
     expect(safety).to.equal(dot_ref);
   });
