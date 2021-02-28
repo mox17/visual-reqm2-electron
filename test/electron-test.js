@@ -64,6 +64,7 @@ function holdBeforeFileExists(filePath, timeout) {
 
 async function compare_files(main_file, ref_file) {
   await holdBeforeFileExists(main_file, 5000);
+  await sleep(500); // Allow content to be written
   let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
   let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
   assert.strictEqual(main_txt, ref_txt);
@@ -289,30 +290,26 @@ describe("Application launch", function () {
 
   describe('Show special diagrams', function () {
     it('doctype hierarchy diagram', async function () {
-      await app.client.waitUntilWindowLoaded();
       await click_button(app, '#show_doctypes');
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       await screenshot(app);
     });
 
     it('save doctype hierarchy diagram as dot', async function () {
-      await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/doctypes_1.dot';
-      remove_file(dot_filename);
+      await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       compare_files(dot_filename, './test/refdata/doctypes_1.dot'); //rq: ->(rq_doctype_hierarchy)
     });
 
     it('Safety diagram', async function () {
-      await app.client.waitUntilWindowLoaded();
       await click_button(app, '#show_doctypes_safety');
       assert.notProperty(await app.client.$('#svg_output'), 'error');
       await screenshot(app);
     });
 
     it('Save safety diagram as dot', async function () {
-      await app.client.waitUntilWindowLoaded();
       let dot_filename = './tmp/safety_1.dot';
       await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
