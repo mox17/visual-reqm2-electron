@@ -30,10 +30,8 @@ function sleep(ms) {
 let screenshot_count = 1
 
 function screenshot(app, title="screenshot") {
-  //console.log('screenshot 1');
   app.browserWindow.capturePage().then(function (imageBuffer) {
     let filename = `./tmp/${title}-${screenshot_count}.png`;
-    //console.log('screenshot 2:', filename);
     fs.writeFileSync(filename, imageBuffer);
     screenshot_count += 1;
   })
@@ -67,7 +65,7 @@ async function compare_files(main_file, ref_file) {
   await sleep(500); // Allow content to be written
   let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
   let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
-  assert.strictEqual(main_txt, ref_txt);
+  assert.strictEqual(ref_txt, main_txt);
   return main_txt;
 }
 
@@ -154,7 +152,6 @@ describe("Application launch", function () {
         height: 100
       });
     await app.client.waitUntilTextExists('html', 'ReqM2');
-    //console.log("The window title is:", await app.client.getTitle());
     assert.strictEqual(await app.client.getTitle(), 'Visual ReqM2');
   });
 
@@ -166,7 +163,6 @@ describe("Application launch", function () {
       //console.log(typeof style, style);
       assert.ok(!style.includes('block'));
       await click_button(app, '#aboutButton');
-      //console.dir(aboutpane);
       expect(aboutpane.getAttribute('style')).to.eventually.include('block');
     });
 
@@ -266,7 +262,7 @@ describe("Application launch", function () {
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
       //assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       //rq: ->(rq_filesel_ref_oreqm)
-      await screenshot(app, 'reference');
+      await screenshot(app, 'ref-oreqm');
     });
 
     it('save comparison as dot', async function () {
@@ -293,7 +289,7 @@ describe("Application launch", function () {
     it('doctype hierarchy diagram', async function () {
       await click_button(app, '#show_doctypes');
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
-      await screenshot(app);
+      await screenshot(app, 'hierarchy-diagram');
     });
 
     it('save doctype hierarchy diagram as dot', async function () {
@@ -307,7 +303,7 @@ describe("Application launch", function () {
     it('Safety diagram', async function () {
       await click_button(app, '#show_doctypes_safety');
       assert.notProperty(await app.client.$('#svg_output'), 'error');
-      await screenshot(app);
+      await screenshot(app, 'safety-diagram');
     });
 
     it('Save safety diagram as dot', async function () {
@@ -356,7 +352,7 @@ describe("Application launch", function () {
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
       let problem_txt = await problem_div.getAttribute('innerHTML');
-      console.log(problem_txt);
+      //console.log(problem_txt);
       assert.ok(problem_txt.includes('duplicated')); //rq: ->(rq_dup_same_version)
       await click_button(app, '#problemPopupClose');
       await sleep(1000)
