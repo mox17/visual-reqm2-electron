@@ -31,17 +31,50 @@ export const defined_specobject_fields = [
                    TODO: this could be made more elegant */
 ];
 
-const default_safety_link_rules = [
-  /^\w+:>\w+:$/,           // no safetyclass -> no safetyclass
-  /^\w+:QM>\w+:$/,         // QM -> no safetyclass
-  /^\w+:SIL-2>\w+:$/,      // SIL-2 -> no safetyclass
-  /^\w+:QM>\w+:QM$/,       // QM -> QM
-  /^\w+:SIL-2>\w+:QM$/,    // SIL-2 -> QM
-  /^\w+:SIL-2>\w+:SIL-2$/, // SIL-2 -> SIL-2
-  /^impl.*>.*$/,           // impl can cover anything (maybe?)
-  /^swintts.*>.*$/,        // swintts can cover anything (maybe?)
-  /^swuts.*>.*$/           // swuts can cover anything (maybe?)
-];
+const default_program_settings = {
+  compare_fields: {
+    id: true,
+    comment: true,
+    dependson: true,
+    description: true,
+    doctype: true,
+    fulfilledby: true,
+    furtherinfo: true,
+    linksto: true,
+    needsobj: true,
+    platform: true,
+    rationale: true,
+    safetyclass: true,
+    safetyrationale: true,
+    shortdesc: true,
+    source: true,
+    sourcefile: false,
+    sourceline: false,
+    status: true,
+    tags: true,
+    usecase: true,
+    verifycrit: true,
+    version: true,
+    violations: false
+  },
+  max_calc_nodes: 1024,
+  show_coverage: false,
+  top_doctypes: [],
+  color_status: false,
+  show_errors: true,
+  check_for_updates: true,
+  safety_link_rules: [
+    /^\w+:>\w+:$/,           // no safetyclass -> no safetyclass
+    /^\w+:QM>\w+:$/,         // QM -> no safetyclass
+    /^\w+:SIL-2>\w+:$/,      // SIL-2 -> no safetyclass
+    /^\w+:QM>\w+:QM$/,       // QM -> QM
+    /^\w+:SIL-2>\w+:QM$/,    // SIL-2 -> QM
+    /^\w+:SIL-2>\w+:SIL-2$/, // SIL-2 -> SIL-2
+    /^impl.*>.*$/,           // impl can cover anything (maybe?)
+    /^swintts.*>.*$/,        // swintts can cover anything (maybe?)
+    /^swuts.*>.*$/           // swuts can cover anything (maybe?)
+  ]
+};
 
 /**
  * Handle settings data, migrate old data and add new fields
@@ -52,63 +85,33 @@ export function check_and_upgrade_settings(sett_data) {
   if (sett_data && (typeof sett_data === 'object')) {
     program_settings = sett_data
     // New options are added here with default values when reading settings from previous version
+    if (! ('compare_fields' in program_settings)) {
+      program_settings.compare_fields = default_program_settings.compare_fields;
+    }
     if (! ('max_calc_nodes' in program_settings)) {
-      program_settings.max_calc_nodes = 1000;
+      program_settings.max_calc_nodes = default_program_settings.max_calc_nodes;
     }
     if (! ('show_coverage' in program_settings) || (typeof(program_settings.show_coverage) !== 'boolean')) {
-      program_settings.show_coverage = false;
+      program_settings.show_coverage = default_program_settings.show_coverage;
     }
     if (! ('top_doctypes' in program_settings)) {
-      program_settings.top_doctypes = [];
+      program_settings.top_doctypes = default_program_settings.top_doctypes;
     }
     if (! ('color_status' in program_settings) || (typeof(program_settings.color_status) !== 'boolean')) {
-      program_settings.color_status = false;
+      program_settings.color_status = default_program_settings.color_status;
     }
     if (! ('show_errors' in program_settings) || (typeof(program_settings.show_errors) !== 'boolean')) {
-      program_settings.show_errors = true;
+      program_settings.show_errors = default_program_settings.show_errors;
     }
     if (! ('check_for_updates' in program_settings) || (typeof(program_settings.check_for_updates) !== 'boolean')) {
-      program_settings.check_for_updates = true;
+      program_settings.check_for_updates = default_program_settings.check_for_updates;
     }
     if (! ('safety_link_rules' in program_settings)) {
-      program_settings.safety_link_rules = default_safety_link_rules.slice();
+      program_settings.safety_link_rules = default_program_settings.safety_link_rules;
     }
   } else {
     // Establish default settings
-    program_settings = {
-      compare_fields: {
-        id: true,
-        comment: true,
-        dependson: true,
-        description: true,
-        doctype: true,
-        fulfilledby: true,
-        furtherinfo: true,
-        linksto: true,
-        needsobj: true,
-        platform: true,
-        rationale: true,
-        safetyclass: true,
-        safetyrationale: true,
-        shortdesc: true,
-        source: true,
-        sourcefile: false,
-        sourceline: false,
-        status: true,
-        tags: true,
-        usecase: true,
-        verifycrit: true,
-        version: true,
-        violations: false
-      },
-      max_calc_nodes: 1000,
-      show_coverage: false,
-      top_doctypes: [],
-      color_status: false,
-      show_errors: true,
-      check_for_updates: true,
-      safety_link_rules: default_safety_link_rules.slice()
-    }
+    program_settings = default_program_settings;
     return true;
   }
   return false;

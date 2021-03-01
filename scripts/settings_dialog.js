@@ -3,48 +3,35 @@ import { remote } from 'electron';
 import { defined_specobject_fields, program_settings, check_and_upgrade_settings } from './settings.js';
 import { update_color_settings } from './color.js';
 import fs from 'fs';
-export const settings = require('electron-settings');
-
-/**
- * Sets the settings directory and settings filename.
- * Directory is expected to exist.
- * @param {string} pathname
- */
-export function set_settings_path(pathname) {
-  if (pathname.includes('\\')) {
-    pathname.replace('\\', '/')
-  }
-  let basename = new String(pathname).substring(pathname.lastIndexOf('/') + 1);
-  let path = new String(pathname).substring(0, pathname.lastIndexOf('/') + 1);
-  if (path.endsWith('/')) {
-    path = path.substring(0, path.length);
-  }
-  console.log(path, basename);
-  //settings.configure({ dir: path, file: basename })
-}
+const electron_settings = require('electron-settings');
+import { settings_configure } from './settings_helper.js'
 
 /**
  * Read setting from electron-settings interface and check for data elements.
  * @param {function} settings_updated_callback callback to put new settings into effect
  */
-export function handle_settings(settings_updated_callback) {
+export function handle_settings(settings_updated_callback, args) {
   //rq: ->(rq_settings_file)
-  //settings.configure({ prettify: true, numSpaces: 2 })
+  console.log("Settings default file:", electron_settings.file())
+  settings_configure(electron_settings, args.settDir, args.settFile);
+  let settings_file = electron_settings.file();
+  document.getElementById('settings_file_path').innerHTML = settings_file;
+
   let doctype_colors = null;
   //console.dir(settings)
-  if (settings.has('doctype_colors')) {
-    doctype_colors = settings.get('doctype_colors');
+  if (electron_settings.hasSync('doctype_colors')) {
+    doctype_colors = electron_settings.getSync('doctype_colors');
   }
   update_color_settings(doctype_colors, update_doctype_colors)
   let prog_settings = null;
-  if (settings.has('program_settings')) {
+  if (electron_settings.hasSync('program_settings')) {
     // Upgrade settings to add new values
     // console.log(settings._getSettingsFilePath());
-    prog_settings = settings.get('program_settings');
+    prog_settings = electron_settings.getSync('program_settings');
   }
   let updated = check_and_upgrade_settings(prog_settings);
   if (updated) {
-    settings.set('program_settings', program_settings, {prettify: true});
+    electron_settings.setSync('program_settings', program_settings);
   }
   //console.log(program_settings);
 
@@ -226,7 +213,7 @@ export function process_rule_set(new_rules) {
       // Update tests
       program_settings.safety_link_rules = regex_array
       //console.log(program_settings.safety_link_rules)
-      settings.set('program_settings', program_settings, {prettify: true})
+      electron_settings.setSync('program_settings', program_settings)
     }
   } else {
      //alert('Expected array of rule regex strings')
@@ -242,5 +229,5 @@ export function process_rule_set(new_rules) {
  */
 function update_doctype_colors(colors) {
   //rq: ->(rq_doctype_color_sett)
-  settings.set('doctype_colors', colors, {prettify: true})
+  electron_settings.setSync('doctype_colors', colors);
 }

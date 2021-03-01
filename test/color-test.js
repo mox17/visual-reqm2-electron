@@ -40,7 +40,7 @@ describe('Color palette tests', function() {
         let file_content = fs.readFileSync(pal_file, 'utf8');
         //console.log(file_content);
         assert.ok(file_content.includes('"foobar0"'), true); //rq: ->(rq_doctype_color_gen,rq_doctype_color_export)
-    });    
+    });
 
     it('Load palette', function() {
         let mapping = {"xyzzy": "#123456"}
@@ -49,6 +49,6 @@ describe('Color palette tests', function() {
         color.load_colors_fs(null, pal_file);
         // xyzzy definition overwritten by import
         assert.notEqual("#123456", color.get_color("xyzzy")); //rq: ->(rq_doctype_color_import)
-    });    
+    });
 
 });

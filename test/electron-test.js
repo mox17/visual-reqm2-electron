@@ -127,7 +127,7 @@ describe("Application launch", function () {
     app = new Application({
       path: electronPath,
       env: { RUNNING_IN_SPECTRON: "1" }, // Tell special behavior needed for argument handling
-      args: [path.join(__dirname, "..")],
+      args: [path.join(__dirname, ".."), '-D', './tmp', '-F', 'settings.json'],
       chromeDriverLogPath: path.join(__dirname, "..", "./tmp/chromedriver.log"),
     });
     fakeMenu.apply(app);
