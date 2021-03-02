@@ -5,6 +5,7 @@ import { ReqM2Specobjects } from './reqm2oreqm.js'
 import { get_color } from './color.js'
 import { DoctypeRelations } from './doctypes.js'
 import { program_settings } from './settings.js'
+import { process_rule_set } from './settings_dialog.js';
 
 /**
  * Escape XML special characters
@@ -12,8 +13,8 @@ import { program_settings } from './settings.js'
  * @return {string} Updated text
  */
 export function xml_escape(txt) {
-  // Escape string for usen in XML
-  return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\^/g, '&#94;');
+  // Escape string for use in XML
+  return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
 /**
@@ -338,6 +339,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     // diagram related members
     this.doctype_clusters = null; // A map of {doctype : [doctype:safetyclass]}
     this.dt_map = null; //new Map(); // A map of { doctype_name : DoctypeRelations }
+    this.safety_regex_array = []; // Array of regex to match relations
   }
 
   /** @description Initial part of dot file */
@@ -646,7 +648,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    */
   check_linksto_safe(from, to) {
     let combo = `${from}>${to}`;
-    for (const re of program_settings.safety_link_rules) {
+    for (const re of this.safety_regex_array) {
       if (combo.match(re)) {
         return true
       }
@@ -752,6 +754,20 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   }
 
   /**
+   * Build safety regexes from strings
+   * @return {boolean} true: regex list updated, false: regex broken
+   */
+  build_safety_regexes() {
+    let result = process_rule_set(program_settings.safety_link_rules);
+    if (result.pass) {
+      this.safety_regex_array = result.regex_list;
+    } else {
+      alert(result.error);
+    }
+    return result.pass;
+  }
+
+  /**
    * Scan all requirements and summarize the relationships between doctypes
    * with counts of instances and relations (needsobj, linksto, fulfilledby)
    * When doctype_safety is true, the doctypes are qualified with the safetyclass
@@ -762,6 +778,9 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   scan_doctypes(doctype_safety) {
     //rq: ->(rq_doctype_hierarchy)
     //rq: ->(rq_doctype_aggr_safety)
+    if (doctype_safety) {
+      this.build_safety_regexes();
+    }
     this.dt_map = new Map() // A map of { doctype_name : DoctypeRelations }
     this.build_doctype_mapping(doctype_safety)
     // DOT language start of diagram
@@ -848,8 +867,9 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       let safety_rules_string = JSON.stringify(program_settings.safety_link_rules, 0, 2);
       if (!safety_rules_string.includes('^')) {
         //alert(safety_rules_string);
-        console.log(program_settings.safety_link_rules);
-        console.log(safety_rules_string);
+        console.log("Safety rules strings:")
+        console.dir(program_settings.safety_link_rules);
+        console.dir(safety_rules_string);
       }
       rules.text = xml_escape(safety_rules_string.replace(/\\/g, '\\\\'));
       rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ');

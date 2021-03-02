@@ -183,6 +183,7 @@ describe("Application launch", function () {
     it('open modal', async function () {
       await app.client.waitUntilWindowLoaded();
       await fakeMenu.clickMenu('Edit', 'Settings...');
+      await screenshot(app, 'sett-1');
       const settings_menu = await app.client.$('#settingsPopup');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('block'));

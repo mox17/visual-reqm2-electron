@@ -16,7 +16,7 @@ describe("Settings tests", function () {
 
   it("New settings", function () {
     // Force settings to default
-    settings.check_and_upgrade_settings(null);
+    settings.check_and_upgrade_settings(settings.default_program_settings);
     assert.strictEqual(settings.program_settings.max_calc_nodes, 1000);
 
     let ignored_fields = settings.get_ignored_fields();

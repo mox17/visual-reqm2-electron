@@ -12,7 +12,7 @@ import { settings_configure } from './settings_helper.js'
  */
 export function handle_settings(settings_updated_callback, args) {
   //rq: ->(rq_settings_file)
-  console.log("Settings default file:", electron_settings.file())
+  //console.log("Settings default file:", electron_settings.file())
   settings_configure(electron_settings, args.settDir, args.settFile);
   let settings_file = electron_settings.file();
   document.getElementById('settings_file_path').innerHTML = settings_file;
@@ -137,9 +137,14 @@ function settings_dialog_results() {
   //console.log(program_settings)
   try {
     //rq: ->(rq_safety_rules_config)
-    let new_safety_rules = JSON.parse(document.getElementById('safety_rules').value)
+    let new_rules = document.getElementById('safety_rules').value
+    alert(new_rules)
+    let new_safety_rules = JSON.parse(new_rules)
     let result = process_rule_set(new_safety_rules)
     if (result.pass) {
+      //alert(JSON.stringify(new_safety_rules) );
+      program_settings.safety_link_rules = new_safety_rules;
+      electron_settings.setSync('program_settings', program_settings);
       return true
     } else {
       document.getElementById('regex_error').innerHTML = result.error
@@ -174,7 +179,7 @@ export function load_safety_rules_fs() {
 }
 
 /**
- * Check if this looks like a plausible arrays of regex.
+ * Check if this looks like a plausible array of regexes.
  * Update settings if found OK and return status.
  * @param {string} new_rules json array of regex strings
  * @return {boolean} true if it seems good
@@ -210,10 +215,8 @@ export function process_rule_set(new_rules) {
       regex_array.push(regex_rule)
     }
     if (result.pass) {
-      // Update tests
-      program_settings.safety_link_rules = regex_array
       //console.log(program_settings.safety_link_rules)
-      electron_settings.setSync('program_settings', program_settings)
+      result.regex_list = regex_array;
     }
   } else {
      //alert('Expected array of rule regex strings')
@@ -222,6 +225,8 @@ export function process_rule_set(new_rules) {
   }
   return result
 }
+
+
 
 /**
  * Callback function to update doctype color mappings

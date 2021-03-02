@@ -49,7 +49,7 @@ beforeEach(function () {
 
 describe("ReqM2Oreqm tests", function () {
   // force default settings
-  settings.check_and_upgrade_settings(null);
+  settings.check_and_upgrade_settings(settings.default_program_settings);
 
   const test_oreqm_file_name = "./testdata/oreqm_testdata_del_movement.oreqm";
   let oreqm_txt = fs.readFileSync(test_oreqm_file_name); //rq: ->(rq_read_oreqm)
