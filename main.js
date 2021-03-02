@@ -209,8 +209,8 @@ function accelerators_setup() {
   globalShortcut.register('Alt+PageUp',   () => { mainWindow.webContents.send('svg_zoom_in'); });
   globalShortcut.register('Alt+-',        () => { mainWindow.webContents.send('svg_zoom_out'); });
   globalShortcut.register('Alt+PageDown', () => { mainWindow.webContents.send('svg_zoom_out'); });
-  globalShortcut.register('Alt+N',        () => { mainWindow.webContents.send('selected_next'); });
-  globalShortcut.register('Alt+P',        () => { mainWindow.webContents.send('selected_prev'); });
+  globalShortcut.register('Alt+N',        () => { mainWindow.webContents.send('selected_next'); }); //rq: ->(rq_navigate_sel)
+  globalShortcut.register('Alt+P',        () => { mainWindow.webContents.send('selected_prev'); }); //rq: ->(rq_navigate_sel)
   globalShortcut.register('Alt+Enter',    () => { mainWindow.webContents.send('filter_graph'); });
 }
 

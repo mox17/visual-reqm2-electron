@@ -132,7 +132,7 @@
 
   ipcRenderer.on('selected_prev', () => {
     if (document.getElementById('svg_output')) {
-      prev_selected()
+      prev_selected();
     }
   });
 

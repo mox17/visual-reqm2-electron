@@ -221,7 +221,6 @@ function format_edge(from_node, to_node, kind, error) {
   if (!program_settings.show_errors) {
     error = ''
   }
-  let formatting = ''
   let label = ''
   let edge_label = ''
   if (error && error.length) {
@@ -230,17 +229,13 @@ function format_edge(from_node, to_node, kind, error) {
   }
   if (kind === "fulfilledby") {
     //rq: ->(rq_edge_pcov_ffb)
-    // formatting = ' [style=bold color=purple dir=back fontname="Arial" label="{}"]'
     label = 'ffb'
     edge_label = ` [style=bold color=purple dir=back fontname="Arial" label="${label}"]`;
     if (error.length) {
       label += '\n' + error
-      // formatting = ' [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="{}"]'
       edge_label = ` [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="${label}"]`;
     }
   } else {
-    // formatting = ' [style=bold fontname="Arial" fontcolor="red" label="{}"]'
-    // label = error
     edge_label = ` [style=bold fontname="Arial" fontcolor="red" label="${error}"]`
   }
   return `  "${from_node}" -> "${to_node}"${edge_label};\n`;
@@ -426,7 +421,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     for (const dup_list of arrays_of_duplicates) {
       //rq: ->(rq_dup_req_display)
       let dup_cluster_id = this.requirements.get(dup_list[0]).id;
-      graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=2 label="duplicates" fontname="Arial" labelloc="t" style="rounded"\n`;
+      let versions = dup_list.map(a => a.version);
+      let dup_versions = versions.length !== new Set(versions).size;
+      let label = 'duplicate' + (dup_versions ? ' id + version' : ' id'); //rq: ->(rq_dup_id_ver_disp)
+      let fontcolor = dup_versions ? 'fontcolor="red" ' : ''
+      graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=2 label="${label}" ${fontcolor}fontname="Arial" labelloc="t" style="rounded"\n`;
       for (const req_id of dup_list) {
         // duplicate nodes
         ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));

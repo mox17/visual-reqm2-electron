@@ -3,7 +3,7 @@ digraph "" {
   node [shape=plaintext fontname="Arial" fontsize=16]
   edge [color="blue",dir="forward",arrowhead="normal",arrowtail="normal"];
 
-subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="duplicates" fontname="Arial" labelloc="t" style="rounded"
+subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="duplicate id + version" fontcolor="red" fontname="Arial" labelloc="t" style="rounded"
   "TestDemoSpec.Object004" [id="TestDemoSpec.Object004" label=<
       <TABLE BGCOLOR="#D3FDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>

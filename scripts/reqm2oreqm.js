@@ -711,23 +711,24 @@ export class ReqM2Specobjects {
    */
   get_all_text(req_id) {
     if (this.search_cache.has(req_id)) {
-      return this.search_cache.get(req_id)
+      return this.search_cache.get(req_id);
     } else {
       // Get all text fields as combined string
-      const rec = this.requirements.get(req_id)
-      let id_str = this.decorate_id(rec.id)
-      let ffb = ''
+      const rec = this.requirements.get(req_id);
+      let id_str = this.decorate_id(rec.id);
+      let ffb = '';
       rec.fulfilledby.forEach(element =>
-        ffb += '\nffb:'+element.id)
-      let tags = ''
+        ffb += '\nffb:'+element.id);
+      let tags = '';
       rec.tags.forEach(element =>
-        tags += '\ntag:'+element)
-      let plat = ''
+        tags += '\ntag:'+element);
+      let plat = '';
       rec.platform.forEach(element =>
         plat += '\nplt:'+element)
-      let needsobj = ''
+      let needsobj = '';
       rec.needsobj.forEach(element =>
-        needsobj += '\nno:'+element)
+        needsobj += '\nno:'+element);
+      let dup = this.duplicates.has(rec.id) ? '\ndup:' : ''; //rq: ->(rq_dup_req_search)
       let all_text = 'dt:' + rec.doctype
         + '\nve:' + rec.version
         + '\nst:' + rec.status
@@ -745,6 +746,7 @@ export class ReqM2Specobjects {
         + ffb
         + tags
         + plat
+        + dup
         + '\nid:' + id_str;
 
       this.search_cache.set(req_id, all_text)

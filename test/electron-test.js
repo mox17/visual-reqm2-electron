@@ -117,18 +117,18 @@ describe("Application launch", function () {
   let app;
 
   before(function () {
-    mkdirp.sync("./tmp");
-    remove_file("./tmp/settings.json");
     chai.should();
     chai.use(chaiAsPromised);
     chai.use(chaiRoughly);
-    });
-
+  });
+  
   before(function () {
+    mkdirp.sync("./tmp");
+    remove_file("./tmp/settings.json");
     app = new Application({
       path: electronPath,
       env: { RUNNING_IN_SPECTRON: "1" }, // Tell special behavior needed for argument handling
-      args: [path.join(__dirname, ".."), '-D', './tmp', '-F', 'settings.json'],
+      args: [path.join(__dirname, ".."), '-D', './tmp', '-F', 'settings.json'], //rq: ->(rq_cl_settings_file,rq_settings_file)
       chromeDriverLogPath: path.join(__dirname, "..", "./tmp/chromedriver.log"),
     });
     fakeMenu.apply(app);
