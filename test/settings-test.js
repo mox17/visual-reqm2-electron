@@ -16,7 +16,7 @@ describe("Settings tests", function () {
 
   it("New settings", function () {
     // Force settings to default
-    settings.check_and_upgrade_settings(null);
+    settings.check_and_upgrade_settings(settings.default_program_settings);
     assert.strictEqual(settings.program_settings.max_calc_nodes, 1000);
 
     let ignored_fields = settings.get_ignored_fields();
@@ -38,6 +38,8 @@ describe("Settings tests", function () {
     assert.strictEqual(settings.program_settings.max_calc_nodes, 1000);
     assert.strictEqual(settings.program_settings.show_coverage, false);
 
+    //console.dir(new_settings.safety_link_rules);
+    //console.dir(JSON.stringify(new_settings.safety_link_rules, null, 2));
     new_settings.color_status = 7;
     settings.check_and_upgrade_settings(new_settings);
     assert.strictEqual(settings.program_settings.color_status, false);

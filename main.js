@@ -12,7 +12,9 @@ const { hideBin } = require('yargs/helpers');
 //const { version } = require('./package.json');
 const log = require('electron-log');
 const {autoUpdater} = require('electron-updater');
-const {settings} = require('./lib/settings_dialog.js');
+const electron_settings = require('electron-settings');
+const { settings_configure } = require('./lib/settings_helper.js');
+const fs = require('fs');
 
 // Optional logging
 autoUpdater.logger = log;
@@ -190,8 +192,8 @@ function createWindow() {
       event.preventDefault();
     } else {
       [mainWindow_width, mainWindow_height] = mainWindow.getSize();
-      settings.set('mainWindow_width', mainWindow_width, {prettify: true});
-      settings.set('mainWindow_height', mainWindow_height, {prettify: true});
+      electron_settings.setSync('mainWindow_width', mainWindow_width);
+      electron_settings.setSync('mainWindow_height', mainWindow_height);
     }
   });
 }
@@ -225,22 +227,23 @@ app.on('ready', () => {
       select:       { type: 'string',  alias: 's', desc: 'Selection criteria', default: undefined },
       idOnly:       { type: 'boolean', alias: 'i', desc: 'Search id only', default: false },
       exclIds:      { type: 'string',  alias: 'e', desc: 'Excluded ids, comma separated', default: undefined },
-      inclRejected: { type: 'boolean', alias: 'j', desc: 'Include rejected specobjects', default: false },
-      exclDoctypes: { type: 'string',  alias: 'c', desc: 'Excluded doctypes, comma separated', default: undefined },
+      inclRejected: { type: 'boolean', alias: 'R', desc: 'Include rejected specobjects', default: false },
+      exclDoctypes: { type: 'string',  alias: 'T', desc: 'Excluded doctypes, comma separated', default: undefined },
       format:       { type: 'string',  alias: 'f', desc: 'svg, png or dot graph', default: 'svg' },
       output:       { type: 'string',  alias: 'o', desc: 'Name of output file (extension .svg, .png or .dot will be added)', default: undefined },
       diagram:      { type: 'boolean', alias: 'g', desc: 'Generate specobject diagram', default: false },
       hierarchy:    { type: 'boolean', alias: 't', desc: 'Generate hierarchy diagram', default: false },
-      safety:       { type: 'boolean', alias: 'a', desc: 'Generate safety check diagram', default: false },
+      safety:       { type: 'boolean', alias: 'S', desc: 'Generate safety check diagram', default: false },
       rules:        { type: 'string',  alias: 'r', desc: 'Safety rules json file', default: undefined },
-      settings:     { type: 'string',  alias: 't', desc: 'Settings json file', default: undefined },
+      settFile:     { type: 'string',  alias: 'F', desc: 'Settings json file', default: undefined },
+      settDir :     { type: 'string',  alias: 'D', desc: 'Settings directory', default: undefined },
       oreqm_main:   { type: 'string',  alias: 'm', desc: 'main oreqm file', default: undefined },
       oreqm_ref:    { type: 'string',  alias: 'z', desc: 'ref oreqm file (older)', default: undefined }
     })
     .usage('$0 options [main_oreqm [ref_oreqm]]')
     .argv;
   //console.dir(args);
-
+  settings_configure(electron_settings, args.settDir, args.settFile);
   // Allow 1 or 2 positional parameters
   // yargs lets other arguments sneak in, which happens in test scenarios.
   // Therefore positional parameters have to end with '.oreqm' to be accepted.
@@ -265,8 +268,8 @@ app.on('ready', () => {
   }
 
   accelerators_setup();
-  mainWindow_width = settings.get('mainWindow_width', 1024);
-  mainWindow_height = settings.get('mainWindow_height', 768);
+  mainWindow_width = 1920; //electron_settings.getSync('mainWindow_width', 1024);
+  mainWindow_height = 1080; //electron_settings.getSync('mainWindow_height', 768);
   createWindow();
   mainWindow.webContents.on('did-finish-load', () => {
     //console.log("argv:", process.argv, args)

@@ -178,7 +178,7 @@
     let ref = false;
 
     set_limit_reporter(report_limit_as_toast);
-    handle_settings(settings_updated);
+    handle_settings(settings_updated, args);
 
     if (program_settings.check_for_updates) {
       check_newer_release_available();

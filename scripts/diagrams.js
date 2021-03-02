@@ -5,6 +5,7 @@ import { ReqM2Specobjects } from './reqm2oreqm.js'
 import { get_color } from './color.js'
 import { DoctypeRelations } from './doctypes.js'
 import { program_settings } from './settings.js'
+import { process_rule_set } from './settings_dialog.js';
 
 /**
  * Escape XML special characters
@@ -12,8 +13,8 @@ import { program_settings } from './settings.js'
  * @return {string} Updated text
  */
 export function xml_escape(txt) {
-  // Escape string for usen in XML
-  return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  // Escape string for use in XML
+  return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
 /**
@@ -169,7 +170,7 @@ function format_nonexistent_links(rec) {
       }
     }
     if (missing.length) {
-      result = '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;{}<BR ALIGN="LEFT"/></TD></TR>\n'.format(missing.join('<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;'))
+      result = `        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;${missing.join('<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;')}<BR ALIGN="LEFT"/></TD></TR>\n`;
     }
   }
   return result
@@ -189,35 +190,22 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
   //rq: ->(rq_doctype_color)
   let node_table = ""
   let nonexist_link = format_nonexistent_links(rec)
-  let violations    = rec.violations.length ? '        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">{}</TD></TR>\n'.format(dot_format(format_violations(rec.violations, oreqm.rules))) : ''
-  let furtherinfo     = rec.furtherinfo     ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: {}</TD></TR>\n'.format(dot_format(rec.furtherinfo)) : ''
-  let safetyrationale = rec.safetyrationale ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: {}</TD></TR>\n'.format(dot_format(rec.safetyrationale)) : ''
-  let shortdesc       = rec.shortdesc       ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: {}</TD></TR>\n'.format(dot_format(rec.shortdesc)) : ''
-  let rationale       = rec.rationale       ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">rationale: {}</TD></TR>\n'.format(dot_format(rec.rationale)) : ''
-  let verifycrit      = rec.verifycrit      ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">{}</TD></TR>\n'.format(dot_format(rec.verifycrit)) : ''
-  let comment         = rec.comment         ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: {}</TD></TR>\n'.format(dot_format(rec.comment)) : ''
-  let source          = rec.source          ? '        <TR><TD COLSPAN="3" ALIGN="LEFT">source: {}</TD></TR>\n'.format(dot_format(rec.source)) : ''
-  let status          = rec.status          ? '        <TR><TD>{}</TD><TD>{}</TD><TD>{}</TD></TR>\n'.format(tags_line(rec.tags, rec.platform), rec.safetyclass, status_cell(rec, show_coverage, color_status)) : ''
+  let violations    = rec.violations.length ? `        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">${dot_format(format_violations(rec.violations, oreqm.rules))}</TD></TR>\n` : '';
+  let furtherinfo     = rec.furtherinfo     ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: ${dot_format(rec.furtherinfo)}</TD></TR>\n` : '';
+  let safetyrationale = rec.safetyrationale ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: ${dot_format(rec.safetyrationale)}</TD></TR>\n` : '';
+  let shortdesc       = rec.shortdesc       ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: ${dot_format(rec.shortdesc)}</TD></TR>\n` : '';
+  let rationale       = rec.rationale       ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">rationale: ${dot_format(rec.rationale)}</TD></TR>\n` : '';
+  let verifycrit      = rec.verifycrit      ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">${dot_format(rec.verifycrit)}</TD></TR>\n` : '';
+  let comment         = rec.comment         ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: ${dot_format(rec.comment)}</TD></TR>\n` : '';
+  let source          = rec.source          ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">source: ${dot_format(rec.source)}</TD></TR>\n` : ''
+  let status          = rec.status          ? `        <TR><TD>${tags_line(rec.tags, rec.platform)}</TD><TD>${rec.safetyclass}</TD><TD>${
+                                                                 status_cell(rec, show_coverage, color_status)}</TD></TR>\n` : '';
   node_table     = `
-      <TABLE BGCOLOR="{}{}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="{}" >
-        <TR><TD CELLSPACING="0" >{}</TD><TD>{}</TD><TD>{}</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">{}</TD><TD>{}</TD></TR>\n{}{}{}{}{}{}{}{}{}{}      </TABLE>`.format(
-                        get_color(rec.doctype),
-                        ghost ? ':white' : '',
-                        ghost ? 'grey' : 'black',
-                        rec.id, rec.version, rec.doctype,
-                        dot_format(rec.description), rec.needsobj.join('<BR/>'),
-                        shortdesc,
-                        rationale,
-                        safetyrationale,
-                        verifycrit,
-                        comment,
-                        furtherinfo,
-                        source,
-                        status,
-                        violations,
-                        nonexist_link)
-  let node = '  "{}" [id="{}" label=<{}>];\n'.format(node_id, node_id, node_table)
+      <TABLE BGCOLOR="${get_color(rec.doctype)}${ghost ? ':white' : ''}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="${ghost ? 'grey' : 'black'}" >
+        <TR><TD CELLSPACING="0" >${rec.id}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">${dot_format(rec.description)}</TD><TD>${rec.needsobj.join('<BR/>')}</TD></TR>\n${
+          shortdesc}${rationale}${safetyrationale}${verifycrit}${comment}${furtherinfo}${source}${status}${violations}${nonexist_link}      </TABLE>`;
+  let node = `  "${node_id}" [id="${node_id}" label=<${node_table}>];\n`;
   return node
 }
 
@@ -235,23 +223,27 @@ function format_edge(from_node, to_node, kind, error) {
   }
   let formatting = ''
   let label = ''
+  let edge_label = ''
   if (error && error.length) {
     //rq: ->(rq_edge_probs)
     error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
   }
   if (kind === "fulfilledby") {
     //rq: ->(rq_edge_pcov_ffb)
-    formatting = ' [style=bold color=purple dir=back fontname="Arial" label="{}"]'
+    // formatting = ' [style=bold color=purple dir=back fontname="Arial" label="{}"]'
     label = 'ffb'
+    edge_label = ` [style=bold color=purple dir=back fontname="Arial" label="${label}"]`;
     if (error.length) {
       label += '\n' + error
-      formatting = ' [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="{}"]'
+      // formatting = ' [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="{}"]'
+      edge_label = ` [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="${label}"]`;
     }
   } else {
-    formatting = ' [style=bold fontname="Arial" fontcolor="red" label="{}"]'
-    label = error
+    // formatting = ' [style=bold fontname="Arial" fontcolor="red" label="{}"]'
+    // label = error
+    edge_label = ` [style=bold fontname="Arial" fontcolor="red" label="${error}"]`
   }
-  return '  "{}" -> "{}"{};\n'.format(from_node, to_node, formatting.format(label))
+  return `  "${from_node}" -> "${to_node}"${edge_label};\n`;
 }
 
 /**
@@ -306,9 +298,9 @@ function dt_sc_str(doctype_with_safetyclass) {
  */
 function quote_id(id) {
   if (id.includes(' ')) {
-    id = '"{}"'.format(id)
+    id = `"${id}"`;
   }
-  return id
+  return id;
 }
 
 /**
@@ -347,6 +339,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     // diagram related members
     this.doctype_clusters = null; // A map of {doctype : [doctype:safetyclass]}
     this.dt_map = null; //new Map(); // A map of { doctype_name : DoctypeRelations }
+    this.safety_regex_array = []; // Array of regex to match relations
   }
 
   /** @description Initial part of dot file */
@@ -450,7 +443,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       // edges
       ({ graph, edge_count } = this.add_dot_edge(req_id, subset, graph, edge_count));
     }
-    graph += '\n  label={}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n'.format(title); //rq: ->(rq_diagram_legend)
+    graph += `\n  label=${title}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n`; //rq: ->(rq_diagram_legend)
     graph += ReqM2Oreqm.DOT_EPILOGUE
     this.dot = graph
     let result = new Object()
@@ -599,15 +592,15 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   add_node_emphasis(req_id, node, dot_id, highlights) {
     //rq: ->(rq_req_diff_show)
     if (this.new_reqs.includes(req_id)) {
-      node = 'subgraph "cluster_{}_new" { color=limegreen penwidth=2 label="new" fontname="Arial" labelloc="t" style="rounded"\n{}}\n'.format(dot_id, node);
+      node = `subgraph "cluster_${dot_id}_new" { color=limegreen penwidth=2 label="new" fontname="Arial" labelloc="t" style="rounded"\n${node}}\n`;
     } else if (this.updated_reqs.includes(req_id)) {
-      node = 'subgraph "cluster_{}_changed" { color=goldenrod1 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"\n{}}\n'.format(dot_id, node);
+      node = `subgraph "cluster_${dot_id}_changed" { color=goldenrod1 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"\n${node}}\n`;
     } else if (this.removed_reqs.includes(req_id)) {
-      node = 'subgraph "cluster_{}_removed" { color=red penwidth=2 label="removed" fontname="Arial" labelloc="t" style="rounded"\n{}}\n'.format(dot_id, node);
+      node = `subgraph "cluster_${dot_id}_removed" { color=red penwidth=2 label="removed" fontname="Arial" labelloc="t" style="rounded"\n${node}}\n`;
     }
     if (highlights.includes(req_id)) {
       //rq: ->(	rq_highlight_sel)
-      node = 'subgraph "cluster_{}" { id="sel_{}" color=maroon3 penwidth=3 label="" style="rounded"\n{}}\n'.format(dot_id, dot_id, node);
+      node = `subgraph "cluster_${dot_id}" { id="sel_${dot_id}" color=maroon3 penwidth=3 label="" style="rounded"\n${node}}\n`;
     }
     return node;
   }
@@ -654,8 +647,8 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {boolean}
    */
   check_linksto_safe(from, to) {
-    let combo = "{}>{}".format(from, to)
-    for (const re of program_settings.safety_link_rules) {
+    let combo = `${from}>${to}`;
+    for (const re of this.safety_regex_array) {
       if (combo.match(re)) {
         return true
       }
@@ -671,11 +664,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    */
   build_doctype_with_safetyclass(id, safety) {
     // construct a doctype name, qualified with safetyclass
-    let rec = this.requirements.get(id)
+    let rec = this.requirements.get(id);
     if (safety) {
-      return "{}:{}".format(rec.doctype, rec.safetyclass)
+      return `${rec.doctype}:${rec.safetyclass}`;
     } else {
-      return rec.doctype
+      return rec.doctype;
     }
   }
 
@@ -737,7 +730,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         if (!need.endsWith('*')) {
           if (doctype_safety) {
             // will need at least its own safetyclass
-            dest_doctype = "{}:{}".format(need, this.requirements.get(id).safetyclass)
+            dest_doctype = `${need}:${this.requirements.get(id).safetyclass}`;
           } else {
             dest_doctype = need
           }
@@ -750,7 +743,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       for (let ffb of ffb_list) {
         if (doctype_safety) {
           // will need at least its own safetyclass
-          dest_doctype = "{}:{}".format(ffb.doctype, this.requirements.get(id).safetyclass)
+          dest_doctype = `${ffb.doctype}:${this.requirements.get(id).safetyclass}`;
         } else {
           dest_doctype = ffb.doctype
         }
@@ -758,6 +751,20 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         this.dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb.id])
       }
     }
+  }
+
+  /**
+   * Build safety regexes from strings
+   * @return {boolean} true: regex list updated, false: regex broken
+   */
+  build_safety_regexes() {
+    let result = process_rule_set(program_settings.safety_link_rules);
+    if (result.pass) {
+      this.safety_regex_array = result.regex_list;
+    } else {
+      //alert(result.error);
+    }
+    return result.pass;
   }
 
   /**
@@ -771,15 +778,16 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   scan_doctypes(doctype_safety) {
     //rq: ->(rq_doctype_hierarchy)
     //rq: ->(rq_doctype_aggr_safety)
+    if (doctype_safety) {
+      this.build_safety_regexes();
+    }
     this.dt_map = new Map() // A map of { doctype_name : DoctypeRelations }
     this.build_doctype_mapping(doctype_safety)
     // DOT language start of diagram
     let graph = `digraph "" {
-      rankdir="{}"
+      rankdir="${doctype_safety ? 'BT' : 'TD'}"
       node [shape=plaintext fontname="Arial" fontsize=16]
-      edge [color="black" dir="forward" arrowhead="normal" arrowtail="normal" fontname="Arial" fontsize=11];
-
-`.format(doctype_safety ? 'BT' : 'TD')
+      edge [color="black" dir="forward" arrowhead="normal" arrowtail="normal" fontname="Arial" fontsize=11];\n\n`;
     // Define the doctype nodes - the order affects the layout
     const doctype_array = Array.from(this.doctype_clusters.keys())
     for (let doctype of doctype_array) {
@@ -792,23 +800,18 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       for (const sub_doctype of doctypes_in_cluster) {
         let dt = this.dt_map.get(sub_doctype)
         let sc = sub_doctype.split(':')[1]
-        sc_string += '</TD><TD port="{}">{}: {} '.format(sc_str(sc), sc_str(sc), dt.count)
+        sc_string += `</TD><TD port="${sc_str(sc)}">${sc_str(sc)}: ${dt.count} `;
         count_total += dt.count
       }
       if (doctype_safety) {
-        sc_stats = '\n          <TR><TD>safetyclass:{}</TD></TR>'.format(sc_string)
+        sc_stats = `\n          <TR><TD>safetyclass:${sc_string}</TD></TR>`;
       }
       let dt_node = `\
-      "{}" [label=<
-        <TABLE BGCOLOR="{}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
-        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: {}</TD></TR>
-        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: {}</TD></TR>{}
-      </TABLE>>];\n\n`.format(
-          doctype,
-          get_color(doctype),
-          doctype,
-          count_total,
-          sc_stats)
+      "${doctype}" [label=<
+        <TABLE BGCOLOR="${get_color(doctype)}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: ${doctype}</TD></TR>
+        <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: ${count_total}</TD></TR>${sc_stats}
+      </TABLE>>];\n\n`;
       graph += dt_node
     }
     let dt
@@ -818,30 +821,23 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     for (let doctype of doctype_edges) {
       dt = this.dt_map.get(doctype)
       // Needsobj links
-      graph += '# linkage from {}\n'.format(doctype)
+      graph += `# linkage from ${doctype}\n`;
       let need_keys = Array.from(dt.needsobj.keys())
       if (!doctype_safety) {
         for (let nk of need_keys) {
-          count = dt.needsobj.get(nk)
-          graph += ' "{}" -> "{}" [label="need({}){} " style="dotted"]\n'.format(
-            doctype.split(':')[0],
-            nk.split(':')[0],
-            count,
-            doctype_safety ? '\n{}'.format(dt_sc_str(doctype)) : '')
+          count = dt.needsobj.get(nk);
+          graph += ` "${doctype.split(':')[0]}" -> "${nk.split(':')[0]}" [label="need(${count})${doctype_safety ? `\n${dt_sc_str(doctype)}` : ''} " style="dotted"]\n`;
         }
       }
       // linksto links
       let lt_keys = Array.from(dt.linksto.keys())
       for (let lk of lt_keys) {
         count = dt.linksto.get(lk).length
-        graph += ' "{}" -> "{}" [label="linksto({}){} " color="{}"]\n'.format(
-          doctype.split(':')[0],
-          lk.split(':')[0],
-          count,
-          doctype_safety ? '\\l{}>{}'.format(dt_sc_str(doctype), dt_sc_str(lk)) : '',
-          doctype_safety ? this.linksto_safe_color(doctype, lk) : 'black')
+        graph += ` "${doctype.split(':')[0]}" -> "${lk.split(':')[0]}" [label="linksto(${count})${
+          doctype_safety ? `\\l${dt_sc_str(doctype)}>${dt_sc_str(lk)}` : ''} " color="${
+          doctype_safety ? this.linksto_safe_color(doctype, lk) : 'black'}"]\n`;
         if (doctype_safety && !this.check_linksto_safe(doctype, lk)) {
-          let prov_list = dt.linksto.get(lk).map(x => '{} -> {}'.format(quote_id(x[1]), quote_id(x[0])))
+          let prov_list = dt.linksto.get(lk).map(x => `${quote_id(x[1])} -> ${quote_id(x[0])}`)
           let dt2 = doctype
           if (dt2.endsWith(':')) {
             dt2 += '<none>'
@@ -849,7 +845,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
           if (lk.endsWith(':')) {
             lk += '<none>'
           }
-          let problem = "{} provcov to {}\n  {}".format(dt2, lk, prov_list.join('\n  '))
+          let problem = `${dt2} provcov to ${lk}\n  ${prov_list.join('\n  ')}`;
           this.problem_report(problem)
         }
       }
@@ -857,27 +853,24 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       let ffb_keys = Array.from(dt.fulfilledby.keys())
       for (let ffb of ffb_keys) {
         count = dt.fulfilledby.get(ffb).length
-        graph += ' "{}" -> "{}" [label="fulfilledby({}){} " color="{}" style="dashed"]\n'.format(
-          doctype.split(':')[0],
-          ffb.split(':')[0],
-          count,
-          doctype_safety ? '\n{}>{}'.format(dt_sc_str(ffb), dt_sc_str(doctype)) : '',
-          doctype_safety ? this.linksto_safe_color(ffb, doctype) : 'purple')
+        graph += ` "${doctype.split(':')[0]}" -> "${ffb.split(':')[0]}" [label="fulfilledby(${count})${
+          doctype_safety ? `\n${dt_sc_str(ffb)}>${dt_sc_str(doctype)}` : ''} " color="${
+          doctype_safety ? this.linksto_safe_color(ffb, doctype) : 'purple'}" style="dashed"]\n`;
         if (doctype_safety && !this.check_linksto_safe(ffb, doctype)) {
-          let problem = "{} fulfilledby {}".format(ffb, doctype)
+          let problem = `${ffb} fulfilledby ${doctype}`;
           this.problem_report(problem)
         }
       }
     }
     let rules = new Object()
     if (doctype_safety) {
-      rules.text = xml_escape(JSON.stringify(program_settings.safety_link_rules, 0, 2)).replace(/\\/g, '\\\\')
-      rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ')
+      let safety_rules_string = JSON.stringify(program_settings.safety_link_rules, null, 2);
+      rules.text = xml_escape(safety_rules_string.replace(/\\/g, '\\\\'));
+      rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ');
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
     }
     //rq: ->(rq_diagram_legend)
-    graph += '\n  label={}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n'.format(
-      this.construct_graph_title(false, rules, null, false, null))
+    graph += `\n  label=${this.construct_graph_title(false, rules, null, false, null)}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n`;
     graph += '\n}\n'
     //console.log(graph)
     this.dot = graph
@@ -896,46 +889,34 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) { //rq: ->(rq_diagram_legend)
     let title = '""'
     title  = '<\n    <table border="0" cellspacing="0" cellborder="1">\n'
-    title += '      <tr><td cellspacing="0" >File</td><td>{}</td><td>{}</td></tr>\n'.format(this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), this.timestamp)
+    title += `      <tr><td cellspacing="0" >File</td><td>${this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>')}</td><td>${this.timestamp}</td></tr>\n`;
 
     if (show_filters) {
       if (oreqm_ref) {
-        title += '      <tr><td>Ref. file</td><td>{}</td><td>{}</td></tr>\n'.format(oreqm_ref.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>'), oreqm_ref.timestamp)
-        /*
-        let diff = oreqm_main.get_main_ref_diff()
-        if (diff.new_reqs.length) {
-          title += '      <tr><td>New reqs</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(diff.new_reqs.join('<BR ALIGN="LEFT"/>'))
-        }
-        if (diff.updated_reqs.length) {
-          title += '      <tr><td>Updated reqs</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(diff.updated_reqs.join('<BR ALIGN="LEFT"/>'))
-        }
-        if (diff.removed_reqs.length) {
-          title += '      <tr><td>Removed reqs</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(diff.removed_reqs.join('<BR ALIGN="LEFT"/>'))
-        }
-        */
+        title += `      <tr><td>Ref. file</td><td>${oreqm_ref.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>')}</td><td>${oreqm_ref.timestamp}</td></tr>\n`;
       }
       if (search_pattern.length) {
         let search_formatted = xml_escape(search_pattern.replace(/&/g, '&amp;'))
         let pattern_string = search_formatted.trim().replace(/([^\n]{40,500}?\|)/g, '$1<BR ALIGN="LEFT"/>').replace(/\n/g, '<BR ALIGN="LEFT"/>')
         if (id_checkbox) {
-          title += '      <tr><td>Search &lt;id&gt;</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(pattern_string.replace(/\\/g, '\\\\'))
+          title += `      <tr><td>Search &lt;id&gt;</td><td colspan="2">${pattern_string.replace(/\\/g, '\\\\')}<BR ALIGN="LEFT"/></td></tr>\n`;
         } else {
-          title += '      <tr><td>Search text</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(pattern_string.replace( /\\/g, '\\\\'))
+          title += `      <tr><td>Search text</td><td colspan="2">${pattern_string.replace( /\\/g, '\\\\')}<BR ALIGN="LEFT"/></td></tr>\n`;
         }
       }
       let ex_dt_list = this.excluded_doctypes
       if (ex_dt_list.length) {
-        title += '      <tr><td>excluded doctypes</td><td colspan="2">{}</td></tr>\n'.format(ex_dt_list.join(", ").replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>'))
+        title += `      <tr><td>excluded doctypes</td><td colspan="2">${ex_dt_list.join(", ").replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>')}</td></tr>\n`;
       }
 
-      let excluded_ids = this.excluded_ids
+      let excluded_ids = this.excluded_ids;
       if (excluded_ids.length) {
-        title += '      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(excluded_ids.join('<BR ALIGN="LEFT"/>'))
+        title += `      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">${excluded_ids.join('<BR ALIGN="LEFT"/>')}<BR ALIGN="LEFT"/></td></tr>\n`;
       }
     }
 
     if (extra && extra.title && extra.text && extra.title.length && extra.text.length) {
-      title += '      <tr><td>{}</td><td colspan="2">{}<BR ALIGN="LEFT"/></td></tr>\n'.format(extra.title, extra.text)
+      title += `      <tr><td>${extra.title}</td><td colspan="2">${extra.text}<BR ALIGN="LEFT"/></td></tr>\n`;
     }
     title += '    </table>>'
     //console.log(title)

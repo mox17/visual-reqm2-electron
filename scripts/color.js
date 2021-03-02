@@ -151,7 +151,7 @@ export function save_colors_fs(path = null) {
     SavePath = path;
   }
   if (typeof(SavePath) !== 'undefined') {
-    fs.writeFileSync(SavePath, JSON.stringify(_my_palette, 0, 2), 'utf8')
+    fs.writeFileSync(SavePath, JSON.stringify(_my_palette, null, 2), 'utf8')
     _store_colors(_my_palette);
   }
 }

@@ -30,10 +30,8 @@ function sleep(ms) {
 let screenshot_count = 1
 
 function screenshot(app, title="screenshot") {
-  //console.log('screenshot 1');
   app.browserWindow.capturePage().then(function (imageBuffer) {
     let filename = `./tmp/${title}-${screenshot_count}.png`;
-    //console.log('screenshot 2:', filename);
     fs.writeFileSync(filename, imageBuffer);
     screenshot_count += 1;
   })
@@ -67,7 +65,7 @@ async function compare_files(main_file, ref_file) {
   await sleep(500); // Allow content to be written
   let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
   let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
-  assert.strictEqual(main_txt, ref_txt);
+  assert.strictEqual(ref_txt, main_txt);
   return main_txt;
 }
 
@@ -108,12 +106,19 @@ async function click_button(app, id) {
   await button.click();
 }
 
+async function show_settings(app) {
+  await fakeMenu.clickMenu('Edit', 'Settings...');
+  await screenshot(app, 'settingsdialog');
+  await click_button(app, '#settingsPopupClose');
+}
+
 describe("Application launch", function () {
   this.timeout(10000);
   let app;
 
   before(function () {
     mkdirp.sync("./tmp");
+    remove_file("./tmp/settings.json");
     chai.should();
     chai.use(chaiAsPromised);
     chai.use(chaiRoughly);
@@ -123,7 +128,7 @@ describe("Application launch", function () {
     app = new Application({
       path: electronPath,
       env: { RUNNING_IN_SPECTRON: "1" }, // Tell special behavior needed for argument handling
-      args: [path.join(__dirname, "..")],
+      args: [path.join(__dirname, ".."), '-D', './tmp', '-F', 'settings.json'],
       chromeDriverLogPath: path.join(__dirname, "..", "./tmp/chromedriver.log"),
     });
     fakeMenu.apply(app);
@@ -154,7 +159,6 @@ describe("Application launch", function () {
         height: 100
       });
     await app.client.waitUntilTextExists('html', 'ReqM2');
-    //console.log("The window title is:", await app.client.getTitle());
     assert.strictEqual(await app.client.getTitle(), 'Visual ReqM2');
   });
 
@@ -166,7 +170,6 @@ describe("Application launch", function () {
       //console.log(typeof style, style);
       assert.ok(!style.includes('block'));
       await click_button(app, '#aboutButton');
-      //console.dir(aboutpane);
       expect(aboutpane.getAttribute('style')).to.eventually.include('block');
     });
 
@@ -181,6 +184,7 @@ describe("Application launch", function () {
     it('open modal', async function () {
       await app.client.waitUntilWindowLoaded();
       await fakeMenu.clickMenu('Edit', 'Settings...');
+      await screenshot(app, 'sett-1');
       const settings_menu = await app.client.$('#settingsPopup');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('block'));
@@ -189,16 +193,13 @@ describe("Application launch", function () {
     it('Safety rules validation', async function () {
       const settings_menu = await app.client.$('#settingsPopup');
       const safety_rules = await app.client.$('#safety_rules');
-      const rules_txt = await safety_rules.getValue()
       //console.log("Safety rules are:", rules_txt);
       // Test validation of well-formed regular expressions
       await safety_rules.setValue("Not a [ valid( regex");
       await click_button(app, '#sett_ok');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('display: block;')); //rq: ->(rq_safety_rules_config)
-      // restore values
-      await safety_rules.setValue(rules_txt);
-      await click_button(app, '#sett_ok');
+      await click_button(app, '#sett_cancel');
       style = await settings_menu.getAttribute('style');
       assert.ok(!style.includes('block;'));
     });
@@ -260,13 +261,12 @@ describe("Application launch", function () {
     });
 
     it('ref oreqm', async function () {
-      await app.client.waitUntilWindowLoaded();
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
       await click_button(app, '#get_ref_oreqm_file');
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
       //assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
       //rq: ->(rq_filesel_ref_oreqm)
-      await screenshot(app, 'reference');
+      await screenshot(app, 'ref-oreqm');
     });
 
     it('save comparison as dot', async function () {
@@ -293,7 +293,7 @@ describe("Application launch", function () {
     it('doctype hierarchy diagram', async function () {
       await click_button(app, '#show_doctypes');
       assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
-      await screenshot(app);
+      await screenshot(app, 'hierarchy-diagram');
     });
 
     it('save doctype hierarchy diagram as dot', async function () {
@@ -307,12 +307,13 @@ describe("Application launch", function () {
     it('Safety diagram', async function () {
       await click_button(app, '#show_doctypes_safety');
       assert.notProperty(await app.client.$('#svg_output'), 'error');
-      await screenshot(app);
+      await screenshot(app, 'safety-diagram');
     });
 
     it('Save safety diagram as dot', async function () {
       let dot_filename = './tmp/safety_1.dot';
       await remove_file(dot_filename);
+      show_settings(app);  // debug
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await compare_files(dot_filename, './test/refdata/safety_1.dot'); //rq: ->(rq_doctype_aggr_safety)
@@ -356,7 +357,7 @@ describe("Application launch", function () {
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
       let problem_txt = await problem_div.getAttribute('innerHTML');
-      console.log(problem_txt);
+      //console.log(problem_txt);
       assert.ok(problem_txt.includes('duplicated')); //rq: ->(rq_dup_same_version)
       await click_button(app, '#problemPopupClose');
       await sleep(1000)
