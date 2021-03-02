@@ -110,7 +110,11 @@ function settings_dialog_prepare() {
     //console.log(program_settings.max_calc_nodes);
     box.value = program_settings.top_doctypes.join(',');
   }
-  document.getElementById('safety_rules').value = JSON.stringify(program_settings.safety_link_rules, 0, 2);
+  let str = `Rules:\n ${JSON.stringify(program_settings.safety_link_rules, null, 2)}`;
+  if (!str.includes('^')) {
+    console.log(str);
+  }
+  document.getElementById('safety_rules').value = JSON.stringify(program_settings.safety_link_rules, null, 2);
 }
 
 /**
@@ -138,7 +142,7 @@ function settings_dialog_results() {
   try {
     //rq: ->(rq_safety_rules_config)
     let new_rules = document.getElementById('safety_rules').value
-    alert(new_rules)
+    //alert(new_rules)
     let new_safety_rules = JSON.parse(new_rules)
     let result = process_rule_set(new_safety_rules)
     if (result.pass) {
@@ -215,12 +219,11 @@ export function process_rule_set(new_rules) {
       regex_array.push(regex_rule)
     }
     if (result.pass) {
-      //console.log(program_settings.safety_link_rules)
       result.regex_list = regex_array;
     }
   } else {
-     //alert('Expected array of rule regex strings')
-     result.error = 'Expected array of rule regex strings'
+    result.error = 'Expected array of rule regex strings'
+    //alert(result.error)
      result.pass = false
   }
   return result

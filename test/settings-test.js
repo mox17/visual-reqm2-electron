@@ -39,7 +39,7 @@ describe("Settings tests", function () {
     assert.strictEqual(settings.program_settings.show_coverage, false);
 
     //console.dir(new_settings.safety_link_rules);
-    //console.dir(JSON.stringify(new_settings.safety_link_rules, 0, 2));
+    //console.dir(JSON.stringify(new_settings.safety_link_rules, null, 2));
     new_settings.color_status = 7;
     settings.check_and_upgrade_settings(new_settings);
     assert.strictEqual(settings.program_settings.color_status, false);

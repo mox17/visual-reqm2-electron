@@ -118,6 +118,7 @@ describe("Application launch", function () {
 
   before(function () {
     mkdirp.sync("./tmp");
+    remove_file("./tmp/settings.json");
     chai.should();
     chai.use(chaiAsPromised);
     chai.use(chaiRoughly);
@@ -192,16 +193,13 @@ describe("Application launch", function () {
     it('Safety rules validation', async function () {
       const settings_menu = await app.client.$('#settingsPopup');
       const safety_rules = await app.client.$('#safety_rules');
-      const rules_txt = await safety_rules.getValue()
       //console.log("Safety rules are:", rules_txt);
       // Test validation of well-formed regular expressions
       await safety_rules.setValue("Not a [ valid( regex");
       await click_button(app, '#sett_ok');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('display: block;')); //rq: ->(rq_safety_rules_config)
-      // restore values
-      await safety_rules.setValue(rules_txt);
-      await click_button(app, '#sett_ok');
+      await click_button(app, '#sett_cancel');
       style = await settings_menu.getAttribute('style');
       assert.ok(!style.includes('block;'));
     });

@@ -762,7 +762,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     if (result.pass) {
       this.safety_regex_array = result.regex_list;
     } else {
-      alert(result.error);
+      //alert(result.error);
     }
     return result.pass;
   }
@@ -864,13 +864,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     }
     let rules = new Object()
     if (doctype_safety) {
-      let safety_rules_string = JSON.stringify(program_settings.safety_link_rules, 0, 2);
-      if (!safety_rules_string.includes('^')) {
-        //alert(safety_rules_string);
-        console.log("Safety rules strings:")
-        console.dir(program_settings.safety_link_rules);
-        console.dir(safety_rules_string);
-      }
+      let safety_rules_string = JSON.stringify(program_settings.safety_link_rules, null, 2);
       rules.text = xml_escape(safety_rules_string.replace(/\\/g, '\\\\'));
       rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ');
       rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
