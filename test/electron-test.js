@@ -65,7 +65,7 @@ async function compare_files(main_file, ref_file) {
   await sleep(500); // Allow content to be written
   let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
   let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
-  assert.strictEqual(ref_txt, main_txt);
+  assert.strictEqual(main_txt, ref_txt);
   return main_txt;
 }
 
@@ -113,7 +113,7 @@ async function show_settings(app) {
 }
 
 describe("Application launch", function () {
-  this.timeout(10000);
+  this.timeout(12000);
   let app;
 
   before(function () {
@@ -185,6 +185,18 @@ describe("Application launch", function () {
       await app.client.waitUntilWindowLoaded();
       await fakeMenu.clickMenu('Edit', 'Settings...');
       await screenshot(app, 'sett-1');
+      // This is the list of fields that can be compared. Keep coordinated with settings.js
+      // Check that all are present in settings dialog.
+      let fields = [
+        'id', 'comment', 'dependson', 'description', 'doctype', 'fulfilledby', 'furtherinfo',
+        'linksto', 'needsobj', 'platform', 'rationale', 'safetyclass', 'safetyrationale',
+        'shortdesc', 'source', 'sourcefile', 'sourceline', 'status', 'tags', 'usecase',
+        'verifycrit', 'version', 'violations'];
+      for (const field of fields) {
+        let checkbox = await app.client.$(`#sett_ignore_${field}`);
+        //console.dir(checkbox)
+        assert.notProperty(checkbox, 'error'); //rq: ->(rq_tag_ignore_diff)
+      }
       const settings_menu = await app.client.$('#settingsPopup');
       let style = await settings_menu.getAttribute('style');
       assert.ok(style.includes('block'));
@@ -260,7 +272,35 @@ describe("Application launch", function () {
       assert.ok(main_txt.includes('BGCOLOR="#')); //rq: ->(rq_doctype_color)
     });
 
+    it('select node', async function () {
+      let dot_filename = './tmp/main_select_1.dot';
+      await remove_file(dot_filename);
+      let selection_box = await app.client.$('#search_regex');
+    //   await selection_box.setValue("id:cc.game.locations$");
+    //   console.dir(await app.client.isExisting('.svg-pan-zoom_viewport #graph0'))
+    //   await app.client.$('.svg-pan-zoom_viewport #graph0').waitForExist();
+    //   await screenshot(app, "select_game_locations")
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+    //   //let txt = await compare_files(dot_filename, './test/refdata/main_select_1.dot'); //rq: ->(rq_calc_shown_graph)
+    //   //assert.ok(txt.includes('subgraph "cluster_cc.game.locations"')); //rq: ->(rq_highlight_sel)
+    });
+
+    it('exclude node', async function () {
+      let dot_filename = './tmp/main_exclude_1.dot';
+      let svg_map = await get_svg_node_map(app);
+      await context_menu_click(app, svg_map, 'zork.game.location.frobozz', '#menu_exclude');
+      //assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await compare_files(dot_filename, './test/refdata/main_exclude_1.dot'); //rq: ->(rq_excl_id)
+      await click_button(app, '#clear_excluded_ids');
+      await click_button(app, '#clear_search_regex');
+    });
+
     it('ref oreqm', async function () {
+      await click_button(app, '#clear_excluded_ids');
+      await click_button(app, '#clear_search_regex');
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
       await click_button(app, '#get_ref_oreqm_file');
       assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
