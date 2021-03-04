@@ -339,6 +339,15 @@ describe("Application launch", function () {
       assert.ok(fs.existsSync(png_filename)); //rq: ->(rq_save_png_file)
     });
 
+    it('save comparison as svg', async function () {
+      let svg_filename = './tmp/main_ref_1.svg';
+      await remove_file(svg_filename);
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: svg_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
+      await compare_files(svg_filename, './test/refdata/main_ref_1.svg'); //rq: ->(rq_save_svg_file)
+    });
+
   });
 
   describe('Show special diagrams', function () {
