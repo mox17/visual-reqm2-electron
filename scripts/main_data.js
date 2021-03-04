@@ -14,6 +14,17 @@ export function settings_updated() {
   }
 }
 
+let action_start = action_indicate_start;
+let action_done = action_indicate_done;
+
+// Empty functions as fallback
+function action_indicate_start() { }
+function action_indicate_done() { }
+
+export function set_action_cb(start, done) {
+  action_start = start;
+  action_done = done;
+}
 
 /** worker thread running graphviz */
 var vizjs_worker;
@@ -37,6 +48,7 @@ export var dot_source = ''
  * @param {function} cb_error some_function(error)
  */
 export function update_graph(selected_format, cb_spinner_run, cb_spinner_stop, cb_success, cb_error) {
+  action_start();
   if (vizjs_worker) {
     vizjs_worker.terminate();
     vizjs_worker = null
@@ -46,14 +58,14 @@ export function update_graph(selected_format, cb_spinner_run, cb_spinner_stop, c
     cb_spinner_run('Processing dot');
   }
   vizjs_worker.onmessage = function(e) {
+    svg_result = e.data;
     if (cb_spinner_stop) {
       cb_spinner_stop();
     }
-    svg_result = e.data;
-
     if (cb_success) {
       cb_success(e.data)
     }
+    action_done();
   }
 
   vizjs_worker.onerror = function(e) {
@@ -64,6 +76,7 @@ export function update_graph(selected_format, cb_spinner_run, cb_spinner_stop, c
     if (cb_error) {
       cb_error(message)
     }
+    action_done();
   }
 
   dot_source = oreqm_main != null ? oreqm_main.get_dot() : "digraph foo {\nfoo -> bar\nfoo -> baz\n}\n"
@@ -83,12 +96,13 @@ export function update_graph(selected_format, cb_spinner_run, cb_spinner_stop, c
   }
 
   if (selected_format === 'dot-source') {
-    if (cb_spinner_stop) {
-      cb_spinner_stop();
-    }
     if (cb_success) {
       cb_success(dot_source);
     }
+    if (cb_spinner_stop) {
+      cb_spinner_stop();
+    }
+    action_done();
   } else {
     vizjs_worker.postMessage(params);
     if (cb_spinner_run) {
@@ -131,8 +145,10 @@ export function convert_svg_to_png(svg, cb_done=undefined) {
  * @param {string} savePath path whre to store diagram
  */
 export function save_diagram_file(savePath) {
+  action_start();
   if (savePath.endsWith('.svg') || savePath.endsWith('.SVG')) {
     fs.writeFileSync(savePath, svg_result, 'utf8')
+    action_done();
   } else if (savePath.endsWith('.png') || savePath.endsWith('.PNG')) {
     Viz.svgXmlToPngImageElement(svg_result, 1, (ev, png) => {
       if (ev === null) {
@@ -142,11 +158,14 @@ export function save_diagram_file(savePath) {
       } else {
         console.log("error generating png:", ev);
       }
+      action_done();
     });
   } else if (savePath.endsWith('.dot') || savePath.endsWith('.DOT')) {
     fs.writeFileSync(savePath, dot_source, 'utf8');
+    action_done();
   } else {
     alert("Unsupported file types in\n"+savePath)
+    action_done();
   }
 }
 

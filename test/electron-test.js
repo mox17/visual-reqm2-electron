@@ -112,6 +112,10 @@ async function show_settings(app) {
   await click_button(app, '#settingsPopupClose');
 }
 
+async function wait_for_operation(app) {
+  await app.client.waitUntilTextExists('#viz_working', 'done')
+}
+
 describe("Application launch", function () {
   this.timeout(12000);
   let app;
@@ -248,7 +252,7 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]); //rq: ->(rq_filesel_main_oreqm)
       await click_button(app, '#get_main_oreqm_file');
       //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
-      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error'); //rq: ->(rq_svg_pan_zoom)
+      await wait_for_operation(app);
 
       let svg_map = await get_svg_node_map(app);
 
@@ -259,6 +263,7 @@ describe("Application launch", function () {
       assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview:fea:1'); //rq: ->(rq_ctx_copy_id_dt_ver)
 
       await context_menu_click(app, svg_map, 'cc.game.overview', '#menu_copy_png');
+      await wait_for_operation(app);
       let png = await app.electron.clipboard.readImage();
       assert.property(png, 'toPNG'); //rq: ->(rq_ctx_copy_png)
     });
@@ -268,6 +273,7 @@ describe("Application launch", function () {
       await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
       let main_txt = await compare_files(dot_filename, './test/refdata/main_1.dot');
       assert.ok(main_txt.includes('BGCOLOR="#')); //rq: ->(rq_doctype_color)
     });
@@ -275,24 +281,27 @@ describe("Application launch", function () {
     it('select node', async function () {
       let dot_filename = './tmp/main_select_1.dot';
       await remove_file(dot_filename);
-      let selection_box = await app.client.$('#search_regex');
-    //   await selection_box.setValue("id:cc.game.locations$");
-    //   console.dir(await app.client.isExisting('.svg-pan-zoom_viewport #graph0'))
-    //   await app.client.$('.svg-pan-zoom_viewport #graph0').waitForExist();
-    //   await screenshot(app, "select_game_locations")
+      //console.dir(await app.client.getRenderProcessLogs())
+      let svg_map = await get_svg_node_map(app);
+      await context_menu_click(app, svg_map, 'cc.game.locations', '#menu_select');
+      await wait_for_operation(app);
+      await screenshot(app, "select_game_locations");
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-    //   //let txt = await compare_files(dot_filename, './test/refdata/main_select_1.dot'); //rq: ->(rq_calc_shown_graph)
-    //   //assert.ok(txt.includes('subgraph "cluster_cc.game.locations"')); //rq: ->(rq_highlight_sel)
+      await wait_for_operation(app);
+      let txt = await compare_files(dot_filename, './test/refdata/main_select_1.dot'); //rq: ->(rq_calc_shown_graph)
+      assert.ok(txt.includes('subgraph "cluster_cc.game.locations"')); //rq: ->(rq_highlight_sel)
     });
 
     it('exclude node', async function () {
       let dot_filename = './tmp/main_exclude_1.dot';
       let svg_map = await get_svg_node_map(app);
       await context_menu_click(app, svg_map, 'zork.game.location.frobozz', '#menu_exclude');
-      //assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
+      await wait_for_operation(app);
+      await screenshot(app, "exclude_frobozz");
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
       await compare_files(dot_filename, './test/refdata/main_exclude_1.dot'); //rq: ->(rq_excl_id)
       await click_button(app, '#clear_excluded_ids');
       await click_button(app, '#clear_search_regex');
@@ -303,8 +312,7 @@ describe("Application launch", function () {
       await click_button(app, '#clear_search_regex');
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
       await click_button(app, '#get_ref_oreqm_file');
-      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
-      //assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+      await wait_for_operation(app);
       //rq: ->(rq_filesel_ref_oreqm)
       await screenshot(app, 'ref-oreqm');
     });
@@ -314,6 +322,7 @@ describe("Application launch", function () {
       await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
       expect(file(dot_filename)).to.exist;
       await compare_files(dot_filename, './test/refdata/main_ref_1.dot'); //rq: ->(rq_oreqm_diff_calc,rq_req_diff_show)
     });
@@ -323,7 +332,7 @@ describe("Application launch", function () {
       await remove_file(png_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: png_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      await holdBeforeFileExists(png_filename, 5000);
+      await wait_for_operation(app);
       assert.ok(fs.existsSync(png_filename)); //rq: ->(rq_save_png_file)
     });
 
@@ -332,7 +341,7 @@ describe("Application launch", function () {
   describe('Show special diagrams', function () {
     it('doctype hierarchy diagram', async function () {
       await click_button(app, '#show_doctypes');
-      assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+      await wait_for_operation(app);
       await screenshot(app, 'hierarchy-diagram');
     });
 
@@ -341,12 +350,13 @@ describe("Application launch", function () {
       await remove_file(dot_filename);
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
       compare_files(dot_filename, './test/refdata/doctypes_1.dot'); //rq: ->(rq_doctype_hierarchy)
     });
 
     it('Safety diagram', async function () {
       await click_button(app, '#show_doctypes_safety');
-      assert.notProperty(await app.client.$('#svg_output'), 'error');
+      await wait_for_operation(app);
       await screenshot(app, 'safety-diagram');
     });
 
@@ -356,6 +366,7 @@ describe("Application launch", function () {
       show_settings(app);  // debug
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
       await compare_files(dot_filename, './test/refdata/safety_1.dot'); //rq: ->(rq_doctype_aggr_safety)
     });
 
@@ -372,7 +383,7 @@ describe("Application launch", function () {
       let oreqm_name = './test/sample_oreqm/0007_violations.oreqm';
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
       await click_button(app, '#get_main_oreqm_file');
-      assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
+      await wait_for_operation(app);
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
       let problem_txt = await problem_div.getAttribute('innerHTML');
@@ -381,6 +392,7 @@ describe("Application launch", function () {
       let dot_filename = './tmp/0007_violations.dot'
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
       await compare_files(dot_filename, './test/refdata/0007_violations.dot'); //rq: ->(rq_dup_req)
     });
 
@@ -392,15 +404,13 @@ describe("Application launch", function () {
       let oreqm_name = './test/sample_oreqm/0007_dup-same-version.oreqm';
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
       await click_button(app, '#get_main_oreqm_file');
-      await app.client.$('.svg-pan-zoom_viewport #graph0');
-      await sleep(1000)
+      await wait_for_operation(app);
       await click_button(app, '#issuesButton');
       let problem_div = await app.client.$('#raw_problems');
       let problem_txt = await problem_div.getAttribute('innerHTML');
       //console.log(problem_txt);
       assert.ok(problem_txt.includes('duplicated')); //rq: ->(rq_dup_same_version)
       await click_button(app, '#problemPopupClose');
-      await sleep(1000)
       let dot_filename = './tmp/0007_dup-same-version.dot'
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
@@ -411,7 +421,7 @@ describe("Application launch", function () {
       await click_button(app, '#save_problems');
       await click_button(app, '#clear_problems');
       await click_button(app, '#problemPopupClose');
-      await holdBeforeFileExists(issue_file, 5000);
+      await wait_for_operation(app);
       assert.ok(fs.existsSync(issue_file)); //rq: ->(rq_issues_file_export)
     });
   });
@@ -431,9 +441,9 @@ describe("Application launch", function () {
             console.log("        loading:", oreqm_name)
             await fakeDialog.mock([ { method: 'showOpenDialogSync', value: [oreqm_name] } ]);
             await click_button(app, '#get_main_oreqm_file');
-            assert.notProperty(await app.client.$('.svg-pan-zoom_viewport #graph0'), 'error');
-            await click_button(app, '#filter_graph');
-            assert.notProperty(await app.client.$('#svg_output'), 'error'); // A svg diagram was created
+            await wait_for_operation(app);
+            // await click_button(app, '#filter_graph');
+            // await wait_for_operation(app);
             const basename = path.basename(filename, '.oreqm');
             const dot_filename = `./tmp/${basename}.dot`;
             const ref_file = `./test/refdata/${basename}.dot`;
@@ -442,6 +452,7 @@ describe("Application launch", function () {
             await remove_file(dot_filename);
             await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
             await fakeMenu.clickMenu('File', 'Save diagram as...');
+            await wait_for_operation(app);
             console.log("        saving: ", dot_filename);
             await expect(file(dot_filename)).to.exist;
             if (fs.existsSync(ref_file)) {

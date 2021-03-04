@@ -131,6 +131,12 @@ subgraph "cluster_cc.game.locations" { id="sel_cc.game.locations" color=maroon3 
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
+  "zork.game.location.frobozz" [id="zork.game.location.frobozz" label=<
+      <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >zork.game.location.frobozz</TD><TD>1</TD><TD>vaporware</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+
 
   # Edges
   "cc.game.locations" -> "cc.game.overview" [style=bold fontname="Arial" fontcolor="red" label=""];
@@ -149,12 +155,12 @@ subgraph "cluster_cc.game.locations" { id="sel_cc.game.locations" color=maroon3 
   "cc.game.location.maze.7" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
   "cc.game.location.maze.8" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
   "cc.game.location.maze.9" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
+  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontname="Arial" label="ffb"];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">
       <tr><td cellspacing="0" >File</td><td>./testdata/oreqm_testdata_no_ogre.oreqm</td><td>Tue Feb 11 15:46:12 2020</td></tr>
       <tr><td>Search text</td><td colspan="2">cc.game.locations$<BR ALIGN="LEFT"/></td></tr>
-      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">zork.game.location.frobozz<BR ALIGN="LEFT"/></td></tr>
     </table>>
   labelloc=b
   fontsize=18
