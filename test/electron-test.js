@@ -254,6 +254,9 @@ describe("Application launch", function () {
       //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
       await wait_for_operation(app);
 
+      let pan_zoom = await app.client.$('.svg-pan-zoom_viewport #graph0');
+      assert.ok(pan_zoom !== undefined); //rq: ->(rq_svg_pan_zoom)
+
       let svg_map = await get_svg_node_map(app);
 
       await context_menu_click(app, svg_map, 'cc.game.overview', '#menu_copy_id');
