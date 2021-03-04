@@ -125,7 +125,7 @@ describe("Application launch", function () {
     chai.use(chaiAsPromised);
     chai.use(chaiRoughly);
   });
-  
+
   before(function () {
     mkdirp.sync("./tmp");
     remove_file("./tmp/settings.json");
@@ -251,7 +251,7 @@ describe("Application launch", function () {
       await app.client.waitUntilWindowLoaded();
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]); //rq: ->(rq_filesel_main_oreqm)
       await click_button(app, '#get_main_oreqm_file');
-      //rq: ->(rq_filesel_main_oreqm,rq_show_svg)
+
       await wait_for_operation(app);
 
       let pan_zoom = await app.client.$('.svg-pan-zoom_viewport #graph0');
@@ -260,7 +260,7 @@ describe("Application launch", function () {
       let svg_map = await get_svg_node_map(app);
 
       await context_menu_click(app, svg_map, 'cc.game.overview', '#menu_copy_id');
-      assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview'); //rq: ->(rq_ctx_copy_id,rq_svg_context_menu)
+      assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview'); //rq: ->(rq_ctx_copy_id,rq_svg_context_menu,rq_show_svg,rq_filesel_main_oreqm)
 
       await context_menu_click(app, svg_map, 'cc.game.overview', '#menu_copy_ffb');
       assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview:fea:1'); //rq: ->(rq_ctx_copy_id_dt_ver)
@@ -269,6 +269,15 @@ describe("Application launch", function () {
       await wait_for_operation(app);
       let png = await app.electron.clipboard.readImage();
       assert.property(png, 'toPNG'); //rq: ->(rq_ctx_copy_png)
+
+      let doctype_shown_totals = await app.client.$('#doctype_shown_totals');
+      assert.strictEqual(await doctype_shown_totals.getAttribute('innerHTML'), '26'); //rq: ->(rq_dt_shown_stat)
+
+      let doctype_select_totals = await app.client.$('#doctype_select_totals');
+      assert.strictEqual(await doctype_select_totals.getAttribute('innerHTML'), '0'); //rq: ->(rq_dt_sel_stat)
+
+      let doctype_totals = await app.client.$('#doctype_totals');
+      assert.strictEqual(await doctype_totals.getAttribute('innerHTML'), '26'); //rq: ->(rq_totals_stat)
     });
 
     it('save main as dot', async function () {
@@ -314,9 +323,8 @@ describe("Application launch", function () {
       await click_button(app, '#clear_excluded_ids');
       await click_button(app, '#clear_search_regex');
       await fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] } ]);
-      await click_button(app, '#get_ref_oreqm_file');
+      await click_button(app, '#get_ref_oreqm_file'); //rq: ->(rq_filesel_ref_oreqm)
       await wait_for_operation(app);
-      //rq: ->(rq_filesel_ref_oreqm)
       await screenshot(app, 'ref-oreqm');
     });
 

@@ -744,7 +744,7 @@
     cell.innerHTML = "totals:";
 
     cell = row.insertCell();
-    cell.innerHTML = doctype_totals  //rq: ->(rq_totals_stat)
+    cell.innerHTML = `<div id="doctype_totals">${doctype_totals}</div>`;  //rq: ->(rq_totals_stat)
 
     cell = row.insertCell();
     cell.innerHTML = '<div id="doctype_shown_totals">0</div>'
