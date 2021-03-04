@@ -249,11 +249,11 @@
   }
 
   function action_busy() {
-    document.getElementById("viz_working").innerHTML = 'working';
+    document.getElementById("vrm2_working").innerHTML = 'working';
   }
 
   function action_done() {
-    document.getElementById("viz_working").innerHTML = 'done';
+    document.getElementById("vrm2_working").innerHTML = 'done';
   }
 
   /** install callbacks for progress tracking */

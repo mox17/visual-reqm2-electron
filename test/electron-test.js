@@ -113,7 +113,7 @@ async function show_settings(app) {
 }
 
 async function wait_for_operation(app) {
-  await app.client.waitUntilTextExists('#viz_working', 'done')
+  await app.client.waitUntilTextExists('#vrm2_working', 'done')
 }
 
 describe("Application launch", function () {
