@@ -31,7 +31,7 @@ let screenshot_count = 1
 
 function screenshot(app, title="screenshot") {
   app.browserWindow.capturePage().then(function (imageBuffer) {
-    let filename = `./tmp/${title}-${screenshot_count}.png`;
+    let filename = `./tmp/${screenshot_count}-${title}.png`;
     fs.writeFileSync(filename, imageBuffer);
     screenshot_count += 1;
   })
@@ -61,8 +61,6 @@ function holdBeforeFileExists(filePath, timeout) {
 }
 
 async function compare_files(main_file, ref_file) {
-  await holdBeforeFileExists(main_file, 5000);
-  await sleep(500); // Allow content to be written
   let main_txt = eol.auto(fs.readFileSync(main_file, "utf8"));
   let ref_txt = eol.auto(fs.readFileSync(ref_file, "utf8"));
   assert.strictEqual(main_txt, ref_txt);
@@ -391,7 +389,7 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await wait_for_operation(app);
-      compare_files(dot_filename, './test/refdata/doctypes_1.dot'); //rq: ->(rq_doctype_hierarchy)
+      await compare_files(dot_filename, './test/refdata/doctypes_1.dot'); //rq: ->(rq_doctype_hierarchy)
     });
 
     it('Safety diagram', async function () {
@@ -454,7 +452,8 @@ describe("Application launch", function () {
       let dot_filename = './tmp/0007_dup-same-version.dot'
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
-      await compare_files(dot_filename, './test/refdata/0007_dup-same-version.dot'); //rq: ->(rq_dup_req_display)
+      await wait_for_operation(app);
+      await compare_files(dot_filename, './test/refdata/0007_dup-same-version.dot'); //rq: ->(rq_dup_req_display,rq_dup_id_ver_disp)
       await click_button(app, '#issuesButton');
       let issue_file = './tmp/0007_dup-same-version.txt';
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: issue_file } ]);
@@ -464,6 +463,21 @@ describe("Application launch", function () {
       await wait_for_operation(app);
       assert.ok(fs.existsSync(issue_file)); //rq: ->(rq_issues_file_export)
     });
+
+    it('Search for duplicates', async function () {
+      let search_regex = await app.client.$('#search_regex');
+      await search_regex.setValue('dup:');
+      await click_button(app, '#filter_graph');
+      await wait_for_operation(app);
+      await screenshot(app, 'search-for-dups');
+      let dot_filename = './tmp/search_for_dups.dot'
+      await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
+      await fakeMenu.clickMenu('File', 'Save diagram as...');
+      await wait_for_operation(app);
+      await compare_files(dot_filename, './test/refdata/search_for_dups.dot'); //rq: ->(rq_dup_req_search)
+      await click_button(app, '#clear_search_regex');
+    })
+
   });
 
   describe('Load and verify a directory of oreqm files', function () {
@@ -497,6 +511,7 @@ describe("Application launch", function () {
             await expect(file(dot_filename)).to.exist;
             if (fs.existsSync(ref_file)) {
               console.log(`        Checking: ${ref_file}`)
+              await wait_for_operation(app);
               await compare_files(dot_filename, ref_file);
             }
           }
