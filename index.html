@@ -103,14 +103,10 @@
             <p class="alignleft">
               <label id="format">
                 format:
-                <select>
-                  <option selected>svg</option>
-                  <option>png-image-element</option>
-                  <option>dot-source</option>
-                  <!-- <option>json</option> -->
-                  <!-- <option>xdot</option> -->
-                  <!-- <option>plain</option> -->
-                  <!-- <option>ps</option> -->
+                <select id="format_select">
+                  <option value="svg"      selected>svg</option>
+                  <option value="png-image-element">png</option>
+                  <option value="dot-source"       >dot</option>
                 </select>
               </label>
               <label id="raw" style="visibility: hidden;">
@@ -122,7 +118,7 @@
               <button id="next_selected" type="button" >next</button>
             </p>
             <p class="alignright">
-              <label id="viz_working"></label>
+              <text id="viz_working"></text>
               <button id="issuesButton"><span id="issueCount"></span> issues</button>
               <!-- Trigger/Open The modal "about" dialog -->
               <button id="aboutButton">About</button>
@@ -301,14 +297,9 @@
       </button>
     </div>
 
-    <!--
-    <script src="./modules/viz.js/viz.js"></script>
-    <script src="./modules/Split.js/split.min.js"></script>
-    <script src="./modules/svg-pan-zoom/svg-pan-zoom-es.js"></script>
-    <script src="./modules/diff/dist/diff.js"></script>
+    <!-- Processing status for testing -->
+    <div><text id="vrm2_working"></text></div>
 
-    <script type="module" src="./lib/main_render.js"></script>
-    -->
   <script>require('svg-pan-zoom')</script>
   <script>let Split = require('split.js')</script>
   <script>let Diff = require('diff')</script>

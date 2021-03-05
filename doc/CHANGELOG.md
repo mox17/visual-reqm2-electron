@@ -38,6 +38,10 @@
    some problems with processing JavaScript source code, so several tracing links are currently not picked up.
  * A spinner has been introduced to indicate long lasting (or never ending) operations, such as too large graphs.
    It currently suffers from the author's lack of CSS skills, but keeps the waiting user entertained just the same.
+ * Updated to use Electron v11
+ * Path to settings file is visible in settings dialog.
+ * Settings file (and directory) can be specified on the command line.
+
 
  ## for previous versions consult git log...
 

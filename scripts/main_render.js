@@ -10,38 +10,38 @@
   import showToast from 'show-toast';
   import { settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
            update_graph, svg_result, create_oreqm_main, create_oreqm_ref, dot_source,
-           COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref } from './main_data.js'
+           COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb } from './main_data.js'
 
   let mainWindow = remote.getCurrentWindow();
 
-  var beforeUnloadMessage = null;
+  let beforeUnloadMessage = null;
 
   /** When true diagram is generated whenever selections or exclusions are updated */
-  var auto_update = true
+  let auto_update = true
   /** When true only search ID field */
-  var id_checkbox = false // flag for scope of search
+  let id_checkbox = false // flag for scope of search
   /** regex for matching requirements */
-  var search_pattern = ''
+  let search_pattern = ''
   /** The format for the diagram output */
   let selected_format = 'svg'
   /** The svg pan and zoom utility used in diagram pane */
-  var panZoom = null
+  let panZoom = null
   /** parses generated svg from graphviz in preparation for display */
-  var parser = new DOMParser();
+  let parser = new DOMParser();
   /** Version available on github.com */
-  var latest_version = 'unknown'
-  var image_type = 'none'
-  var image_mime = ''
-  var image_data = ''
+  let latest_version = 'unknown'
+  let image_type = 'none'
+  let image_mime = ''
+  let image_data = ''
   /** When true specobject in state 'rejected' are ignored */
-  var no_rejects = true   // shall specobjects with status===rejected be displayed?
+  let no_rejects = true   // shall specobjects with status===rejected be displayed?
 
   /** @description Draggable border between diagram and selection logic to the left */
-  var resizeEvent = new Event("paneresize");
+  let resizeEvent = new Event("paneresize");
   Split(['#oreqm_div', '#graph'], {
     sizes: [15, 85],
     onDragEnd: function() {
-      var svgOutput = document.getElementById("svg_output");
+      let svgOutput = document.getElementById("svg_output");
       if (svgOutput != null) {
         svgOutput.dispatchEvent(resizeEvent);
       }
@@ -248,6 +248,17 @@
     document.querySelector("#output").classList.remove("error");
   }
 
+  function action_busy() {
+    document.getElementById("vrm2_working").innerHTML = 'working';
+  }
+
+  function action_done() {
+    document.getElementById("vrm2_working").innerHTML = 'done';
+  }
+
+  /** install callbacks for progress tracking */
+  set_action_cb(action_busy, action_done);
+
   function error_show(message) {
     spinner_clear();
     let error = document.querySelector("#error");
@@ -258,7 +269,7 @@
   }
 
   /** svg element parsed from graphviz svg output */
-  var svg_element = null
+  let svg_element = null
 
   /**
    * Remove currently displayed graph
@@ -266,17 +277,17 @@
   function clear_diagram() {
     const graph = document.querySelector("#output");
 
-    var svg = graph.querySelector("svg");
+    let svg = graph.querySelector("svg");
     if (svg) {
       graph.removeChild(svg);
     }
 
-    var text = graph.querySelector("#text");
+    let text = graph.querySelector("#text");
     if (text) {
       graph.removeChild(text);
     }
 
-    var img = graph.querySelector("img");
+    let img = graph.querySelector("img");
     if (img) {
       graph.removeChild(img);
     }
@@ -289,17 +300,17 @@
   function updateOutput(_result) {
     const graph = document.querySelector("#output");
 
-    var svg = graph.querySelector("svg");
+    let svg = graph.querySelector("svg");
     if (svg) {
       graph.removeChild(svg);
     }
 
-    var text = graph.querySelector("#text");
+    let text = graph.querySelector("#text");
     if (text) {
       graph.removeChild(text);
     }
 
-    var img = graph.querySelector("img");
+    let img = graph.querySelector("img");
     if (img) {
       graph.removeChild(img);
     }
@@ -373,7 +384,7 @@
 
       // context menu setup
       //rq: ->(rq_svg_context_menu)
-      var menuNode = document.getElementById('node-menu');
+      const menuNode = document.getElementById('node-menu');
       svg_element.addEventListener('contextmenu', event => {
         let str = ""
         event.preventDefault()
@@ -390,7 +401,7 @@
             (menuNode.style.display==='initial')) {
           // show context menu
           let stage = document.getElementById('output');
-          var containerRect = stage.getBoundingClientRect();
+          const containerRect = stage.getBoundingClientRect();
           menuNode.style.display = 'initial';
           menuNode.style.top = "0"
           menuNode.style.left = "0"
@@ -442,7 +453,7 @@
       image_mime = 'text/vnd.graphviz'
       image_data = svg_result
     } else {
-      var plain_text = document.createElement("div");
+      let plain_text = document.createElement("div");
       plain_text.id = "text";
       plain_text.appendChild(document.createTextNode(svg_result));
       graph.appendChild(plain_text);
@@ -541,7 +552,7 @@
    */
   function png_callback(ev, png) {
     if (ev === null) {
-      var image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
+      const image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
       //console.log(image_blob)
       let item = new ClipboardItem({'image/png': image_blob})
       //console.log(item)
@@ -733,7 +744,7 @@
     cell.innerHTML = "totals:";
 
     cell = row.insertCell();
-    cell.innerHTML = doctype_totals  //rq: ->(rq_totals_stat)
+    cell.innerHTML = `<div id="doctype_totals">${doctype_totals}</div>`;  //rq: ->(rq_totals_stat)
 
     cell = row.insertCell();
     cell.innerHTML = '<div id="doctype_shown_totals">0</div>'

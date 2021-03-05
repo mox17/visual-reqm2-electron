@@ -1,0 +1,51 @@
+digraph "" {
+  rankdir="RL"
+  node [shape=plaintext fontname="Arial" fontsize=16]
+  edge [color="blue",dir="forward",arrowhead="normal",arrowtail="normal"];
+
+subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="duplicate id + version" fontcolor="red" fontname="Arial" labelloc="t" style="rounded"
+subgraph "cluster_TestDemoSpec.Object004" { id="sel_TestDemoSpec.Object004" color=maroon3 penwidth=3 label="" style="rounded"
+  "TestDemoSpec.Object004" [id="TestDemoSpec.Object004" label=<
+      <TABLE BGCOLOR="#D3FDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-1<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
+      </TABLE>>];
+}
+
+subgraph "cluster_TestDemoSpec.Object004:1" { id="sel_TestDemoSpec.Object004:1" color=maroon3 penwidth=3 label="" style="rounded"
+  "TestDemoSpec.Object004:1" [id="TestDemoSpec.Object004:1" label=<
+      <TABLE BGCOLOR="#D3FDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-2<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
+      </TABLE>>];
+}
+
+}  "DemoSpec.Object001a" [id="DemoSpec.Object001a" label=<
+      <TABLE BGCOLOR="#B1BDFD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >DemoSpec.Object001a</TD><TD>1</TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001a<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>ASIL-B(D)</TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+
+  # Edges
+  "DemoSpec.Object001a" -> "TestDemoSpec.Object004" [style=bold fontname="Arial" fontcolor="red" label=""];
+
+  label=<
+    <table border="0" cellspacing="0" cellborder="1">
+      <tr><td cellspacing="0" >File</td><td>./test/sample_oreqm/0007_dup-same-version.oreqm</td><td>Mon Jul 27 19:05:38 2020</td></tr>
+      <tr><td>Search text</td><td colspan="2">dup:<BR ALIGN="LEFT"/></td></tr>
+    </table>>
+  labelloc=b
+  fontsize=18
+  fontcolor=black
+  fontname="Arial"
+
+}
