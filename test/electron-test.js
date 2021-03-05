@@ -356,6 +356,26 @@ describe("Application launch", function () {
       await compare_files(svg_filename, './test/refdata/main_ref_1.svg'); //rq: ->(rq_save_svg_file)
     });
 
+    it('show diagram as png', async function () {
+      let format_select = await app.client.$('#format_select');
+      //console.log(await format_select.getValue());
+      await format_select.selectByAttribute('value', 'png-image-element');
+      await wait_for_operation(app);
+      //console.log(await format_select.getValue());
+      await screenshot(app, 'png-format'); //rq: ->(rq_show_png)
+    });
+
+    it('show diagram as dot', async function () {
+      let format_select = await app.client.$('#format_select');
+      //console.log(await format_select.getValue());
+      await format_select.selectByAttribute('value', 'dot-source');
+      await wait_for_operation(app);
+      //console.log(await format_select.getValue());
+      await screenshot(app, 'dot-format'); //rq: ->(rq_show_dot)
+      // back to svg
+      await format_select.selectByAttribute('value', 'svg');
+    });
+
   });
 
   describe('Show special diagrams', function () {
