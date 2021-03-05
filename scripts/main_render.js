@@ -179,10 +179,11 @@
     let main = false;
     let ref = false;
 
+    //console.dir(args)
     set_limit_reporter(report_limit_as_toast);
     handle_settings(settings_updated, args);
 
-    if ((args.update !== false) && (args.update === true || program_settings.check_for_updates)) {
+    if ((args.newVer !== false) && (args.newVer === true || program_settings.check_for_updates)) {
       check_newer_release_available();
     }
     cmd_line_parameters(args)

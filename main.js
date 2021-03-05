@@ -223,7 +223,8 @@ app.on('ready', () => {
     .options({
       version:      { type: 'boolean', alias: 'v', desc: 'Show version', default: false },
       debug:        { type: 'boolean', alias: 'd', desc: 'Enable debug', default: false },
-      update:       { type: 'boolean', alias: 'u', desc: 'Check for updates', default: undefined },
+      update:       { type: 'boolean', alias: 'u', desc: 'Do automatic update (if available)', default: false },
+      newVer:       { type: 'boolean', alias: 'V', desc: 'Check for new release', default: undefined }, // has a setting
       select:       { type: 'string',  alias: 's', desc: 'Selection criteria', default: undefined },
       idOnly:       { type: 'boolean', alias: 'i', desc: 'Search id only', default: false },
       exclIds:      { type: 'string',  alias: 'e', desc: 'Excluded ids, comma separated', default: undefined },
