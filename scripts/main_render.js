@@ -22,6 +22,8 @@
   let id_checkbox = false // flag for scope of search
   /** regex for matching requirements */
   let search_pattern = ''
+  /** initial set of excluded doctypes */
+  let excluded_doctypes = [];
   /** The format for the diagram output */
   let selected_format = 'svg'
   /** The svg pan and zoom utility used in diagram pane */
@@ -180,9 +182,10 @@
     set_limit_reporter(report_limit_as_toast);
     handle_settings(settings_updated, args);
 
-    if (program_settings.check_for_updates) {
+    if ((args.update !== false) && (args.update === true || program_settings.check_for_updates)) {
       check_newer_release_available();
     }
+    cmd_line_parameters(args)
     if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
       //rq: ->(rq_one_oreqm_cmd_line)
       //console.log(fs.statSync(args.oreqm_main));
@@ -209,11 +212,10 @@
     if (ok && main) {
       load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null);
     }
-    cmd_line_parameters(args)
   });
 
   /**
-   * Handle command line parameters related to 'batch' execution, i.e. without opening a window
+   * Handle command line parameters related to 'batch' execution
    * @param {object} args the input argument object
    */
   function cmd_line_parameters(args) {
@@ -221,18 +223,23 @@
       search_pattern = args.select
       document.getElementById('search_regex').value = args.select
     }
-    if (args.excluded_ids !== undefined) {
-      document.getElementById('excluded_ids').value = args.excluded_ids
+    document.getElementById('id_checkbox_input').checked = args.idOnly
+    if (args.exclIds !== undefined) {
+      document.getElementById('excluded_ids').value = args.exclIds
     }
-    if (args.id_only) {
-      document.getElementById('id_checkbox_input').checked = args.id_only
+    document.getElementById('no_rejects').checked = !args.inclRejected
+    if (args.exclDoctypes !== undefined) {
+      excluded_doctypes = args.exclDoctypes.split(',')
     }
-    if (args.excluded_doctypes !== undefined) {
-      let excl_dt = args.excluded_doctypes.split(',')
-      if (oreqm_main) {
-         oreqm_main.set_excluded_doctypes(excl_dt)
-      }
+    let diagram_format = args.format;
+    let output_filename = 'diagram';
+    if (args.output !== undefined) {
+      output_filename = args.output;
     }
+    let diagram = args.diagram;
+    let hierarchy = args.hierarchy;
+    let safety = args.safety;
+
   }
 
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
@@ -815,11 +822,15 @@
    */
   function process_data_main(name, data) {
     create_oreqm_main(name, data);
-    document.getElementById('name').innerHTML = oreqm_main.filename
-    document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB"
-    document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
+    document.getElementById('name').innerHTML = oreqm_main.filename;
+    document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB";
+    document.getElementById('timestamp').innerHTML = oreqm_main.timestamp;
+    if (excluded_doctypes.length) {
+      oreqm_main.set_excluded_doctypes(excluded_doctypes);
+      excluded_doctypes  = [];
+    }
     if (oreqm_ref) { // if we have a reference do a compare
-      let gr = compare_oreqm(oreqm_main, oreqm_ref)
+      let gr = compare_oreqm(oreqm_main, oreqm_ref);
       set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
     }
     display_doctypes_with_count(oreqm_main.get_doctypes())
