@@ -20,7 +20,8 @@
     "build": "babel scripts -d lib && electron-builder build --win --publish never",
     "deploy": "babel scripts -d lib && electron-builder build --win --publish always",
     "reqm2": "bash ./run_reqm2.sh",
-    "precommit": "npm test"
+    "precommit": "npm test",
+    "prepare": "husky install"
   },
   "author": {
     "name": "Erling Stage",
