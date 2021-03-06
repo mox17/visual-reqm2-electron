@@ -3,6 +3,19 @@
 
 ## 1.4.7
 
+ * Batch mode possible, i.e. generate diagrams entirely from command line.
+   * The `--help` option is your friend.
+   * All 3 types of diagrams (including diff views) can be generated.
+     * Choose between `.svg`, `.dot` or `.png` format of diagrams.
+     * file name suffix `-diagram` for requirements
+     * `-doctypes` for hierarchy
+     * `-safety` for safety rules check.
+     * Possible detected issues are in file with `-issues.txt` suffix.
+   * This is suitable for CI environments.
+   * Program still opens windows, therefore on a headless machine enable `xvfb` (this is what is done for testing on travis-ci.com)
+   * When running in 'portable mode' (i.e. not installed) define `PWD` as is done by `bash`. Otherwise relative paths will
+     not work, because execution moves to a different directory.
+   * Specify the settings file on the command line for predictable results.
  * Drag-and-drop main oreqm on diagram area.
  * Keyboard shortcuts for svg pan-zoom
    * `Alt+Space` reset zoom.

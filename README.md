@@ -9,6 +9,8 @@ The application displays a diagram created in the Graphviz 'dot' language.
 It can visualize requirements from a single `.oreqm` file, or make a diagram representation of the
 differences between two `.oreqm` files.
 
+You may wish to look at the [CHANGELOG](./doc/CHANGELOG.md) for the latest updates.
+
 ## Running the application
 
 Under 'releases' there are binaries for Windows and Linux, which can directly be installed.
