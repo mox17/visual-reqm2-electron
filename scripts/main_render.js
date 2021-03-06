@@ -294,7 +294,7 @@
     // The asynchronous completion of diagrams will
     // trigger processing of the queue.
     if (diagram) {
-      cmd_queue.push('save-diagram');
+      cmd_queue.push('save-diagram');  //rq: ->(rq_automatic_diagram)
     }
     if (hierarchy) {
       cmd_queue.push('hierarchy');

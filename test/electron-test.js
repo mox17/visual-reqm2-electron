@@ -290,7 +290,7 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await wait_for_operation(app);
-      let main_txt = await compare_files(dot_filename, './test/refdata/main_1.dot');
+      let main_txt = await compare_files(dot_filename, './test/refdata/main_1.dot'); //rq: ->(rq_edge_pcov_ffb)
       assert.ok(main_txt.includes('BGCOLOR="#')); //rq: ->(rq_doctype_color)
     });
 
@@ -455,7 +455,7 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await wait_for_operation(app);
-      await compare_files(dot_filename, './test/refdata/0007_dup-same-version.dot'); //rq: ->(rq_dup_req_display,rq_dup_id_ver_disp)
+      await compare_files(dot_filename, './test/refdata/0007_dup-same-version.dot'); //rq: ->(rq_dup_req_display,rq_dup_id_ver_disp,rq_edge_probs)
       await click_button(app, '#issuesButton');
       let issue_file = './tmp/0007_dup-same-version.txt';
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: issue_file } ]);
@@ -476,7 +476,7 @@ describe("Application launch", function () {
       await fakeDialog.mock([ { method: 'showSaveDialogSync', value: dot_filename } ]);
       await fakeMenu.clickMenu('File', 'Save diagram as...');
       await wait_for_operation(app);
-      await compare_files(dot_filename, './test/refdata/search_for_dups.dot'); //rq: ->(rq_dup_req_search)
+      await compare_files(dot_filename, './test/refdata/search_for_dups.dot'); //rq: ->(rq_dup_req_search,rq_node_probs)
       await click_button(app, '#clear_search_regex');
     })
 
