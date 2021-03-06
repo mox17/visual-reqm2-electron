@@ -27,11 +27,17 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function pad(num, size) {
+  num = num.toString();
+  while (num.length < size) num = "0" + num;
+  return num;
+}
+
 let screenshot_count = 1
 
 function screenshot(app, title="screenshot") {
   app.browserWindow.capturePage().then(function (imageBuffer) {
-    let filename = `./tmp/${screenshot_count}-${title}.png`;
+    let filename = `./tmp/${pad(screenshot_count, 2)}-${title}.png`;
     fs.writeFileSync(filename, imageBuffer);
     screenshot_count += 1;
   })
@@ -356,21 +362,17 @@ describe("Application launch", function () {
 
     it('show diagram as png', async function () {
       let format_select = await app.client.$('#format_select');
-      //console.log(await format_select.getValue());
       await format_select.selectByAttribute('value', 'png-image-element');
       await wait_for_operation(app);
-      //console.log(await format_select.getValue());
       await screenshot(app, 'png-format'); //rq: ->(rq_show_png)
     });
 
     it('show diagram as dot', async function () {
       let format_select = await app.client.$('#format_select');
-      //console.log(await format_select.getValue());
       await format_select.selectByAttribute('value', 'dot-source');
       await wait_for_operation(app);
-      //console.log(await format_select.getValue());
       await screenshot(app, 'dot-format'); //rq: ->(rq_show_dot)
-      // back to svg
+      // back to svg format
       await format_select.selectByAttribute('value', 'svg');
     });
 
