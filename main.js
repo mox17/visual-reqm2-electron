@@ -272,12 +272,14 @@ app.on('ready', () => {
   mainWindow_width = 1920; //electron_settings.getSync('mainWindow_width', 1024);
   mainWindow_height = 1080; //electron_settings.getSync('mainWindow_height', 768);
   createWindow();
+
   mainWindow.webContents.on('did-finish-load', () => {
     //console.log("argv:", process.argv, args)
     if (process.argv.length > 1) {
       mainWindow.webContents.send('argv', process.argv, args);
     }
   });
+
 });
 
 // Quit when all windows are closed.
@@ -295,6 +297,14 @@ app.on('activate', function () {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+ipcMain.on('cmd_quit', (_evt, _arg) => {
+  app.quit();
+})
+
+ipcMain.on('cmd_echo', (evt, arg) => {
+  mainWindow.webContents.send('cl_cmd', arg);
 })
 
 // Handle automatic updates
