@@ -223,7 +223,8 @@ app.on('ready', () => {
     .options({
       version:      { type: 'boolean', alias: 'v', desc: 'Show version', default: false },
       debug:        { type: 'boolean', alias: 'd', desc: 'Enable debug', default: false },
-      update:       { type: 'boolean', alias: 'u', desc: 'Check for updates', default: false },
+      update:       { type: 'boolean', alias: 'u', desc: 'Do automatic update (if available)', default: false },
+      newVer:       { type: 'boolean', alias: 'V', desc: 'Check for new release', default: undefined }, // has a setting
       select:       { type: 'string',  alias: 's', desc: 'Selection criteria', default: undefined },
       idOnly:       { type: 'boolean', alias: 'i', desc: 'Search id only', default: false },
       exclIds:      { type: 'string',  alias: 'e', desc: 'Excluded ids, comma separated', default: undefined },
@@ -261,22 +262,24 @@ app.on('ready', () => {
   debug = args.debug
   run_autoupdater = args.update
   // Check if a command-line only action requested
-  if (args.safety || args.hierarchy || args.diagram) {
-    cmd_line_only = true
-    console.log("command-line only")
-    app.quit()
-  }
+  // if (args.safety || args.hierarchy || args.diagram) {
+  //   cmd_line_only = true
+  //   console.log("command-line only")
+  //   app.quit()
+  // }
 
   accelerators_setup();
   mainWindow_width = 1920; //electron_settings.getSync('mainWindow_width', 1024);
   mainWindow_height = 1080; //electron_settings.getSync('mainWindow_height', 768);
   createWindow();
+
   mainWindow.webContents.on('did-finish-load', () => {
     //console.log("argv:", process.argv, args)
     if (process.argv.length > 1) {
       mainWindow.webContents.send('argv', process.argv, args);
     }
   });
+
 });
 
 // Quit when all windows are closed.
@@ -294,6 +297,14 @@ app.on('activate', function () {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+ipcMain.on('cmd_quit', (_evt, _arg) => {
+  app.quit();
+})
+
+ipcMain.on('cmd_echo', (evt, arg) => {
+  mainWindow.webContents.send('cl_cmd', arg);
 })
 
 // Handle automatic updates

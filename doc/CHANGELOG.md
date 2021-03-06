@@ -3,6 +3,7 @@
 
 ## 1.4.7
 
+ * Drag-and-drop main oreqm on diagram area.
  * Keyboard shortcuts for svg pan-zoom
    * `Alt+Space` reset zoom.
    * `Alt+0`     reset zoom.
@@ -24,10 +25,10 @@
    * To distinguish duplicate specobjects, they will have their version appended to their 'key' in the graph. The 'key' is usually just the \<id>.
    * This is relevant when excluding nodes. With duplicate nodes, it is not obvious which duplicate
    should be excluded.
-   * With this change, the duplicates will have a key, which is different from their \<id>.
-   The first encountered instance of a set of duplicates will have just \<id> as key.
-   * When several duplicates share the SAME \<version>, The key is constructed from \<id> with the string
-   `:<version>` appended repeatedly until the key is unique.
+   * With this change, the duplicates will have a `key`, which is different from their \<id>.
+   The first encountered instance of a set of duplicates will have just \<id> as `key`.
+   * When several duplicates share the SAME \<version>, The `key` is constructed from \<id> with the string
+   `:<version>` appended repeatedly until the `key` is unique.
  * Save diagram in `.dot` format is a new option.
  * Automated tests are added. run `npm install && npm test` to see them in action. A folder `./tmp/` is generated,
    which contains a variety of generated artifacts, screenshots etc.

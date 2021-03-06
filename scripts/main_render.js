@@ -6,6 +6,7 @@
   import { ipcRenderer, remote, shell } from 'electron'
   import { base64StringToBlob } from 'blob-util'
   import fs from 'fs'
+  import path from 'path'
   import https from 'https'
   import showToast from 'show-toast';
   import { settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
@@ -22,6 +23,8 @@
   let id_checkbox = false // flag for scope of search
   /** regex for matching requirements */
   let search_pattern = ''
+  /** initial set of excluded doctypes */
+  let excluded_doctypes = [];
   /** The format for the diagram output */
   let selected_format = 'svg'
   /** The svg pan and zoom utility used in diagram pane */
@@ -35,6 +38,10 @@
   let image_data = ''
   /** When true specobject in state 'rejected' are ignored */
   let no_rejects = true   // shall specobjects with status===rejected be displayed?
+  /** @global {string[]} Queue of operations for command line operations */
+  let cmd_queue = [];
+  let diagram_format = 'svg';
+  let output_filename = 'diagram';
 
   /** @description Draggable border between diagram and selection logic to the left */
   let resizeEvent = new Event("paneresize");
@@ -169,6 +176,35 @@
   }
 
   /**
+   * This function will check for the existence of a file.
+   * When running as a portable app on Windows, the PWD changes,
+   * such that a relative path no longer works.
+   * This function tries to detect this and uses a PWD environment
+   * variable, if such exist.
+   * @param {string} name
+   * @return {string} name if it exist, empty string if not found
+   */
+  function find_file(name) {
+    let new_path = '';
+    if (fs.existsSync(name)) {
+      return name;
+    }
+    if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME) {
+      // File not found, we are running as portable, so try to find PWD
+      if (process.env.PWD) {
+        let test_path = path.join(process.env.PWD, name);
+        if (fs.existsSync(test_path)) {
+          console.log(`Found file at ${test_path}`);
+          new_path = test_path;
+        }
+      } else {
+        process.stderr.write(`File not found '${name}'\n${process.env.PORTABLE_EXECUTABLE_APP_FILENAME} is running as 'portable'. Add PWD to environment to allow relative paths for input files or specify absolute paths.`);
+      }
+    }
+    return new_path;
+  }
+
+  /**
    * Main processing triggered from main process starts here.
    * Processed command line parameters are received here
    */
@@ -177,27 +213,36 @@
     let main = false;
     let ref = false;
 
+    //console.dir(args)
     set_limit_reporter(report_limit_as_toast);
     handle_settings(settings_updated, args);
 
-    if (program_settings.check_for_updates) {
+    if ((args.newVer !== false) && (args.newVer === true || program_settings.check_for_updates)) {
       check_newer_release_available();
     }
+    cmd_line_parameters(args)
     if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
       //rq: ->(rq_one_oreqm_cmd_line)
-      //console.log(fs.statSync(args.oreqm_main));
-      let main_stat = fs.statSync(args.oreqm_main);
+      let check_main = find_file(args.oreqm_main);
+      if (check_main.length) {
+        args.oreqm_main = check_main;
+      }
+      let main_stat = fs.existsSync(args.oreqm_main) ? fs.statSync(args.oreqm_main) : null;
       if (main_stat && main_stat.isFile()) {
-        //console.log(args.oreqm_main, main_stat);
         main = true;
       } else {
         console.log("Not a file.", args.oreqm_main);
+        console.log("Cur dir:", process.cwd());
         ok = false;
       }
     }
     if (args.oreqm_ref !== undefined && args.oreqm_ref.length > 0) {
       //rq: ->(rq_two_oreqm_cmd_line)
-      let ref_stat = fs.statSync(args.oreqm_main);
+      let check_ref = find_file(args.oreqm_ref);
+      if (check_ref.length) {
+        args.oreqm_ref = check_ref;
+      }
+      let ref_stat = fs.existsSync(args.oreqm_ref) ? fs.statSync(args.oreqm_ref) : null;
       if (ref_stat && ref_stat.isFile()) {
         //console.log(args.oreqm_ref, ref_stat);
         ref = true;
@@ -209,11 +254,10 @@
     if (ok && main) {
       load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null);
     }
-    cmd_line_parameters(args)
   });
 
   /**
-   * Handle command line parameters related to 'batch' execution, i.e. without opening a window
+   * Handle command line parameters related to 'batch' execution
    * @param {object} args the input argument object
    */
   function cmd_line_parameters(args) {
@@ -221,19 +265,118 @@
       search_pattern = args.select
       document.getElementById('search_regex').value = args.select
     }
-    if (args.excluded_ids !== undefined) {
-      document.getElementById('excluded_ids').value = args.excluded_ids
+    document.getElementById('id_checkbox_input').checked = args.idOnly
+    if (args.exclIds !== undefined) {
+      document.getElementById('excluded_ids').value = args.exclIds.replace(',','\n')
     }
-    if (args.id_only) {
-      document.getElementById('id_checkbox_input').checked = args.id_only
+    document.getElementById('no_rejects').checked = !args.inclRejected
+    if (args.exclDoctypes !== undefined) {
+      excluded_doctypes = args.exclDoctypes.split(',')
     }
-    if (args.excluded_doctypes !== undefined) {
-      let excl_dt = args.excluded_doctypes.split(',')
-      if (oreqm_main) {
-         oreqm_main.set_excluded_doctypes(excl_dt)
+    diagram_format = args.format;
+    output_filename = 'diagram';
+    if (args.output !== undefined) {
+      output_filename = args.output;
+    }
+    if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && !path.isAbsolute(output_filename)) {
+      // Add PWD as start of relative path
+      if (process.env.PWD) {
+        output_filename = path.join(process.env.PWD, output_filename);
+        console.log("Updated output path:", output_filename);
+      } else {
+        alert("Define PWD in environment or specify absolute paths.")
+      }
+    }
+    let diagram = args.diagram;
+    let hierarchy = args.hierarchy;
+    let safety = args.safety;
+    // The pending commands are pushed on a queue.
+    // The asynchronous completion of diagrams will
+    // trigger processing of the queue.
+    if (diagram) {
+      cmd_queue.push('save-diagram');
+    }
+    if (hierarchy) {
+      cmd_queue.push('hierarchy');
+      cmd_queue.push('save-hierarchy');
+    }
+    if (safety) {
+      cmd_queue.push('safety');
+      cmd_queue.push('save-safety');
+    }
+    if (diagram || hierarchy || safety) {
+      cmd_queue.push('quit');
+    }
+    //console.log("queue:", cmd_queue);
+  }
+
+  /**
+   * Check for pending command line operations.
+   * This function is called on completion of a diagram.
+   * The next step is triggered via the main process.
+   */
+  function check_cmd_line_steps() {
+    //console.log("Check queue:", cmd_queue);
+    if (cmd_queue.length) {
+      let next_operation = cmd_queue.shift();
+      //console.log(`Next operation '${next_operation}'`);
+      let filename = output_filename;
+      let diagram_file = '';
+      let problems = '';
+      switch (next_operation) {
+        case "save-diagram":
+          diagram_file = `${filename}-diagram.${diagram_format}`;
+          //console.log(diagram_file);
+          save_diagram_file(diagram_file);
+          ipcRenderer.send("cmd_echo", 'next');
+          break;
+
+        case "hierarchy":
+          // Trigger generation of doctype diagram
+          show_doctypes();
+          break;
+
+        case "save-hierarchy":
+          diagram_file = `${filename}-doctypes.${diagram_format}`;
+          //console.log(diagram_file);
+          save_diagram_file(diagram_file);
+          ipcRenderer.send("cmd_echo", 'next');
+          break;
+
+        case "safety":
+          // Trigger generation of safety diagram
+          show_doctypes_safety()
+          break;
+
+        case "save-safety":
+          diagram_file = `${filename}-safety.${diagram_format}`;
+          //console.log(diagram_file);
+          save_diagram_file(diagram_file);
+          ipcRenderer.send("cmd_echo", 'next');
+          break;
+
+        case "quit":
+          diagram_file = `${filename}-issues.txt`;
+          problems = oreqm_main.get_problems();
+          fs.writeFileSync(diagram_file, problems, 'utf8')
+          ipcRenderer.send("cmd_quit");
+          break;
+        default:
+          console.log(`Unknown operation '${next_operation}'`);
       }
     }
   }
+
+  /**
+   * The steps of the cmd-line processing are handled through the process queue.
+   * The request for next operation is sent to main process, which echoes it back.
+   * The processing then continues via this handler.
+   */
+  ipcRenderer.on("cl_cmd", (_evt, arg) => {
+    if (arg === 'next') {
+      check_cmd_line_steps();
+    }
+  });
 
   document.getElementById("prog_version").innerHTML = remote.app.getVersion()
   document.getElementById("auto_update").checked = auto_update
@@ -464,6 +607,7 @@
       // eslint-disable-next-line no-unused-vars
       image_data = svg_result
     }
+    check_cmd_line_steps();
   }
 
   window.addEventListener("beforeunload", function() {
@@ -815,11 +959,15 @@
    */
   function process_data_main(name, data) {
     create_oreqm_main(name, data);
-    document.getElementById('name').innerHTML = oreqm_main.filename
-    document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB"
-    document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
+    document.getElementById('name').innerHTML = oreqm_main.filename;
+    document.getElementById('size').innerHTML = (Math.round(data.length/1024))+" KiB";
+    document.getElementById('timestamp').innerHTML = oreqm_main.timestamp;
+    if (excluded_doctypes.length) {
+      oreqm_main.set_excluded_doctypes(excluded_doctypes);
+      excluded_doctypes  = [];
+    }
     if (oreqm_ref) { // if we have a reference do a compare
-      let gr = compare_oreqm(oreqm_main, oreqm_ref)
+      let gr = compare_oreqm(oreqm_main, oreqm_ref);
       set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
     }
     display_doctypes_with_count(oreqm_main.get_doctypes())
@@ -1501,12 +1649,14 @@
 
   /** Drag and drop file handling main */
   const drop_area_main = document.getElementById('drop_area_main');
+  const drop_area_output = document.getElementById('output');
   /** Drag and drop file handling reference */
   const drop_area_ref = document.getElementById('drop_area_ref');
 
   // Prevent default drag behaviors
   ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     drop_area_main.addEventListener(eventName, preventDefaults, false)
+    drop_area_output.addEventListener(eventName, preventDefaults, false)
     drop_area_ref.addEventListener(eventName, preventDefaults, false)
     document.body.addEventListener(eventName, preventDefaults, false)
   })
@@ -1514,11 +1664,13 @@
   // Highlight drop area when item is dragged over it
   ;['dragenter', 'dragover'].forEach(eventName => {
     drop_area_main.addEventListener(eventName, highlight_main, false)
+    drop_area_output.addEventListener(eventName, highlight_output, false)
     drop_area_ref.addEventListener(eventName, highlight_ref, false)
   })
 
   ;['dragleave', 'drop'].forEach(eventName => {
     drop_area_main.addEventListener(eventName, unhighlight_main, false)
+    drop_area_output.addEventListener(eventName, unhighlight_output, false)
     drop_area_ref.addEventListener(eventName, unhighlight_ref, false)
   })
 
@@ -1527,6 +1679,13 @@
     event.stopPropagation();
     event.preventDefault();
     //console.log(event.dataTransfer.files);
+    process_dropped_file(event, true)
+  });
+
+  drop_area_output.addEventListener('drop', (event) => {
+    //rq: ->(rq_drop_main_oreqm)
+    event.stopPropagation();
+    event.preventDefault();
     process_dropped_file(event, true)
   });
 
@@ -1547,6 +1706,10 @@
     drop_area_main.classList.add('highlight')
   }
 
+  function highlight_output() {
+    drop_area_output.classList.add('highlight')
+  }
+
   function highlight_ref() {
     if (oreqm_main) {
       drop_area_ref.classList.add('highlight')
@@ -1555,6 +1718,10 @@
 
   function unhighlight_main() {
     drop_area_main.classList.remove('highlight')
+  }
+
+  function unhighlight_output() {
+    drop_area_output.classList.remove('highlight')
   }
 
   function unhighlight_ref() {
