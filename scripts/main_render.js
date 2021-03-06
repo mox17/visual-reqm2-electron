@@ -189,10 +189,8 @@
     cmd_line_parameters(args)
     if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
       //rq: ->(rq_one_oreqm_cmd_line)
-      //console.log(fs.statSync(args.oreqm_main));
       let main_stat = fs.statSync(args.oreqm_main);
       if (main_stat && main_stat.isFile()) {
-        //console.log(args.oreqm_main, main_stat);
         main = true;
       } else {
         console.log("Not a file.", args.oreqm_main);
@@ -1513,12 +1511,14 @@
 
   /** Drag and drop file handling main */
   const drop_area_main = document.getElementById('drop_area_main');
+  const drop_area_output = document.getElementById('output');
   /** Drag and drop file handling reference */
   const drop_area_ref = document.getElementById('drop_area_ref');
 
   // Prevent default drag behaviors
   ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     drop_area_main.addEventListener(eventName, preventDefaults, false)
+    drop_area_output.addEventListener(eventName, preventDefaults, false)
     drop_area_ref.addEventListener(eventName, preventDefaults, false)
     document.body.addEventListener(eventName, preventDefaults, false)
   })
@@ -1526,11 +1526,13 @@
   // Highlight drop area when item is dragged over it
   ;['dragenter', 'dragover'].forEach(eventName => {
     drop_area_main.addEventListener(eventName, highlight_main, false)
+    drop_area_output.addEventListener(eventName, highlight_output, false)
     drop_area_ref.addEventListener(eventName, highlight_ref, false)
   })
 
   ;['dragleave', 'drop'].forEach(eventName => {
     drop_area_main.addEventListener(eventName, unhighlight_main, false)
+    drop_area_output.addEventListener(eventName, unhighlight_output, false)
     drop_area_ref.addEventListener(eventName, unhighlight_ref, false)
   })
 
@@ -1539,6 +1541,13 @@
     event.stopPropagation();
     event.preventDefault();
     //console.log(event.dataTransfer.files);
+    process_dropped_file(event, true)
+  });
+
+  drop_area_output.addEventListener('drop', (event) => {
+    //rq: ->(rq_drop_main_oreqm)
+    event.stopPropagation();
+    event.preventDefault();
     process_dropped_file(event, true)
   });
 
@@ -1559,6 +1568,10 @@
     drop_area_main.classList.add('highlight')
   }
 
+  function highlight_output() {
+    drop_area_output.classList.add('highlight')
+  }
+
   function highlight_ref() {
     if (oreqm_main) {
       drop_area_ref.classList.add('highlight')
@@ -1567,6 +1580,10 @@
 
   function unhighlight_main() {
     drop_area_main.classList.remove('highlight')
+  }
+
+  function unhighlight_output() {
+    drop_area_output.classList.remove('highlight')
   }
 
   function unhighlight_ref() {
