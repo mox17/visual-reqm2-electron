@@ -2,7 +2,7 @@
   "name": "visualreqm2",
   "version": "1.4.7",
   "description": "Visual ReqM2 - oreqm file viewer.",
-  "main": "main.js",
+  "main": "lib/main.js",
   "scripts": {
     "start": "babel scripts -d lib && electron .",
     "start_w_args": "babel scripts -d lib && electron . --debug --id-only --excluded-ids foobar --excluded-doctypes fea --select maze ./testdata/oreqm_testdata_del_movement.oreqm",
