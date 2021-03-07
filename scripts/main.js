@@ -13,8 +13,8 @@ const { hideBin } = require('yargs/helpers');
 const log = require('electron-log');
 const {autoUpdater} = require('electron-updater');
 const electron_settings = require('electron-settings');
-const { settings_configure } = require('./lib/settings_helper.js');
-const fs = require('fs');
+const { settings_configure } = require('./settings_helper.js');
+//const fs = require('fs');
 
 // Optional logging
 autoUpdater.logger = log;
@@ -75,7 +75,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, '..', 'index.html'),
     protocol: 'file:',
     slashes: true,
     backgroundColor: '#000000'
