@@ -559,9 +559,9 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {Map<string, string[]>} doctype_dict
    * @param {Map<string, string[]>} selected_dict
    * @param {function(string, Object, Set<number>)} selection_function
-   * @param {string[]} subset List of selected and reachable ids
-   * @param {string[]} highlights list of selected ids
-   * @param {string[]} selected_nodes
+   * @param {string[]} subset [output] List of selected and reachable ids
+   * @param {string[]} highlights [input] list of selected ids
+   * @param {string[]} selected_nodes [output]
    */
   doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes) {
     const rec = this.requirements.get(req_id);

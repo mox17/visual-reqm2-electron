@@ -54,7 +54,7 @@ function get_list_of(node, tag_name) {
 }
 
 /**
- * Get linksto references
+ * Get linksto references from specobject XML
  * @param {specobject} node
  * @return {object[]} an array of objects with .linksto .dstversion and .linkerror
  */
@@ -85,9 +85,10 @@ function get_linksto(node) {
       link_error_txt = ''
     }
     let link = {
-      linksto : linksto[0].textContent,
-      dstversion : dstversion_txt,
-      linkerror : link_error_txt
+      linksto: linksto[0].textContent,
+      dstversion: dstversion_txt,
+      linkerror: link_error_txt,
+      compared_to: ''  // In comparisons of oreqm files this may become 'rem' or 'new'
     }
     result.push(link)
   }
@@ -173,8 +174,8 @@ export class ReqM2Specobjects {
     this.new_reqs = [];            // List of new requirements (from comparison)
     this.updated_reqs = [];        // List of updated requirements (from comparison)
     this.removed_reqs = [];        // List of removed requirements (copies taken from older(?) version of oreqm)
-    this.visible_nodes = new Map(); // {doctype:[id]}
-    this.problems = []             // [ Str ] problems reports
+    //this.visible_nodes = new Map(); // {doctype:[id]}
+    this.problems = []             // string[] problems reports.
     this.search_cache = new Map()  // Cache tagged string versions
     this.format_cache = new Map()  // Cache 'dot' formatted nodes
     this.dot = 'digraph "" {label="Select filter criteria and exclusions, then click\\l                    [update graph]\\l(Unfiltered graphs may be too large to render)"\n  labelloc=b\n  fontsize=24\n  fontcolor=grey\n  fontname="Arial"\n}\n'

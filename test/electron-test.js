@@ -96,8 +96,8 @@ async function get_svg_node_map(app, dom_class='node') {
  * Click context menu item
  * @param {object} app Application
  * @param {Map<id, element>} map id mapping to svg elements
- * @param {String} node Name of specobject
- * @param {String} item Name of context menu item
+ * @param {string} node Name of specobject
+ * @param {string} item Name of context menu item
  */
 async function context_menu_click(app, map, node, item) {
   await map.get(node).click({ button: 2 });
@@ -116,6 +116,12 @@ async function show_settings(app) {
   await click_button(app, '#settingsPopupClose');
 }
 
+/**
+ * Several asynchronous operations indicate completion by writing 'done'
+ * to this invisible text field. This is used to synchronize the tests
+ * with the state of the application.
+ * @param {Object} app The reder process
+ */
 async function wait_for_operation(app) {
   await app.client.waitUntilTextExists('#vrm2_working', 'done')
 }
