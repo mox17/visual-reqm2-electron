@@ -217,7 +217,7 @@ function format_node(node_id, rec, ghost, oreqm, show_coverage, color_status) {
  * @param {string} error possible problem with this edge
  * @return {string} dot format edge
  */
-function format_edge(from_node, to_node, kind, error) {
+function format_edge(from_node, to_node, kind, error, color='', lbl='') {
   if (!program_settings.show_errors) {
     error = ''
   }
@@ -225,18 +225,24 @@ function format_edge(from_node, to_node, kind, error) {
   let edge_label = ''
   if (error && error.length) {
     //rq: ->(rq_edge_probs)
-    error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
+    // insert newlines in long texts
+    error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n');
   }
   if (kind === "fulfilledby") {
     //rq: ->(rq_edge_pcov_ffb)
-    label = 'ffb'
-    edge_label = ` [style=bold color=purple dir=back fontname="Arial" label="${label}"]`;
+    label = lbl==='' ? 'ffb' : `ffb (${lbl})`
+    if (color === '') {
+      color = 'purple';
+    }
+    edge_label = ` [style=bold color=${color} dir=back fontname="Arial" label="${label}"]`;
     if (error.length) {
       label += '\n' + error
-      edge_label = ` [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="${label}"]`;
+      edge_label = ` [style=bold color=${color} dir=back fontcolor="red" fontname="Arial" label="${label}"]`;
     }
   } else {
-    edge_label = ` [style=bold fontname="Arial" fontcolor="red" label="${error}"]`
+    let col = (color !== '') ? `color=${color} ` : '';
+    error = (lbl !== '') ? `${lbl}: ${error}` : error;
+    edge_label = ` [style=bold ${col}fontname="Arial" fontcolor="red" label="${error}"]`;
   }
   return `  "${from_node}" -> "${to_node}"${edge_label};\n`;
 }
@@ -321,7 +327,6 @@ export function set_limit_reporter(reporting_function) {
  * @classdesc Derived class with capability to generate diagrams of contained oreqm data.
  */
 export class ReqM2Oreqm extends ReqM2Specobjects {
-
   /**
    * Construct new object
    * @param {string} filename of the oreqm file
@@ -339,8 +344,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
 
   /** @description Initial part of dot file */
   static get DOT_PREAMBLE() {
-    const preamble =
-`digraph "" {
+    const preamble = `digraph "" {
   rankdir="RL"
   node [shape=plaintext fontname="Arial" fontsize=16]
   edge [color="blue",dir="forward",arrowhead="normal",arrowtail="normal"];
@@ -351,7 +355,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
 
   /** @description Final part of dot file */
   static get DOT_EPILOGUE() {
-    const epilogue = '\n}\n';
+    const epilogue = "\n}\n";
     return epilogue;
   }
 
@@ -364,15 +368,22 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} dot html table string
    */
   get_format_node(req_id, ghost, show_coverage, color_status) {
-    let node
+    let node;
     if (this.format_cache.has(req_id)) {
-      node = this.format_cache.get(req_id)
+      node = this.format_cache.get(req_id);
       //console.log('cache hit: ', req_id)
     } else {
-      node = format_node(req_id, this.requirements.get(req_id), ghost, this, show_coverage, color_status)
-      this.format_cache.set(req_id, node)
+      node = format_node(
+        req_id,
+        this.requirements.get(req_id),
+        ghost,
+        this,
+        show_coverage,
+        color_status
+      );
+      this.format_cache.set(req_id, node);
     }
-    return node
+    return node;
   }
 
   /**
@@ -390,19 +401,35 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {boolean} color_status
    * @return {string} dot graph
    */
-  create_graph(selection_function, top_doctypes, title, highlights, max_nodes, show_coverage, color_status) {
+  create_graph(
+    selection_function,
+    top_doctypes,
+    title,
+    highlights,
+    max_nodes,
+    show_coverage,
+    color_status
+  ) {
     //rq: ->(rq_dot) D(* Function shall output a dot graph*)
     let graph = ReqM2Oreqm.DOT_PREAMBLE;
-    let subset = []
-    const ids = this.requirements.keys()
-    let node_count = 0
-    let edge_count = 0
-    let doctype_dict = new Map()  // { doctype : [id] }  list of id's per doctype
-    let selected_dict = new Map() // { doctype : [id] } list of selected id's per doctype
-    let selected_nodes = []
-    let limited = false
+    let subset = [];
+    const ids = this.requirements.keys();
+    let node_count = 0;
+    let edge_count = 0;
+    let doctype_dict = new Map(); // { doctype : [id] }  list of id's per doctype
+    let selected_dict = new Map(); // { doctype : [id] } list of selected id's per doctype
+    let selected_nodes = [];
+    let limited = false;
     for (const req_id of ids) {
-      this.doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes);
+      this.doctype_grouping(
+        req_id,
+        doctype_dict,
+        selected_dict,
+        selection_function,
+        subset,
+        highlights,
+        selected_nodes
+      );
       if (subset.length > max_nodes) {
         limited = true;
         limit_reporter(max_nodes); //rq: ->(rq_config_node_limit)
@@ -413,55 +440,83 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     ({ show_top, graph } = this.handle_top_node(top_doctypes, graph));
 
     // babel artifact? below names must match what is used in return from visible_duplicates()
-    let arrays_of_duplicates
-    let not_duplicates
-    ({arrays_of_duplicates, not_duplicates} = this.visible_duplicates(subset));
+    let arrays_of_duplicates;
+    let not_duplicates;
+    ({ arrays_of_duplicates, not_duplicates } = this.visible_duplicates(
+      subset
+    ));
     //console.log(arrays_of_duplicates)
     //console.log(not_duplicates)
     for (const dup_list of arrays_of_duplicates) {
       //rq: ->(rq_dup_req_display)
       let dup_cluster_id = this.requirements.get(dup_list[0]).id;
-      let versions = dup_list.map(a => a.version);
+      let versions = dup_list.map((a) => a.version);
       let dup_versions = versions.length !== new Set(versions).size;
-      let label = 'duplicate' + (dup_versions ? ' id + version' : ' id'); //rq: ->(rq_dup_id_ver_disp)
-      let fontcolor = dup_versions ? 'fontcolor="red" ' : ''
+      let label = "duplicate" + (dup_versions ? " id + version" : " id"); //rq: ->(rq_dup_id_ver_disp)
+      let fontcolor = dup_versions ? 'fontcolor="red" ' : "";
       graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=2 label="${label}" ${fontcolor}fontname="Arial" labelloc="t" style="rounded"\n`;
       for (const req_id of dup_list) {
         // duplicate nodes
-        ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));
+        ({ graph, node_count } = this.add_node_to_graph(
+          req_id,
+          show_coverage,
+          color_status,
+          highlights,
+          graph,
+          node_count
+        ));
       }
       graph += `}`;
     }
     for (const req_id of not_duplicates) {
-        // nodes
-        ({ graph, node_count } = this.add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count));
+      // nodes
+      ({ graph, node_count } = this.add_node_to_graph(
+        req_id,
+        show_coverage,
+        color_status,
+        highlights,
+        graph,
+        node_count
+      ));
     }
-    graph += '\n  # Edges\n'
+    graph += "\n  # Edges\n";
     graph = this.handle_top_node_edges(show_top, subset, top_doctypes, graph);
     for (const req_id of subset) {
       // edges
-      ({ graph, edge_count } = this.add_dot_edge(req_id, subset, graph, edge_count));
+      ({ graph, edge_count } = this.add_dot_edge(
+        req_id,
+        subset,
+        graph,
+        edge_count
+      ));
     }
     graph += `\n  label=${title}\n  labelloc=b\n  fontsize=18\n  fontcolor=black\n  fontname="Arial"\n`; //rq: ->(rq_diagram_legend)
-    graph += ReqM2Oreqm.DOT_EPILOGUE
-    this.dot = graph
-    let result = new Object()
+    graph += ReqM2Oreqm.DOT_EPILOGUE;
+    this.dot = graph;
+    let result = new Object();
     //result.graph = graph
-    result.node_count = node_count
-    result.edge_count = edge_count
-    result.doctype_dict = doctype_dict
-    result.selected_dict = selected_dict
-    result.limited = limited
-    selected_nodes.sort()
-    result.selected_nodes = selected_nodes
-    return result
+    result.node_count = node_count;
+    result.edge_count = edge_count;
+    result.doctype_dict = doctype_dict;
+    result.selected_dict = selected_dict;
+    result.limited = limited;
+    selected_nodes.sort();
+    result.selected_nodes = selected_nodes;
+    return result;
   }
 
-  add_node_to_graph(req_id, show_coverage, color_status, highlights, graph, node_count) {
+  add_node_to_graph(
+    req_id,
+    show_coverage,
+    color_status,
+    highlights,
+    graph,
+    node_count
+  ) {
     const ghost = this.removed_reqs.includes(req_id);
     let node = this.get_format_node(req_id, ghost, show_coverage, color_status);
     node = this.add_node_emphasis(req_id, node, req_id, highlights);
-    graph += node + '\n';
+    graph += node + "\n";
     node_count += 1;
     return { graph, node_count };
   }
@@ -488,13 +543,13 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
           }
         }
         // Remove these ids/keys from set_copy
-        let temp_copy = set_copy.filter(function(value, _index, _arr){
+        let temp_copy = set_copy.filter(function (value, _index, _arr) {
           return !dup_set.includes(value);
-        })
+        });
         set_copy = temp_copy;
-        arrays_of_duplicates.push(dup_set)
+        arrays_of_duplicates.push(dup_set);
       } else {
-        not_duplicates.push(key)
+        not_duplicates.push(key);
         set_copy = set_copy.slice(1);
       }
     }
@@ -506,7 +561,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     if (show_top) {
       for (const req_id of subset) {
         if (top_doctypes.includes(this.requirements.get(req_id).doctype)) {
-          graph += format_edge(req_id, 'TOP', '', '');
+          graph += format_edge(req_id, "TOP", "", "", "", "");
         }
       }
     }
@@ -521,7 +576,10 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   handle_top_node(top_doctypes, graph) {
     let show_top = false;
     for (let top_dt of top_doctypes) {
-      if (this.doctypes.has(top_dt) && !this.excluded_doctypes.includes(top_dt)) {
+      if (
+        this.doctypes.has(top_dt) &&
+        !this.excluded_doctypes.includes(top_dt)
+      ) {
         show_top = true;
       }
     }
@@ -532,20 +590,30 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   }
 
   add_dot_edge(req_id, subset, graph, edge_count) {
-    let kind = ''
-    let linkerror = ''
+    let kind = "";
+    let linkerror = { error: "" };
     if (this.linksto.has(req_id)) {
       for (const link of this.linksto.get(req_id)) {
         // Do not reference non-selected specobjets
         if (subset.includes(link)) {
-          if (this.fulfilledby.has(req_id) && this.fulfilledby.get(req_id).has(link)) {
+          if (
+            this.fulfilledby.has(req_id) &&
+            this.fulfilledby.get(req_id).has(link)
+          ) {
             kind = "fulfilledby";
             linkerror = this.get_ffb_link_error(link, req_id);
           } else {
             kind = null;
             linkerror = this.get_link_error(req_id, link);
           }
-          graph += format_edge(req_id, link, kind, linkerror);
+          graph += format_edge(
+            req_id,
+            link,
+            kind,
+            linkerror.error,
+            linkerror.color,
+            linkerror.label
+          );
           edge_count += 1;
         }
       }
@@ -563,15 +631,25 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {string[]} highlights [input] list of selected ids
    * @param {string[]} selected_nodes [output]
    */
-  doctype_grouping(req_id, doctype_dict, selected_dict, selection_function, subset, highlights, selected_nodes) {
+  doctype_grouping(
+    req_id,
+    doctype_dict,
+    selected_dict,
+    selection_function,
+    subset,
+    highlights,
+    selected_nodes
+  ) {
     const rec = this.requirements.get(req_id);
     if (!doctype_dict.has(rec.doctype)) {
       doctype_dict.set(rec.doctype, []);
       selected_dict.set(rec.doctype, []);
     }
-    if (selection_function(req_id, rec, this.color.get(req_id)) &&
+    if (
+      selection_function(req_id, rec, this.color.get(req_id)) &&
       !this.excluded_doctypes.includes(rec.doctype) &&
-      !this.excluded_ids.includes(req_id)) {
+      !this.excluded_ids.includes(req_id)
+    ) {
       subset.push(req_id);
       doctype_dict.get(rec.doctype).push(req_id);
       if (highlights.includes(req_id)) {
@@ -611,14 +689,28 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} error string or ''
    */
   get_link_error(req_id, link) {
-    const rec = this.requirements.get(req_id)
-    let error = ''
+    const rec = this.requirements.get(req_id);
+    let error = "";
+    let color = "";
+    let label = "";
     for (const lt of rec.linksto) {
       if (lt.linksto === link) {
-        error = lt.linkerror
+        error = lt.linkerror;
+        label = lt.diff;
+        switch (label) {
+          case "rem":
+            color = '"#C00000" style=dashed';
+            break;
+          case "new":
+            color = 'red';
+            break;
+          case "chg":
+            color = "orange";
+            break;
+        }
       }
     }
-    return error
+    return { error: error, color: color, label: label };
   }
 
   /**
@@ -628,14 +720,16 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} error string or ''
    */
   get_ffb_link_error(req_id, link) {
-    const rec = this.requirements.get(req_id)
-    let error = ''
+    const rec = this.requirements.get(req_id);
+    let error = "";
+    let color = "";
+    let label = "";
     for (const ffb of rec.fulfilledby) {
       if (ffb.id === link) {
-        error = ffb.ffblinkerror
+        error = ffb.ffblinkerror;
       }
     }
-    return error
+    return { error: error, label: label, color: color };
   }
 
   /**
@@ -649,10 +743,10 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     let combo = `${from}>${to}`;
     for (const re of this.safety_regex_array) {
       if (combo.match(re)) {
-        return true
+        return true;
       }
     }
-    return false
+    return false;
   }
 
   /**
@@ -678,7 +772,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @return {string} RGB color of graph edge
    */
   linksto_safe_color(from, to) {
-    return this.check_linksto_safe(from, to) ? '#00AA00' : '#FF0000'
+    return this.check_linksto_safe(from, to) ? "#00AA00" : "#FF0000";
   }
 
   /**
@@ -687,67 +781,72 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {boolean} doctype_safety consider safetyclass in diagram
    */
   build_doctype_mapping(doctype_safety) {
-    let id_list = this.requirements.keys()
-    let doctype = null
-    let dest_doctype = null
-    let basic_doctype = null
-    this.doctype_clusters = new Map() // {doctype : [doctype:safetyclass]}
+    let id_list = this.requirements.keys();
+    let doctype = null;
+    let dest_doctype = null;
+    let basic_doctype = null;
+    this.doctype_clusters = new Map(); // {doctype : [doctype:safetyclass]}
     for (const id of id_list) {
       if (this.requirements.get(id).ffb_placeholder === true) {
         // skip placeholders
         continue;
       }
       // make a cluster of doctypes with the different safetyclasses
-      basic_doctype = this.requirements.get(id).doctype
+      basic_doctype = this.requirements.get(id).doctype;
       if (!this.doctype_clusters.has(basic_doctype)) {
-        this.doctype_clusters.set(basic_doctype, [])
+        this.doctype_clusters.set(basic_doctype, []);
       }
-      doctype = this.build_doctype_with_safetyclass(id, doctype_safety)
+      doctype = this.build_doctype_with_safetyclass(id, doctype_safety);
       if (!this.dt_map.has(doctype)) {
-        this.dt_map.set(doctype, new DoctypeRelations(doctype))
+        this.dt_map.set(doctype, new DoctypeRelations(doctype));
         // Create clusters of refined doctypes, based on fundamental one
         if (!this.doctype_clusters.get(basic_doctype).includes(doctype)) {
-          this.doctype_clusters.get(basic_doctype).push(doctype)
+          this.doctype_clusters.get(basic_doctype).push(doctype);
         }
       }
 
-      this.dt_map.get(doctype).add_instance(id)
+      this.dt_map.get(doctype).add_instance(id);
       // linksto
       if (this.linksto.has(id)) {
-        const linksto = Array.from(this.linksto.get(id))
+        const linksto = Array.from(this.linksto.get(id));
         for (let linked_id of linksto) {
           if (this.requirements.has(linked_id)) {
-            dest_doctype = this.build_doctype_with_safetyclass(linked_id, doctype_safety)
+            dest_doctype = this.build_doctype_with_safetyclass(
+              linked_id,
+              doctype_safety
+            );
             //console.log("add_linksto ", doctype, linked_id, dest_doctype)
-            this.dt_map.get(doctype).add_linksto(dest_doctype, [linked_id, id])
+            this.dt_map.get(doctype).add_linksto(dest_doctype, [linked_id, id]);
           }
         }
       }
       // needsobj
-      let need_list = Array.from(this.requirements.get(id).needsobj)
+      let need_list = Array.from(this.requirements.get(id).needsobj);
       for (let need of need_list) {
-        if (!need.endsWith('*')) {
+        if (!need.endsWith("*")) {
           if (doctype_safety) {
             // will need at least its own safetyclass
             dest_doctype = `${need}:${this.requirements.get(id).safetyclass}`;
           } else {
-            dest_doctype = need
+            dest_doctype = need;
           }
           //console.log("add_needsobj ", dest_doctype)
-          this.dt_map.get(doctype).add_needsobj(dest_doctype)
+          this.dt_map.get(doctype).add_needsobj(dest_doctype);
         }
       }
       // fulfilledby
-      let ffb_list = Array.from(this.requirements.get(id).fulfilledby)
+      let ffb_list = Array.from(this.requirements.get(id).fulfilledby);
       for (let ffb of ffb_list) {
         if (doctype_safety) {
           // will need at least its own safetyclass
-          dest_doctype = `${ffb.doctype}:${this.requirements.get(id).safetyclass}`;
+          dest_doctype = `${ffb.doctype}:${
+            this.requirements.get(id).safetyclass
+          }`;
         } else {
-          dest_doctype = ffb.doctype
+          dest_doctype = ffb.doctype;
         }
         //console.log("add_fulfilledby ", dest_doctype)
-        this.dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb.id])
+        this.dt_map.get(doctype).add_fulfilledby(dest_doctype, [id, ffb.id]);
       }
     }
   }
@@ -780,100 +879,129 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     if (doctype_safety) {
       this.build_safety_regexes();
     }
-    this.dt_map = new Map() // A map of { doctype_name : DoctypeRelations }
-    this.build_doctype_mapping(doctype_safety)
+    this.dt_map = new Map(); // A map of { doctype_name : DoctypeRelations }
+    this.build_doctype_mapping(doctype_safety);
     // DOT language start of diagram
     let graph = `digraph "" {
-      rankdir="${doctype_safety ? 'BT' : 'TD'}"
+      rankdir="${doctype_safety ? "BT" : "TD"}"
       node [shape=plaintext fontname="Arial" fontsize=16]
       edge [color="black" dir="forward" arrowhead="normal" arrowtail="normal" fontname="Arial" fontsize=11];\n\n`;
     // Define the doctype nodes - the order affects the layout
-    const doctype_array = Array.from(this.doctype_clusters.keys())
+    const doctype_array = Array.from(this.doctype_clusters.keys());
     for (let doctype of doctype_array) {
-      let doctypes_in_cluster = this.doctype_clusters.get(doctype)
-      let sc_stats = ''
-      let count_total = 0
-      let sc_list = Array.from(doctypes_in_cluster.keys())
-      sc_list.sort()
-      let sc_string = ''
+      let doctypes_in_cluster = this.doctype_clusters.get(doctype);
+      let sc_stats = "";
+      let count_total = 0;
+      let sc_list = Array.from(doctypes_in_cluster.keys());
+      sc_list.sort();
+      let sc_string = "";
       for (const sub_doctype of doctypes_in_cluster) {
-        let dt = this.dt_map.get(sub_doctype)
-        let sc = sub_doctype.split(':')[1]
-        sc_string += `</TD><TD port="${sc_str(sc)}">${sc_str(sc)}: ${dt.count} `;
-        count_total += dt.count
+        let dt = this.dt_map.get(sub_doctype);
+        let sc = sub_doctype.split(":")[1];
+        sc_string += `</TD><TD port="${sc_str(sc)}">${sc_str(sc)}: ${
+          dt.count
+        } `;
+        count_total += dt.count;
       }
       if (doctype_safety) {
         sc_stats = `\n          <TR><TD>safetyclass:${sc_string}</TD></TR>`;
       }
       let dt_node = `\
       "${doctype}" [label=<
-        <TABLE BGCOLOR="${get_color(doctype)}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TABLE BGCOLOR="${get_color(
+          doctype
+        )}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD COLSPAN="5" CELLSPACING="0" >doctype: ${doctype}</TD></TR>
         <TR><TD COLSPAN="5" ALIGN="LEFT">specobject count: ${count_total}</TD></TR>${sc_stats}
       </TABLE>>];\n\n`;
-      graph += dt_node
+      graph += dt_node;
     }
-    let dt
-    let count
-    let doctype_edges = Array.from(this.dt_map.keys())
+    let dt;
+    let count;
+    let doctype_edges = Array.from(this.dt_map.keys());
     // Loop over doctypes
     for (let doctype of doctype_edges) {
-      dt = this.dt_map.get(doctype)
+      dt = this.dt_map.get(doctype);
       // Needsobj links
       graph += `# linkage from ${doctype}\n`;
-      let need_keys = Array.from(dt.needsobj.keys())
+      let need_keys = Array.from(dt.needsobj.keys());
       if (!doctype_safety) {
         for (let nk of need_keys) {
           count = dt.needsobj.get(nk);
-          graph += ` "${doctype.split(':')[0]}" -> "${nk.split(':')[0]}" [label="need(${count})${doctype_safety ? `\n${dt_sc_str(doctype)}` : ''} " style="dotted"]\n`;
+          graph += ` "${doctype.split(":")[0]}" -> "${
+            nk.split(":")[0]
+          }" [label="need(${count})${
+            doctype_safety ? `\n${dt_sc_str(doctype)}` : ""
+          } " style="dotted"]\n`;
         }
       }
       // linksto links
-      let lt_keys = Array.from(dt.linksto.keys())
+      let lt_keys = Array.from(dt.linksto.keys());
       for (let lk of lt_keys) {
-        count = dt.linksto.get(lk).length
-        graph += ` "${doctype.split(':')[0]}" -> "${lk.split(':')[0]}" [label="linksto(${count})${
-          doctype_safety ? `\\l${dt_sc_str(doctype)}>${dt_sc_str(lk)}` : ''} " color="${
-          doctype_safety ? this.linksto_safe_color(doctype, lk) : 'black'}"]\n`;
+        count = dt.linksto.get(lk).length;
+        graph += ` "${doctype.split(":")[0]}" -> "${
+          lk.split(":")[0]
+        }" [label="linksto(${count})${
+          doctype_safety ? `\\l${dt_sc_str(doctype)}>${dt_sc_str(lk)}` : ""
+        } " color="${
+          doctype_safety ? this.linksto_safe_color(doctype, lk) : "black"
+        }"]\n`;
         if (doctype_safety && !this.check_linksto_safe(doctype, lk)) {
-          let prov_list = dt.linksto.get(lk).map(x => `${quote_id(x[1])} -> ${quote_id(x[0])}`)
-          let dt2 = doctype
-          if (dt2.endsWith(':')) {
-            dt2 += '<none>'
+          let prov_list = dt.linksto
+            .get(lk)
+            .map((x) => `${quote_id(x[1])} -> ${quote_id(x[0])}`);
+          let dt2 = doctype;
+          if (dt2.endsWith(":")) {
+            dt2 += "<none>";
           }
-          if (lk.endsWith(':')) {
-            lk += '<none>'
+          if (lk.endsWith(":")) {
+            lk += "<none>";
           }
-          let problem = `${dt2} provcov to ${lk}\n  ${prov_list.join('\n  ')}`;
-          this.problem_report(problem)
+          let problem = `${dt2} provcov to ${lk}\n  ${prov_list.join("\n  ")}`;
+          this.problem_report(problem);
         }
       }
       // fulfilledby links
-      let ffb_keys = Array.from(dt.fulfilledby.keys())
+      let ffb_keys = Array.from(dt.fulfilledby.keys());
       for (let ffb of ffb_keys) {
-        count = dt.fulfilledby.get(ffb).length
-        graph += ` "${doctype.split(':')[0]}" -> "${ffb.split(':')[0]}" [label="fulfilledby(${count})${
-          doctype_safety ? `\n${dt_sc_str(ffb)}>${dt_sc_str(doctype)}` : ''} " color="${
-          doctype_safety ? this.linksto_safe_color(ffb, doctype) : 'purple'}" style="dashed"]\n`;
+        count = dt.fulfilledby.get(ffb).length;
+        graph += ` "${doctype.split(":")[0]}" -> "${
+          ffb.split(":")[0]
+        }" [label="fulfilledby(${count})${
+          doctype_safety ? `\n${dt_sc_str(ffb)}>${dt_sc_str(doctype)}` : ""
+        } " color="${
+          doctype_safety ? this.linksto_safe_color(ffb, doctype) : "purple"
+        }" style="dashed"]\n`;
         if (doctype_safety && !this.check_linksto_safe(ffb, doctype)) {
           let problem = `${ffb} fulfilledby ${doctype}`;
-          this.problem_report(problem)
+          this.problem_report(problem);
         }
       }
     }
-    let rules = new Object()
+    let rules = new Object();
     if (doctype_safety) {
-      let safety_rules_string = JSON.stringify(program_settings.safety_link_rules, null, 2);
-      rules.text = xml_escape(safety_rules_string.replace(/\\/g, '\\\\'));
-      rules.text = rules.text.replace(/\n/mg, '<BR ALIGN="LEFT"/> ');
-      rules.title = "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass"
+      let safety_rules_string = JSON.stringify(
+        program_settings.safety_link_rules,
+        null,
+        2
+      );
+      rules.text = xml_escape(safety_rules_string.replace(/\\/g, "\\\\"));
+      rules.text = rules.text.replace(/\n/gm, '<BR ALIGN="LEFT"/> ');
+      rules.title =
+        "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass";
     }
     //rq: ->(rq_diagram_legend)
-    graph += `\n  label=${this.construct_graph_title(false, rules, null, false, null)}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n`;
-    graph += '\n}\n'
+    graph += `\n  label=${this.construct_graph_title(
+      false,
+      rules,
+      null,
+      false,
+      null
+    )}\n  labelloc=b\n  fontsize=14\n  fontcolor=black\n  fontname="Arial"\n`;
+    graph += "\n}\n";
     //console.log(graph)
-    this.dot = graph
-    return graph
+    this.dot = graph;
+    return graph;
   }
 
   /**
@@ -885,41 +1013,74 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {string} search_pattern 'selection criteria' string
    * @return {string} 'dot' table
    */
-  construct_graph_title(show_filters, extra, oreqm_ref, id_checkbox, search_pattern) { //rq: ->(rq_diagram_legend)
-    let title = '""'
-    title  = '<\n    <table border="0" cellspacing="0" cellborder="1">\n'
-    title += `      <tr><td cellspacing="0" >File</td><td>${this.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>')}</td><td>${this.timestamp}</td></tr>\n`;
+  construct_graph_title(
+    show_filters,
+    extra,
+    oreqm_ref,
+    id_checkbox,
+    search_pattern
+  ) {
+    //rq: ->(rq_diagram_legend)
+    let title = '""';
+    title = '<\n    <table border="0" cellspacing="0" cellborder="1">\n';
+    title += `      <tr><td cellspacing="0" >File</td><td>${this.filename.replace(
+      /([^\n]{30,500}?(\\|\/))/g,
+      '$1<BR ALIGN="LEFT"/>'
+    )}</td><td>${this.timestamp}</td></tr>\n`;
 
     if (show_filters) {
       if (oreqm_ref) {
-        title += `      <tr><td>Ref. file</td><td>${oreqm_ref.filename.replace(/([^\n]{30,500}?(\\|\/))/g, '$1<BR ALIGN="LEFT"/>')}</td><td>${oreqm_ref.timestamp}</td></tr>\n`;
+        title += `      <tr><td>Ref. file</td><td>${oreqm_ref.filename.replace(
+          /([^\n]{30,500}?(\\|\/))/g,
+          '$1<BR ALIGN="LEFT"/>'
+        )}</td><td>${oreqm_ref.timestamp}</td></tr>\n`;
       }
       if (search_pattern.length) {
-        let search_formatted = xml_escape(search_pattern.replace(/&/g, '&amp;'))
-        let pattern_string = search_formatted.trim().replace(/([^\n]{40,500}?\|)/g, '$1<BR ALIGN="LEFT"/>').replace(/\n/g, '<BR ALIGN="LEFT"/>')
+        let search_formatted = xml_escape(
+          search_pattern.replace(/&/g, "&amp;")
+        );
+        let pattern_string = search_formatted
+          .trim()
+          .replace(/([^\n]{40,500}?\|)/g, '$1<BR ALIGN="LEFT"/>')
+          .replace(/\n/g, '<BR ALIGN="LEFT"/>');
         if (id_checkbox) {
-          title += `      <tr><td>Search &lt;id&gt;</td><td colspan="2">${pattern_string.replace(/\\/g, '\\\\')}<BR ALIGN="LEFT"/></td></tr>\n`;
+          title += `      <tr><td>Search &lt;id&gt;</td><td colspan="2">${pattern_string.replace(
+            /\\/g,
+            "\\\\"
+          )}<BR ALIGN="LEFT"/></td></tr>\n`;
         } else {
-          title += `      <tr><td>Search text</td><td colspan="2">${pattern_string.replace( /\\/g, '\\\\')}<BR ALIGN="LEFT"/></td></tr>\n`;
+          title += `      <tr><td>Search text</td><td colspan="2">${pattern_string.replace(
+            /\\/g,
+            "\\\\"
+          )}<BR ALIGN="LEFT"/></td></tr>\n`;
         }
       }
-      let ex_dt_list = this.excluded_doctypes
+      let ex_dt_list = this.excluded_doctypes;
       if (ex_dt_list.length) {
-        title += `      <tr><td>excluded doctypes</td><td colspan="2">${ex_dt_list.join(", ").replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>')}</td></tr>\n`;
+        title += `      <tr><td>excluded doctypes</td><td colspan="2">${ex_dt_list
+          .join(", ")
+          .replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>')}</td></tr>\n`;
       }
 
       let excluded_ids = this.excluded_ids;
       if (excluded_ids.length) {
-        title += `      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">${excluded_ids.join('<BR ALIGN="LEFT"/>')}<BR ALIGN="LEFT"/></td></tr>\n`;
+        title += `      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">${excluded_ids.join(
+          '<BR ALIGN="LEFT"/>'
+        )}<BR ALIGN="LEFT"/></td></tr>\n`;
       }
     }
 
-    if (extra && extra.title && extra.text && extra.title.length && extra.text.length) {
+    if (
+      extra &&
+      extra.title &&
+      extra.text &&
+      extra.title.length &&
+      extra.text.length
+    ) {
       title += `      <tr><td>${extra.title}</td><td colspan="2">${extra.text}<BR ALIGN="LEFT"/></td></tr>\n`;
     }
-    title += '    </table>>'
+    title += "    </table>>";
     //console.log(title)
-    return title
+    return title;
   }
-
 }

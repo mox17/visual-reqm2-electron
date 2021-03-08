@@ -88,7 +88,7 @@ function get_linksto(node) {
       linksto: linksto[0].textContent,
       dstversion: dstversion_txt,
       linkerror: link_error_txt,
-      compared_to: ''  // In comparisons of oreqm files this may become 'rem' or 'new'
+      diff: ''  // In comparisons of oreqm files this may become 'rem' or 'new'
     }
     result.push(link)
   }
@@ -593,6 +593,27 @@ export class ReqM2Specobjects {
         this.requirements.delete(ghost_id)
       }
     }
+    // Reset diff flag for all links
+    console.log(this.new_reqs)
+    for (const new_req of this.new_reqs) {
+      const rec = this.requirements.get(new_req)
+      console.dir(rec)
+      for (let lt of rec.linksto) {
+        lt.diff = '';
+      }
+    }
+    // Remove 'ghost' links
+    for (const chg_req of this.updated_reqs) {
+      const rec = this.requirements.get(chg_req)
+      let new_lt = [];
+      for (let lt of rec.linksto) {
+        if (lt.diff !== 'rem') {
+          lt.diff = '';
+          new_lt.push(lt);
+        }
+      }
+      rec.linksto = new_lt;
+    }
     this.removed_reqs = []
     this.new_reqs = []
     this.updated_reqs = []
@@ -613,7 +634,8 @@ export class ReqM2Specobjects {
   /**
    * Compare two sets of requirements (instances of ReqM2Oreqm)
    * and return lists of new, modified and removed <id>s"""
-   * Requirements with no description are ignored
+   * Requirements with no description are ignored.
+   * 'Ghost' requirements in inserted which only exist in reference file.
    * @param {object} old_reqs reference oreqm object
    * @param {string[]} ignore_fields list of fields to ignore
    * @return {object} with new, updated and removed ids
@@ -638,9 +660,9 @@ export class ReqM2Specobjects {
       }
       if (old_reqs.requirements.has(req_id)) {
         updated_reqs.push(req_id)
-        this.compare_linksto(old_rec, new_rec);
+        // TODO: marking of links // this.compare_linksto(old_rec, new_rec);
       } else {
-        this.mark_linksto_new(req_id);
+        // TODO: marking of links // this.mark_linksto_new(req_id);
         new_reqs.push(req_id);
       }
     }
@@ -662,26 +684,26 @@ export class ReqM2Specobjects {
         this.doctypes.get(old_rec.doctype).push(req_id)
       }
     }
-    this.build_graph_traversal_links() // Select the changed ones (if wanted)
-    this.new_reqs = new_reqs
-    this.updated_reqs = updated_reqs
-    this.removed_reqs = removed_reqs
-    let result = new Object()
-    result.new_reqs = new_reqs
-    result.updated_reqs = updated_reqs
-    result.removed_reqs = removed_reqs
-    return result
+    this.build_graph_traversal_links();
+    this.new_reqs = new_reqs;
+    this.updated_reqs = updated_reqs;
+    this.removed_reqs = removed_reqs;
+    let result = new Object();
+    result.new_reqs = new_reqs;
+    result.updated_reqs = updated_reqs;
+    result.removed_reqs = removed_reqs;
+    return result;
   }
 
   /**
-   * Mark all linksto as new in compared_to field
+   * Mark all linksto as new in diff field
    * @param {string} id
    */
   mark_linksto_new(req_id) {
     let lt_count = this.requirements.get(req_id).linksto.length;
     for (let index = 0; index < lt_count; index++) {
-      this.requirements.get(req_id).linksto[index].compared_to = 'new';
-      console.log(`New linksto ${req_id} -> ${this.requirements.get(req_id).linksto[index]}`);
+      this.requirements.get(req_id).linksto[index].diff = 'new';
+      console.log(`New linksto ${req_id} ->`, this.requirements.get(req_id).linksto[index]);
     }
   }
 
@@ -691,20 +713,23 @@ export class ReqM2Specobjects {
    * @param {Specobject} new_rec
    */
   compare_linksto(old_rec, new_rec) {
-    let old_map = new Map(); // Map<id, linksto_rec>
-    let still_there = [];
+    let old_map = new Map(); // Map<id, linksto_rec> lookup table based on <id>
+    let still_there = [];  // Will be list of old links still present. Use to find removed links later.
+    // build lookup table for old specobject
     for (const old_l of old_rec.linksto) {
       old_map.set(old_l.linksto, old_l);
     }
+    // Check each link from new specobject
     for (const new_l of new_rec.linksto) {
       if (old_map.has(new_l.linksto)) {
-        if (new_l !== old_map.get(new_l.linksto)) {
-          new_l.compared_to = 'chg';
+        if (new_l.dstversion !== old_map.get(new_l.linksto).dstversion) {
+          console.log("Change:", old_map.get(new_l.linksto), new_l)
+          new_l.diff = 'chg';
         }
         still_there.push(new_l);
-        console.log('still_there:', still_there);
+        console.log('still_there:', new_l, still_there);
       } else {
-        new_l.compared_to = 'new';
+        new_l.diff = 'new';
         console.log('new linksto:', new_rec.id, new_l);
       }
     }
@@ -713,6 +738,10 @@ export class ReqM2Specobjects {
       if (!still_there.includes(old_l.linksto)) {
         // Add a 'ghost' linksto
         console.log(`Ghost linksto ${old_rec.id} to ${old_l.linksto}`);
+        let ghost_linksto = {...old_l}; // make a clone
+        ghost_linksto.diff = 'rem';
+        new_rec.linksto.push(ghost_linksto);
+        console.log("rec with ghost", new_rec.linksto);
       }
     }
   }
