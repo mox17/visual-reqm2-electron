@@ -631,13 +631,17 @@ export class ReqM2Specobjects {
         continue;
       }
       // compare json versions
-      if (stringEqual(this.requirements.get(req_id), old_reqs.requirements.get(req_id), ignore_fields)) {
+      let new_rec = this.requirements.get(req_id);
+      let old_rec = old_reqs.requirements.get(req_id);
+      if (stringEqual(new_rec, old_rec, ignore_fields)) {
         continue // skip unchanged or nondescript reqs
       }
       if (old_reqs.requirements.has(req_id)) {
-          updated_reqs.push(req_id)
+        updated_reqs.push(req_id)
+        this.compare_linksto(old_rec, new_rec);
       } else {
-          new_reqs.push(req_id)
+        this.mark_linksto_new(req_id);
+        new_reqs.push(req_id);
       }
     }
     const old_ids = old_reqs.requirements.keys()
@@ -667,6 +671,50 @@ export class ReqM2Specobjects {
     result.updated_reqs = updated_reqs
     result.removed_reqs = removed_reqs
     return result
+  }
+
+  /**
+   * Mark all linksto as new in compared_to field
+   * @param {string} id
+   */
+  mark_linksto_new(req_id) {
+    let lt_count = this.requirements.get(req_id).linksto.length;
+    for (let index = 0; index < lt_count; index++) {
+      this.requirements.get(req_id).linksto[index].compared_to = 'new';
+      console.log(`New linksto ${req_id} -> ${this.requirements.get(req_id).linksto[index]}`);
+    }
+  }
+
+  /**
+   * Compare linksto lists and add removed links as 'ghosts' with 'rem' attribute, and set 'new' attribute on new linksto.
+   * @param {Specobject} old_rec
+   * @param {Specobject} new_rec
+   */
+  compare_linksto(old_rec, new_rec) {
+    let old_map = new Map(); // Map<id, linksto_rec>
+    let still_there = [];
+    for (const old_l of old_rec.linksto) {
+      old_map.set(old_l.linksto, old_l);
+    }
+    for (const new_l of new_rec.linksto) {
+      if (old_map.has(new_l.linksto)) {
+        if (new_l !== old_map.get(new_l.linksto)) {
+          new_l.compared_to = 'chg';
+        }
+        still_there.push(new_l);
+        console.log('still_there:', still_there);
+      } else {
+        new_l.compared_to = 'new';
+        console.log('new linksto:', new_rec.id, new_l);
+      }
+    }
+    // Find the linksto that are no longer present
+    for (const old_l of old_rec.linksto) {
+      if (!still_there.includes(old_l.linksto)) {
+        // Add a 'ghost' linksto
+        console.log(`Ghost linksto ${old_rec.id} to ${old_l.linksto}`);
+      }
+    }
   }
 
   /**
