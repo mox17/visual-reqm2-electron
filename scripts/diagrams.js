@@ -190,15 +190,15 @@ function format_node (node_id, rec, ghost, oreqm, show_coverage, color_status) {
   //rq: ->(rq_doctype_color)
   let node_table = ''
   const nonexist_link = format_nonexistent_links(rec)
-  const violations      = rec.violations.length ? `        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">${dot_format(format_violations(rec.violations, oreqm.rules))}</TD></TR>\n` : ''
-  const furtherinfo     = rec.furtherinfo       ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: ${dot_format(rec.furtherinfo)}</TD></TR>\n` : ''
-  const safetyrationale = rec.safetyrationale   ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: ${dot_format(rec.safetyrationale)}</TD></TR>\n` : ''
-  const shortdesc       = rec.shortdesc         ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: ${dot_format(rec.shortdesc)}</TD></TR>\n` : ''
-  const rationale       = rec.rationale         ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">rationale: ${dot_format(rec.rationale)}</TD></TR>\n` : ''
-  const verifycrit      = rec.verifycrit        ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">${dot_format(rec.verifycrit)}</TD></TR>\n` : ''
-  const comment         = rec.comment           ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: ${dot_format(rec.comment)}</TD></TR>\n` : ''
-  const source          = rec.source            ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">source: ${dot_format(rec.source)}</TD></TR>\n` : ''
-  const status          = rec.status            ? `        <TR><TD>${tags_line(rec.tags, rec.platform)}</TD><TD>${rec.safetyclass}</TD><TD>${
+  const violations = rec.violations.length ? `        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">${dot_format(format_violations(rec.violations, oreqm.rules))}</TD></TR>\n` : ''
+  const furtherinfo = rec.furtherinfo ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: ${dot_format(rec.furtherinfo)}</TD></TR>\n` : ''
+  const safetyrationale = rec.safetyrationale ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: ${dot_format(rec.safetyrationale)}</TD></TR>\n` : ''
+  const shortdesc = rec.shortdesc ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: ${dot_format(rec.shortdesc)}</TD></TR>\n` : ''
+  const rationale = rec.rationale ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">rationale: ${dot_format(rec.rationale)}</TD></TR>\n` : ''
+  const verifycrit = rec.verifycrit ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">${dot_format(rec.verifycrit)}</TD></TR>\n` : ''
+  const comment = rec.comment ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: ${dot_format(rec.comment)}</TD></TR>\n` : ''
+  const source = rec.source ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">source: ${dot_format(rec.source)}</TD></TR>\n` : ''
+  const status = rec.status ? `        <TR><TD>${tags_line(rec.tags, rec.platform)}</TD><TD>${rec.safetyclass}</TD><TD>${
                                                                  status_cell(rec, show_coverage, color_status)}</TD></TR>\n` : ''
   node_table = `
       <TABLE BGCOLOR="${get_color(rec.doctype)}${ghost ? ':white' : ''}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="${ghost ? 'grey' : 'black'}" >
@@ -979,17 +979,17 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         }
       }
     }
-    let rules = new Object();
+    let rules
     if (doctype_safety) {
       const safety_rules_string = JSON.stringify(
         program_settings.safety_link_rules,
         null,
         2
       )
-      rules.text = xml_escape(safety_rules_string.replace(/\\/g, "\\\\"));
-      rules.text = rules.text.replace(/\n/gm, '<BR ALIGN="LEFT"/> ');
-      rules.title =
-        "Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass";
+      rules = {
+        text: xml_escape(safety_rules_string.replace(/\\/g, '\\\\')).replace(/\n/gm, '<BR ALIGN="LEFT"/> '),
+        title: 'Safety rules for coverage<BR/>list of regex<BR/>doctype:safetyclass&gt;doctype:safetyclass'
+      }
     }
     //rq: ->(rq_diagram_legend)
     graph += `\n  label=${this.construct_graph_title(

@@ -1,9 +1,12 @@
 'use strict'
 // const electron = require('electron');
-const util = require('../lib/util.js')
+//const util = require('../lib/util.js')
 const dt = _interopRequireDefault(require('../lib/doctypes.js'))
 const assert = require('assert')
 // const fs = require('fs');
+
+const describe = global.describe
+const it = global.it
 
 function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }

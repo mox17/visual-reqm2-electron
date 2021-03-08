@@ -1,4 +1,3 @@
-// importScripts("../modules/viz.js/viz.js");
 import Viz from 'viz.js'
 
 onmessage = function (e) {

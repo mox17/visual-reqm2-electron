@@ -1,4 +1,5 @@
 'use strict'
+/* global alert */
 import { remote } from 'electron'
 import { defined_specobject_fields, program_settings, check_and_upgrade_settings } from './settings.js'
 import { update_color_settings } from './color.js'

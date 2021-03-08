@@ -1,4 +1,5 @@
 'use strict'
+/* global localStorage */
 import { remote } from 'electron'
 import fs from 'fs'
 

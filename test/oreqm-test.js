@@ -1,7 +1,7 @@
 'use strict'
 
 // const electron = require('electron');
-const util = require('../lib/util.js')
+// const util = require('../lib/util.js')
 const ReqM2Specobjects = _interopRequireDefault(
   require('../lib/reqm2oreqm.js')
 )
@@ -10,6 +10,9 @@ const fs = require('fs')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom
 global.DOMParser = new JSDOM().window.DOMParser
+
+const describe = global.describe
+const it = global.it
 
 function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }

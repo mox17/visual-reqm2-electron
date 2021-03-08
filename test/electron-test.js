@@ -21,7 +21,7 @@ const after = global.after
 // const afterEach = global.afterEach;
 
 const file = chaiFiles.file
-const dir = chaiFiles.dir
+//const dir = chaiFiles.dir
 
 function sleep (ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -344,7 +344,7 @@ describe('Application launch', function () {
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await wait_for_operation(app)
-      expect(file(dot_filename)).to.exist
+      //expect(file(dot_filename)).to.exist
       await compare_files(dot_filename, './test/refdata/main_ref_1.dot') //rq: ->(rq_oreqm_diff_calc,rq_req_diff_show)
     })
 

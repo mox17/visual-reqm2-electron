@@ -1,6 +1,6 @@
 /* Main class for managing oreqm xml data */
 'use strict'
-
+/* global DOMParser, alert */
 /**
  * Process xml input text and display possible errors detected
  * @param {string} xmlString
@@ -774,8 +774,10 @@ export class ReqM2Specobjects {
     const matches = []
     for (const id of ids) {
       const decorated_id = this.decorate_id(id)
-      if (decorated_id.search(rx) >= 0) //rq: ->(rq_search_id_only)
-      { matches.push(id) }
+      //rq: ->(rq_search_id_only)
+      if (decorated_id.search(rx) >= 0) {
+        matches.push(id)
+      }
     }
     return matches
   }
