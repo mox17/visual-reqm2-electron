@@ -55,7 +55,8 @@
     "shx": "^0.3.3",
     "spectron": "^13.0.0",
     "spectron-fake-dialog": "0.0.1",
-    "spectron-fake-menu": "0.0.1"
+    "spectron-fake-menu": "0.0.1",
+    "standard": "^16.0.3"
   },
   "dependencies": {
     "blob-util": "^2.0.2",
