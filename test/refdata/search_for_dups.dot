@@ -36,7 +36,7 @@ subgraph "cluster_TestDemoSpec.Object004:1" { id="sel_TestDemoSpec.Object004:1" 
 
 
   # Edges
-  "DemoSpec.Object001a" -> "TestDemoSpec.Object004" [style=bold fontname="Arial" fontcolor="red" label=""];
+  "DemoSpec.Object001a" -> "TestDemoSpec.Object004" [style=bold fontname="Arial" label=""];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">

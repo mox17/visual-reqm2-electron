@@ -3,6 +3,7 @@
 
 ## 1.4.7
 
+ * In comparison diagrams any modifications to linksto links now show as color coded with labels new, changed and removed.
  * Batch mode possible, i.e. generate diagrams entirely from command line.
    * The `--help` option is your friend.
    * All 3 types of diagrams (including diff views) can be generated.

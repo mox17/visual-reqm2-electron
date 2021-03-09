@@ -24,7 +24,7 @@ subgraph "cluster_cc.game.movement_new" { color=limegreen penwidth=2 label="new"
 }
 
 subgraph "cluster_cc.game.characters" { id="sel_cc.game.characters" color=maroon3 penwidth=3 label="" style="rounded"
-subgraph "cluster_cc.game.characters_changed" { color=goldenrod1 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"
+subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"
   "cc.game.characters" [id="cc.game.characters" label=<
       <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.characters</TD><TD>1</TD><TD>fea</TD></TR>
@@ -94,15 +94,15 @@ subgraph "cluster_cc.game.character.ogre_removed" { color=red penwidth=2 label="
 
 
   # Edges
-  "cc.game.movement" -> "cc.game.overview" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.characters" -> "cc.game.overview" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.character.troll" -> "cc.game.characters" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.character.dragon" -> "cc.game.characters" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.character.bird" -> "cc.game.characters" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.character.snake" -> "cc.game.characters" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.character.pirate" -> "cc.game.characters" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "/home/foo/bar/baz/fie/impl/pirate.hpp_15" -> "cc.game.character.pirate" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.character.ogre" -> "cc.game.characters" [style=bold fontname="Arial" fontcolor="red" label=""];
+  "cc.game.movement" -> "cc.game.overview" [style=bold color=green3 fontname="Arial" label="new: "];
+  "cc.game.characters" -> "cc.game.overview" [style=bold fontname="Arial" label=""];
+  "cc.game.character.troll" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.dragon" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.bird" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.snake" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.pirate" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "/home/foo/bar/baz/fie/impl/pirate.hpp_15" -> "cc.game.character.pirate" [style=bold fontname="Arial" label=""];
+  "cc.game.character.ogre" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">
