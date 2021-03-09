@@ -673,7 +673,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     if (this.new_reqs.includes(req_id)) {
       node = `subgraph "cluster_${dot_id}_new" { color=limegreen penwidth=2 label="new" fontname="Arial" labelloc="t" style="rounded"\n${node}}\n`
     } else if (this.updated_reqs.includes(req_id)) {
-      node = `subgraph "cluster_${dot_id}_changed" { color=goldenrod1 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"\n${node}}\n`
+      node = `subgraph "cluster_${dot_id}_changed" { color=orange3 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"\n${node}}\n`
     } else if (this.removed_reqs.includes(req_id)) {
       node = `subgraph "cluster_${dot_id}_removed" { color=red penwidth=2 label="removed" fontname="Arial" labelloc="t" style="rounded"\n${node}}\n`
     }
@@ -707,7 +707,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
             color = 'green3'
             break
           case 'chg':
-            color = 'orange'
+            color = 'orange3'
             break
         }
       }
