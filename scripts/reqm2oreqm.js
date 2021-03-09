@@ -594,24 +594,28 @@ export class ReqM2Specobjects {
       }
     }
     // Reset diff flag for all links
-    console.log(this.new_reqs)
+    //console.log("New requirements to check for diff flag", this.new_reqs)
     for (const new_req of this.new_reqs) {
       const rec = this.requirements.get(new_req)
-      console.dir(rec)
+      //console.dir(rec)
       for (const lt of rec.linksto) {
         lt.diff = ''
       }
     }
     // Remove 'ghost' links
     for (const chg_req of this.updated_reqs) {
+      //console.log("Changed requirements to check for diff flag", this.new_reqs)
       const rec = this.requirements.get(chg_req)
       const new_lt = []
       for (const lt of rec.linksto) {
-        if (lt.diff !== 'rem') {
+        if (lt.diff !== 'removed') {
           lt.diff = ''
           new_lt.push(lt)
+        } else {
+          //console.log("Skip ghost linksto:", lt)
         }
       }
+      //console.log("rec before and after", rec.id, rec.linksto, new_lt)
       rec.linksto = new_lt
     }
     this.removed_reqs = []
@@ -660,9 +664,11 @@ export class ReqM2Specobjects {
       }
       if (old_reqs.requirements.has(req_id)) {
         updated_reqs.push(req_id)
-        // TODO: marking of links // this.compare_linksto(old_rec, new_rec);
+        // TODO: marking of links //
+        this.compare_linksto(old_rec, new_rec);
       } else {
-        // TODO: marking of links // this.mark_linksto_new(req_id);
+        // TODO: marking of links //
+        this.mark_linksto_new(req_id);
         new_reqs.push(req_id)
       }
     }
@@ -696,52 +702,56 @@ export class ReqM2Specobjects {
   }
 
   /**
-   * Mark all linksto as new in diff field
+   * Mark all linksto as new in 'diff' field
    * @param {string} id
    */
   mark_linksto_new (req_id) {
     const lt_count = this.requirements.get(req_id).linksto.length
     for (let index = 0; index < lt_count; index++) {
       this.requirements.get(req_id).linksto[index].diff = 'new'
-      console.log(`New linksto ${req_id} ->`, this.requirements.get(req_id).linksto[index])
+      //console.log(`Mark as new ${req_id} ->`, this.requirements.get(req_id).linksto[index])
     }
   }
 
   /**
-   * Compare linksto lists and add removed links as 'ghosts' with 'rem' attribute, and set 'new' attribute on new linksto.
+   * Compare linksto lists and add removed links as 'ghosts' with 'removed' attribute, and set 'new' attribute on new linksto.
    * @param {Specobject} old_rec
    * @param {Specobject} new_rec
    */
   compare_linksto (old_rec, new_rec) {
-    const old_map = new Map() // Map<id, linksto_rec> lookup table based on <id>
-    const still_there = [] // Will be list of old links still present. Use to find removed links later.
+    let old_map = new Map() // Map<id, linksto_rec> Lookup table of OLD linksto based on destination <id>
+    let still_there = [] // List of old linksto still present. Use to find removed links later.
     // build lookup table for old specobject
     for (const old_l of old_rec.linksto) {
+      if (old_map.has(old_l.linksto)) {
+        console.log(`ref ${old_rec.id} has multiple linksto ${old_l.linksto}`, old_rec)
+      }
       old_map.set(old_l.linksto, old_l)
     }
     // Check each link from new specobject
     for (const new_l of new_rec.linksto) {
       if (old_map.has(new_l.linksto)) {
         if (new_l.dstversion !== old_map.get(new_l.linksto).dstversion) {
-          console.log('Change:', old_map.get(new_l.linksto), new_l)
+          //console.log('Change version:', old_map.get(new_l.linksto), new_l)
           new_l.diff = 'chg'
         }
-        still_there.push(new_l)
-        console.log('still_there:', new_l, still_there)
+        still_there.push(new_l.linksto)
+        //console.log('still_there:', new_l.linksto, still_there)
       } else {
         new_l.diff = 'new'
-        console.log('new linksto:', new_rec.id, new_l)
+        //console.log('new linksto:', new_rec.id, new_l)
       }
     }
     // Find the linksto that are no longer present
     for (const old_l of old_rec.linksto) {
       if (!still_there.includes(old_l.linksto)) {
         // Add a 'ghost' linksto
-        console.log(`Ghost linksto ${old_rec.id} to ${old_l.linksto}`)
+        //console.log(`Ghost linksto ${old_rec.id} to ${old_l.linksto}`)
         const ghost_linksto = { ...old_l } // make a clone
-        ghost_linksto.diff = 'rem'
+        ghost_linksto.diff = 'removed'
+        //console.log("Add ghost linksto", ghost_linksto)
         new_rec.linksto.push(ghost_linksto)
-        console.log('rec with ghost', new_rec.linksto)
+        //console.log('rec with ghost', new_rec.linksto)
       }
     }
   }
@@ -980,16 +990,21 @@ export class ReqM2Specobjects {
     let xml_txt = ''
     if (Object.prototype.hasOwnProperty.call(rec, field)) {
       const list = rec[field]
+      //console.dir(rec)
       if (list.length) {
         xml_txt = `\n${field}: `
         if (field === 'linksto') {
           xml_txt = '\n    <providescoverage>'
           for (let i = 0; i < list.length; i++) {
-            xml_txt += `
-      <provcov>
-        <linksto>${list[i].linksto}</linksto>
-        <dstversion>${list[i].dstversion}</dstversion>
-      </provcov>`
+            // Do not show ghost links
+            //console.log(list[i].linksto)
+            if (list[i].diff !== 'removed') {
+              xml_txt += `
+        <provcov>
+          <linksto>${list[i].linksto}</linksto>
+          <dstversion>${list[i].dstversion}</dstversion>
+        </provcov>`
+            }
           }
           xml_txt += '\n    </providescoverage>'
         } else if (field === 'needsobj') {

@@ -62,21 +62,3 @@ When it comes to showing changes in links, the following possibilities exist:
 (*) Link is only added if destination node exists in either **main** or **reference** oreqm file.
 If it exists only in **reference** file, the 'ghost' mechanism will make the specobject visible also in this diff view.
 
-
-## Duplicates need extra attention
-In the above description of link handling, the version of specobject was mostly ignored. The reason is that even
-if a link uses the wrong version, it is still desirable to see the link, because the context is relevant.
-
-When duplicates exist, it is necessary to pouint to the correct specobject as far as possible.
-As long as the combination of `<id>`+`<version>` is unique, that is possible, but when that breaks down,
-'correct' links are no longer possible.
-
-Visual ReqM2 keeps track of which `<id>`s are duplicated and has unique internal keys for all nodes.
-
-### Duplicate combinations
-
-| Main/Ref                | Unique    | Dup `<id>` | Dup `<id>`+ `<version>` |
-| ----------------------- | --------- | ---------- | ----------------------- |
-| Unique                  | See above | Specobject w. new version is new, links from this considered new | One of the specobjects will be considered 'new' |
-| Dup `<id>`              | Duplicate will be 'ghost' | no special handling | One of the specobjects will be considered 'new' |
-| Dup `<id>`+ `<version>` | ghosts    | One (some) will be ghosts. Which one(s) is undefined. | Comparison will be random, based on key |

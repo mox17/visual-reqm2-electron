@@ -241,8 +241,9 @@ function format_edge (from_node, to_node, kind, error, color = '', lbl = '') {
     }
   } else {
     const col = (color !== '') ? `color=${color} ` : ''
-    error = (lbl !== '') ? `${lbl}: ${error}` : error
-    edge_label = ` [style=bold ${col}fontname="Arial" fontcolor="red" label="${error}"]`
+    const fontcolor = error.length ? 'fontcolor=red ' : ''
+    label = (lbl !== '') ? `${lbl}: ${error}` : error
+    edge_label = ` [style=bold ${col}fontname="Arial" ${fontcolor}label="${label}"]`
   }
   return `  "${from_node}" -> "${to_node}"${edge_label};\n`
 }
@@ -699,11 +700,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         error = lt.linkerror
         label = lt.diff
         switch (label) {
-          case 'rem':
+          case 'removed':
             color = '"#C00000" style=dashed'
             break
           case 'new':
-            color = 'red'
+            color = 'green3'
             break
           case 'chg':
             color = 'orange'
