@@ -261,12 +261,6 @@ app.on('ready', () => {
   // console.dir(args);
   debug = args.debug
   run_autoupdater = args.update
-  // Check if a command-line only action requested
-  // if (args.safety || args.hierarchy || args.diagram) {
-  //   cmd_line_only = true
-  //   console.log("command-line only")
-  //   app.quit()
-  // }
 
   accelerators_setup()
   mainWindow_width = 1920 // electron_settings.getSync('mainWindow_width', 1024);
@@ -275,9 +269,7 @@ app.on('ready', () => {
 
   mainWindow.webContents.on('did-finish-load', () => {
     // console.log("argv:", process.argv, args)
-    if (process.argv.length > 1) {
-      mainWindow.webContents.send('argv', process.argv, args)
-    }
+    mainWindow.webContents.send('argv', process.argv, args)
   })
 })
 

@@ -102,7 +102,7 @@ subgraph "cluster_cc.game.character.ogre_removed" { color=red penwidth=2 label="
   "cc.game.character.snake" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
   "cc.game.character.pirate" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
   "/home/foo/bar/baz/fie/impl/pirate.hpp_15" -> "cc.game.character.pirate" [style=bold fontname="Arial" label=""];
-  "cc.game.character.ogre" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.ogre" -> "cc.game.characters" [style=bold color="#C00000" style=dashed fontname="Arial" label="removed: "];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">

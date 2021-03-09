@@ -591,6 +591,10 @@ export class ReqM2Specobjects {
           this.doctypes.delete(rec.doctype)
         }
         this.requirements.delete(ghost_id)
+        // Clear 'removed' diff status for linksto
+        for (let lt of rec.linksto) {
+          lt.diff = ''
+        }
       }
     }
     // Reset diff flag for all links
@@ -664,10 +668,8 @@ export class ReqM2Specobjects {
       }
       if (old_reqs.requirements.has(req_id)) {
         updated_reqs.push(req_id)
-        // TODO: marking of links //
         this.compare_linksto(old_rec, new_rec);
       } else {
-        // TODO: marking of links //
         this.mark_linksto_new(req_id);
         new_reqs.push(req_id)
       }
@@ -688,6 +690,10 @@ export class ReqM2Specobjects {
         }
         // Update doctype table with new counts (and types)
         this.doctypes.get(old_rec.doctype).push(req_id)
+        // Make all linksto 'removed'
+        for (let lt of old_rec.linksto) {
+          lt.diff = 'removed'
+        }
       }
     }
     this.build_graph_traversal_links()
