@@ -139,22 +139,22 @@ subgraph "cluster_cc.game.locations" { id="sel_cc.game.locations" color=maroon3 
 
 
   # Edges
-  "cc.game.locations" -> "cc.game.overview" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.house" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.meadow" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.grate" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.witt" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.westlands" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.1" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.2" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.3" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.4" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.5" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.6" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.7" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.8" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "cc.game.location.maze.9" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor="red" label=""];
+  "cc.game.locations" -> "cc.game.overview" [style=bold fontname="Arial" label=""];
+  "cc.game.location.house" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
+  "cc.game.location.meadow" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
+  "cc.game.location.grate" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
+  "cc.game.location.witt" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
+  "cc.game.location.westlands" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.1" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.2" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.3" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.4" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.5" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.6" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.7" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.8" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
+  "cc.game.location.maze.9" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontname="Arial" label="ffb"];
 
   label=<

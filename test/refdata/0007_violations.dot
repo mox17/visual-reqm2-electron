@@ -63,10 +63,10 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
 
 
   # Edges
-  "DemoSpec.Object001a" -> "DemoSpec.Object001" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "DemoSpec.Object001a" -> "TestDemoSpec.Object004:2" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "TestDemoSpec.Object002" -> "DemoSpec.Object001" [style=bold fontname="Arial" fontcolor="red" label=""];
-  "TestDemoSpec.Object003" -> "DemoSpec.Object001" [style=bold fontname="Arial" fontcolor="red" label="referenced object does 
+  "DemoSpec.Object001a" -> "DemoSpec.Object001" [style=bold fontname="Arial" label=""];
+  "DemoSpec.Object001a" -> "TestDemoSpec.Object004:2" [style=bold fontname="Arial" label=""];
+  "TestDemoSpec.Object002" -> "DemoSpec.Object001" [style=bold fontname="Arial" label=""];
+  "TestDemoSpec.Object003" -> "DemoSpec.Object001" [style=bold fontname="Arial" fontcolor=red label="referenced object does 
 not exist."];
 
   label=<
