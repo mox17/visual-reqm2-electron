@@ -2130,11 +2130,7 @@ function check_newer_release_available () {
   })
 }
 
-/**
- * This function is called via (hidden) button from the testing framework to export coverage
- * at the end of spectron tests.
- */
-document.getElementById('save_coverage').addEventListener('click', function () {
+window.addEventListener('unload', function(_event) {
   if (window.__coverage__) {
     console.log('Found coverage report, writing to .nyc_output/coverage.json');
     fs.writeFileSync('.nyc_output/coverage.json', JSON.stringify(window.__coverage__));

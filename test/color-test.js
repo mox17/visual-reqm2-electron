@@ -1,5 +1,4 @@
 const chai = require('chai')
-// var chaiAsPromised = require('chai-as-promised');
 const color = _interopRequireDefault(require('../lib/color.js'))
 const fs = require('fs')
 const assert = chai.assert

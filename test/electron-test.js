@@ -535,13 +535,4 @@ describe('Application launch', function () {
     })
   })
 
-  // This must be the FINAL test
-  describe('Export coverage', function () {
-    it('export coverage', async function () {
-      await click_button(app, '#aboutButton')
-      await click_button(app, '#save_coverage')
-      assert.ok(true)
-    })
-  })
-
 })
