@@ -654,8 +654,10 @@ function copy_id_node (ffb_format) {
    */
 /*
   function copy_svg() {
-    let clip_txt = '<img src="data:image/svg;base64,{}" width="{}" height="{}" alt="diagram"/>'.format(
-      btoa(svg_result), svg_element.getAttribute('width'), svg_element.getAttribute('height'))
+    let clip_txt = `<img src="data:image/svg;base64,${
+      btoa(svg_result)}" width="${
+      svg_element.getAttribute('width')}" height="${
+      svg_element.getAttribute('height')}" alt="diagram"/>`
     const ta = document.createElement('textarea'); // 'img' ??
     ta.value = clip_txt
     ta.setAttribute('readonly', '');
@@ -2127,3 +2129,14 @@ function check_newer_release_available () {
     console.log('Error: ' + err.message)
   })
 }
+
+/**
+ * This function is called via (hidden) button from the testing framework to export coverage
+ * at the end of spectron tests.
+ */
+document.getElementById('save_coverage').addEventListener('click', function () {
+  if (window.__coverage__) {
+    console.log('Found coverage report, writing to .nyc_output/coverage.json');
+    fs.writeFileSync('.nyc_output/coverage.json', JSON.stringify(window.__coverage__));
+  }
+})

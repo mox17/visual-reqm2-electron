@@ -1,21 +1,16 @@
 'use strict'
-import fs from 'fs'
+const fs = require('fs')
 
 export function settings_configure (electron_settings, directory, file) {
-  let dir_ok = false
-  let file_ok = false
   if (directory !== undefined && (typeof (directory) === 'string') && fs.existsSync(directory)) {
-    dir_ok = true
+    electron_settings.configure({ dir: directory })
+  } else {
+    console.error(`Invalid settings directory: ${directory}`)
   }
   if (file !== undefined && (typeof (file) === 'string')) {
-    file_ok = true
-  }
-  if (dir_ok && file_ok) {
-    electron_settings.configure({ fileName: file, dir: directory })
-  } else if (dir_ok) {
-    electron_settings.configure({ dir: directory })
-  } else if (file_ok) {
     electron_settings.configure({ fileName: file })
+  } else {
+    console.error(`Invalid settings file: ${file}`)
   }
   electron_settings.configure({ prettify: true, numSpaces: 2 })
 }
