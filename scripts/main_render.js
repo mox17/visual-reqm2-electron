@@ -363,8 +363,10 @@ function check_cmd_line_steps () {
         diagram_file = `${filename}-issues.txt`
         problems = oreqm_main.get_problems()
         fs.writeFileSync(diagram_file, problems, 'utf8')
+        action_quit()
         ipcRenderer.send('cmd_quit')
         break
+
       default:
         console.log(`Unknown operation '${next_operation}'`)
     }
@@ -401,6 +403,10 @@ function action_busy () {
 
 function action_done () {
   document.getElementById('vrm2_working').innerHTML = 'done'
+}
+
+function action_quit () {
+  document.getElementById('vrm2_working').innerHTML = 'quit'
 }
 
 /** install callbacks for progress tracking */

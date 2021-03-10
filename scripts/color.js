@@ -151,6 +151,7 @@ export function save_colors_fs (path = null) {
   } else {
     SavePath = path
   }
+  // istanbul ignore else
   if (typeof (SavePath) !== 'undefined') {
     fs.writeFileSync(SavePath, JSON.stringify(_my_palette, null, 2), 'utf8')
     _store_colors(_my_palette)
@@ -174,6 +175,7 @@ export function load_colors_fs (update_function, path = null) {
   } else {
     LoadPath = [path]
   }
+  // istanbul ignore else
   if (typeof (LoadPath) !== 'undefined' && (LoadPath.length === 1)) {
     const colors = JSON.parse(fs.readFileSync(LoadPath[0], { encoding: 'utf8', flag: 'r' }))
     _store_colors(colors)

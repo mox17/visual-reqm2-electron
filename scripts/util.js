@@ -16,6 +16,7 @@
 // }
 
 // Define remove() operation if not existing
+// istanbul ignore else
 if (typeof (Array.prototype.remove) === 'undefined') {
   Array.prototype.remove = function () {
     let what; const a = arguments; let L = a.length; let ax

@@ -2,7 +2,7 @@
 
 
 ## 1.4.7
-
+ * `npm test` now automatically generate coverage report - see `./coverage/index.html`.
  * In comparison diagrams any modifications to linksto links now show as color coded with labels new, changed and removed.
  * Batch mode possible, i.e. generate diagrams entirely from command line.
    * The `--help` option is your friend.
@@ -13,18 +13,21 @@
      * `-safety` for safety rules check.
      * Possible detected issues are in file with `-issues.txt` suffix.
    * This is suitable for CI environments.
-   * Program still opens windows, therefore on a headless machine enable `xvfb` (this is what is done for testing on travis-ci.com)
+   * Program still opens windows, therefore on a headless machine enable `xvfb` (this is what is done for testing on travis-ci.com/github/mox17/visual-reqm2-electron)
    * When running in 'portable mode' (i.e. not installed) define `PWD` as is done by `bash`. Otherwise relative paths will
      not work, because execution moves to a different directory.
-   * Specify the settings file on the command line for predictable results.
+   * Specify the settings file on the command line for predictable results (using `-D <directory>` and `-F <file>` options).
  * Drag-and-drop main oreqm on diagram area.
  * Keyboard shortcuts for svg pan-zoom
-   * `Alt+Space` reset zoom.
-   * `Alt+0`     reset zoom.
-   * `Alt+'+'`   zoom in
-   * `Alt+PgUp`  zoom in
-   * `Alt+'-'`   zoom out
-   * `Alt+PgDn`  zoom out
+   * `Alt+Space` reset zoom for diagram.
+   * `Alt+0`     reset zoom for diagram.
+   * `Ctrl+0`    reset zoom for application UI
+   * `Ctrl+Shift+'+'` zoom in application UI
+   * `Ctrl+'-'`  zoom out application UI
+   * `Alt+'+'`   zoom in diagram
+   * `Alt+PgUp`  zoom in diagram
+   * `Alt+'-'`   zoom out diagram
+   * `Alt+PgDn`  zoom out diagram
    * `Alt+Left`  pan left
    * `Alt+Right` pan right
    * `Alt+Up`    pan up
@@ -58,6 +61,6 @@
  * Settings file (and directory) can be specified on the command line.
 
 
- ## for previous versions consult git log...
+ ## for previous versions (version 1.4.6 and older) consult git log...
 
 
