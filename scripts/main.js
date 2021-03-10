@@ -33,14 +33,6 @@ const cmd_line_only = false
 let mainWindow_width = 1024
 let mainWindow_height = 768
 
-ipcMain.on('cannot_close', () => {
-  can_close = false
-})
-
-ipcMain.on('can_close', () => {
-  can_close = true
-})
-
 function calc_icon_path (argv0) {
   // Ugly hack to deal with path differences for nodejs and electron execution env.
   if (path.basename(argv0.toLowerCase()).startsWith('electron')) {
