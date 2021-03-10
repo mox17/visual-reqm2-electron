@@ -6,6 +6,7 @@ import { handle_settings, load_safety_rules_fs, open_settings } from './settings
 import { get_ignored_fields, program_settings } from './settings.js'
 import { ipcRenderer, remote, shell } from 'electron'
 import { base64StringToBlob } from 'blob-util'
+import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 import https from 'https'
@@ -2132,7 +2133,16 @@ function check_newer_release_available () {
 
 window.addEventListener('unload', function(_event) {
   if (window.__coverage__) {
-    console.log('Found coverage report, writing to .nyc_output/coverage.json');
-    fs.writeFileSync('.nyc_output/coverage.json', JSON.stringify(window.__coverage__));
+    let name = '.nyc_output/coverage.json'
+    //fs.writeFileSync('xyz.json', process.env.NYC_CONFIG);
+    if (process.env.NYC_CONFIG) {
+      let cfg = JSON.parse(process.env.NYC_CONFIG)
+      if (cfg.tempDir !== undefined) {
+        // Use uuid as name to allow for several runs to coexist in same coverage report
+        name = `${cfg.tempDir}/${uuidv4()}.json`
+      }
+    }
+    console.log(`Found coverage report, writing to ${name}`);
+    fs.writeFileSync(name, JSON.stringify(window.__coverage__));
   }
 })
