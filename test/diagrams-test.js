@@ -17,7 +17,6 @@ function _interopRequireDefault (obj) {
 }
 
 const chai = require('chai')
-// var chaiAsPromised = require("chai-as-promised");
 const assert = chai.assert // Using Assert style
 const expect = chai.expect // Using Expect style
 // var should = chai.should(); // Using Should style

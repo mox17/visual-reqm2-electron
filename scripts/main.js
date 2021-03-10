@@ -27,22 +27,12 @@ let run_autoupdater = false
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
-let can_close = true
-const cmd_line_only = false
-
 let mainWindow_width = 1024
 let mainWindow_height = 768
 
-ipcMain.on('cannot_close', () => {
-  can_close = false
-})
-
-ipcMain.on('can_close', () => {
-  can_close = true
-})
-
 function calc_icon_path (argv0) {
   // Ugly hack to deal with path differences for nodejs and electron execution env.
+  // istanbul ignore else
   if (path.basename(argv0.toLowerCase()).startsWith('electron')) {
     return __dirname
   } else {
@@ -52,11 +42,15 @@ function calc_icon_path (argv0) {
 
 let icon_path
 function createWindow () {
+  // istanbul ignore next
   if (process.platform === 'linux') {
+    // istanbul ignore next
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
+    // istanbul ignore next
     icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
   } else {
+    // istanbul ignore next
     icon_path = path.join(__dirname, './src/icons/mac/icon.icns')
   }
   // Create the browser window.
@@ -82,6 +76,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
+  // istanbul ignore next
   if (debug) {
     mainWindow.webContents.openDevTools()
   }
@@ -149,7 +144,9 @@ function createWindow () {
         { role: 'zoomout' },
         {
           label: 'Toggle Developer Tools',
+          // istanbul ignore next
           accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          // istanbul ignore next
           click (item, focusedWindow) {
             if (focusedWindow) focusedWindow.webContents.toggleDevTools()
           }
@@ -169,48 +166,59 @@ function createWindow () {
   electron.Menu.setApplicationMenu(menu)
 
   mainWindow.once('ready-to-show', () => {
-    if (!cmd_line_only) {
-      mainWindow.show()
-      // log.info("run_autoupdater:", run_autoupdater)
-      if (run_autoupdater) {
-        //rq: ->(rq_autoupdate_win)
-        autoUpdater.checkForUpdatesAndNotify()
-      }
+    mainWindow.show()
+    // log.info("run_autoupdater:", run_autoupdater)
+    // istanbul ignore next
+    if (run_autoupdater) {
+      //rq: ->(rq_autoupdate_win)
+      // istanbul ignore next
+      autoUpdater.checkForUpdatesAndNotify()
     }
   })
 
   // Emitted when the window is closed.
+  // istanbul ignore next
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
+    // istanbul ignore next
     mainWindow = null
   })
 
-  mainWindow.on('close', (event) => {
-    if (can_close === false) {
-      event.preventDefault()
-    } else {
-      [mainWindow_width, mainWindow_height] = mainWindow.getSize()
-      electron_settings.setSync('mainWindow_width', mainWindow_width)
-      electron_settings.setSync('mainWindow_height', mainWindow_height)
-    }
+  mainWindow.on('close', (_event) => {
+    [mainWindow_width, mainWindow_height] = mainWindow.getSize()
+    electron_settings.setSync('mainWindow_width', mainWindow_width)
+    electron_settings.setSync('mainWindow_height', mainWindow_height)
   })
 }
 
 function accelerators_setup () {
+  /* istanbul ignore next */
   globalShortcut.register('Alt+Space', () => { mainWindow.webContents.send('svg_reset_zoom') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+0', () => { mainWindow.webContents.send('svg_reset_zoom') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+Left', () => { mainWindow.webContents.send('svg_pan_left') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+Right', () => { mainWindow.webContents.send('svg_pan_right') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+Up', () => { mainWindow.webContents.send('svg_pan_up') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+Down', () => { mainWindow.webContents.send('svg_pan_down') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+Plus', () => { mainWindow.webContents.send('svg_zoom_in') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+PageUp', () => { mainWindow.webContents.send('svg_zoom_in') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+-', () => { mainWindow.webContents.send('svg_zoom_out') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+PageDown', () => { mainWindow.webContents.send('svg_zoom_out') })
+  /* istanbul ignore next */
   globalShortcut.register('Alt+N', () => { mainWindow.webContents.send('selected_next') }) //rq: ->(rq_navigate_sel)
+  /* istanbul ignore next */
   globalShortcut.register('Alt+P', () => { mainWindow.webContents.send('selected_prev') }) //rq: ->(rq_navigate_sel)
+  /* istanbul ignore next */
   globalShortcut.register('Alt+Enter', () => { mainWindow.webContents.send('filter_graph') })
 }
 
@@ -274,17 +282,21 @@ app.on('ready', () => {
 })
 
 // Quit when all windows are closed.
+// istanbul ignore next
 app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
+  // istanbul ignore next
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
+// istanbul ignore next
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
+  // istanbul ignore next
   if (mainWindow === null) {
     createWindow()
   }
@@ -299,26 +311,32 @@ ipcMain.on('cmd_echo', (evt, arg) => {
 })
 
 // Handle automatic updates
+// istanbul ignore next
 autoUpdater.on('update-available', () => {
   mainWindow.webContents.send('update_available')
 })
 
+// istanbul ignore next
 autoUpdater.on('update-downloaded', () => {
   mainWindow.webContents.send('update_downloaded')
 })
 
+// istanbul ignore next
 autoUpdater.on('checking-for-update', () => {
   // log.info('Checking for update...');
 })
 
+// istanbul ignore next
 autoUpdater.on('update-not-available', (_info) => {
   // log.info('Update not available.');
 })
 
+// istanbul ignore next
 autoUpdater.on('error', (_err) => {
   // log.info('Error in auto-updater. ' + _err);
 })
 
+// istanbul ignore next
 autoUpdater.on('download-progress', (progressObj) => {
   let log_message = 'Download speed: ' + progressObj.bytesPerSecond
   log_message = log_message + ' - Downloaded ' + progressObj.percent + '%'
@@ -326,6 +344,8 @@ autoUpdater.on('download-progress', (progressObj) => {
   log.info(log_message)
 })
 
+// istanbul ignore next
 ipcMain.on('restart_app', () => {
+  // istanbul ignore next
   autoUpdater.quitAndInstall()
 })

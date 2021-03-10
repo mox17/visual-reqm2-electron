@@ -1,19 +1,19 @@
 'use strict'
 
 // ------ utility functions and extensions --------
-String.prototype.format = function () {
-  let i = 0; const args = arguments
-  return this.replace(/{}/g, function () {
-    return typeof args[i] !== 'undefined' ? args[i++] : ''
-  })
-}
+// String.prototype.format = function () {
+//   let i = 0; const args = arguments
+//   return this.replace(/{}/g, function () {
+//     return typeof args[i] !== 'undefined' ? args[i++] : ''
+//   })
+// }
 
 // Define trim() operation if not existing
-if (typeof (String.prototype.trim) === 'undefined') {
-  String.prototype.trim = function () {
-    return String(this).replace(/^\s+|\s+$/g, '')
-  }
-}
+// if (typeof (String.prototype.trim) === 'undefined') {
+//   String.prototype.trim = function () {
+//     return String(this).replace(/^\s+|\s+$/g, '')
+//   }
+// }
 
 // Define remove() operation if not existing
 if (typeof (Array.prototype.remove) === 'undefined') {
@@ -30,4 +30,4 @@ if (typeof (Array.prototype.remove) === 'undefined') {
 }
 
 // Helper for exporting ReqExp to JSON
-RegExp.prototype.toJSON = function () { return this.source }
+// RegExp.prototype.toJSON = function () { return this.source }

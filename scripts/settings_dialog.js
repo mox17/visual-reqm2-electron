@@ -114,10 +114,6 @@ function settings_dialog_prepare () {
     // console.log(program_settings.max_calc_nodes);
     box.value = program_settings.top_doctypes.join(',')
   }
-  const str = `Rules:\n ${JSON.stringify(program_settings.safety_link_rules, null, 2)}`
-  if (!str.includes('^')) {
-    console.log(str)
-  }
   document.getElementById('safety_rules').value = JSON.stringify(program_settings.safety_link_rules, null, 2)
 }
 

@@ -534,4 +534,5 @@ describe('Application launch', function () {
       assert.ok(fs.existsSync(colors_filename)) //rq: ->(rq_doctype_color_export)
     })
   })
+
 })
