@@ -1,0 +1,63 @@
+{
+  "program_settings": {
+    "compare_fields": {
+      "id": true,
+      "comment": true,
+      "dependson": true,
+      "description": true,
+      "doctype": true,
+      "fulfilledby": true,
+      "furtherinfo": true,
+      "linksto": true,
+      "needsobj": true,
+      "platform": true,
+      "rationale": true,
+      "safetyclass": true,
+      "safetyrationale": true,
+      "shortdesc": true,
+      "source": true,
+      "sourcefile": false,
+      "sourceline": false,
+      "status": true,
+      "tags": true,
+      "usecase": true,
+      "verifycrit": true,
+      "version": true,
+      "violations": false
+    },
+    "max_calc_nodes": 1000,
+    "show_coverage": false,
+    "top_doctypes": [],
+    "color_status": false,
+    "show_errors": true,
+    "check_for_updates": true,
+    "safety_link_rules": [
+      "^\\w+:>\\w+:$",
+      "^\\w+:QM>\\w+:$",
+      "^\\w+:SIL-2>\\w+:$",
+      "^\\w+:QM>\\w+:QM$",
+      "^\\w+:SIL-2>\\w+:QM$",
+      "^\\w+:SIL-2>\\w+:SIL-2$",
+      "^impl.*>.*$",
+      "^swintts.*>.*$",
+      "^swuts.*>.*$"
+    ]
+  },
+  "doctype_colors": {
+    "none": "#FFFFFF",
+    "fea": "#FDB1D0",
+    "impl": "#E7B1FD",
+    "swdd": "#FCFDB1",
+    "swrs": "#B1E6FD",
+    "vaporware": "#B1FDD1",
+    "requirement": "#FDBBB1",
+    "demospec1": "#B1BDFD",
+    "demospec2": "#D3FDB1",
+    "demospec27": "#FDB1E9",
+    "userdoc": "#B1FDFA",
+    "userdoc1": "#FDE4B1",
+    "userdoc2": "#CEB1FD"
+  },
+  "mainWindow_width": 1920,
+  "mainWindow_height": 1080
+}

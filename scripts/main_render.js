@@ -51,7 +51,7 @@ let output_filename = 'diagram'
 const resizeEvent = new Event('paneresize')
 Split(['#oreqm_div', '#graph'], {
   sizes: [15, 85],
-  onDragEnd: function () {
+  onDragEnd: function () /* istanbul ignore next */ {
     const svgOutput = document.getElementById('svg_output')
     if (svgOutput !== null) {
       svgOutput.dispatchEvent(resizeEvent)
@@ -176,9 +176,10 @@ ipcRenderer.on('filter_graph', () => {
 /** Avoid flickering of toast 'killer' */
 let toast_maybe_visible = false
 /**
-   * Show a toast when graph has been limited to max_nodes nodes
-   * @param {number} max_nodes The limit
-   */
+ * Show a toast when graph has been limited to max_nodes nodes
+ * @param {number} max_nodes The limit
+ */
+// istanbul ignore next
 function report_limit_as_toast (max_nodes) {
   toast_maybe_visible = true
   showToast({
@@ -189,6 +190,7 @@ function report_limit_as_toast (max_nodes) {
 }
 
 function clear_toast () {
+  // istanbul ignore next
   if (toast_maybe_visible) {
     showToast({
       str: '',
@@ -200,14 +202,14 @@ function clear_toast () {
 }
 
 /**
-   * This function will check for the existence of a file.
-   * When running as a portable app on Windows, the PWD changes,
-   * such that a relative path no longer works.
-   * This function tries to detect this and uses a PWD environment
-   * variable, if such exist.
-   * @param {string} name
-   * @return {string} name if it exist, empty string if not found
-   */
+ * This function will check for the existence of a file.
+ * When running as a portable app on Windows, the PWD changes,
+ * such that a relative path no longer works.
+ * This function tries to detect this and uses a PWD environment
+ * variable, if such exist.
+ * @param {string} name
+ * @return {string} name if it exist, empty string if not found
+ */
 function find_file (name) {
   let new_path = ''
   if (fs.existsSync(name)) {
@@ -231,9 +233,9 @@ function find_file (name) {
 }
 
 /**
-   * Main processing triggered from main process starts here.
-   * Processed command line parameters are received here
-   */
+ * Main processing triggered from main process starts here.
+ * Processed command line parameters are received here
+ */
 ipcRenderer.on('argv', (event, parameters, args) => {
   let ok = true
   let main = false
@@ -309,6 +311,7 @@ function cmd_line_parameters (args) {
   }
   if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && !path.isAbsolute(output_filename)) {
     // Add PWD as start of relative path
+    // istanbul ignore next
     if (process.env.PWD) {
       output_filename = path.join(process.env.PWD, output_filename)
       console.log('Updated output path:', output_filename)
@@ -334,6 +337,7 @@ function cmd_line_parameters (args) {
     cmd_queue.push('done')
   }
   if (args.quit) {
+    // istanbul ignore next
     cmd_queue.push('quit')
   }
   // console.log("queue:", cmd_queue);
@@ -389,6 +393,7 @@ function check_cmd_line_steps () {
         ipcRenderer.send('cmd_echo', 'next')
         break;
 
+      // istanbul ignore next
       case 'quit':
         diagram_file = `${filename}-issues.txt`
         problems = oreqm_main.get_problems()
@@ -410,10 +415,10 @@ function check_cmd_line_steps () {
  * The processing then continues via this handler.
  */
 ipcRenderer.on('cl_cmd', (_evt, arg) => {
+  // istanbul ignore else
   if (arg === 'next') {
     check_cmd_line_steps()
   } else {
-    // istanbul ignore next
     console.log(`Unexpected cl_cmd ${arg}`)
   }
 })
@@ -539,7 +544,8 @@ function updateOutput (_result) {
       })
     }, svg_element)
 
-    document.getElementById('graph').onkeydown = function (e) {
+    document.getElementById('graph').onkeydown = function (e) // istanbul ignore next
+    {
       //rq: ->(rq_navigate_sel)
       if (e.key === 'n') {
         // alert("N key was pressed");
@@ -638,7 +644,8 @@ function updateOutput (_result) {
     image_type = 'dot'
     image_mime = 'text/vnd.graphviz'
     image_data = svg_result
-  } else {
+  } else // istanbul ignore next
+  {
     const plain_text = document.createElement('div')
     plain_text.id = 'text'
     plain_text.appendChild(document.createTextNode(svg_result))
@@ -740,6 +747,7 @@ function copy_png () {
  * @param {string} png image as string
  */
 function png_callback (ev, png) {
+  // istanbul ignore else
   if (ev === null) {
     const image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
     // console.log(image_blob)
@@ -769,6 +777,7 @@ function menu_save_as () {
     properties: ['openFile']
   }
   const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  // istanbul ignore else
   if (typeof (savePath) !== 'undefined') {
     save_diagram_file(savePath)
   }
@@ -786,9 +795,9 @@ document.querySelector('#format select').addEventListener('change', function () 
   update_diagram(selected_format)
 })
 
-document.querySelector('#raw input').addEventListener('change', function () {
-  updateOutput()
-})
+// document.querySelector('#raw input').addEventListener('change', function () {
+//   updateOutput()
+// })
 
 function diagram_error (message) {
   error_show(message)
