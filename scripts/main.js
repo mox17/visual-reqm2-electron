@@ -243,6 +243,7 @@ app.on('ready', () => {
       diagram: { type: 'boolean', alias: 'g', desc: 'Generate specobject diagram', default: false },
       hierarchy: { type: 'boolean', alias: 't', desc: 'Generate hierarchy diagram', default: false },
       safety: { type: 'boolean', alias: 'S', desc: 'Generate safety check diagram', default: false },
+      quit: { type: 'boolean', alias: 'Q', desc: 'Exit program after batch generation of diagrams', default: false },
       rules: { type: 'string', alias: 'r', desc: 'Safety rules json file', default: undefined },
       settFile: { type: 'string', alias: 'F', desc: 'Settings json file', default: undefined },
       settDir: { type: 'string', alias: 'D', desc: 'Settings directory', default: undefined },

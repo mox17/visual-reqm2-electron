@@ -291,34 +291,34 @@ function cmd_line_parameters (args) {
       alert('Define PWD in environment or specify absolute paths.')
     }
   }
-  const diagram = args.diagram
-  const hierarchy = args.hierarchy
-  const safety = args.safety
   // The pending commands are pushed on a queue.
   // The asynchronous completion of diagrams will
   // trigger processing of the queue.
-  if (diagram) {
+  if (args.diagram) {
     cmd_queue.push('save-diagram') //rq: ->(rq_automatic_diagram)
   }
-  if (hierarchy) {
+  if (args.hierarchy) {
     cmd_queue.push('hierarchy')
     cmd_queue.push('save-hierarchy')
   }
-  if (safety) {
+  if (args.safety) {
     cmd_queue.push('safety')
     cmd_queue.push('save-safety')
   }
-  if (diagram || hierarchy || safety) {
+  if (args.diagram||args.hierarchy||args.safety) {
+    cmd_queue.push('done')
+  }
+  if (args.quit) {
     cmd_queue.push('quit')
   }
   // console.log("queue:", cmd_queue);
 }
 
 /**
-   * Check for pending command line operations.
-   * This function is called on completion of a diagram.
-   * The next step is triggered via the main process.
-   */
+ * Check for pending command line operations.
+ * This function is called on completion of a diagram.
+ * The next step is triggered via the main process.
+ */
 function check_cmd_line_steps () {
   // console.log("Check queue:", cmd_queue);
   if (cmd_queue.length) {
@@ -359,11 +359,15 @@ function check_cmd_line_steps () {
         ipcRenderer.send('cmd_echo', 'next')
         break
 
+      case 'done':
+        document.getElementById('vrm2_batch').innerHTML = 'done'
+        ipcRenderer.send('cmd_echo', 'next')
+        break;
+
       case 'quit':
         diagram_file = `${filename}-issues.txt`
         problems = oreqm_main.get_problems()
         fs.writeFileSync(diagram_file, problems, 'utf8')
-        action_quit()
         ipcRenderer.send('cmd_quit')
         break
 
@@ -374,10 +378,10 @@ function check_cmd_line_steps () {
 }
 
 /**
-   * The steps of the cmd-line processing are handled through the process queue.
-   * The request for next operation is sent to main process, which echoes it back.
-   * The processing then continues via this handler.
-   */
+ * The steps of the cmd-line processing are handled through the process queue.
+ * The request for next operation is sent to main process, which echoes it back.
+ * The processing then continues via this handler.
+ */
 ipcRenderer.on('cl_cmd', (_evt, arg) => {
   if (arg === 'next') {
     check_cmd_line_steps()
@@ -405,10 +409,6 @@ function action_done () {
   document.getElementById('vrm2_working').innerHTML = 'done'
 }
 
-function action_quit () {
-  document.getElementById('vrm2_working').innerHTML = 'quit'
-}
-
 /** install callbacks for progress tracking */
 set_action_cb(action_busy, action_done)
 
@@ -425,8 +425,8 @@ function error_show (message) {
 let svg_element = null
 
 /**
-   * Remove currently displayed graph
-   */
+ * Remove currently displayed graph
+ */
 function clear_diagram () {
   const graph = document.querySelector('#output')
 
@@ -447,9 +447,9 @@ function clear_diagram () {
 }
 
 /**
-   * Render generated diagram in window, considering the selected output format
-   * and set up event handlers for resizing, pan/zoom and context menu
-   */
+ * Render generated diagram in window, considering the selected output format
+ * and set up event handlers for resizing, pan/zoom and context menu
+ */
 function updateOutput (_result) {
   const graph = document.querySelector('#output')
 
@@ -657,8 +657,8 @@ function copy_id_node (ffb_format) {
   }); */
 
 /**
-   * Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
-   */
+ * Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
+ */
 /*
   function copy_svg() {
     let clip_txt = `<img src="data:image/svg;base64,${
@@ -701,10 +701,10 @@ function copy_png () {
 }
 
 /**
-   * Create binary blob of png and put on clipboard
-   * @param {null} ev event
-   * @param {string} png image as string
-   */
+ * Create binary blob of png and put on clipboard
+ * @param {null} ev event
+ * @param {string} png image as string
+ */
 function png_callback (ev, png) {
   if (ev === null) {
     const image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
