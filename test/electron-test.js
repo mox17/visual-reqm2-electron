@@ -268,7 +268,6 @@ describe('Application launch', function () {
     await click_button(app, '#prev_selected')
     await click_button(app, '#prev_selected')
     await click_button(app, '#prev_selected')
-    await screenshot(app, 'jump')
   })
 
   describe('Load files', function () {
@@ -420,6 +419,7 @@ describe('Application launch', function () {
       await screenshot(app, 'dot-format') //rq: ->(rq_show_dot)
       // back to svg format
       await format_select.selectByAttribute('value', 'svg')
+      await wait_for_operation(app)
     })
 
     it('jump between selected nodes', async function () {
@@ -433,7 +433,7 @@ describe('Application launch', function () {
       await click_button(app, '#prev_selected')
       await click_button(app, '#prev_selected')
       await click_button(app, '#prev_selected')
-      await screenshot(app, 'jump')
+      // await screenshot(app, 'jump')
     })
 
     it('Toggle doctypes', async function () {
@@ -441,6 +441,7 @@ describe('Application launch', function () {
       // await wait_for_operation(app)
       await click_button(app, '#doctype_all')
       // await wait_for_operation(app)
+      assert.ok(true)
     })
 
   })
@@ -462,6 +463,7 @@ describe('Application launch', function () {
       const safety_rules_filename = './testdata/sample_safety_rules.json'
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safety_rules_filename] }])
       await fakeMenu.clickMenu('File', 'Load coverage rules...')
+      await wait_for_operation(app)
     })
 
     it('Save issues file', async function () {
