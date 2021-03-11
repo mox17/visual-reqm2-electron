@@ -127,7 +127,7 @@ async function wait_for_operation (app) {
 }
 
 describe('Application launch', function () {
-  this.timeout(20000)
+  this.timeout(30000)
   let app
 
   before(function () {
@@ -268,7 +268,6 @@ describe('Application launch', function () {
     await click_button(app, '#prev_selected')
     await click_button(app, '#prev_selected')
     await click_button(app, '#prev_selected')
-    await screenshot(app, 'jump')
   })
 
   describe('Load files', function () {
@@ -364,7 +363,9 @@ describe('Application launch', function () {
       await wait_for_operation(app)
       await screenshot(app, 'ref-oreqm')
     })
+  })
 
+  describe('Save files', function () {
     it('save comparison as dot', async function () {
       const dot_filename = './tmp/main_ref_1.dot'
       await remove_file(dot_filename)
@@ -420,27 +421,45 @@ describe('Application launch', function () {
       await screenshot(app, 'dot-format') //rq: ->(rq_show_dot)
       // back to svg format
       await format_select.selectByAttribute('value', 'svg')
+      await wait_for_operation(app)
     })
 
     it('jump between selected nodes', async function () {
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
-      await screenshot(app, 'jump')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
     })
 
-    it('Toggle doctypes', async function () {
-      await click_button(app, '#invert_exclude')
-      // await wait_for_operation(app)
-      await click_button(app, '#doctype_all')
-      // await wait_for_operation(app)
+    // it('Toggle doctypes', async function () {
+    //   await click_button(app, '#invert_exclude')
+    //   await wait_for_operation(app)
+    // })
+
+    // it('Toggle doctypes 2', async function () {
+    //   await click_button(app, '#doctype_all')
+    //   await wait_for_operation(app)
+    // })
+
+    it('Redraw', async function () {
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
     })
 
   })
@@ -456,12 +475,14 @@ describe('Application launch', function () {
       const aboutpane = await app.client.$('#aboutPane')
       await click_button(app, '#aboutPaneClose')
       expect(aboutpane.getAttribute('style')).to.eventually.not.include('block')
+      await wait_for_operation(app)
     })
 
     it('Load safety rules', async function () {
       const safety_rules_filename = './testdata/sample_safety_rules.json'
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safety_rules_filename] }])
       await fakeMenu.clickMenu('File', 'Load coverage rules...')
+      await wait_for_operation(app)
     })
 
     it('Save issues file', async function () {

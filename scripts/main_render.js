@@ -1702,6 +1702,7 @@ function center_node (node_name) {
     // console.log(pan_vector_x, pan_vector_y)
     panZoom.pan({ x: pan_vector_x, y: pan_vector_y })
   }
+  document.getElementById('vrm2_working').innerHTML = 'centered'
 }
 
 /** Drag and drop file handling main */
