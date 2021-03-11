@@ -340,6 +340,18 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await wait_for_operation(app)
       await compare_files(dot_filename, './test/refdata/main_exclude_1.dot') //rq: ->(rq_excl_id)
+    })
+
+    it('deselect node', async function () {
+      const dot_filename = './tmp/main_deselect_1.dot'
+      const svg_map = await get_svg_node_map(app)
+      await context_menu_click(app, svg_map, 'cc.game.locations', '#menu_deselect')
+      await wait_for_operation(app)
+      await screenshot(app, 'deselect_locations')
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
+      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await wait_for_operation(app)
+      await compare_files(dot_filename, './test/refdata/main_deselect_1.dot')
       await click_button(app, '#clear_excluded_ids')
       await click_button(app, '#clear_search_regex')
     })
@@ -374,11 +386,24 @@ describe('Application launch', function () {
 
     it('save comparison as svg', async function () {
       const svg_filename = './tmp/main_ref_1.svg'
+      const svg_map = await get_svg_node_map(app)
       await remove_file(svg_filename)
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: svg_filename }])
-      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await context_menu_click(app, svg_map, 'cc.game.characters', '#menu_save_as')
       await wait_for_operation(app)
       await compare_files(svg_filename, './test/refdata/main_ref_1.svg') //rq: ->(rq_save_svg_file)
+    })
+
+    it('show xml', async function () {
+      const svg_map = await get_svg_node_map(app)
+      await context_menu_click(app, svg_map, 'cc.game.characters', '#menu_xml_txt')
+      await click_button(app, '#nodeSourceClose')
+    })
+
+    it('show tagged search text', async function () {
+      const svg_map = await get_svg_node_map(app)
+      await context_menu_click(app, svg_map, 'cc.game.characters', '#menu_search_txt')
+      await click_button(app, '#nodeSourceClose')
     })
 
     it('show diagram as png', async function () {
