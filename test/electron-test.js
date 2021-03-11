@@ -438,9 +438,9 @@ describe('Application launch', function () {
 
     it('Toggle doctypes', async function () {
       await click_button(app, '#invert_exclude')
-      await wait_for_operation(app)
+      // await wait_for_operation(app)
       await click_button(app, '#doctype_all')
-      await wait_for_operation(app)
+      // await wait_for_operation(app)
     })
 
   })
