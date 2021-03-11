@@ -956,7 +956,7 @@ export class ReqM2Specobjects {
 
   get_problems () {
     // Get a list of problems as string. Empty string -> no problems
-    return this.problems.join('\n')
+    return "Detected problems:\n" + this.problems.join('\n')
   }
 
   get_problem_count () {

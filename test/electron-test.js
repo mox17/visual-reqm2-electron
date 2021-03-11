@@ -192,6 +192,7 @@ describe('Application launch', function () {
       await click_button(app, '#aboutPaneClose')
       expect(aboutpane.getAttribute('style')).to.eventually.not.include('block')
     })
+
   })
 
   describe('Settings dialog', function () {
@@ -380,6 +381,35 @@ describe('Application launch', function () {
       await screenshot(app, 'dot-format') //rq: ->(rq_show_dot)
       // back to svg format
       await format_select.selectByAttribute('value', 'svg')
+    })
+  })
+
+  describe('Menu operations', function () {
+    it('Open about from menu', async function () {
+      const aboutpane = await app.client.$('#aboutPane')
+      await fakeMenu.clickMenu('Help', 'About')
+      expect(aboutpane.getAttribute('style')).to.eventually.include('block')
+    })
+
+    it('close about once more', async function () {
+      const aboutpane = await app.client.$('#aboutPane')
+      await click_button(app, '#aboutPaneClose')
+      expect(aboutpane.getAttribute('style')).to.eventually.not.include('block')
+    })
+
+    it('Load safety rules', async function () {
+      const safety_rules_filename = './testdata/sample_safety_rules.json'
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safety_rules_filename] }])
+      await fakeMenu.clickMenu('File', 'Load coverage rules...')
+    })
+
+    it('Save issues file', async function () {
+      const issues_filename = './tmp/my_issues.txt'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: issues_filename }])
+      await fakeMenu.clickMenu('File', 'Save issues as...')
+      await holdBeforeFileExists(issues_filename, 1000)
+      //await wait_for_operation(app)
+      await compare_files(issues_filename, './test/refdata/my_issues.txt')
     })
   })
 

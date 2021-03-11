@@ -1,23 +1,56 @@
 ### Changelog
 
 
-## 1.4.7
- * `npm test` now automatically generate coverage report - see `./coverage/index.html`.
- * In comparison diagrams any modifications to linksto links now show as color coded with labels new, changed and removed.
+## 2.0.0
+ * `npm run-script test:cov` generates coverage report - see report in `./coverage/index.html`.
+ * In comparison diagrams, any modifications to linksto links arew now shown as color coded edges/arrows with labels 'new', 'changed' or 'removed'.
  * Batch mode possible, i.e. generate diagrams entirely from command line.
    * The `--help` option is your friend.
+```
+$ ./node_modules/electron/dist/electron.exe . --help
+
+VisualReqM2 options [main_oreqm [ref_oreqm]]
+
+Options:
+      --help          Show help                                        [boolean]
+  -v, --version       Show version                    [boolean] [default: false]
+  -d, --debug         Enable debug                    [boolean] [default: false]
+  -u, --update        Do automatic update (if available)
+                                                      [boolean] [default: false]
+  -V, --newVer        Check for new release                            [boolean]
+  -s, --select        Selection criteria                                [string]
+  -i, --idOnly        Search id only                  [boolean] [default: false]
+  -e, --exclIds       Excluded ids, comma separated                     [string]
+  -R, --inclRejected  Include rejected specobjects    [boolean] [default: false]
+  -T, --exclDoctypes  Excluded doctypes, comma separated                [string]
+  -f, --format        svg, png or dot graph            [string] [default: "svg"]
+  -o, --output        Name of output file (extension .svg, .png or .dot will be
+                      added)                                            [string]
+  -g, --diagram       Generate specobject diagram     [boolean] [default: false]
+  -t, --hierarchy     Generate hierarchy diagram      [boolean] [default: false]
+  -S, --safety        Generate safety check diagram   [boolean] [default: false]
+  -Q, --quit          Exit program after batch generation of diagrams
+                                                      [boolean] [default: false]
+  -r, --rules         Safety rules json file                            [string]
+  -F, --settFile      Settings json file                                [string]
+  -D, --settDir       Settings directory                                [string]
+  -m, --oreqm_main    main oreqm file                                   [string]
+  -z, --oreqm_ref     ref oreqm file (older)                            [string]
+
+```
    * All 3 types of diagrams (including diff views) can be generated.
      * Choose between `.svg`, `.dot` or `.png` format of diagrams.
      * file name suffix `-diagram` for requirements
      * `-doctypes` for hierarchy
      * `-safety` for safety rules check.
      * Possible detected issues are in file with `-issues.txt` suffix.
-   * This is suitable for CI environments.
+     * Remember the `--quit` option to terminate the program automatically. This oddity is there because of testing framework behavior.
+   * This batch mode is suitable for CI environments.
    * Program still opens windows, therefore on a headless machine enable `xvfb` (this is what is done for testing on travis-ci.com/github/mox17/visual-reqm2-electron)
-   * When running in 'portable mode' (i.e. not installed) define `PWD` as is done by `bash`. Otherwise relative paths will
+   * When running in 'portable mode' (i.e. not installed) define `PWD` as is done by `bash`, otherwise relative paths will
      not work, because execution moves to a different directory.
    * Specify the settings file on the command line for predictable results (using `-D <directory>` and `-F <file>` options).
- * Drag-and-drop main oreqm on diagram area.
+ * Drag-and-drop main oreqm file on diagram area.
  * Keyboard shortcuts for svg pan-zoom
    * `Alt+Space` reset zoom for diagram.
    * `Alt+0`     reset zoom for diagram.

@@ -1933,17 +1933,12 @@ document.getElementById('save_problems').addEventListener('click', function () {
 function save_problems () {
   //rq: ->(rq_issues_file_export)
   const problems = oreqm_main.get_problems()
-  if (problems.length > 0) {
-    const SavePath = remote.dialog.showSaveDialogSync(null,
-      {
-        filters: [{ name: 'TXT files', extensions: ['txt'] }],
-        properties: ['openFile']
-      })
-    if (typeof (SavePath) !== 'undefined') {
-      fs.writeFileSync(SavePath, problems, 'utf8')
-    }
-  } else {
-    alert('There are no issues')
+  const SavePath = remote.dialog.showSaveDialogSync(null, {
+    filters: [{ name: 'TXT files', extensions: ['txt'] }],
+    properties: ['openFile']
+  })
+  if (typeof (SavePath) !== 'undefined') {
+    fs.writeFileSync(SavePath, problems, 'utf8')
   }
 }
 

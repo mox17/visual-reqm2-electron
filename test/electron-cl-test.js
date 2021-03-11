@@ -143,7 +143,7 @@ describe('command line processing', function () {
       path: electronPath,
       //env: { RUNNING_IN_SPECTRON: '1' },
       args: [path.join(__dirname, '..'),
-        '--settDir', './tmp', 
+        '--settDir', './tmp',
         '--settFile', 'settings.json',
         '--diagram',
         '--hierarchy',
