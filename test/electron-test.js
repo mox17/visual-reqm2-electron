@@ -127,7 +127,7 @@ async function wait_for_operation (app) {
 }
 
 describe('Application launch', function () {
-  this.timeout(12000)
+  this.timeout(20000)
   let app
 
   before(function () {
