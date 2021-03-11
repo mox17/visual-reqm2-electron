@@ -64,12 +64,14 @@ function get_linksto (node) {
   let i
   for (i = 0; i < items.length; i++) {
     const linksto = items[i].getElementsByTagName('linksto')
+    // istanbul ignore next
     if (linksto.length !== 1) {
       console.log('Multiple <linksto> in <provcov>')
       continue
     }
     const dstversion = items[i].getElementsByTagName('dstversion')
     let dstversion_txt
+    // istanbul ignore next
     if (dstversion.length !== 1) {
       dstversion_txt = 'multiple'
     } else {
@@ -137,6 +139,7 @@ function stringEqual (a_in, b_in, ignore_list) {
   const a = Object.assign({}, a_in)
   const b = Object.assign({}, b_in)
   // console.log(typeof(a), a, typeof(b), b)
+  // istanbul ignore else
   if (typeof (a) === 'object' && typeof (b) === 'object') {
     for (const field of ignore_list) {
       // force ignored fields empty
@@ -183,16 +186,17 @@ export class ReqM2Specobjects {
     // Initialization logic
     this.clear_problems()
     const success = this.process_oreqm_content(content) //rq: ->(rq_read_oreqm)
+    // istanbul ignore else
     if (success) {
       this.read_reqm2_rules()
       this.read_req_descriptions()
       this.add_fulfilledby_nodes()
       this.build_graph_traversal_links()
       this.timestamp = this.get_time()
-      const problems = this.get_problems()
-      if (problems) {
-        // alert(problems);
-      }
+      // const problems = this.get_problems()
+      // if (problems) {
+      //   // alert(problems);
+      // }
     }
   }
 
@@ -211,7 +215,8 @@ export class ReqM2Specobjects {
   process_oreqm_content (content) {
     try {
       this.root = tryParseXML(content)
-    } catch (err) {
+    } catch (err) // istanbul ignore next
+    {
       console.log(err)
       alert(err)
       return false
@@ -315,6 +320,7 @@ export class ReqM2Specobjects {
     this.requirements.set(key, req)
     // Keep track of duplicates and their versions
     if (key !== req.id) {
+      // istanbul ignore else
       if (!this.duplicates.has(req.id)) {
         // Create list of duplicates for this <id>
         const first_req = this.requirements.get(req.id)
@@ -325,6 +331,7 @@ export class ReqM2Specobjects {
     }
 
     const dt_arr = this.doctypes.get(doctype)
+    // istanbul ignore else
     if (!dt_arr.includes(key)) {
       dt_arr.push(key)
       this.doctypes.set(doctype, dt_arr) // keep status per doctype
@@ -384,6 +391,7 @@ export class ReqM2Specobjects {
           }
         }
         // Add pseudo needsobj with '*' suffix
+        // istanbul ignore else
         if (!rec.needsobj.includes(ff_doctype) &&
             !rec.needsobj.includes(ff_doctype + '*')) {
           rec.needsobj.push(ff_doctype + '*') //rq: ->(rq_ffb_needsobj)
@@ -404,6 +412,7 @@ export class ReqM2Specobjects {
     const new_keys = new_nodes.keys()
     for (const key of new_keys) {
       // console.log(key, new_nodes[key])
+      // istanbul ignore else
       if (!this.requirements.has(key)) {
         this.requirements.set(key, new_nodes.get(key))
       }
@@ -497,6 +506,7 @@ export class ReqM2Specobjects {
   mark_and_flood_down (color, req_id) {
     // Color this id and linksto_rev referenced nodes with color
     const rec = this.requirements.get(req_id)
+    // istanbul ignore next
     if (!rec) {
       return // missing specobject
     }
@@ -536,6 +546,7 @@ export class ReqM2Specobjects {
   mark_and_flood_up (color, req_id) {
     // Color this id and linksto referenced nodes with color
     const rec = this.requirements.get(req_id)
+    // istanbul ignore next
     if (!rec) {
       return // missing specobject
     }
@@ -919,29 +930,29 @@ export class ReqM2Specobjects {
     this.excluded_ids = ids
   }
 
-  get_main_ref_diff () {
-    // Return the lists of ids
-    const diff = new Object()
-    diff.new_reqs = this.new_reqs
-    diff.updated_reqs = this.updated_reqs
-    diff.removed_reqs = this.removed_reqs
-    return diff
-  }
+  // get_main_ref_diff () {
+  //   // Return the lists of ids
+  //   const diff = new Object()
+  //   diff.new_reqs = this.new_reqs
+  //   diff.updated_reqs = this.updated_reqs
+  //   diff.removed_reqs = this.removed_reqs
+  //   return diff
+  // }
 
-  get_node_count () {
-    return this.requirements.size
-  }
+  // get_node_count () {
+  //   return this.requirements.size
+  // }
 
   check_node_id (name) {
     return this.requirements.has(name)
   }
 
-  doctypes_rank () {
-    // Return an array of doctypes in abstraction level order.
-    // Could be the order of initial declaration in oreqm
-    // For now this is it.
-    return Array.from(this.doctypes.keys())
-  }
+  // doctypes_rank () {
+  //   // Return an array of doctypes in abstraction level order.
+  //   // Could be the order of initial declaration in oreqm
+  //   // For now this is it.
+  //   return Array.from(this.doctypes.keys())
+  // }
 
   /**
    * Collect problems and suppress duplicates

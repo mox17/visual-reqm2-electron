@@ -93,61 +93,81 @@ ipcRenderer.on('open_settings', (_item, _window, _key_ev) => {
 })
 
 /** Keyboard accelerators for svg pan zoom */
+// istanbul ignore next
 ipcRenderer.on('svg_reset_zoom', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     panZoom.reset()
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('svg_pan_left', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     panZoom.panBy({ x: 100, y: 0 })
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('svg_pan_right', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     panZoom.panBy({ x: -100, y: 0 })
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('svg_pan_up', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     panZoom.panBy({ x: 0, y: 100 })
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('svg_pan_down', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     panZoom.panBy({ x: 0, y: -100 })
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('svg_zoom_in', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     panZoom.zoomIn()
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('svg_zoom_out', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     panZoom.zoomOut()
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('selected_next', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     next_selected()
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('selected_prev', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     prev_selected()
   }
 })
 
+// istanbul ignore next
 ipcRenderer.on('filter_graph', () => {
+  // istanbul ignore next
   if (document.getElementById('svg_output')) {
     filter_graph()
   }
@@ -193,6 +213,7 @@ function find_file (name) {
   if (fs.existsSync(name)) {
     return name
   }
+  // istanbul ignore next
   if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME) {
     // File not found, we are running as portable, so try to find PWD
     if (process.env.PWD) {
@@ -205,6 +226,7 @@ function find_file (name) {
       process.stderr.write(`File not found '${name}'\n${process.env.PORTABLE_EXECUTABLE_APP_FILENAME} is running as 'portable'. Add PWD to environment to allow relative paths for input files or specify absolute paths.`)
     }
   }
+  // istanbul ignore next
   return new_path
 }
 
@@ -221,6 +243,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   set_limit_reporter(report_limit_as_toast)
   handle_settings(settings_updated, args)
 
+  // istanbul ignore else
   if ((args.newVer !== false) && (args.newVer === true || program_settings.check_for_updates)) {
     check_newer_release_available()
   }
@@ -228,6 +251,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
     //rq: ->(rq_one_oreqm_cmd_line)
     const check_main = find_file(args.oreqm_main)
+    // istanbul ignore else
     if (check_main.length) {
       args.oreqm_main = check_main
     }
@@ -243,6 +267,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   if (args.oreqm_ref !== undefined && args.oreqm_ref.length > 0) {
     //rq: ->(rq_two_oreqm_cmd_line)
     const check_ref = find_file(args.oreqm_ref)
+    // istanbul ignore else
     if (check_ref.length) {
       args.oreqm_ref = check_ref
     }
@@ -371,7 +396,9 @@ function check_cmd_line_steps () {
         ipcRenderer.send('cmd_quit')
         break
 
+      // istanbul ignore next
       default:
+        // istanbul ignore next
         console.log(`Unknown operation '${next_operation}'`)
     }
   }
@@ -385,6 +412,9 @@ function check_cmd_line_steps () {
 ipcRenderer.on('cl_cmd', (_evt, arg) => {
   if (arg === 'next') {
     check_cmd_line_steps()
+  } else {
+    // istanbul ignore next
+    console.log(`Unexpected cl_cmd ${arg}`)
   }
 })
 
@@ -412,6 +442,10 @@ function action_done () {
 /** install callbacks for progress tracking */
 set_action_cb(action_busy, action_done)
 
+/**
+ * Display error messages from worker
+ * @param {string} message error message from Viz.js
+ */
 function error_show (message) {
   spinner_clear()
   const error = document.querySelector('#error')
@@ -1153,6 +1187,7 @@ function get_excluded_doctypes () {
    * Set all doctypes to excluded/included
    */
 function toggle_exclude () {
+  // istanbul ignore else
   if (oreqm_main) {
     const doctypes = oreqm_main.get_doctypes()
     const names = doctypes.keys()
@@ -1160,6 +1195,7 @@ function toggle_exclude () {
     const new_state = ex_list.length === 0
     for (const doctype of names) {
       const box = document.getElementById(`doctype_${doctype}`)
+      // istanbul ignore else
       if (new_state !== box.checked) {
         box.checked = new_state
       }
@@ -1177,6 +1213,7 @@ document.getElementById('invert_exclude').addEventListener('click', function () 
    */
 function invert_exclude () {
   // Invert the exclusion status of all doctypes
+  // istanbul ignore else
   if (oreqm_main) {
     const doctypes = oreqm_main.get_doctypes()
     const names = doctypes.keys()
@@ -1360,6 +1397,7 @@ document.getElementById('prev_selected').addEventListener('click', function () {
 function prev_selected () {
   // step backwards through nodes and center display
   if (oreqm_main && selected_nodes.length) {
+    // istanbul ignore next
     if (selected_index > selected_nodes.length) selected_index = 0
     selected_index--
     if (selected_index < 0) selected_index = selected_nodes.length - 1
@@ -1376,6 +1414,7 @@ document.getElementById('next_selected').addEventListener('click', function () {
 function next_selected () {
   // step forwards through nodes and center display
   if (oreqm_main && selected_nodes.length) {
+    // istanbul ignore next
     if (selected_index > selected_nodes.length) selected_index = 0
     selected_index++
     if (selected_index >= selected_nodes.length) selected_index = 0

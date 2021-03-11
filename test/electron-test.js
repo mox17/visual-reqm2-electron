@@ -257,6 +257,20 @@ describe('Application launch', function () {
     })
   })
 
+  it('jump between selected nodes (no nodes present)', async function () {
+    await click_button(app, '#next_selected')
+    await click_button(app, '#next_selected')
+    await click_button(app, '#next_selected')
+    await click_button(app, '#next_selected')
+    await click_button(app, '#next_selected')
+    await click_button(app, '#prev_selected')
+    await click_button(app, '#prev_selected')
+    await click_button(app, '#prev_selected')
+    await click_button(app, '#prev_selected')
+    await click_button(app, '#prev_selected')
+    await screenshot(app, 'jump')
+  })
+
   describe('Load files', function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded()
@@ -382,6 +396,28 @@ describe('Application launch', function () {
       // back to svg format
       await format_select.selectByAttribute('value', 'svg')
     })
+
+    it('jump between selected nodes', async function () {
+      await click_button(app, '#next_selected')
+      await click_button(app, '#next_selected')
+      await click_button(app, '#next_selected')
+      await click_button(app, '#next_selected')
+      await click_button(app, '#next_selected')
+      await click_button(app, '#prev_selected')
+      await click_button(app, '#prev_selected')
+      await click_button(app, '#prev_selected')
+      await click_button(app, '#prev_selected')
+      await click_button(app, '#prev_selected')
+      await screenshot(app, 'jump')
+    })
+
+    it('Toggle doctypes', async function () {
+      await click_button(app, '#invert_exclude')
+      await wait_for_operation(app)
+      await click_button(app, '#doctype_all')
+      await wait_for_operation(app)
+    })
+
   })
 
   describe('Menu operations', function () {

@@ -258,6 +258,7 @@ app.on('ready', () => {
   // yargs lets other arguments sneak in, which happens in test scenarios.
   // Therefore positional parameters have to end with '.oreqm' to be accepted.
   if (!args.oreqm_main && args._.length > 0) {
+    // istanbul ignore next
     if (args._[0].endsWith('.oreqm')) {
       args.oreqm_main = args._[0]
       if (!args.oreqm_ref && args._.length > 1) {
