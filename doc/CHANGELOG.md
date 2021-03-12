@@ -2,6 +2,8 @@
 
 
 ## 2.0.0
+ * Added option to limit reachable nodes to 1 level. Thought to be useful for limiting size of diff diagrams.
+ * Fixed bug with lost 1st click on controls.
  * `npm run-script test:cov` generates coverage report - see report in `./coverage/index.html`.
  * In comparison diagrams, any modifications to linksto links arew now shown as color coded edges/arrows with labels 'new', 'changed' or 'removed'.
  * Batch mode possible, i.e. generate diagrams entirely from command line.
@@ -20,6 +22,7 @@ Options:
   -V, --newVer        Check for new release                            [boolean]
   -s, --select        Selection criteria                                [string]
   -i, --idOnly        Search id only                  [boolean] [default: false]
+  -1, --limitDepth    Limit reachable nodes to 1 level[boolean] [default: false]
   -e, --exclIds       Excluded ids, comma separated                     [string]
   -R, --inclRejected  Include rejected specobjects    [boolean] [default: false]
   -T, --exclDoctypes  Excluded doctypes, comma separated                [string]

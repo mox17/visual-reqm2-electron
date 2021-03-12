@@ -502,8 +502,9 @@ export class ReqM2Specobjects {
    * If OK mark req_id with 'color' and process child nodes recursively
    * @param {integer} color
    * @param {string} req_id
+   * @param {integer} depth Remaining traversal depth
    */
-  mark_and_flood_down (color, req_id) {
+  mark_and_flood_down (color, req_id, depth) {
     // Color this id and linksto_rev referenced nodes with color
     const rec = this.requirements.get(req_id)
     // istanbul ignore next
@@ -531,9 +532,11 @@ export class ReqM2Specobjects {
     const col_set = this.color.get(req_id)
     col_set.add(color)
     this.color.set(req_id, col_set)
-    if (this.linksto_rev.has(req_id)) {
-      for (const child of this.linksto_rev.get(req_id)) {
-        this.mark_and_flood_down(color, child)
+    if (depth > 0) { //rq: ->(rq_limited_walk)
+      if (this.linksto_rev.has(req_id)) {
+        for (const child of this.linksto_rev.get(req_id)) {
+          this.mark_and_flood_down(color, child, depth-1)
+        }
       }
     }
   }
@@ -543,8 +546,9 @@ export class ReqM2Specobjects {
    * If OK mark req_id with 'color' and process ancestor nodes recursively
    * @param {integer} color
    * @param {string} req_id
+   * @param {integer} depth Remaining traversal depth
    */
-  mark_and_flood_up (color, req_id) {
+  mark_and_flood_up (color, req_id, depth) {
     // Color this id and linksto referenced nodes with color
     const rec = this.requirements.get(req_id)
     // istanbul ignore next
@@ -571,9 +575,11 @@ export class ReqM2Specobjects {
     const col_set = this.color.get(req_id)
     col_set.add(color)
     this.color.set(req_id, col_set)
-    if (this.linksto.has(req_id)) {
-      for (const ancestor of this.linksto.get(req_id)) {
-        this.mark_and_flood_up(color, ancestor)
+    if (depth > 0) { //rq: ->(rq_limited_walk)
+      if (this.linksto.has(req_id)) {
+        for (const ancestor of this.linksto.get(req_id)) {
+          this.mark_and_flood_up(color, ancestor, depth-1)
+        }
       }
     }
   }
@@ -889,12 +895,13 @@ export class ReqM2Specobjects {
    * @param {string[]} id_list
    * @param {integer} color_up_value
    * @param {integer} color_down_value
+   * @param {integer} depth
    */
-  mark_and_flood_up_down (id_list, color_up_value, color_down_value) {
+  mark_and_flood_up_down (id_list, color_up_value, color_down_value, depth) {
     //rq: ->(rq_calc_shown_graph)
     for (const res of id_list) {
-      this.mark_and_flood_down(color_down_value, res)
-      this.mark_and_flood_up(color_up_value, res)
+      this.mark_and_flood_down(color_down_value, res, depth)
+      this.mark_and_flood_up(color_up_value, res, depth)
     }
   }
 

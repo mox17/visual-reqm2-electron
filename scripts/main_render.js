@@ -298,6 +298,7 @@ function cmd_line_parameters (args) {
     document.getElementById('search_regex').value = args.select
   }
   document.getElementById('id_checkbox_input').checked = args.idOnly
+  document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
     document.getElementById('excluded_ids').value = args.exclIds.replace(',', '\n')
   }
@@ -606,7 +607,7 @@ function updateOutput (_result) {
 
     window.addEventListener('click', function (e) {
       // hide context menu
-      if (menuNode.style.display !== 'none') {
+      if (menuNode.style.display !== 'none' && menuNode.style.display !== '') {
         menuNode.style.display = 'none'
         e.preventDefault()
       }
@@ -967,6 +968,10 @@ document.getElementById('id_checkbox_input').addEventListener('change', function
   filter_change()
 })
 
+document.getElementById('limit_depth_input').addEventListener('change', function () {
+  filter_change()
+})
+
 document.getElementById('search_regex').addEventListener('change', function () {
   filter_change()
 })
@@ -1261,7 +1266,7 @@ function filter_graph () {
     oreqm_main.set_no_rejects(no_rejects)
     handle_pruning()
     // Collect filter criteria and generate .dot data
-    id_checkbox = document.querySelector('#id_checkbox input').checked
+    id_checkbox = document.getElementById('id_checkbox_input').checked
     search_pattern = get_search_regex_clean()
     // console.log("filter_graph()", search_pattern)
     if (search_pattern) {
@@ -1424,7 +1429,8 @@ function next_selected () {
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
   oreqm_main.clear_marks()
-  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000 //rq: ->(rq_limited_walk)
+  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
     oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
@@ -1444,7 +1450,8 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
 function txt_search (regex) { //rq: ->(rq_sel_txt)
   const results = oreqm_main.find_reqs_with_text(regex)
   oreqm_main.clear_marks()
-  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000
+  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
     oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
@@ -1573,7 +1580,7 @@ document.getElementById('menu_select').addEventListener('click', function () {
         node_select_str = '\n|' + node_select_str
       }
       search_pattern += node_select_str
-      // document.querySelector("#id_checkbox input").checked = true
+      // document.getElementById("id_checkbox_input").checked = true
       document.getElementById('search_regex').value = search_pattern
       filter_change()
     }
