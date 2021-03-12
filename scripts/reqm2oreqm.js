@@ -603,7 +603,11 @@ export class ReqM2Specobjects {
       if (this.requirements.has(ghost_id)) { // Ghost may not exist
         const rec = this.requirements.get(ghost_id)
         const dt_list = this.doctypes.get(rec.doctype)
-        dt_list.remove(ghost_id)
+        let idx = dt_list.indexOf(ghost_id)
+        if (idx > -1) {
+          dt_list.splice(idx, 1)
+        }
+        //dt_list.remove(ghost_id)
         if (dt_list.length) {
           this.doctypes.set(rec.doctype, dt_list)
         } else {
