@@ -51,7 +51,7 @@ let output_filename = 'diagram'
 const resizeEvent = new Event('paneresize')
 Split(['#oreqm_div', '#graph'], {
   sizes: [15, 85],
-  onDragEnd: function () /* istanbul ignore next */ {
+  onDragEnd: /* istanbul ignore next */ function () {
     const svgOutput = document.getElementById('svg_output')
     if (svgOutput !== null) {
       svgOutput.dispatchEvent(resizeEvent)
@@ -212,6 +212,7 @@ function clear_toast () {
  */
 function find_file (name) {
   let new_path = ''
+  // istanbul ignore else
   if (fs.existsSync(name)) {
     return name
   }
@@ -309,9 +310,9 @@ function cmd_line_parameters (args) {
   if (args.output !== undefined) {
     output_filename = args.output
   }
+  // istanbul ignore next
   if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && !path.isAbsolute(output_filename)) {
     // Add PWD as start of relative path
-    // istanbul ignore next
     if (process.env.PWD) {
       output_filename = path.join(process.env.PWD, output_filename)
       console.log('Updated output path:', output_filename)
@@ -451,6 +452,7 @@ set_action_cb(action_busy, action_done)
  * Display error messages from worker
  * @param {string} message error message from Viz.js
  */
+// istanbul ignore next
 function error_show (message) {
   spinner_clear()
   const error = document.querySelector('#error')
@@ -491,22 +493,8 @@ function clear_diagram () {
  */
 function updateOutput (_result) {
   const graph = document.querySelector('#output')
-
-  const svg = graph.querySelector('svg')
-  if (svg) {
-    graph.removeChild(svg)
-  }
-
-  const text = graph.querySelector('#text')
-  if (text) {
-    graph.removeChild(text)
-  }
-
-  const img = graph.querySelector('img')
-  if (img) {
-    graph.removeChild(img)
-  }
-
+  clear_diagram()
+  // istanbul ignore next
   if (!svg_result) {
     return
   }
