@@ -298,7 +298,7 @@ function cmd_line_parameters (args) {
     document.getElementById('search_regex').value = args.select
   }
   document.getElementById('id_checkbox_input').checked = args.idOnly
-  document.getElementById('limit_depth_input').checked = args.limitDepth
+  document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
     document.getElementById('excluded_ids').value = args.exclIds.replace(',', '\n')
   }
@@ -1429,7 +1429,7 @@ function next_selected () {
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
   oreqm_main.clear_marks()
-  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000 //rq: ->(rq_limited_walk)
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,

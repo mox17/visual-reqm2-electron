@@ -532,7 +532,7 @@ export class ReqM2Specobjects {
     const col_set = this.color.get(req_id)
     col_set.add(color)
     this.color.set(req_id, col_set)
-    if (depth > 0) {
+    if (depth > 0) { //rq: ->(rq_limited_walk)
       if (this.linksto_rev.has(req_id)) {
         for (const child of this.linksto_rev.get(req_id)) {
           this.mark_and_flood_down(color, child, depth-1)
@@ -575,7 +575,7 @@ export class ReqM2Specobjects {
     const col_set = this.color.get(req_id)
     col_set.add(color)
     this.color.set(req_id, col_set)
-    if (depth > 0) {
+    if (depth > 0) { //rq: ->(rq_limited_walk)
       if (this.linksto.has(req_id)) {
         for (const ancestor of this.linksto.get(req_id)) {
           this.mark_and_flood_up(color, ancestor, depth-1)
