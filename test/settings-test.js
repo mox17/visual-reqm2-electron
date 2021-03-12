@@ -1,7 +1,5 @@
 const chai = require('chai')
-// const util = require('../lib/util.js');
 const settings = _interopRequireDefault(require('../lib/settings.js'))
-// const fs = require('fs');
 
 // const assert = require('assert')
 const assert = chai.assert // Using Assert style

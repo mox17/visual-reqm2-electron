@@ -690,7 +690,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {string} link specobject in linksto reference
    * @return {string} error string or ''
    */
-  get_link_error (req_id, link) {
+  get_link_error (req_id, link) { //rq: ->(rq_show_diff_links)
     const rec = this.requirements.get(req_id)
     let error = ''
     let color = ''
@@ -727,6 +727,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     const color = ''
     const label = ''
     for (const ffb of rec.fulfilledby) {
+      // TODO: removed/new/changed? coloring/labelling of ffb's
       if (ffb.id === link) {
         error = ffb.ffblinkerror
       }
