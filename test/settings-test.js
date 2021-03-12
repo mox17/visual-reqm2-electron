@@ -33,12 +33,12 @@ describe('Settings tests', function () {
 
     settings.check_and_upgrade_settings(new_settings)
     assert.strictEqual(settings.program_settings.max_calc_nodes, 1000)
-    assert.strictEqual(settings.program_settings.show_coverage, false)
+    assert.strictEqual(settings.program_settings.show_coverage, true)
 
     // console.dir(new_settings.safety_link_rules);
     // console.dir(JSON.stringify(new_settings.safety_link_rules, null, 2));
     new_settings.color_status = 7
     settings.check_and_upgrade_settings(new_settings)
-    assert.strictEqual(settings.program_settings.color_status, false)
+    assert.strictEqual(settings.program_settings.color_status, true)
   })
 })
