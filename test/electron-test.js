@@ -127,7 +127,7 @@ async function wait_for_operation (app) {
 }
 
 describe('Application launch', function () {
-  this.timeout(20000)
+  this.timeout(30000)
   let app
 
   before(function () {
@@ -319,7 +319,7 @@ describe('Application launch', function () {
       await remove_file(dot_filename)
       // console.dir(await app.client.getRenderProcessLogs())
       const svg_map = await get_svg_node_map(app)
-      await context_menu_click(app, svg_map, 'cc.game.locations', '#menu_select')
+      await context_menu_click(app, svg_map, 'cc.game.locations', '#menu_select') //rq: ->(rq_ctx_add_selection)
       await wait_for_operation(app)
       await screenshot(app, 'select_game_locations')
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
@@ -332,7 +332,7 @@ describe('Application launch', function () {
     it('exclude node', async function () {
       const dot_filename = './tmp/main_exclude_1.dot'
       const svg_map = await get_svg_node_map(app)
-      await context_menu_click(app, svg_map, 'zork.game.location.frobozz', '#menu_exclude')
+      await context_menu_click(app, svg_map, 'zork.game.location.frobozz', '#menu_exclude') //rq: ->(rq_ctx_excl)
       await wait_for_operation(app)
       await screenshot(app, 'exclude_frobozz')
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
@@ -344,7 +344,7 @@ describe('Application launch', function () {
     it('deselect node', async function () {
       const dot_filename = './tmp/main_deselect_1.dot'
       const svg_map = await get_svg_node_map(app)
-      await context_menu_click(app, svg_map, 'cc.game.locations', '#menu_deselect')
+      await context_menu_click(app, svg_map, 'cc.game.locations', '#menu_deselect') //rq: ->(rq_ctx_deselect)
       await wait_for_operation(app)
       await screenshot(app, 'deselect_locations')
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
@@ -363,7 +363,9 @@ describe('Application launch', function () {
       await wait_for_operation(app)
       await screenshot(app, 'ref-oreqm')
     })
+  })
 
+  describe('Save files', function () {
     it('save comparison as dot', async function () {
       const dot_filename = './tmp/main_ref_1.dot'
       await remove_file(dot_filename)
@@ -396,7 +398,8 @@ describe('Application launch', function () {
     it('show xml', async function () {
       const svg_map = await get_svg_node_map(app)
       await context_menu_click(app, svg_map, 'cc.game.characters', '#menu_xml_txt')
-      await click_button(app, '#nodeSourceClose')
+      await click_button(app, '#nodeSourceClose') //rq: ->(rq_ctx_show_diff)
+      // TODO: Extract text from popup, save as file and compare to reference
     })
 
     it('show tagged search text', async function () {
@@ -423,25 +426,41 @@ describe('Application launch', function () {
     })
 
     it('jump between selected nodes', async function () {
+      await click_button(app, '#next_selected') //rq: ->(rq_navigate_sel)
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#next_selected')
-      await click_button(app, '#next_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await click_button(app, '#prev_selected')
-      // await screenshot(app, 'jump')
+      await app.client.waitUntilTextExists('#vrm2_working', 'centered')
     })
 
-    it('Toggle doctypes', async function () {
-      await click_button(app, '#invert_exclude')
-      // await wait_for_operation(app)
-      await click_button(app, '#doctype_all')
-      // await wait_for_operation(app)
-      assert.ok(true)
+    // it('Toggle doctypes', async function () {
+    //   await click_button(app, '#invert_exclude')
+    //   await wait_for_operation(app)
+    // })
+
+    // it('Toggle doctypes 2', async function () {
+    //   await click_button(app, '#doctype_all')
+    //   await wait_for_operation(app)
+    // })
+
+    it('Redraw', async function () {
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
     })
 
   })
@@ -457,6 +476,7 @@ describe('Application launch', function () {
       const aboutpane = await app.client.$('#aboutPane')
       await click_button(app, '#aboutPaneClose')
       expect(aboutpane.getAttribute('style')).to.eventually.not.include('block')
+      await wait_for_operation(app)
     })
 
     it('Load safety rules', async function () {
@@ -472,7 +492,7 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save issues as...')
       await holdBeforeFileExists(issues_filename, 1000)
       //await wait_for_operation(app)
-      await compare_files(issues_filename, './test/refdata/my_issues.txt')
+      await compare_files(issues_filename, './test/refdata/my_issues.txt') //rq: ->(rq_issues_file_export)
     })
   })
 

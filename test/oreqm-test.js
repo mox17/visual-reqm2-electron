@@ -1,7 +1,5 @@
 'use strict'
 
-// const electron = require('electron');
-// const util = require('../lib/util.js')
 const ReqM2Specobjects = _interopRequireDefault(
   require('../lib/reqm2oreqm.js')
 )
