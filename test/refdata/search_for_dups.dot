@@ -10,7 +10,7 @@ subgraph "cluster_TestDemoSpec.Object004" { id="sel_TestDemoSpec.Object004" colo
         <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-1<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
       </TABLE>>];
 }
@@ -21,7 +21,7 @@ subgraph "cluster_TestDemoSpec.Object004:1" { id="sel_TestDemoSpec.Object004:1" 
         <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-2<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
       </TABLE>>];
 }
@@ -31,7 +31,7 @@ subgraph "cluster_TestDemoSpec.Object004:1" { id="sel_TestDemoSpec.Object004:1" 
         <TR><TD CELLSPACING="0" >DemoSpec.Object001a</TD><TD>1</TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001a<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>ASIL-B(D)</TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>ASIL-B(D)</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">draft</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
 

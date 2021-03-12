@@ -8,7 +8,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.overview</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall be a text adventure.<BR ALIGN="LEFT"/></TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: Safety cannot be guaranteed in adventure games.<BR ALIGN="LEFT"/>Proceed at own risk.<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
 subgraph "cluster_cc.game.movement" { id="sel_cc.game.movement" color=maroon3 penwidth=3 label="" style="rounded"
@@ -18,7 +18,7 @@ subgraph "cluster_cc.game.movement_new" { color=limegreen penwidth=2 label="new"
         <TR><TD CELLSPACING="0" >cc.game.movement</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">The following direction verbs shall be available:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* East<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* West<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* North<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* South<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Up<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Down<BR ALIGN="LEFT"/></TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">comment: Restrictions may apply, depending on location<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 }
 }
@@ -29,7 +29,7 @@ subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="
       <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.characters</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">The following characters shall roam the caves:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Troll<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Dragon<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Bird<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Snake<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Pirate<BR ALIGN="LEFT"/></TD><TD>swrs</TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 }
 }
@@ -38,7 +38,7 @@ subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="
       <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.character.troll</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Trolls are close relatives with the rocks and have skin as tough as<BR ALIGN="LEFT"/>that of a rhinoceros.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "cc.game.character.dragon" [id="cc.game.character.dragon" label=<
@@ -46,7 +46,7 @@ subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="
         <TR><TD CELLSPACING="0" >cc.game.character.dragon</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">A huge green fierce dragon bars the way!<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The dragon is sprawled out on a Persian rug!!<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "cc.game.character.bird" [id="cc.game.character.bird" label=<
@@ -54,7 +54,7 @@ subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="
         <TR><TD CELLSPACING="0" >cc.game.character.bird</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">The bird eyes you suspiciously and flutters away.  A moment later you<BR ALIGN="LEFT"/>feel something wet land on your head, but upon looking up you can see<BR ALIGN="LEFT"/>no sign of the culprit.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The bird is not hungry (it's merely pinin' for the fjords).  Besides, you<BR ALIGN="LEFT"/>have no bird seed.!<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "cc.game.character.snake" [id="cc.game.character.snake" label=<
@@ -62,7 +62,7 @@ subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="
         <TR><TD CELLSPACING="0" >cc.game.character.snake</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">A huge green fierce snake bars the way!<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The snake is hissing venomously.<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "cc.game.character.pirate" [id="cc.game.character.pirate" label=<
@@ -70,14 +70,14 @@ subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="
         <TR><TD CELLSPACING="0" >cc.game.character.pirate</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Out from the shadows behind you pounces a bearded pirate!  &quot;Har, har,&quot;<BR ALIGN="LEFT"/>he chortles, &quot;I'll just take all this booty and hide it away with me<BR ALIGN="LEFT"/>chest deep in the maze!&quot;  He snatches your treasure and vanishes into<BR ALIGN="LEFT"/>the gloom.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: &quot;Shiver me timbers!&quot; he cries, &quot;I've been spotted!&quot;<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "/home/foo/bar/baz/fie/impl/pirate.hpp_15" [id="/home/foo/bar/baz/fie/impl/pirate.hpp_15" label=<
       <TABLE BGCOLOR="#E7B1FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >/home/foo/bar/baz/fie/impl/pirate.hpp_15</TD><TD>1</TD><TD>impl</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT"></TD><TD></TD></TR>
-        <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
 subgraph "cluster_cc.game.character.ogre" { id="sel_cc.game.character.ogre" color=maroon3 penwidth=3 label="" style="rounded"
@@ -87,7 +87,7 @@ subgraph "cluster_cc.game.character.ogre_removed" { color=red penwidth=2 label="
         <TR><TD CELLSPACING="0" >cc.game.character.ogre</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">A formidable ogre bars the northern exit.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The ogre is apparently the strong, silent type.<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 }
 }

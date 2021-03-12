@@ -9,7 +9,7 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
         <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-1<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
       </TABLE>>];
 
@@ -18,7 +18,7 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
         <TR><TD CELLSPACING="0" >TestDemoSpec.Object004</TD><TD>1</TD><TD>demospec2</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is duplicate demo specobject 004-2<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD>tags: DefaultTag1, DefaultTag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
       </TABLE>>];
 
@@ -28,7 +28,7 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001<BR ALIGN="LEFT"/></TD><TD>demospec1<BR/>demospec2</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Some short description<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">draft</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "DemoSpec.Object001a" [id="DemoSpec.Object001a" label=<
@@ -36,7 +36,7 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
         <TR><TD CELLSPACING="0" >DemoSpec.Object001a</TD><TD>1</TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001a<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>ASIL-B(D)</TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>ASIL-B(D)</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">draft</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "TestDemoSpec.Object002" [id="TestDemoSpec.Object002" label=<
@@ -46,7 +46,7 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Demo object 002<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">comment: This is just a comment<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB2<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD>tags: tag1, tag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR></TABLE></TD></TR>
+        <TR><TD>tags: tag1, tag2</TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
   "TestDemoSpec.Object003" [id="TestDemoSpec.Object003" label=<
@@ -56,7 +56,7 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Demo Object 003<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">Does not need to be verified.<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">source: EB<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD>tags: tag2, tag3</TD><TD>NONE</TD><TD><TABLE BORDER="0"><TR><TD >draft</TD></TR></TABLE></TD></TR>
+        <TR><TD>tags: tag2, tag3</TD><TD>NONE</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">draft</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* MyRule1<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;DemoSpec.Object001<BR ALIGN="LEFT"/></TD></TR>
       </TABLE>>];
