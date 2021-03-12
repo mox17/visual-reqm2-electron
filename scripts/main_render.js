@@ -900,7 +900,7 @@ function display_doctypes_with_count (doctype_dict) {
   cell.innerHTML = '<b>select</b>'
   cell = row.insertCell()
   cell.innerHTML = '<input type="checkbox" id="doctype_all" title="set all off or on"><b>exclude</b>'
-  cell.addEventListener('click', doctype_filter_all_change)
+  cell.addEventListener('change', doctype_filter_all_change)
   let doctype_totals = 0
   for (const doctype_name of doctype_names) {
     row = table.insertRow()
@@ -922,7 +922,7 @@ function display_doctypes_with_count (doctype_dict) {
     const checked = excluded.includes(doctype_name)
     // console.log("dt table", doctype_name, checked)
     cell.innerHTML = `<div><input type="checkbox" id="doctype_${doctype_name}" ${checked ? 'checked' : ''}/></div>`
-    cell.addEventListener('click', doctype_filter_change)
+    cell.addEventListener('change', doctype_filter_change)
     cell = null
   }
   // Totals row
@@ -2012,7 +2012,7 @@ function update_doctype_table () {
 /**
    * Handle display (or not) of rejected specobjects
    */
-document.getElementById('no_rejects').addEventListener('click', function () {
+document.getElementById('no_rejects').addEventListener('change', function () {
   no_rejects_click()
 })
 
