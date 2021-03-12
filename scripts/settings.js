@@ -7,6 +7,7 @@ export const default_program_settings = {
   compare_fields: {
     id: true,
     comment: true,
+    covstatus: true,
     dependson: true,
     description: true,
     doctype: true,
@@ -27,13 +28,12 @@ export const default_program_settings = {
     usecase: true,
     verifycrit: true,
     version: true,
-    violations: false /* Violations is a pseudo field. This output data is stored in the object.
-                         TODO: this could be made more elegant */
+    violations: false
   },
   max_calc_nodes: 1000,
-  show_coverage: false,
+  show_coverage: true,
   top_doctypes: [],
-  color_status: false,
+  color_status: true,
   show_errors: true,
   check_for_updates: true,
   safety_link_rules: [

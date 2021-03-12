@@ -1908,8 +1908,8 @@ function show_source () {
     if (oreqm_ref && oreqm_main.updated_reqs.includes(selected_node)) {
       //rq: ->(rq_ctx_show_diff)
       // create a diff
-      const text_ref = xml_escape(oreqm_ref.get_node_text_formatted(selected_node))
-      const text_main = xml_escape(oreqm_main.get_node_text_formatted(selected_node))
+      const text_ref = xml_escape(oreqm_ref.get_xml_string(selected_node))
+      const text_main = xml_escape(oreqm_main.get_xml_string(selected_node))
       let result = '<h2>XML format (changed specobject)</h2><pre>'
       const diff = Diff.diffLines(text_ref, text_main)
       diff.forEach(function (part) {
@@ -1931,7 +1931,7 @@ function show_source () {
       } else if (oreqm_main.new_reqs.includes(selected_node)) {
         header_main = '<h2>XML format (new specobject)</h2>'
       }
-      ref.innerHTML = `${header_main}<pre>${xml_escape(oreqm_main.get_node_text_formatted(selected_node))}</pre>`
+      ref.innerHTML = `${header_main}<pre>${xml_escape(oreqm_main.get_xml_string(selected_node))}</pre>`
     }
     nodeSource.style.display = 'block'
   }
