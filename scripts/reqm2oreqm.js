@@ -510,6 +510,7 @@ export class ReqM2Specobjects {
     if (!rec) {
       return // missing specobject
     }
+    // istanbul ignore next
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }
@@ -550,6 +551,7 @@ export class ReqM2Specobjects {
     if (!rec) {
       return // missing specobject
     }
+    // istanbul ignore next
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }
