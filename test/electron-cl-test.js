@@ -143,7 +143,7 @@ describe('command line processing', function () {
       path: electronPath,
       //env: { RUNNING_IN_SPECTRON: '1' },
       args: [path.join(__dirname, '..'),
-        '--settDir', './test/refdata',
+        '--settDir', './test/refdata', //rq: ->(rq_cl_settings_file)
         '--settFile', 'settings.json',
         '--select', 'maze',
         '--exclIds', '"some_id,some_other_id"',
@@ -153,8 +153,8 @@ describe('command line processing', function () {
         '--safety',
         '--format', 'svg',
         '--output', 'tmp/cl-test',
-        '--oreqm_main', './testdata/oreqm_testdata_del_movement.oreqm',
-        '--oreqm_ref', './testdata/oreqm_testdata_no_ogre.oreqm'
+        '--oreqm_main', './testdata/oreqm_testdata_del_movement.oreqm', //rq: ->(rq_one_oreqm_cmd_line)
+        '--oreqm_ref', './testdata/oreqm_testdata_no_ogre.oreqm' //rq: ->(rq_two_oreqm_cmd_line)
       ],
       chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
     })
@@ -167,7 +167,7 @@ describe('command line processing', function () {
   })
 
   after(async function () {
-    await compare_files('./tmp/cl-test-diagram.svg', './test/refdata/cl-test-diagram.svg')
+    await compare_files('./tmp/cl-test-diagram.svg', './test/refdata/cl-test-diagram.svg') //rq: ->(rq_automatic_diagram)
     await compare_files('./tmp/cl-test-doctypes.svg', './test/refdata/cl-test-doctypes.svg')
     await compare_files('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
     if (app && await app.isRunning()) {

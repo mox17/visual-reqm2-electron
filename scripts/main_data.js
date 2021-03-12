@@ -1,6 +1,5 @@
 'use strict'
 /* global Worker, alert */
-import _ from './util.js'
 import { ReqM2Oreqm } from './diagrams.js'
 import Viz from 'viz.js'
 import fs from 'fs'
