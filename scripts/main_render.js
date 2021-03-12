@@ -965,9 +965,6 @@ function doctype_filter_change () {
 /** Invert all doctype exclusions and update */
 function doctype_filter_all_change () {
   toggle_exclude()
-  if (auto_update) {
-    filter_graph()
-  }
 }
 
 document.getElementById('auto_update').addEventListener('click', function () {
