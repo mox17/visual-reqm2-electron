@@ -55,7 +55,7 @@ Options:
    * Specify the settings file on the command line for predictable results (using `-D <directory>` and `-F <file>` options).
  * Drag-and-drop main oreqm file on diagram area.
  * Keyboard shortcuts for svg pan-zoom
-   * `Alt+Space` reset zoom for diagram.
+   * `Alt+Home`  reset zoom for diagram.
    * `Alt+0`     reset zoom for diagram.
    * `Ctrl+0`    reset zoom for application UI
    * `Ctrl+Shift+'+'` zoom in application UI

@@ -195,7 +195,7 @@ function createWindow () {
 
 function accelerators_setup () {
   /* istanbul ignore next */
-  globalShortcut.register('Alt+Space', () => { mainWindow.webContents.send('svg_reset_zoom') })
+  globalShortcut.register('Alt+Home', () => { mainWindow.webContents.send('svg_reset_zoom') })
   /* istanbul ignore next */
   globalShortcut.register('Alt+0', () => { mainWindow.webContents.send('svg_reset_zoom') })
   /* istanbul ignore next */
