@@ -298,6 +298,7 @@ function cmd_line_parameters (args) {
     document.getElementById('search_regex').value = args.select
   }
   document.getElementById('id_checkbox_input').checked = args.idOnly
+  document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
     document.getElementById('excluded_ids').value = args.exclIds.replace(',', '\n')
   }
@@ -606,7 +607,7 @@ function updateOutput (_result) {
 
     window.addEventListener('click', function (e) {
       // hide context menu
-      if (menuNode.style.display !== 'none') {
+      if (menuNode.style.display !== 'none' && menuNode.style.display !== '') {
         menuNode.style.display = 'none'
         e.preventDefault()
       }
@@ -899,7 +900,7 @@ function display_doctypes_with_count (doctype_dict) {
   cell.innerHTML = '<b>select</b>'
   cell = row.insertCell()
   cell.innerHTML = '<input type="checkbox" id="doctype_all" title="set all off or on"><b>exclude</b>'
-  cell.addEventListener('click', doctype_filter_all_change)
+  cell.addEventListener('change', doctype_filter_all_change)
   let doctype_totals = 0
   for (const doctype_name of doctype_names) {
     row = table.insertRow()
@@ -921,7 +922,7 @@ function display_doctypes_with_count (doctype_dict) {
     const checked = excluded.includes(doctype_name)
     // console.log("dt table", doctype_name, checked)
     cell.innerHTML = `<div><input type="checkbox" id="doctype_${doctype_name}" ${checked ? 'checked' : ''}/></div>`
-    cell.addEventListener('click', doctype_filter_change)
+    cell.addEventListener('change', doctype_filter_change)
     cell = null
   }
   // Totals row
@@ -964,6 +965,10 @@ document.getElementById('auto_update').addEventListener('click', function () {
 })
 
 document.getElementById('id_checkbox_input').addEventListener('change', function () {
+  filter_change()
+})
+
+document.getElementById('limit_depth_input').addEventListener('change', function () {
   filter_change()
 })
 
@@ -1261,7 +1266,7 @@ function filter_graph () {
     oreqm_main.set_no_rejects(no_rejects)
     handle_pruning()
     // Collect filter criteria and generate .dot data
-    id_checkbox = document.querySelector('#id_checkbox input').checked
+    id_checkbox = document.getElementById('id_checkbox_input').checked
     search_pattern = get_search_regex_clean()
     // console.log("filter_graph()", search_pattern)
     if (search_pattern) {
@@ -1424,7 +1429,8 @@ function next_selected () {
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
   oreqm_main.clear_marks()
-  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000 //rq: ->(rq_limited_walk)
+  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
     oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
@@ -1444,7 +1450,8 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
 function txt_search (regex) { //rq: ->(rq_sel_txt)
   const results = oreqm_main.find_reqs_with_text(regex)
   oreqm_main.clear_marks()
-  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN)
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000
+  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
     oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
@@ -1573,7 +1580,7 @@ document.getElementById('menu_select').addEventListener('click', function () {
         node_select_str = '\n|' + node_select_str
       }
       search_pattern += node_select_str
-      // document.querySelector("#id_checkbox input").checked = true
+      // document.getElementById("id_checkbox_input").checked = true
       document.getElementById('search_regex').value = search_pattern
       filter_change()
     }
@@ -1901,8 +1908,8 @@ function show_source () {
     if (oreqm_ref && oreqm_main.updated_reqs.includes(selected_node)) {
       //rq: ->(rq_ctx_show_diff)
       // create a diff
-      const text_ref = xml_escape(oreqm_ref.get_node_text_formatted(selected_node))
-      const text_main = xml_escape(oreqm_main.get_node_text_formatted(selected_node))
+      const text_ref = xml_escape(oreqm_ref.get_xml_string(selected_node))
+      const text_main = xml_escape(oreqm_main.get_xml_string(selected_node))
       let result = '<h2>XML format (changed specobject)</h2><pre>'
       const diff = Diff.diffLines(text_ref, text_main)
       diff.forEach(function (part) {
@@ -1924,7 +1931,7 @@ function show_source () {
       } else if (oreqm_main.new_reqs.includes(selected_node)) {
         header_main = '<h2>XML format (new specobject)</h2>'
       }
-      ref.innerHTML = `${header_main}<pre>${xml_escape(oreqm_main.get_node_text_formatted(selected_node))}</pre>`
+      ref.innerHTML = `${header_main}<pre>${xml_escape(oreqm_main.get_xml_string(selected_node))}</pre>`
     }
     nodeSource.style.display = 'block'
   }
@@ -2005,7 +2012,7 @@ function update_doctype_table () {
 /**
    * Handle display (or not) of rejected specobjects
    */
-document.getElementById('no_rejects').addEventListener('click', function () {
+document.getElementById('no_rejects').addEventListener('change', function () {
   no_rejects_click()
 })
 

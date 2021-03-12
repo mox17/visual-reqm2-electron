@@ -64,9 +64,10 @@
                     wrap="off" placeholder="search regex&#13;&#10;newlines are ignored&#13;&#10;rem:|chg:|new: select changes"
                     spellcheck="false"></textarea>
           <br>
-          <label id="id_checkbox">
-            <input type="checkbox" id="id_checkbox_input" title="Limit search to &lt;id&gt; fields only">Search &lt;id&gt; only
-          </label>
+          <input type="checkbox" id="id_checkbox_input" title="Limit search to &lt;id&gt; fields only">
+          <label for="id_checkbox_input">search &lt;id&gt; only</label>
+          <input type="checkbox" id="limit_depth_input" title="Only immediate neighbors are reachable">
+          <label for="limit_depth_input">depth=1</label>
           <p/>
 
           <span class="tooltip" style="float:left;"><b>Excluded &lt;id&gt;s</b>
@@ -80,7 +81,7 @@
           <textarea class="search_terms" id="excluded_ids" rows="3" cols="25" spellcheck="false"
           wrap="off" placeholder="excluded <id>s&#13;&#10;separate with ',' or newline" ></textarea>
             <br>
-            <label><input type="checkbox" id="no_rejects" checked>exclude rejected</label>
+            <label><input type="checkbox" id="no_rejects" title="Exclude from diagram when &lt;status&gt; is 'rejected'" checked>exclude rejected</label>
             <hr>
             <button type="button" id="filter_graph" title="Do recalculation of graph">update graph</button>
             <input type="checkbox" id="auto_update" title="enable graph update on any change of criteria">auto-update</button>
@@ -182,7 +183,7 @@
           </ul>
           <h4>Keyboard shortcuts</h4>
           <ul>
-            <li><b>Alt+Space</b> reset zoom.</li>
+            <li><b>Alt+Home</b>  reset zoom.</li>
             <li><b>Alt+PgUp</b>  zoom in</li>
             <li><b>Alt+PgDn</b>  zoom out</li>
             <li><b>Alt+Left</b>  pan left</li>

@@ -1,6 +1,10 @@
 /* Main class for managing oreqm xml data */
 'use strict'
 /* global DOMParser, alert */
+
+/** placeholder for XMLSerializer instance */
+let serializer = null
+
 /**
  * Process xml input text and display possible errors detected
  * @param {string} xmlString
@@ -146,6 +150,8 @@ function stringEqual (a_in, b_in, ignore_list) {
       a[field] = ''
       b[field] = ''
     }
+    a.xml = null
+    b.xml = null
   }
   const a_s = JSON.stringify(a)
   const b_s = JSON.stringify(b)
@@ -299,6 +305,7 @@ export class ReqM2Specobjects {
     req.version = get_xml_text(comp, 'version')
     req.violations = get_list_of(comp, 'ruleid')
     req.ffb_placeholder = false
+    req.xml = comp
 
     // There may be duplicate <id>'s in use.
     let key = req.id
@@ -502,8 +509,9 @@ export class ReqM2Specobjects {
    * If OK mark req_id with 'color' and process child nodes recursively
    * @param {integer} color
    * @param {string} req_id
+   * @param {integer} depth Remaining traversal depth
    */
-  mark_and_flood_down (color, req_id) {
+  mark_and_flood_down (color, req_id, depth) {
     // Color this id and linksto_rev referenced nodes with color
     const rec = this.requirements.get(req_id)
     // istanbul ignore next
@@ -531,9 +539,11 @@ export class ReqM2Specobjects {
     const col_set = this.color.get(req_id)
     col_set.add(color)
     this.color.set(req_id, col_set)
-    if (this.linksto_rev.has(req_id)) {
-      for (const child of this.linksto_rev.get(req_id)) {
-        this.mark_and_flood_down(color, child)
+    if (depth > 0) { //rq: ->(rq_limited_walk)
+      if (this.linksto_rev.has(req_id)) {
+        for (const child of this.linksto_rev.get(req_id)) {
+          this.mark_and_flood_down(color, child, depth-1)
+        }
       }
     }
   }
@@ -543,8 +553,9 @@ export class ReqM2Specobjects {
    * If OK mark req_id with 'color' and process ancestor nodes recursively
    * @param {integer} color
    * @param {string} req_id
+   * @param {integer} depth Remaining traversal depth
    */
-  mark_and_flood_up (color, req_id) {
+  mark_and_flood_up (color, req_id, depth) {
     // Color this id and linksto referenced nodes with color
     const rec = this.requirements.get(req_id)
     // istanbul ignore next
@@ -571,9 +582,11 @@ export class ReqM2Specobjects {
     const col_set = this.color.get(req_id)
     col_set.add(color)
     this.color.set(req_id, col_set)
-    if (this.linksto.has(req_id)) {
-      for (const ancestor of this.linksto.get(req_id)) {
-        this.mark_and_flood_up(color, ancestor)
+    if (depth > 0) { //rq: ->(rq_limited_walk)
+      if (this.linksto.has(req_id)) {
+        for (const ancestor of this.linksto.get(req_id)) {
+          this.mark_and_flood_up(color, ancestor, depth-1)
+        }
       }
     }
   }
@@ -597,7 +610,11 @@ export class ReqM2Specobjects {
       if (this.requirements.has(ghost_id)) { // Ghost may not exist
         const rec = this.requirements.get(ghost_id)
         const dt_list = this.doctypes.get(rec.doctype)
-        dt_list.remove(ghost_id)
+        let idx = dt_list.indexOf(ghost_id)
+        if (idx > -1) {
+          dt_list.splice(idx, 1)
+        }
+        //dt_list.remove(ghost_id)
         if (dt_list.length) {
           this.doctypes.set(rec.doctype, dt_list)
         } else {
@@ -889,12 +906,13 @@ export class ReqM2Specobjects {
    * @param {string[]} id_list
    * @param {integer} color_up_value
    * @param {integer} color_down_value
+   * @param {integer} depth
    */
-  mark_and_flood_up_down (id_list, color_up_value, color_down_value) {
+  mark_and_flood_up_down (id_list, color_up_value, color_down_value, depth) {
     //rq: ->(rq_calc_shown_graph)
     for (const res of id_list) {
-      this.mark_and_flood_down(color_down_value, res)
-      this.mark_and_flood_up(color_up_value, res)
+      this.mark_and_flood_down(color_down_value, res, depth)
+      this.mark_and_flood_up(color_up_value, res, depth)
     }
   }
 
@@ -932,29 +950,9 @@ export class ReqM2Specobjects {
     this.excluded_ids = ids
   }
 
-  // get_main_ref_diff () {
-  //   // Return the lists of ids
-  //   const diff = new Object()
-  //   diff.new_reqs = this.new_reqs
-  //   diff.updated_reqs = this.updated_reqs
-  //   diff.removed_reqs = this.removed_reqs
-  //   return diff
-  // }
-
-  // get_node_count () {
-  //   return this.requirements.size
-  // }
-
   check_node_id (name) {
     return this.requirements.has(name)
   }
-
-  // doctypes_rank () {
-  //   // Return an array of doctypes in abstraction level order.
-  //   // Could be the order of initial declaration in oreqm
-  //   // For now this is it.
-  //   return Array.from(this.doctypes.keys())
-  // }
 
   /**
    * Collect problems and suppress duplicates
@@ -982,129 +980,27 @@ export class ReqM2Specobjects {
   }
 
   /**
-   * Recreate XML for presentation purposes
-   * @param {object} rec
-   * @param {string} tag
-   * @return {string} in XML format
-   */
-  get_tag_text_formatted (rec, tag) {
-    let xml_txt = ''
-    if (Object.prototype.hasOwnProperty.call(rec, tag)) {
-      const txt = rec[tag]
-      const template = `\n    <${tag}>${txt}</${tag}>`
-      if (txt.length) {
-        xml_txt = template
-      }
-    }
-    return xml_txt
-  }
-
-  /**
-   * Recreate XML lists for presentation purposes
-   * @param {object} rec object representing specobject
-   * @param {string} field xml tag name
-   * @return {string} in XML format
-   */
-  get_list_formatted (rec, field) {
-    let xml_txt = ''
-    if (Object.prototype.hasOwnProperty.call(rec, field)) {
-      const list = rec[field]
-      //console.dir(rec)
-      if (list.length) {
-        xml_txt = `\n${field}: `
-        if (field === 'linksto') {
-          xml_txt = '\n    <providescoverage>'
-          for (let i = 0; i < list.length; i++) {
-            // Do not show ghost links
-            //console.log(list[i].linksto)
-            if (list[i].diff !== 'removed') {
-              xml_txt += `
-        <provcov>
-          <linksto>${list[i].linksto}</linksto>
-          <dstversion>${list[i].dstversion}</dstversion>
-        </provcov>`
-            }
-          }
-          xml_txt += '\n    </providescoverage>'
-        } else if (field === 'needsobj') {
-          xml_txt = '\n    <needscoverage>'
-          for (let i = 0; i < list.length; i++) {
-            if (list[i].includes('*')) continue
-            xml_txt += `
-      <needscov><needsobj>${list[i]}</needsobj></needscov>`
-          }
-          xml_txt += '\n    </needscoverage>'
-        } else if (field === 'tags') {
-          xml_txt = '\n    <tags>'
-          for (let i = 0; i < list.length; i++) {
-            xml_txt += `
-      <tag>${list[i]}</tag>`
-          }
-          xml_txt += '\n    </tags>'
-        } else if (field === 'platform') {
-          xml_txt = '\n    <platforms>'
-          for (let i = 0; i < list.length; i++) {
-            xml_txt += `
-      <platform>${list[i]}</platform>`
-          }
-          xml_txt += '\n    </platforms>'
-        } else if (field === 'fulfilledby') {
-          xml_txt = '\n    <fulfilledby>'
-          for (let i = 0; i < list.length; i++) {
-            xml_txt += `
-      <ffbObj>
-        <ffbId>${list[i].id}</ffbId>
-        <ffbType>${list[i].doctype}</ffbType>
-        <ffbVersion>${list[i].version}</ffbVersion>
-      </ffbObj>`
-          }
-          xml_txt += '\n    </fulfilledby>'
-        } else {
-          xml_txt = `\n    <${field}>${list.join(', ')}</${field}>`
-        }
-      }
-    }
-    return xml_txt
-  }
-
-  /**
-   * Reconstruct XML representation of specobject (ignoring extra tags related to oreqm results)
+   * Get XML representation of specobject
    * @param {string} id
    * @return {string} in XML format
    */
-  get_node_text_formatted (id) {
-    let xml_txt = ''
-    if (this.requirements.has(id)) {
-      const rec = this.requirements.get(id)
-      const indent = '      '
-      let optional = ''
-      optional += this.get_tag_text_formatted(rec, 'source', indent)
-      optional += this.get_tag_text_formatted(rec, 'version', indent)
-      optional += this.get_tag_text_formatted(rec, 'shortdesc', indent)
-      optional += this.get_tag_text_formatted(rec, 'description', indent)
-      optional += this.get_tag_text_formatted(rec, 'rationale', indent)
-      optional += this.get_tag_text_formatted(rec, 'comment', indent)
-      optional += this.get_tag_text_formatted(rec, 'furtherinfo', indent)
-      optional += this.get_tag_text_formatted(rec, 'safetyclass', indent)
-      optional += this.get_tag_text_formatted(rec, 'safetyrationale', indent)
-      optional += this.get_tag_text_formatted(rec, 'verifycrit', indent)
-      optional += this.get_tag_text_formatted(rec, 'source', indent)
-      optional += this.get_tag_text_formatted(rec, 'sourcefile', indent)
-      optional += this.get_tag_text_formatted(rec, 'sourceline', indent)
-      optional += this.get_list_formatted(rec, 'tags', indent)
-      optional += this.get_list_formatted(rec, 'fulfilledby', indent)
-      optional += this.get_list_formatted(rec, 'platform', indent)
-      optional += this.get_list_formatted(rec, 'needsobj', indent)
-      optional += this.get_list_formatted(rec, 'linksto', indent)
-      xml_txt = `\
-<specobjects doctype="${rec.doctype}">
-  <specobject>
-    <id>${rec.id}</id>
-    <status>${rec.status}</status>${optional}
-  </specobject>
-</specobjects>
-`
+  get_xml_string(id) {
+    if (serializer === null) {
+      serializer = new XMLSerializer()
     }
-    return xml_txt
+    let str = ''
+    if (this.requirements.has(id)) {
+      let xml = this.requirements.get(id).xml
+      if (xml !== undefined) {
+        str = serializer.serializeToString(xml)+'\n'
+        let leading = str.match(/(^\s*)<\/specobject>.*/m)
+        if (leading && leading.length > 1) {
+          str = leading[1] + str
+        }
+      }
+      return str
+    } else {
+      return `id ${id} not known`
+    }
   }
 }

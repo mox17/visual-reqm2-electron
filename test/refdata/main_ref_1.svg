@@ -72,6 +72,7 @@
 <polygon fill="none" stroke="#000000" points="203.5,-712 203.5,-745 348.5,-745 348.5,-712 203.5,-712"/>
 <text text-anchor="start" x="263.1136" y="-723.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="348.5,-712 348.5,-745 481.5,-745 481.5,-712 348.5,-712"/>
+<polygon fill="#ffff00" stroke="transparent" points="353.5,-717 353.5,-740 476.5,-740 476.5,-717 353.5,-717"/>
 <text text-anchor="start" x="381.6536" y="-723.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.movement -->
@@ -100,6 +101,7 @@
 <polygon fill="none" stroke="#000000" points="799.453,-771 799.453,-804 912.453,-804 912.453,-771 799.453,-771"/>
 <text text-anchor="start" x="843.0666" y="-782.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="912.453,-771 912.453,-804 992.453,-804 992.453,-771 912.453,-771"/>
+<polygon fill="#ffff00" stroke="transparent" points="917.453,-776 917.453,-799 987.453,-799 987.453,-776 917.453,-776"/>
 <text text-anchor="start" x="919.1066" y="-782.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.movement&#45;&gt;cc.game.overview -->
@@ -132,6 +134,7 @@
 <polygon fill="none" stroke="#000000" points="799.453,-520 799.453,-553 909.453,-553 909.453,-520 799.453,-520"/>
 <text text-anchor="start" x="841.5666" y="-531.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="909.453,-520 909.453,-553 989.453,-553 989.453,-520 909.453,-520"/>
+<polygon fill="#ffff00" stroke="transparent" points="914.453,-525 914.453,-548 984.453,-548 984.453,-525 914.453,-525"/>
 <text text-anchor="start" x="916.1066" y="-531.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.characters&#45;&gt;cc.game.overview -->
@@ -159,6 +162,7 @@
 <polygon fill="none" stroke="#000000" points="1439.1858,-934 1439.1858,-967 1606.1858,-967 1606.1858,-934 1439.1858,-934"/>
 <text text-anchor="start" x="1509.7994" y="-945.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="1606.1858,-934 1606.1858,-967 1686.1858,-967 1686.1858,-934 1606.1858,-934"/>
+<polygon fill="#ffff00" stroke="transparent" points="1611.1858,-939 1611.1858,-962 1681.1858,-962 1681.1858,-939 1611.1858,-939"/>
 <text text-anchor="start" x="1612.8394" y="-945.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.character.troll&#45;&gt;cc.game.characters -->
@@ -187,6 +191,7 @@
 <polygon fill="none" stroke="#000000" points="1437.1858,-800 1437.1858,-833 1521.1858,-833 1521.1858,-800 1437.1858,-800"/>
 <text text-anchor="start" x="1466.2994" y="-811.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="1521.1858,-800 1521.1858,-833 1615.1858,-833 1615.1858,-800 1521.1858,-800"/>
+<polygon fill="#ffff00" stroke="transparent" points="1526.1858,-805 1526.1858,-828 1610.1858,-828 1610.1858,-805 1526.1858,-805"/>
 <text text-anchor="start" x="1534.8394" y="-811.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.character.dragon&#45;&gt;cc.game.characters -->
@@ -218,6 +223,7 @@
 <polygon fill="none" stroke="#000000" points="1440.1858,-608 1440.1858,-641 1627.1858,-641 1627.1858,-608 1440.1858,-608"/>
 <text text-anchor="start" x="1520.7994" y="-619.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="1627.1858,-608 1627.1858,-641 1707.1858,-641 1707.1858,-608 1627.1858,-608"/>
+<polygon fill="#ffff00" stroke="transparent" points="1632.1858,-613 1632.1858,-636 1702.1858,-636 1702.1858,-613 1632.1858,-613"/>
 <text text-anchor="start" x="1633.8394" y="-619.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.character.bird&#45;&gt;cc.game.characters -->
@@ -246,6 +252,7 @@
 <polygon fill="none" stroke="#000000" points="1447.1858,-474 1447.1858,-507 1517.1858,-507 1517.1858,-474 1447.1858,-474"/>
 <text text-anchor="start" x="1469.2994" y="-485.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="1517.1858,-474 1517.1858,-507 1597.1858,-507 1597.1858,-474 1517.1858,-474"/>
+<polygon fill="#ffff00" stroke="transparent" points="1522.1858,-479 1522.1858,-502 1592.1858,-502 1592.1858,-479 1522.1858,-479"/>
 <text text-anchor="start" x="1523.8394" y="-485.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.character.snake&#45;&gt;cc.game.characters -->
@@ -277,6 +284,7 @@
 <polygon fill="none" stroke="#000000" points="1447.1858,-282 1447.1858,-315 1630.1858,-315 1630.1858,-282 1447.1858,-282"/>
 <text text-anchor="start" x="1525.7994" y="-293.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#000000" points="1630.1858,-282 1630.1858,-315 1710.1858,-315 1710.1858,-282 1630.1858,-282"/>
+<polygon fill="#ffff00" stroke="transparent" points="1635.1858,-287 1635.1858,-310 1705.1858,-310 1705.1858,-287 1635.1858,-287"/>
 <text text-anchor="start" x="1636.8394" y="-293.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.character.pirate&#45;&gt;cc.game.characters -->
@@ -288,19 +296,20 @@
 <!-- /home/foo/bar/baz/fie/impl/pirate.hpp_15 -->
 <g id="/home/foo/bar/baz/fie/impl/pirate.hpp_15" class="node">
 <title>/home/foo/bar/baz/fie/impl/pirate.hpp_15</title>
-<polygon fill="#e7b1fd" stroke="transparent" points="1762.6858,-333 1762.6858,-397 2148.6858,-397 2148.6858,-333 1762.6858,-333"/>
-<polygon fill="none" stroke="#000000" points="1762.6858,-372 1762.6858,-397 2054.6858,-397 2054.6858,-372 1762.6858,-372"/>
-<text text-anchor="start" x="1765.533" y="-379.6" font-family="Arial" font-size="16.00" fill="#000000">/home/foo/bar/baz/fie/impl/pirate.hpp_15</text>
-<polygon fill="none" stroke="#000000" points="2054.6858,-372 2054.6858,-397 2068.6858,-397 2068.6858,-372 2054.6858,-372"/>
-<text text-anchor="start" x="2057.2386" y="-379.6" font-family="Arial" font-size="16.00" fill="#000000">1</text>
-<polygon fill="none" stroke="#000000" points="2068.6858,-372 2068.6858,-397 2148.6858,-397 2148.6858,-372 2068.6858,-372"/>
-<text text-anchor="start" x="2094.025" y="-379.6" font-family="Arial" font-size="16.00" fill="#000000">impl</text>
-<polygon fill="none" stroke="#000000" points="1762.6858,-366 1762.6858,-372 2068.6858,-372 2068.6858,-366 1762.6858,-366"/>
-<polygon fill="none" stroke="#000000" points="2068.6858,-366 2068.6858,-372 2148.6858,-372 2148.6858,-366 2068.6858,-366"/>
-<polygon fill="none" stroke="#000000" points="1762.6858,-333 1762.6858,-366 2054.6858,-366 2054.6858,-333 1762.6858,-333"/>
-<polygon fill="none" stroke="#000000" points="2054.6858,-333 2054.6858,-366 2068.6858,-366 2068.6858,-333 2054.6858,-333"/>
-<polygon fill="none" stroke="#000000" points="2068.6858,-333 2068.6858,-366 2148.6858,-366 2148.6858,-333 2068.6858,-333"/>
-<text text-anchor="start" x="2075.3394" y="-344.6" font-family="Arial" font-size="16.00" fill="#000000">approved</text>
+<polygon fill="#e7b1fd" stroke="transparent" points="1762.6858,-320.5 1762.6858,-409.5 2148.6858,-409.5 2148.6858,-320.5 1762.6858,-320.5"/>
+<polygon fill="none" stroke="#000000" points="1762.6858,-384 1762.6858,-409 2054.6858,-409 2054.6858,-384 1762.6858,-384"/>
+<text text-anchor="start" x="1765.533" y="-391.6" font-family="Arial" font-size="16.00" fill="#000000">/home/foo/bar/baz/fie/impl/pirate.hpp_15</text>
+<polygon fill="none" stroke="#000000" points="2054.6858,-384 2054.6858,-409 2068.6858,-409 2068.6858,-384 2054.6858,-384"/>
+<text text-anchor="start" x="2057.2386" y="-391.6" font-family="Arial" font-size="16.00" fill="#000000">1</text>
+<polygon fill="none" stroke="#000000" points="2068.6858,-384 2068.6858,-409 2148.6858,-409 2148.6858,-384 2068.6858,-384"/>
+<text text-anchor="start" x="2094.025" y="-391.6" font-family="Arial" font-size="16.00" fill="#000000">impl</text>
+<polygon fill="none" stroke="#000000" points="1762.6858,-378 1762.6858,-384 2068.6858,-384 2068.6858,-378 1762.6858,-378"/>
+<polygon fill="none" stroke="#000000" points="2068.6858,-378 2068.6858,-384 2148.6858,-384 2148.6858,-378 2068.6858,-378"/>
+<polygon fill="none" stroke="#000000" points="1762.6858,-320 1762.6858,-378 2054.6858,-378 2054.6858,-320 1762.6858,-320"/>
+<polygon fill="none" stroke="#000000" points="2054.6858,-320 2054.6858,-378 2068.6858,-378 2068.6858,-320 2054.6858,-320"/>
+<polygon fill="none" stroke="#000000" points="2068.6858,-320 2068.6858,-378 2148.6858,-378 2148.6858,-320 2068.6858,-320"/>
+<text text-anchor="start" x="2075.3394" y="-356.6" font-family="Arial" font-size="16.00" fill="#000000">approved</text>
+<text text-anchor="start" x="2080.2338" y="-331.6" font-family="Arial" font-size="16.00" fill="#000000">covered</text>
 </g>
 <!-- /home/foo/bar/baz/fie/impl/pirate.hpp_15&#45;&gt;cc.game.character.pirate -->
 <g id="edge8" class="edge">
@@ -334,6 +343,7 @@
 <polygon fill="none" stroke="#c0c0c0" points="1426.1858,-117 1426.1858,-150 1517.1858,-150 1517.1858,-117 1426.1858,-117"/>
 <text text-anchor="start" x="1458.7994" y="-128.7" font-family="Arial" font-size="16.00" fill="#000000">QM</text>
 <polygon fill="none" stroke="#c0c0c0" points="1517.1858,-117 1517.1858,-150 1613.1858,-150 1613.1858,-117 1517.1858,-117"/>
+<polygon fill="#ffff00" stroke="transparent" points="1522.1858,-122 1522.1858,-145 1608.1858,-145 1608.1858,-122 1522.1858,-122"/>
 <text text-anchor="start" x="1531.8394" y="-128.6" font-family="Arial" font-size="16.00" fill="#000000">proposed</text>
 </g>
 <!-- cc.game.character.ogre&#45;&gt;cc.game.characters -->
