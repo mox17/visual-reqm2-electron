@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reqm2config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/C:/Projects/ReqM2/ReqM!!/schemas/ReqMcfg.xsd">
+  <doctypes>
+    <regexs>
+      <regex>feature</regex>
+      <regex>requirement</regex>
+      <regex>customerreq</regex>
+      <regex>systemreq</regex>
+      <regex>subsystemreq</regex>
+      <regex>internalreq</regex>
+      <regex>functionalreq</regex>
+      <regex>nonfunctionreq</regex>
+      <regex>safetyreq</regex>
+      <regex>testcase</regex>
+      <regex>design</regex>
+      <regex>sourcecode</regex>
+      <regex>testcode</regex>
+      <regex>testresult</regex>
+      <regex>userdoc</regex>
+      <regex>fea</regex>
+      <regex>swrs</regex>
+      <regex>swdd</regex>
+      <regex>impl</regex>
+      <regex>vaporware</regex>
+      <regex>wetware</regex>
+    </regexs>
+  </doctypes>
+  
+</reqm2config>
