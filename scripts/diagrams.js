@@ -515,7 +515,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     graph,
     node_count
   ) {
-    const ghost = this.removed_reqs.includes(req_id)
+    const ghost = this.removed_reqs.includes(req_id) || this.requirements.get(req_id).ffb_placeholder === true
     let node = this.get_format_node(req_id, ghost, show_coverage, color_status)
     node = this.add_node_emphasis(req_id, node, req_id, highlights)
     graph += node + '\n'

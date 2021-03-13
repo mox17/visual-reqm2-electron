@@ -312,7 +312,7 @@ function cmd_line_parameters (args) {
     output_filename = args.output
   }
   // istanbul ignore next
-  if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && !path.isAbsolute(output_filename)) {
+  if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && (args.output !== undefined) && !path.isAbsolute(output_filename)) {
     // Add PWD as start of relative path
     if (process.env.PWD) {
       output_filename = path.join(process.env.PWD, output_filename)
