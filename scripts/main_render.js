@@ -312,7 +312,7 @@ function cmd_line_parameters (args) {
     output_filename = args.output
   }
   // istanbul ignore next
-  if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && !path.isAbsolute(output_filename)) {
+  if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && (args.output !== undefined) && !path.isAbsolute(output_filename)) {
     // Add PWD as start of relative path
     if (process.env.PWD) {
       output_filename = path.join(process.env.PWD, output_filename)
@@ -1666,6 +1666,7 @@ function center_node (node_name) {
   }
   if (found) {
     set_selection_highlight(document.getElementById(`sel_${node_name}`))
+    let here = panZoom.getPan()
     const output = document.getElementById('output')
     const sizes = panZoom.getSizes()
     const rz = sizes.realZoom
@@ -1692,9 +1693,26 @@ function center_node (node_name) {
     const pan_vector_x = (centerpos_x - req_center_x - trans_x) * rz
     const pan_vector_y = (centerpos_y - req_center_y - trans_y) * rz
     // console.log(pan_vector_x, pan_vector_y)
-    panZoom.pan({ x: pan_vector_x, y: pan_vector_y })
+    let steps = 15
+    let there = { x: pan_vector_x, y: pan_vector_y }
+    let delta = { x: (there.x-here.x)/steps, y: (there.y-here.y)/steps }
+    //console.log('Pan: ', here, there, delta)
+    //panZoom.pan(there)
+    action_busy()
+    return new Promise((resolve) => {
+      let step = 0
+      const interval = setInterval(function () {
+        panZoom.panBy(delta)
+        step += 1
+        if (step > steps) {
+          clearInterval(interval)
+          document.getElementById('vrm2_working').innerHTML = 'centered' // sync tests
+          resolve()
+        }
+      }, 16.666)
+    })
   }
-  document.getElementById('vrm2_working').innerHTML = 'centered'
+  //document.getElementById('vrm2_working').innerHTML = 'centered'
 }
 
 /** Drag and drop file handling main */

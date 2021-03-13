@@ -26,7 +26,9 @@ subgraph "cluster_TestDemoSpec.Object004:1" { id="sel_TestDemoSpec.Object004:1" 
       </TABLE>>];
 }
 
-}  "DemoSpec.Object001a" [id="DemoSpec.Object001a" label=<
+}
+
+  "DemoSpec.Object001a" [id="DemoSpec.Object001a" label=<
       <TABLE BGCOLOR="#B1BDFD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >DemoSpec.Object001a</TD><TD>1</TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001a<BR ALIGN="LEFT"/></TD><TD>demospec1</TD></TR>

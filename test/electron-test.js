@@ -648,4 +648,31 @@ describe('Application launch', function () {
     })
   })
 
+  describe('ffb diff display', function () {
+    it('Clear old data', async function () {
+      await click_button(app, '#clear_ref_oreqm')
+      await wait_for_operation(app)
+      await click_button(app, '#clear_search_regex')
+      await wait_for_operation(app)
+      await click_button(app, '#limit_depth_input')
+      await wait_for_operation(app)
+      const oreqm_main = './testdata/ffbtest_2.oreqm'
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_main] }])
+      await click_button(app, '#get_main_oreqm_file')
+      await wait_for_operation(app)
+      await click_button(app, '#limit_depth_input')
+      const oreqm_ref = './testdata/ffbtest_1.oreqm'
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_ref] }])
+      await click_button(app, '#get_ref_oreqm_file')
+      await wait_for_operation(app)
+      const dot_filename = './tmp/ffb_diff.dot'
+      const ref_file = './test/refdata/ffb_diff.dot'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
+      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await wait_for_operation(app)
+      await compare_files(dot_filename, ref_file)
+      await click_button(app, '#clear_ref_oreqm')
+      await wait_for_operation(app)
+    })
+  })
 })
