@@ -66,6 +66,11 @@ function holdBeforeFileExists (filePath, timeout) {
   })
 }
 
+function copy_file(filename_from, filename_to) {
+  const main_txt = fs.readFileSync(filename_from, 'utf8')
+  fs.writeFileSync(filename_to, main_txt)
+}
+
 async function compare_files (main_file, ref_file) {
   const main_txt = eol.auto(fs.readFileSync(main_file, 'utf8'))
   const ref_txt = eol.auto(fs.readFileSync(ref_file, 'utf8'))
@@ -139,12 +144,13 @@ describe('command line processing', function () {
   before(function () {
     mkdirp.sync('./tmp')
     remove_file('./tmp/settings.json')
+    copy_file('./test/refdata/settings.json', './tmp/cl-settings.json')
     app = new Application({
       path: electronPath,
       //env: { RUNNING_IN_SPECTRON: '1' },
       args: [path.join(__dirname, '..'),
-        '--settDir', './test/refdata', //rq: ->(rq_cl_settings_file)
-        '--settFile', 'settings.json',
+        '--settDir', './tmp', //rq: ->(rq_cl_settings_file)
+        '--settFile', 'cl-settings.json',
         '--select', 'maze',
         '--exclIds', '"some_id,some_other_id"',
         '--exclDoctypes', '"foo,fie,fum"',
