@@ -191,7 +191,7 @@ digraph "" {
       </TABLE>>];
 
   "zork.game.location.frobozz" [id="zork.game.location.frobozz" label=<
-      <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+      <TABLE BGCOLOR="#B1FDD1:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
         <TR><TD CELLSPACING="0" >zork.game.location.frobozz</TD><TD>1</TD><TD>vaporware</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
       </TABLE>>];

@@ -125,7 +125,9 @@ function get_fulfilledby (node) {
       id: get_xml_text(ffbobj, 'ffbId'),
       doctype: get_xml_text(ffbobj, 'ffbType'),
       version: get_xml_text(ffbobj, 'ffbVersion'),
-      ffblinkerror: ffb_linkerror_txt
+      ffblinkerror: ffb_linkerror_txt,
+      diff: '',
+      xml: ffbobj
     }
     ff_list.push(ff_entry)
   }
@@ -275,7 +277,7 @@ export class ReqM2Specobjects {
   }
 
   /**
-   * Add one specobject to oreqm container
+   * Add XML representation of specobject to oreqm container
    * @param {object} comp
    */
   add_one_specobject (comp, doctype) {
@@ -306,7 +308,15 @@ export class ReqM2Specobjects {
     req.violations = get_list_of(comp, 'ruleid')
     req.ffb_placeholder = false
     req.xml = comp
+    this.add_specobject_rec(req)
+  }
 
+  /**
+   * Add JS representation of specobject to oreqm container
+   * @param {object} req JS object
+   */
+  add_specobject_rec(req) {
+    let doctype = req.doctype
     // There may be duplicate <id>'s in use.
     let key = req.id
     let report_duplicate = true
@@ -316,7 +326,6 @@ export class ReqM2Specobjects {
       if (report_duplicate && this.requirements.get(key).version === req.version) {
         const problem = `specobject '${req.id}' is duplicated with same version '${req.version}'`
         // console.log(problem);
-        // `  this is a work-around for bugs in ReqM2's parsing of JavaScript
         //rq: ->(rq_dup_same_version)
         this.problem_report(problem)
         report_duplicate = false
@@ -336,7 +345,10 @@ export class ReqM2Specobjects {
       // Add duplicate
       this.duplicates.get(req.id).push({ id: key, version: req.version })
     }
-
+    // Add new doctype list if unknown
+    if (!this.doctypes.has(doctype)) {
+      this.doctypes.set(doctype, [])
+    }
     const dt_arr = this.doctypes.get(doctype)
     // istanbul ignore else
     if (!dt_arr.includes(key)) {
@@ -360,7 +372,8 @@ export class ReqM2Specobjects {
         const ff_id = ff_arr.id
         const ff_doctype = ff_arr.doctype
         const ff_version = ff_arr.version
-        if (!this.requirements.has(ff_id)) {
+        const key = this.get_key_for_id_ver(ff_id, ff_version)
+        if (!this.requirements.has(key)) {
           // Create placeholder for ffb node
           const new_node = {
             comment: '',
@@ -386,9 +399,11 @@ export class ReqM2Specobjects {
             verifycrit: '',
             version: ff_version,
             violations: [],
-            ffb_placeholder: true
+            ffb_placeholder: true,
+            xml: ff_arr.xml
           }
-          new_nodes.set(ff_id, new_node)
+          let new_id = {id: ff_id}
+          new_nodes.set(new_id, new_node) // this will deliberately lose duplicate nodes
         } else {
           // check for matching doctype
           const real_dt = this.requirements.get(ff_id).doctype
@@ -404,25 +419,12 @@ export class ReqM2Specobjects {
           rec.needsobj.push(ff_doctype + '*') //rq: ->(rq_ffb_needsobj)
           this.requirements.set(req_id, rec)
         }
-        // Add new doctype list if unknown
-        if (!this.doctypes.has(ff_doctype)) {
-          this.doctypes.set(ff_doctype, [])
-        }
-        // Add id to list if new
-        const dt_arr = this.doctypes.get(ff_doctype)
-        if (!dt_arr.includes(ff_id)) {
-          dt_arr.push(ff_id)
-          this.doctypes.set(ff_doctype, dt_arr)
-        }
       }
     }
+    // Now add the fulfilledby placeholders to the set of specobjects
     const new_keys = new_nodes.keys()
     for (const key of new_keys) {
-      // console.log(key, new_nodes[key])
-      // istanbul ignore else
-      if (!this.requirements.has(key)) {
-        this.requirements.set(key, new_nodes.get(key))
-      }
+      this.add_specobject_rec(new_nodes.get(key))
     }
   }
 
@@ -651,6 +653,16 @@ export class ReqM2Specobjects {
       }
       //console.log("rec before and after", rec.id, rec.linksto, new_lt)
       rec.linksto = new_lt
+      const new_ffb = []
+      for (const ffb of rec.fulfilledby) {
+        if (ffb.diff !== 'removed') {
+          ffb.diff = ''
+          new_ffb.push(ffb)
+        } else {
+          //console.log("Skip ghost fulfilledby:", lt)
+        }
+      }
+      rec.fulfilledby = new_ffb
     }
     this.removed_reqs = []
     this.new_reqs = []
@@ -698,9 +710,11 @@ export class ReqM2Specobjects {
       }
       if (old_reqs.requirements.has(req_id)) {
         updated_reqs.push(req_id)
-        this.compare_linksto(old_rec, new_rec);
+        this.compare_linksto(old_rec, new_rec)
+        this.compare_fulfilledby(old_rec, new_rec)
       } else {
-        this.mark_linksto_new(req_id);
+        this.mark_linksto_new(req_id)
+        this.mark_ffb_new(req_id)
         new_reqs.push(req_id)
       }
     }
@@ -738,10 +752,65 @@ export class ReqM2Specobjects {
   }
 
   /**
+   * Mark all ffbs as new in 'diff' field
+   * @param {string} id
+   */
+  mark_ffb_new (req_id) {
+    const ffb_count = this.requirements.get(req_id).fulfilledby.length
+    for (let index = 0; index < ffb_count; index++) {
+      this.requirements.get(req_id).fulfilledby[index].diff = 'new'
+    }
+  }
+
+  /**
+   * Compare fulfilledby lists and add removed ffbs as 'ghosts' with 'removed' attribute, and set 'new' attribute on new ffbs.
+   * @param {Specobject} old_rec
+   * @param {Specobject} new_rec
+   */
+  compare_fulfilledby (old_rec, new_rec) {
+    let old_map = new Map() // Map<id, fulfilledby_rec> Lookup table of OLD fulfilledby based on destination <id>
+    let still_there = [] // List of old fulfilledby still present. Use to find removed ffbs later.
+    // build lookup table for old specobject
+    for (const old_f of old_rec.fulfilledby) {
+      if (old_map.has(old_f.id)) {
+        console.log(`ref ${old_rec.id} has multiple fulfilledby ${old_f.id}`, old_rec)
+      }
+      old_map.set(old_f.id, old_f)
+    }
+    // Check each ffb from new specobject
+    for (const new_f of new_rec.fulfilledby) {
+      if (old_map.has(new_f.id)) {
+        if ((new_f.version !== old_map.get(new_f.id).version) ||
+            (new_f.doctype !== old_map.get(new_f.id).doctype)) {
+          //console.log('Change version:', old_map.get(key), new_f)
+          new_f.diff = 'chg'
+        }
+        still_there.push(new_f.id)
+        //console.log('still_there:', new_f.id, still_there)
+      } else {
+        new_f.diff = 'new'
+        //console.log('new fulfilledby:', new_rec.id, new_f)
+      }
+    }
+    // Find the fulfilledby that are no longer present
+    for (const old_f of old_rec.fulfilledby) {
+      if (!still_there.includes(old_f.id)) {
+        // Add a 'ghost' fulfilledby
+        //console.log(`Ghost fulfilledby ${old_rec.id} to ${old_l.id}`)
+        const ghost_ffb = { ...old_f } // make a clone
+        ghost_ffb.diff = 'removed'
+        //console.log("Add ghost fulfilledby", ghost_ffb)
+        new_rec.fulfilledby.push(ghost_ffb)
+        //console.log('rec with ghost', new_rec.fulfilledby)
+      }
+    }
+  }
+    
+  /**
    * Mark all linksto as new in 'diff' field
    * @param {string} id
    */
-  mark_linksto_new (req_id) {
+   mark_linksto_new (req_id) {
     const lt_count = this.requirements.get(req_id).linksto.length
     for (let index = 0; index < lt_count; index++) {
       this.requirements.get(req_id).linksto[index].diff = 'new'
@@ -993,7 +1062,7 @@ export class ReqM2Specobjects {
       let xml = this.requirements.get(id).xml
       if (xml !== undefined) {
         str = serializer.serializeToString(xml)+'\n'
-        let leading = str.match(/(^\s*)<\/specobject>.*/m)
+        let leading = str.match(/(^\s*)<\/(specobject|ffbObj)>.*/m)
         if (leading && leading.length > 1) {
           str = leading[1] + str
         }

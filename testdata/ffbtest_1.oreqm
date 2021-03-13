@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tracingresults>
+  <environment>
+    <toolname>ReqM2</toolname>
+    <toolversion>1.20.0 (devel)</toolversion>
+    <toolcopyright>Copyright 2010 - 2018 Elektrobit Automotive GmbH</toolcopyright>
+    <libxmlversion>2.0206</libxmlversion>
+    <libxml2compileversion>2.9.9</libxml2compileversion>
+    <libxml2runtimeversion>20909</libxml2runtimeversion>
+    <perlversion>v5.32.1</perlversion>
+    <perlptrsize>64</perlptrsize>
+    <commandline>-q -c C:/Users/erlin/Documents/src/visual-reqm2-electron/doc/ReqM2cfg.xml -t oreqm_testdata_no_ogre_maze_ffb1.oreqm.reqm -o 1.oreqm</commandline>
+    <timestamp>Sat Mar 13 18:01:10 2021</timestamp>
+  </environment>
+  <cmdline>
+    <cmdparam>
+      <name>c</name>
+      <values>
+        <value>C:/Users/erlin/Documents/src/visual-reqm2-electron/doc/ReqM2cfg.xml</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>o</name>
+      <values>
+        <value>1.oreqm</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>q</name>
+    </cmdparam>
+    <cmdparam>
+      <name>t</name>
+    </cmdparam>
+  </cmdline>
+  <inputfiles>
+    <inputfile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.reqm</inputfile>
+  </inputfiles>
+  <configuration>
+    <doctypes>
+    <regexs>
+      <regex>feature</regex>
+      <regex>requirement</regex>
+      <regex>customerreq</regex>
+      <regex>systemreq</regex>
+      <regex>subsystemreq</regex>
+      <regex>internalreq</regex>
+      <regex>functionalreq</regex>
+      <regex>nonfunctionreq</regex>
+      <regex>safetyreq</regex>
+      <regex>testcase</regex>
+      <regex>design</regex>
+      <regex>sourcecode</regex>
+      <regex>testcode</regex>
+      <regex>testresult</regex>
+      <regex>userdoc</regex>
+      <regex>fea</regex>
+      <regex>swrs</regex>
+      <regex>swdd</regex>
+      <regex>impl</regex>
+      <regex>vaporware</regex>
+      <regex>wetware</regex>
+    </regexs>
+  </doctypes>
+  </configuration>
+  <specdocument>
+    <specobjects doctype="fea">
+    <specobject>
+      <id>cc.game.overview</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>26</sourceline>
+      <version>1</version>
+      <description>
+            Colossal cave shall be a text adventure.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <safetyrationale>Safety cannot be guaranteed in adventure games.
+        Proceed at own risk.</safetyrationale>
+      <needscoverage>
+        <needscov><needsobj>fea</needsobj><objcovstatus>uncovered</objcovstatus><coveredby><linkedfrom><srcid>cc.game.locations</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>1</internalId></linkedfrom><linkedfrom><srcid>cc.game.movement</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>2</internalId></linkedfrom><linkedfrom><srcid>cc.game.characters</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>3</internalId></linkedfrom></coveredby></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>0</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.locations</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>43</sourceline>
+      <version>1</version>
+      <description>
+            Colossal cave shall have the following locations:
+            &amp;lt;itemizedlist&amp;gt;
+              &amp;lt;listitem&amp;gt;House&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Meadow&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Grate&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Maze&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Witt's End&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Westlands&amp;lt;/listitem&amp;gt;
+            &amp;lt;/itemizedlist&amp;gt;
+        </description>
+      <comment>The locations are connected</comment>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swrs</needsobj><objcovstatus>uncovered</objcovstatus><coveredby><linkedfrom><srcid>cc.game.location.house</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>4</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.meadow</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>5</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.grate</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>6</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>7</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.witt</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>8</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.westlands</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>9</internalId></linkedfrom></coveredby></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.overview</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>0</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>1</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.movement</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>73</sourceline>
+      <version>1</version>
+      <description>
+            The following direction verbs shall be available:
+            &amp;lt;itemizedlist&amp;gt;
+              &amp;lt;listitem&amp;gt;East&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;West&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;North&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;South&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Up&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Down&amp;lt;/listitem&amp;gt;
+            &amp;lt;/itemizedlist&amp;gt;
+        </description>
+      <comment>Restrictions may apply, depending on location</comment>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swrs</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.overview</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>0</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>2</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.characters</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>104</sourceline>
+      <version>1</version>
+      <description>
+            The following characters shall roam the caves:
+            &amp;lt;itemizedlist&amp;gt;
+              &amp;lt;listitem&amp;gt;Troll&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Dragon&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Bird&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Snake&amp;lt;/listitem&amp;gt;
+              &amp;lt;listitem&amp;gt;Pirate&amp;lt;/listitem&amp;gt;
+            &amp;lt;/itemizedlist&amp;gt;
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swrs</needsobj><objcovstatus>uncovered</objcovstatus><coveredby><linkedfrom><srcid>cc.game.character.troll</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>10</internalId></linkedfrom><linkedfrom><srcid>cc.game.character.dragon</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>11</internalId></linkedfrom><linkedfrom><srcid>cc.game.character.bird</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>12</internalId></linkedfrom><linkedfrom><srcid>cc.game.character.snake</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>13</internalId></linkedfrom><linkedfrom><srcid>cc.game.character.pirate</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>14</internalId></linkedfrom></coveredby></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.overview</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>0</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>3</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+  </specobjects>
+    <specobjects doctype="swrs">
+    <specobject>
+      <id>cc.game.location.house</id>
+      <status>proposed</status>
+      <shortdesc>You're inside building.</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>135</sourceline>
+      <version>1</version>
+      <description>You are inside a building, a well house for a large spring.</description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.locations</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>1</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>4</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.meadow</id>
+      <status>proposed</status>
+      <shortdesc>&lt;shortdesc/&gt;</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>155</sourceline>
+      <version>1</version>
+      <description>You are standing at the end of a road before a small brick building.
+          Around you is a forest.  A small stream flows out of the building and
+          down a gully.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.locations</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>1</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>5</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.grate</id>
+      <status>proposed</status>
+      <shortdesc>Steel grate</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>178</sourceline>
+      <version>1</version>
+      <description>You are in a 20-foot depression floored with bare dirt.  Set into the
+          dirt is a strong steel grate mounted in concrete.  A dry streambed
+          leads into the depression.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <platforms>
+        <platform>Steely</platform>
+      </platforms>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.locations</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>1</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>6</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>204</sourceline>
+      <version>1</version>
+      <description>You are in a maze of twisty little passages, all alike.</description>
+      <safetyclass>QM</safetyclass>
+      <tags>
+        <tag/>
+      </tags>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby><linkedfrom><srcid>cc.game.location.maze.1</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>15</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze.2</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>16</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze.3</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>17</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze.4</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>18</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze.5</srcid><srcstatus>destination version 1 does not match required version 2.</srcstatus><internalId>19</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze.7</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>21</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze.8</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>22</internalId></linkedfrom><linkedfrom><srcid>cc.game.location.maze.9</srcid><srcstatus>source status 'proposed' excluded from tracing.</srcstatus><internalId>23</internalId></linkedfrom></coveredby></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.locations</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>1</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>7</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.witt</id>
+      <status>proposed</status>
+      <shortdesc>You're at Witt's End.</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>226</sourceline>
+      <version>1</version>
+      <description>You are at Witt's End.  Passages lead off in *ALL* directions.</description>
+      <safetyclass>QM</safetyclass>
+      <tags>
+        <tag>location</tag>
+      </tags>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.locations</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>1</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>8</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.westlands</id>
+      <status>proposed</status>
+      <shortdesc>Northern Westlands</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>250</sourceline>
+      <version>1</version>
+      <description>
+          Frobozz, an ancient province in the northern part of the Westlands,
+          is the site of many historic settlements such as Galepath, Mareilon,
+          and the Castle Largoneth.
+          This province of Frobozz corresponds roughly to the
+          Kingdom of Quendor during the reign of Entharion.
+        </description>
+      <furtherinfo>Frobozz is not actually part of Colossal Cave, but features
+        in the related series of Zork adventures</furtherinfo>
+      <safetyclass>QM</safetyclass>
+      <fulfilledby>
+        <ffbObj>
+          <ffbId>zork.game.location.frobozz</ffbId>
+          <ffbType>vaporware</ffbType>
+          <ffbVersion>1</ffbVersion>
+        <ffbLinkstatus>linkerror</ffbLinkstatus><ffbLinkerror>referenced object does not exist.</ffbLinkerror><ffbObjcovstatus>uncovered</ffbObjcovstatus></ffbObj>
+        <ffbObj>
+          <ffbId>zork.game.location.floodcontroldam</ffbId>
+          <ffbType>vaporware</ffbType>
+          <ffbVersion>1</ffbVersion>
+        <ffbLinkstatus>linkerror</ffbLinkstatus><ffbLinkerror>referenced object does not exist.</ffbLinkerror><ffbObjcovstatus>uncovered</ffbObjcovstatus></ffbObj>
+        <ffbObj>
+          <ffbId>zork.game.location.flatheadia</ffbId>
+          <ffbType>vaporware</ffbType>
+          <ffbVersion>1</ffbVersion>
+        <ffbLinkstatus>linkerror</ffbLinkstatus><ffbLinkerror>referenced object does not exist.</ffbLinkerror><ffbObjcovstatus>uncovered</ffbObjcovstatus></ffbObj>
+      <containerCovstatus>uncovered</containerCovstatus></fulfilledby>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.locations</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>1</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>9</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.character.troll</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>297</sourceline>
+      <version>1</version>
+      <description>Trolls are close relatives with the rocks and have skin as tough as
+    that of a rhinoceros.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.characters</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>3</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>10</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.character.dragon</id>
+      <status>proposed</status>
+      <shortdesc>The dragon is sprawled out on a Persian rug!!</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>319</sourceline>
+      <version>1</version>
+      <description>A huge green fierce dragon bars the way!</description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.characters</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>3</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>11</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.character.bird</id>
+      <status>proposed</status>
+      <shortdesc>The bird is not hungry (it's merely pinin' for the fjords).  Besides, you
+    have no bird seed.!</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>340</sourceline>
+      <version>1</version>
+      <description>The bird eyes you suspiciously and flutters away.  A moment later you
+    feel something wet land on your head, but upon looking up you can see
+    no sign of the culprit.</description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.characters</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>3</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>12</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.character.snake</id>
+      <status>proposed</status>
+      <shortdesc>The snake is hissing venomously.</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>364</sourceline>
+      <version>1</version>
+      <description>A huge green fierce snake bars the way!</description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.characters</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>3</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>13</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.character.pirate</id>
+      <status>proposed</status>
+      <shortdesc>"Shiver me timbers!" he cries, "I've been spotted!"</shortdesc>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>385</sourceline>
+      <version>1</version>
+      <description>Out from the shadows behind you pounces a bearded pirate!  "Har, har,"
+    he chortles, "I'll just take all this booty and hide it away with me
+    chest deep in the maze!"  He snatches your treasure and vanishes into
+    the gloom.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.characters</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>3</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>14</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+  </specobjects>
+    <specobjects doctype="swdd">
+    <specobject>
+      <id>cc.game.location.maze.1</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>413</sourceline>
+      <version>1</version>
+      <description>
+          You are in a maze of twisting little passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>15</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.2</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>435</sourceline>
+      <version>1</version>
+      <description>
+          You are in a little maze of twisty passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>16</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.3</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>457</sourceline>
+      <version>1</version>
+      <description>
+          You are in a twisting maze of little passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>17</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.4</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>479</sourceline>
+      <version>1</version>
+      <description>
+          You are in a twisting little maze of passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>18</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.5</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>501</sourceline>
+      <version>1</version>
+      <description>
+          You are in a twisty little maze of passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>2</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>19</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.6</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>523</sourceline>
+      <version>1</version>
+      <description>
+          You are in a little twisty maze of passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.locations</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>fea</linkdestdoctype><linkerror>unrequested coverage.</linkerror><internalId>1</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>20</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.7</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>545</sourceline>
+      <version>1</version>
+      <description>
+          You are in a maze of little twisting passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>21</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.8</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>567</sourceline>
+      <version>1</version>
+      <description>
+          You are in a maze of little twisty passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>22</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+    <specobject>
+      <id>cc.game.location.maze.9</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>589</sourceline>
+      <version>1</version>
+      <description>
+          You are in a twisty maze of little passages, all different.
+        </description>
+      <safetyclass>QM</safetyclass>
+      <needscoverage>
+        <needscov><needsobj>swdd</needsobj><objcovstatus>uncovered</objcovstatus><coveredby/></needscov>
+      <containerCovstatus>uncovered</containerCovstatus></needscoverage>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.location.maze</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>source status 'proposed' excluded from tracing.</linkerror><internalId>7</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>uncovered</covstatus><internalId>23</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+  </specobjects>
+    <specobjects doctype="impl">
+    <specobject>
+      <id>/home/foo/bar/baz/fie/impl/pirate.hpp_15</id>
+      <status>approved</status>
+      <sourcefile>/home/foo/bar/baz/fie/impl/pirate.hpp</sourcefile>
+      <sourceline>15</sourceline>
+      <version>1</version>
+      <providescoverage>
+        <provcov>
+          <linksto>cc.game.character.pirate</linksto>
+          <dstversion>1</dstversion>
+        <linkstatus>linkerror</linkstatus><linkdestdoctype>swrs</linkdestdoctype><linkerror>unrequested coverage.</linkerror><internalId>14</internalId></provcov>
+      </providescoverage>
+    <violations/><oreqmViolations/><covstatus>covered</covstatus><internalId>24</internalId></specobject>
+  </specobjects>
+    <specobjects doctype="vaporware">
+    <specobject>
+      <id>zork.game.location.portfoozle</id>
+      <status>proposed</status>
+      <sourcefile>oreqm_testdata_no_ogre_maze_ffb1.oreqm.needscov</sourcefile>
+      <sourceline>650</sourceline>
+      <version>2</version>
+      <description>
+           Port Foozle is the primary seaport of the Frigid River Valley, the busiest seaport in the Eastlands
+           and a common departure point for ships to Antharia.
+        </description>
+      <safetyclass>QM</safetyclass>
+    <violations/><oreqmViolations/><covstatus>covered</covstatus><internalId>25</internalId><excludedFromTracing>1</excludedFromTracing></specobject>
+  </specobjects>
+  </specdocument>
+  <violations/>
+  <oreqmViolations/>
+</tracingresults>

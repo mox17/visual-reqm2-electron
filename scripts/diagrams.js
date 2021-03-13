@@ -724,12 +724,23 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   get_ffb_link_error (req_id, link) {
     const rec = this.requirements.get(req_id)
     let error = ''
-    const color = ''
-    const label = ''
+    let color = ''
+    let label = ''
     for (const ffb of rec.fulfilledby) {
-      // TODO: removed/new/changed? coloring/labelling of ffb's
       if (ffb.id === link) {
         error = ffb.ffblinkerror
+        label = ffb.diff
+        switch (label) {
+          case 'removed':
+            color = '"#C00000" style=dashed'
+            break
+          case 'new':
+            color = 'green3'
+            break
+          case 'chg':
+            color = 'orange3'
+            break
+        }
       }
     }
     return { error: error, label: label, color: color }

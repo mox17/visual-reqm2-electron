@@ -805,16 +805,22 @@
 <!-- zork.game.location.frobozz -->
 <g id="zork.game.location.frobozz" class="node">
 <title>zork.game.location.frobozz</title>
-<polygon fill="#b1fdd1" stroke="transparent" points="1857.7496,-1017 1857.7496,-1067 2184.7496,-1067 2184.7496,-1017 1857.7496,-1017"/>
-<polygon fill="none" stroke="#000000" points="1858.2496,-1042 1858.2496,-1067 2073.2496,-1067 2073.2496,-1042 1858.2496,-1042"/>
+<defs>
+<linearGradient id="l_0" gradientUnits="userSpaceOnUse" x1="1857.7496" y1="-1042" x2="2184.7496" y2="-1042" >
+<stop offset="0" style="stop-color:#b1fdd1;stop-opacity:1.;"/>
+<stop offset="1" style="stop-color:#ffffff;stop-opacity:1.;"/>
+</linearGradient>
+</defs>
+<polygon fill="url(#l_0)" stroke="transparent" points="1857.7496,-1017 1857.7496,-1067 2184.7496,-1067 2184.7496,-1017 1857.7496,-1017"/>
+<polygon fill="none" stroke="#c0c0c0" points="1858.2496,-1042 1858.2496,-1067 2073.2496,-1067 2073.2496,-1042 1858.2496,-1042"/>
 <text text-anchor="start" x="1870.1744" y="-1049.6" font-family="Arial" font-size="16.00" fill="#000000">zork.game.location.frobozz</text>
-<polygon fill="none" stroke="#000000" points="2073.2496,-1042 2073.2496,-1067 2105.2496,-1067 2105.2496,-1042 2073.2496,-1042"/>
+<polygon fill="none" stroke="#c0c0c0" points="2073.2496,-1042 2073.2496,-1067 2105.2496,-1067 2105.2496,-1042 2073.2496,-1042"/>
 <text text-anchor="start" x="2084.8024" y="-1049.6" font-family="Arial" font-size="16.00" fill="#000000">1</text>
-<polygon fill="none" stroke="#000000" points="2105.2496,-1042 2105.2496,-1067 2185.2496,-1067 2185.2496,-1042 2105.2496,-1042"/>
+<polygon fill="none" stroke="#c0c0c0" points="2105.2496,-1042 2105.2496,-1067 2185.2496,-1067 2185.2496,-1042 2105.2496,-1042"/>
 <text text-anchor="start" x="2107.912" y="-1049.6" font-family="Arial" font-size="16.00" fill="#000000">vaporware</text>
-<polygon fill="none" stroke="#000000" points="1858.2496,-1017 1858.2496,-1042 2105.2496,-1042 2105.2496,-1017 1858.2496,-1017"/>
+<polygon fill="none" stroke="#c0c0c0" points="1858.2496,-1017 1858.2496,-1042 2105.2496,-1042 2105.2496,-1017 1858.2496,-1017"/>
 <text text-anchor="start" x="1861.2496" y="-1024.6" font-family="Arial" font-size="16.00" fill="#000000">*FULFILLEDBY PLACEHOLDER*</text>
-<polygon fill="none" stroke="#000000" points="2105.2496,-1017 2105.2496,-1042 2185.2496,-1042 2185.2496,-1017 2105.2496,-1017"/>
+<polygon fill="none" stroke="#c0c0c0" points="2105.2496,-1017 2105.2496,-1042 2185.2496,-1042 2185.2496,-1017 2105.2496,-1017"/>
 </g>
 <!-- zork.game.location.frobozz&#45;&gt;cc.game.location.westlands -->
 <g id="edge25" class="edge">
@@ -827,12 +833,12 @@
 <g id="cc.game.movement" class="node">
 <title>cc.game.movement</title>
 <defs>
-<linearGradient id="l_0" gradientUnits="userSpaceOnUse" x1="601.2328" y1="-447" x2="1021.2328" y2="-447" >
+<linearGradient id="l_1" gradientUnits="userSpaceOnUse" x1="601.2328" y1="-447" x2="1021.2328" y2="-447" >
 <stop offset="0" style="stop-color:#fdb1d0;stop-opacity:1.;"/>
 <stop offset="1" style="stop-color:#ffffff;stop-opacity:1.;"/>
 </linearGradient>
 </defs>
-<polygon fill="url(#l_0)" stroke="transparent" points="601.2328,-335.5 601.2328,-558.5 1021.2328,-558.5 1021.2328,-335.5 601.2328,-335.5"/>
+<polygon fill="url(#l_1)" stroke="transparent" points="601.2328,-335.5 601.2328,-558.5 1021.2328,-558.5 1021.2328,-335.5 601.2328,-335.5"/>
 <polygon fill="none" stroke="#c0c0c0" points="601.2328,-533 601.2328,-558 828.2328,-558 828.2328,-533 601.2328,-533"/>
 <text text-anchor="start" x="644.9432" y="-540.6" font-family="Arial" font-size="16.00" fill="#000000">cc.game.movement</text>
 <polygon fill="none" stroke="#c0c0c0" points="828.2328,-533 828.2328,-558 941.2328,-558 941.2328,-533 828.2328,-533"/>
