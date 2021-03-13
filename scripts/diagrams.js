@@ -467,7 +467,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
           node_count
         ))
       }
-      graph += '}'
+      graph += '}\n\n'
     }
     for (const req_id of not_duplicates) {
       // nodes

@@ -22,7 +22,9 @@ subgraph "cluster_TestDemoSpec.Object004_dups" { color=grey penwidth=2 label="du
         <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">violations:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* This is a sample rule<BR ALIGN="LEFT"/></TD></TR>
       </TABLE>>];
 
-}  "DemoSpec.Object001" [id="DemoSpec.Object001" label=<
+}
+
+  "DemoSpec.Object001" [id="DemoSpec.Object001" label=<
       <TABLE BGCOLOR="#B1BDFD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >DemoSpec.Object001</TD><TD>0</TD><TD>demospec1</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">This is &lt;b&gt;demo&lt;/b&gt; specobject 001<BR ALIGN="LEFT"/></TD><TD>demospec1<BR/>demospec2</TD></TR>
