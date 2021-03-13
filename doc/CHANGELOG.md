@@ -2,6 +2,8 @@
 
 
 ## 2.0.0
+ * Color-code fulfilledby links if comparison view, similar to the linksto links.
+ * The filfilledby placleholders are now shown as 'ghosts', i.e. with a doctype specific background color that fades to a ghostly white. This is to indicate that these are not real specobjects, but are there to visualize the intended relation.
  * Added option to limit reachable nodes to 1 level. Thought to be useful for limiting size of diff diagrams.
  * Fixed bug with lost 1st click on controls.
  * `npm run-script test:cov` generates coverage report - see report in `./coverage/index.html`.
