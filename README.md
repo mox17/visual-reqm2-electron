@@ -111,7 +111,7 @@ There are three main ways to filter requirements:
 
 * by `doctype`
 * **select** specific nodes (and also show nodes that are reachable from selected nodes)
-* **exclude** specific nodes (breaks reachability)
+* **exclude** specific nodes (stops reachability beyond these nodes)
 
 These filter mechanisms will be explained below:
 
@@ -131,39 +131,49 @@ and how many are currently selected.
 The **Selection criteria** text box to the left accepts a **regular expression**. Nodes which match this
 expression will be shown and highlighted with a <span style="color:darkred">maroon</span> outline.
 Furthermore, all nodes reachable from these **selected** nodes will also be shown. All other nodes are left out.
-The regular expression can be applied to the \<id> only, or to a **combined** string.
+The regular expression can be applied to the `<id>` only, or to a **combined** string.
+
+**Note:** There is an option to limit reachability to only one (1) level with the **"depth=1"** checkbox.
+This is helpful for comparison (diff) views.
 
 The combined string concatenates the raw text from xml tags with some prefixes in the order below, separated by newlines.
 
-* `dt:<doctype>`
-* `de:<description>`
-* `fi:<furtherinfo>`
-* `rt:<rationale>`
-* `sr:<safetyrationale>`
-* `sc:<safetyclass>`
-* `sd:<shortdesc>`
-* `uc:<usecase>`
-* `vc:<verifycrit>`
-* `co:<comment>`
-* `cs:<covstatus>`
-* `tag:<tag>`
-* `plt:<platform>`
-* `id:<id>`
+* `dt: <doctype>`
+* `id: <id>`
+* `ve: <version>`
+* `st: <status>`
+* `de: <description>`
+* `fi: <furtherinfo>`
+* `rt: <rationale>`
+* `sr: <safetyrationale>`
+* `sc: <safetyclass>`
+* `sd: <shortdesc>`
+* `uc: <usecase>`
+* `vc: <verifycrit>`
+* `co: <comment>`
+* `cs: <covstatus>`
+* `no: <needsobj>`
+* `ffb: <ffb id>`
+* `tag: <tag>`
+* `plt: <platform>`
+* `dup: duplicate`
+* `rem:|chg:|new: diff status`
 
-**Note**: The `<id>` is deliberately the last item in this string. This means that a regex ending
-with `$` will match a specfic `<id>` and not all \<id>s with a common prefix.
+**Tip**: Often some `<id>`s are contained in longer `<id>`s. To avoid unwanted matches use a regex ending
+with `$`. This will match a specfic `<id>` and not all `<id>`s with a common prefix.
+The above list is also available as a **tooltip** for the "Search criteria".
 
-**Note**: When doing comparisons of two `.oreqm` files, the `<id>` text is prefixed with `rem:`, `chg:`
-and `new:` for **removed**, **changed** and **new** nodes respectively.
+**Note**: When doing comparisons of two `.oreqm` files, the markers `rem:`, `chg:` and `new:` are added
+to the combined string for **removed**, **changed** and **new** nodes respectively.
 
 **Note**: It is possible to locate requirements with `fulfilledby` links, by using the text search
-prefix `ffb:` for the referred \<id>, or just `ffb:` to select them all.
+prefix `ffb:` for the referred `<id>`, or just `ffb:` to select them all.
 
 **Note**: It is possible to search for text in specific fields, by constructing a search string that
 respects the order of fields listed above and separating the search elements with a wildcard match `.*` .
 
-For example match requirements of \<safetyclass> 'SIL-2' with the word
-'kernel' in the \<id> using this search string: `sc:sil-2.*id:.*kernel`
+For example match requirements with the word 'kernel' in the `<id>` of `<safetyclass>` 'SIL-2' by using
+this search string: `id:.*kernel.*sc:sil-2`
 
 The search is case-insensitive.
 
@@ -178,30 +188,30 @@ displayed as png file.
 
 ### Excluding nodes
 
-The "Excluded \<id>s" text box contains full \<id>s of nodes that are excluded, one \<id> per line.
+The "Excluded `<id>`s" text box contains full `<id>`s of nodes that are excluded, one `<id>` per line.
 
 An excluded node is not shown and the and anything beyond it is not reachable from
 selected nodes.
 A right-click on a node opens a context menu with the option to exclude the node.
 
-To un-exclude the node it is necessary to delete the relevant entry in the "Excluded \<id>s" box.
+To un-exclude the node it is necessary to delete the relevant entry in the "Excluded `<id>`s" box.
 
-It is possible to exclude all nodes with \<status>rejected\</status> with the `exclude rejected`
+It is possible to exclude all nodes with `<status>rejected</status>` with the `exclude rejected`
 checkbox (this is the default).
 
-### Duplicate \<id>s
+### Duplicate `<id>`s
 
-Normally \<id>s are globally unique, but ReqM2 permits duplicate \<id>s with certain options selected.
-In this situation it is the expectation that \<id> + \<version> together is unique.
-When Visual ReqM2 encounters such duplicates, the **internal key**, which is normally identical to the **\<id>**,
-will become the **\<id>:\<version>** from 1st detected duplicate and onwards.
+Normally `<id>`s are globally unique, but ReqM2 permits duplicate `<id>`s with certain options selected.
+In this situation it is the expectation that `<id>` + `<version>` together is unique.
+When Visual ReqM2 encounters such duplicates, the **internal key**, which is normally identical to the **`<id>`**,
+will become the **`<id>:<version>`** from 1st detected duplicate and onwards.
 This has the effect that when excluding nodes, it is the **key** which is put in the exclusion box, and for duplicates
-it may have a suffix with ':' and \<version>.
+it may have a suffix with ':' and `<version>`.
 
-### Copy \<id> or other text from nodes to clipboard
+### Copy `<id>` or other text from nodes to clipboard
 
-The right-click menu has an option that puts the \<id> on the clipboard. Also the fulfilledby style
-\<id>:\<doctype>:\<version> is directly available.
+The right-click menu has an option that puts the `<id>` on the clipboard. Also the **fulfilledby** style
+`<id>:<doctype>:<version>` is directly available.
 
 This is only possible when **svg** format is in use (which is the default).
 
@@ -232,7 +242,7 @@ terms of what is categorized as **new** vs. **removed**.
 Nodes which are **new**, **changed** or **removed** are shown with an outline around them in green, orange or red.
 
 It is possible to select these nodes with a regex expressions. A hidden prefix `new:`/`chg:`/`rem:` is added to their
-\<id> as described above. In the future this marker may be moved to a separate tag.
+`<id>` as described above. In the future this marker may be moved to a separate tag.
 
 ## Viewing the doctype relationships
 
@@ -260,14 +270,14 @@ right corner.
 ### Configuration of safety rules
 
 Now, Visual ReqM2 does not know all there is to know about safety rules, but it provides a mechanism to configure
-permitted links based on \<doctype> and \<safetyclass> of the specobjects at the ends of a link.
+permitted links based on `<doctype>` and `<safetyclass>` of the specobjects at the ends of a link.
 
 Visual ReqM2 will construct a string for each relation with doctype and safetyclass for each end of the relation.
 Each **"doctype:safetyclass>doctype:safetyclass"** string will then be tested against an array of **regular expressions**,
 until one of them match, or all expressions have failed.
 
 The **'>'** character shall be read as "provides coverage to", and the **':'** character is the separator between
-\<doctype> and \<safetyclass> strings. 
+`<doctype>` and `<safetyclass>` strings. 
 
 Fulfilledby links are considered 'in reverse direction' to aligh with this logic.
 

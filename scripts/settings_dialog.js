@@ -1,4 +1,5 @@
 'use strict'
+// eslint-disable-next-line no-redeclare
 /* global alert */
 import { remote } from 'electron'
 import { defined_specobject_fields, program_settings, check_and_upgrade_settings } from './settings.js'
