@@ -611,7 +611,7 @@ describe('Application launch', function () {
         for (const filename of oreqm_list) {
           if (filename.endsWith('.oreqm')) {
             const oreqm_name = `${sample_dir}/${filename}`
-            console.log('        loading:', oreqm_name)
+            // console.log('        loading:', oreqm_name)
             await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_name] }])
             await click_button(app, '#get_main_oreqm_file')
             await wait_for_operation(app)
@@ -626,10 +626,10 @@ describe('Application launch', function () {
             await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
             await fakeMenu.clickMenu('File', 'Save diagram as...')
             await wait_for_operation(app)
-            console.log('        saving: ', dot_filename)
+            // console.log('        saving: ', dot_filename)
             await expect(file(dot_filename)).to.exist
             if (fs.existsSync(ref_file)) {
-              console.log(`        Checking: ${ref_file}`)
+              // console.log(`        Checking: ${ref_file}`)
               await wait_for_operation(app)
               await compare_files(dot_filename, ref_file)
             }
