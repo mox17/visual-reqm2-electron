@@ -23,6 +23,7 @@ const after = global.after
 const file = chaiFiles.file
 //const dir = chaiFiles.dir
 
+// eslint-disable-next-line no-unused-vars
 function sleep (ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

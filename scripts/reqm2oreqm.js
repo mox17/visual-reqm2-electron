@@ -1,5 +1,6 @@
 /* Main class for managing oreqm xml data */
 'use strict'
+// eslint-disable-next-line no-redeclare
 /* global DOMParser, alert */
 
 /** placeholder for XMLSerializer instance */

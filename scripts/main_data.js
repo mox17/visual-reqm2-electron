@@ -1,4 +1,5 @@
 'use strict'
+// eslint-disable-next-line no-redeclare
 /* global Worker, alert */
 import { ReqM2Oreqm } from './diagrams.js'
 import Viz from 'viz.js'
