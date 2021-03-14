@@ -896,7 +896,7 @@ export class ReqM2Specobjects {
    */
   find_reqs_with_name (regex) {
     const ids = this.requirements.keys()
-    const rx = new RegExp(regex, 'i') // case-insensitive
+    const rx = new RegExp(regex, 'im') // case-insensitive
     const matches = []
     for (const id of ids) {
       const id_string = this.id_search_string(id)
