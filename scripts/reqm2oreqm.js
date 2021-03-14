@@ -867,16 +867,26 @@ export class ReqM2Specobjects {
    * @param {string} req_id id to check
    * @return {string} updated (decorated) id
    */
-  decorate_id (req_id) {
-    let id_str = req_id
+  id_search_string (req_id) {
+    let diff = this.diff_status(req_id)
+    return `id:${req_id}\n${diff}`
+  }
+
+  /**
+   * Get diff status of id, i.e. new:, chg:, rem: or ''
+   * @param {string} req_id id to check
+   * @return {string} updated (decorated) id
+   */
+   diff_status (req_id) {
+    let diff = ''
     if (this.new_reqs.includes(req_id)) {
-      id_str = 'new:' + req_id
+      diff = 'new:'
     } else if (this.updated_reqs.includes(req_id)) {
-      id_str = 'chg:' + req_id
+      diff = 'chg:'
     } else if (this.removed_reqs.includes(req_id)) {
-      id_str = 'rem:' + req_id
+      diff = 'rem:'
     }
-    return id_str
+    return diff
   }
 
   /**
@@ -889,9 +899,9 @@ export class ReqM2Specobjects {
     const rx = new RegExp(regex, 'i') // case-insensitive
     const matches = []
     for (const id of ids) {
-      const decorated_id = this.decorate_id(id)
+      const id_string = this.id_search_string(id)
       //rq: ->(rq_search_id_only)
-      if (decorated_id.search(rx) >= 0) {
+      if (id_string.search(rx) >= 0) {
         matches.push(id)
       }
     }
@@ -911,7 +921,7 @@ export class ReqM2Specobjects {
     } else {
       // Get all text fields as combined string
       const rec = this.requirements.get(req_id)
-      const id_str = this.decorate_id(rec.id)
+      const diff = this.diff_status(rec.id)
       let ffb = ''
       rec.fulfilledby.forEach(element =>
         ffb += '\nffb:' + element.id)
@@ -926,6 +936,7 @@ export class ReqM2Specobjects {
         needsobj += '\nno:' + element)
       const dup = this.duplicates.has(rec.id) ? '\ndup:' : '' //rq: ->(rq_dup_req_search)
       const all_text = 'dt:' + rec.doctype +
+        '\nid:' + rec.id +
         '\nve:' + rec.version +
         '\nst:' + rec.status +
         '\nde:' + rec.description +
@@ -943,7 +954,7 @@ export class ReqM2Specobjects {
         tags +
         plat +
         dup +
-        '\nid:' + id_str
+        '\n' + diff
 
       this.search_cache.set(req_id, all_text)
       return all_text
