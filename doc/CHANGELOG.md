@@ -1,5 +1,8 @@
 ### Changelog
 
+## 2.0.2
+ * Fix for duplicate fulfilledby placholders. More automated test cases.
+ * Multiline regex needed for id-only search
 
 ## 2.0.0
  * Refactored the tag search logic. `id:` is now just after `dt:` (doctype). Updated tooltip and documentation.
