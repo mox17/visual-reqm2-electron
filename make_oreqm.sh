@@ -21,5 +21,5 @@ CFGW=$(cygpath -m $CFG)
 sed -e 's|<needscov>||g' -e 's|</needscov>||g' $1 > $1.needscov
 
 perl $REQM2 -i $1.needscov -c $CFGW -cleanup -x ReqM_2::Importer::DocBook -o $1.reqm
-perl $REQM2 -q -c $CFGW -t $1.reqm -o $2
+perl $REQM2 -q -c $CFGW -s approved,proposed -t $1.reqm -o $2
 rm $1.needscov

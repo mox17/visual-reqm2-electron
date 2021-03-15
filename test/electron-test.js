@@ -271,12 +271,19 @@ describe('Application launch', function () {
     await click_button(app, '#prev_selected')
   })
 
+  it('autoupdate off', async function () {
+    await click_button(app, '#auto_update')
+  })
+
   describe('Load files', function () {
     it('main oreqm', async function () {
       await app.client.waitUntilWindowLoaded()
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] }]) //rq: ->(rq_filesel_main_oreqm)
       await click_button(app, '#get_main_oreqm_file')
 
+      await wait_for_operation(app)
+      //screenshot(app, 'guide')
+      await click_button(app, '#auto_update')
       await wait_for_operation(app)
 
       const pan_zoom = await app.client.$('.svg-pan-zoom_viewport #graph0')
@@ -448,6 +455,13 @@ describe('Application launch', function () {
       await click_button(app, '#prev_selected')
       await app.client.waitUntilTextExists('#vrm2_working', 'centered')
     })
+
+    // it('Cancel context menu', async function () {
+    //   // Open and cancel context menu
+    //   const svg_map = await get_svg_node_map(app)
+    //   await svg_map.get('cc.game.characters').click({ button: 2 })
+    //   await click_button(app, '#filter_graph')
+    // })
 
     // it('Toggle doctypes', async function () {
     //   await click_button(app, '#invert_exclude')
@@ -657,6 +671,22 @@ describe('Application launch', function () {
       await wait_for_operation(app)
       await click_button(app, '#limit_depth_input')
       await wait_for_operation(app)
+    })
+
+    it ('Load ffb test 1', async function () {
+      const oreqm_main = './testdata/ffbtest_3.oreqm'
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_main] }])
+      await click_button(app, '#get_main_oreqm_file')
+      await wait_for_operation(app)
+      const dot_filename = './tmp/ffbtest_3.dot'
+      const ref_file = './test/refdata/ffbtest_3.dot'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
+      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await wait_for_operation(app)
+      await compare_files(dot_filename, ref_file)
+    })
+
+    it ('Load ffb test 2', async function () {
       const oreqm_main = './testdata/ffbtest_2.oreqm'
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_main] }])
       await click_button(app, '#get_main_oreqm_file')

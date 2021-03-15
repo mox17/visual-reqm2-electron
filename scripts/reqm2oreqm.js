@@ -365,7 +365,7 @@ export class ReqM2Specobjects {
   add_fulfilledby_nodes () {
     //rq: ->(rq_ffb_placeholder)
     const ids = Array.from(this.requirements.keys())
-    const new_nodes = new Map() // need a new container to add after loop
+    let new_nodes = new Map() // need a new container to add after loop
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       const ffb_list = Array.from(rec.fulfilledby)
@@ -374,37 +374,42 @@ export class ReqM2Specobjects {
         const ff_doctype = ff_arr.doctype
         const ff_version = ff_arr.version
         const key = this.get_key_for_id_ver(ff_id, ff_version)
+        //console.log(req_id, key, new_nodes)
         if (!this.requirements.has(key)) {
-          // Create placeholder for ffb node
-          const new_node = {
-            comment: '',
-            dependson: [],
-            description: '*FULFILLEDBY PLACEHOLDER*',
-            doctype: ff_doctype,
-            fulfilledby: [],
-            furtherinfo: '',
-            id: ff_id,
-            linksto: [],
-            needsobj: [],
-            platform: [],
-            rationale: '',
-            safetyclass: '',
-            safetyrationale: '',
-            shortdesc: '',
-            source: '',
-            sourcefile: '',
-            sourceline: '',
-            status: '',
-            tags: [],
-            usecase: '',
-            verifycrit: '',
-            version: ff_version,
-            violations: [],
-            ffb_placeholder: true,
-            xml: ff_arr.xml
+          if (!new_nodes.has(key)) {
+            // Create placeholder for ffb node
+            //console.log("new object", key, ff_id, ff_doctype, ff_version)
+            const new_node = {
+              comment: '',
+              dependson: [],
+              description: '*FULFILLEDBY PLACEHOLDER*',
+              doctype: ff_doctype,
+              fulfilledby: [],
+              furtherinfo: '',
+              id: ff_id,
+              linksto: [],
+              needsobj: [],
+              platform: [],
+              rationale: '',
+              safetyclass: '',
+              safetyrationale: '',
+              shortdesc: '',
+              source: '',
+              sourcefile: '',
+              sourceline: '',
+              status: '',
+              tags: [],
+              usecase: '',
+              verifycrit: '',
+              version: ff_version,
+              violations: [],
+              ffb_placeholder: true,
+              xml: ff_arr.xml
+            }
+            //let new_id = {id: ff_id}
+            //console.log("adding to new_nodes ", key)
+            new_nodes.set(key, new_node)
           }
-          let new_id = {id: ff_id}
-          new_nodes.set(new_id, new_node) // this will deliberately lose duplicate nodes
         } else {
           // check for matching doctype
           const real_dt = this.requirements.get(ff_id).doctype
