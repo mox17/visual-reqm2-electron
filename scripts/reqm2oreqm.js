@@ -2,7 +2,7 @@
 'use strict'
 // eslint-disable-next-line no-redeclare
 /* global DOMParser, alert */
-
+import { clone, cloneDeep } from "lodash"
 /** placeholder for XMLSerializer instance */
 let serializer = null
 
@@ -138,6 +138,8 @@ function get_fulfilledby (node) {
   return ff_list
 }
 
+// let magic = 'BAT_SDK_1'
+
 /**
  * Compare a_in and b_in objects, while ignoring the fields listed in ignore_list
  * @param {object} a_in
@@ -146,22 +148,54 @@ function get_fulfilledby (node) {
  * @return {boolean} is the subset of fields equal
  */
 function stringEqual (a_in, b_in, ignore_list) {
-  const a = Object.assign({}, a_in)
-  const b = Object.assign({}, b_in)
+  if (b_in === undefined) return false
+  const a = cloneDeep(a_in)
+  const b = cloneDeep(b_in)
   // console.log(typeof(a), a, typeof(b), b)
   // istanbul ignore else
   if (typeof (a) === 'object' && typeof (b) === 'object') {
     for (const field of ignore_list) {
       // force ignored fields empty
-      a[field] = ''
-      b[field] = ''
+      a[field] = null
+      b[field] = null
     }
+    // Remove generated data elements before comparison
     a.xml = null
     b.xml = null
+    if (a.linksto !== null) {
+      for (let lt of a.linksto) {
+        lt.error = ''
+        lt.diff = ''
+      }
+    }
+    if (a.fulfilledby !== null) {
+      for (let ffb of a.fulfilledby) {
+      ffb.ffblinkerror = null
+      ffb.diff = null
+      ffb.xml = null
+      }
+    }
+    if (b.linksto !== null) {
+      for (let lt of b.linksto) {
+      lt.error = ''
+      lt.diff = ''
+      }
+    }
+    if (a.fulfilledby !== null) {
+      for (let ffb of b.fulfilledby) {
+      ffb.ffblinkerror = null
+      ffb.diff = null
+      ffb.xml = null
+      }
+    }
   }
   const a_s = JSON.stringify(a)
   const b_s = JSON.stringify(b)
-  return a_s === b_s
+  let equal = a_s === b_s
+  // if (!equal && a_s.includes(magic)) {
+  //   console.log(a_s, b_s)
+  // }
+  return equal
 }
 
 /**

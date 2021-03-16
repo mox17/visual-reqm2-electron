@@ -62,6 +62,7 @@
     "electron-log": "^4.3.1",
     "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.5",
+    "lodash": "^4.17.21",
     "shell": "^0.8.4",
     "show-toast": "^1.1.4",
     "split.js": "^1.6.2",
