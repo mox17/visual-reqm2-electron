@@ -7,7 +7,7 @@ export const default_program_settings = {
   compare_fields: {
     id: true,
     comment: true,
-    covstatus: true,
+    covstatus: true, // generated
     dependson: true,
     description: true,
     doctype: true,

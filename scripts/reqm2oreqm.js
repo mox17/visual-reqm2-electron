@@ -1,9 +1,13 @@
 /* Main class for managing oreqm xml data */
 'use strict'
+// eslint-disable-next-line no-redeclare
 /* global DOMParser, alert */
-
+import { clone, cloneDeep } from "lodash"
 /** placeholder for XMLSerializer instance */
 let serializer = null
+
+/** depth at this level and above is infinite (does not count down) */
+const INFINITE_DEPTH = 100
 
 /**
  * Process xml input text and display possible errors detected
@@ -134,6 +138,8 @@ function get_fulfilledby (node) {
   return ff_list
 }
 
+// let magic = 'BAT_SDK_1'
+
 /**
  * Compare a_in and b_in objects, while ignoring the fields listed in ignore_list
  * @param {object} a_in
@@ -142,22 +148,54 @@ function get_fulfilledby (node) {
  * @return {boolean} is the subset of fields equal
  */
 function stringEqual (a_in, b_in, ignore_list) {
-  const a = Object.assign({}, a_in)
-  const b = Object.assign({}, b_in)
+  if (b_in === undefined) return false
+  const a = cloneDeep(a_in)
+  const b = cloneDeep(b_in)
   // console.log(typeof(a), a, typeof(b), b)
   // istanbul ignore else
   if (typeof (a) === 'object' && typeof (b) === 'object') {
     for (const field of ignore_list) {
       // force ignored fields empty
-      a[field] = ''
-      b[field] = ''
+      a[field] = null
+      b[field] = null
     }
+    // Remove generated data elements before comparison
     a.xml = null
     b.xml = null
+    if (a.linksto !== null) {
+      for (let lt of a.linksto) {
+        lt.error = ''
+        lt.diff = ''
+      }
+    }
+    if (a.fulfilledby !== null) {
+      for (let ffb of a.fulfilledby) {
+      ffb.ffblinkerror = null
+      ffb.diff = null
+      ffb.xml = null
+      }
+    }
+    if (b.linksto !== null) {
+      for (let lt of b.linksto) {
+      lt.error = ''
+      lt.diff = ''
+      }
+    }
+    if (a.fulfilledby !== null) {
+      for (let ffb of b.fulfilledby) {
+      ffb.ffblinkerror = null
+      ffb.diff = null
+      ffb.xml = null
+      }
+    }
   }
   const a_s = JSON.stringify(a)
   const b_s = JSON.stringify(b)
-  return a_s === b_s
+  let equal = a_s === b_s
+  // if (!equal && a_s.includes(magic)) {
+  //   console.log(a_s, b_s)
+  // }
+  return equal
 }
 
 /**
@@ -364,7 +402,7 @@ export class ReqM2Specobjects {
   add_fulfilledby_nodes () {
     //rq: ->(rq_ffb_placeholder)
     const ids = Array.from(this.requirements.keys())
-    const new_nodes = new Map() // need a new container to add after loop
+    let new_nodes = new Map() // need a new container to add after loop
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       const ffb_list = Array.from(rec.fulfilledby)
@@ -373,37 +411,42 @@ export class ReqM2Specobjects {
         const ff_doctype = ff_arr.doctype
         const ff_version = ff_arr.version
         const key = this.get_key_for_id_ver(ff_id, ff_version)
+        //console.log(req_id, key, new_nodes)
         if (!this.requirements.has(key)) {
-          // Create placeholder for ffb node
-          const new_node = {
-            comment: '',
-            dependson: [],
-            description: '*FULFILLEDBY PLACEHOLDER*',
-            doctype: ff_doctype,
-            fulfilledby: [],
-            furtherinfo: '',
-            id: ff_id,
-            linksto: [],
-            needsobj: [],
-            platform: [],
-            rationale: '',
-            safetyclass: '',
-            safetyrationale: '',
-            shortdesc: '',
-            source: '',
-            sourcefile: '',
-            sourceline: '',
-            status: '',
-            tags: [],
-            usecase: '',
-            verifycrit: '',
-            version: ff_version,
-            violations: [],
-            ffb_placeholder: true,
-            xml: ff_arr.xml
+          if (!new_nodes.has(key)) {
+            // Create placeholder for ffb node
+            //console.log("new object", key, ff_id, ff_doctype, ff_version)
+            const new_node = {
+              comment: '',
+              dependson: [],
+              description: '*FULFILLEDBY PLACEHOLDER*',
+              doctype: ff_doctype,
+              fulfilledby: [],
+              furtherinfo: '',
+              id: ff_id,
+              linksto: [],
+              needsobj: [],
+              platform: [],
+              rationale: '',
+              safetyclass: '',
+              safetyrationale: '',
+              shortdesc: '',
+              source: '',
+              sourcefile: '',
+              sourceline: '',
+              status: '',
+              tags: [],
+              usecase: '',
+              verifycrit: '',
+              version: ff_version,
+              violations: [],
+              ffb_placeholder: true,
+              xml: ff_arr.xml
+            }
+            //let new_id = {id: ff_id}
+            //console.log("adding to new_nodes ", key)
+            new_nodes.set(key, new_node)
           }
-          let new_id = {id: ff_id}
-          new_nodes.set(new_id, new_node) // this will deliberately lose duplicate nodes
         } else {
           // check for matching doctype
           const real_dt = this.requirements.get(ff_id).doctype
@@ -524,7 +567,8 @@ export class ReqM2Specobjects {
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }
-    if (this.color.get(req_id).has(color)) {
+    let color_depth = {color: color, depth: depth}
+    if (this.color.get(req_id).has(color_depth)) {
       return // already visited
     }
     // console.log(this.requirements.get(req_id).doctype)
@@ -538,13 +582,13 @@ export class ReqM2Specobjects {
     if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
-    const col_set = this.color.get(req_id)
-    col_set.add(color)
-    this.color.set(req_id, col_set)
+    this.color.get(req_id).add(color)
+    this.color.get(req_id).add(color_depth)
     if (depth > 0) { //rq: ->(rq_limited_walk)
       if (this.linksto_rev.has(req_id)) {
+        let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const child of this.linksto_rev.get(req_id)) {
-          this.mark_and_flood_down(color, child, depth-1)
+          this.mark_and_flood_down(color, child, next_depth)
         }
       }
     }
@@ -568,7 +612,8 @@ export class ReqM2Specobjects {
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }
-    if (this.color.get(req_id).has(color)) {
+    let color_depth = {color: color, depth: depth}
+    if (this.color.get(req_id).has(color_depth)) {
       return // already visited
     }
     if (this.excluded_doctypes.includes(rec.doctype)) { //rq: ->(rq_sel_doctype)
@@ -581,13 +626,13 @@ export class ReqM2Specobjects {
     if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
-    const col_set = this.color.get(req_id)
-    col_set.add(color)
-    this.color.set(req_id, col_set)
+    this.color.get(req_id).add(color)
+    this.color.get(req_id).add(color_depth)
     if (depth > 0) { //rq: ->(rq_limited_walk)
       if (this.linksto.has(req_id)) {
+        let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const ancestor of this.linksto.get(req_id)) {
-          this.mark_and_flood_up(color, ancestor, depth-1)
+          this.mark_and_flood_up(color, ancestor, next_depth)
         }
       }
     }
@@ -866,16 +911,26 @@ export class ReqM2Specobjects {
    * @param {string} req_id id to check
    * @return {string} updated (decorated) id
    */
-  decorate_id (req_id) {
-    let id_str = req_id
+  id_search_string (req_id) {
+    let diff = this.diff_status(req_id)
+    return `id:${req_id}\n${diff}`
+  }
+
+  /**
+   * Get diff status of id, i.e. new:, chg:, rem: or ''
+   * @param {string} req_id id to check
+   * @return {string} updated (decorated) id
+   */
+   diff_status (req_id) {
+    let diff = ''
     if (this.new_reqs.includes(req_id)) {
-      id_str = 'new:' + req_id
+      diff = 'new:'
     } else if (this.updated_reqs.includes(req_id)) {
-      id_str = 'chg:' + req_id
+      diff = 'chg:'
     } else if (this.removed_reqs.includes(req_id)) {
-      id_str = 'rem:' + req_id
+      diff = 'rem:'
     }
-    return id_str
+    return diff
   }
 
   /**
@@ -885,12 +940,12 @@ export class ReqM2Specobjects {
    */
   find_reqs_with_name (regex) {
     const ids = this.requirements.keys()
-    const rx = new RegExp(regex, 'i') // case-insensitive
+    const rx = new RegExp(regex, 'im') // case-insensitive
     const matches = []
     for (const id of ids) {
-      const decorated_id = this.decorate_id(id)
+      const id_string = this.id_search_string(id)
       //rq: ->(rq_search_id_only)
-      if (decorated_id.search(rx) >= 0) {
+      if (id_string.search(rx) >= 0) {
         matches.push(id)
       }
     }
@@ -910,7 +965,7 @@ export class ReqM2Specobjects {
     } else {
       // Get all text fields as combined string
       const rec = this.requirements.get(req_id)
-      const id_str = this.decorate_id(rec.id)
+      const diff = this.diff_status(rec.id)
       let ffb = ''
       rec.fulfilledby.forEach(element =>
         ffb += '\nffb:' + element.id)
@@ -925,6 +980,7 @@ export class ReqM2Specobjects {
         needsobj += '\nno:' + element)
       const dup = this.duplicates.has(rec.id) ? '\ndup:' : '' //rq: ->(rq_dup_req_search)
       const all_text = 'dt:' + rec.doctype +
+        '\nid:' + rec.id +
         '\nve:' + rec.version +
         '\nst:' + rec.status +
         '\nde:' + rec.description +
@@ -942,7 +998,7 @@ export class ReqM2Specobjects {
         tags +
         plat +
         dup +
-        '\nid:' + id_str
+        '\n' + diff
 
       this.search_cache.set(req_id, all_text)
       return all_text

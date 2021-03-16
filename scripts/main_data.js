@@ -1,4 +1,5 @@
 'use strict'
+// eslint-disable-next-line no-redeclare
 /* global Worker, alert */
 import { ReqM2Oreqm } from './diagrams.js'
 import Viz from 'viz.js'
@@ -71,7 +72,7 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
   vizjs_worker.onerror = function (e) {
     const message = e.message === undefined ? 'An error occurred while processing the graph input.' : e.message
     console.error(e)
-    console.log(dot_source)
+    //console.log(dot_source)
     e.preventDefault()
     if (cb_error) {
       cb_error(message)
@@ -183,6 +184,13 @@ export function clear_oreqm_ref () {
 export const COLOR_UP = 1
 export const COLOR_DOWN = 2
 
+/**
+ * Check if node is selected
+ * @param {string} node_id key of node
+ * @param {object} rec JS object for node
+ * @param {Set} node_color color
+ * @return {boolean} true if selected
+ */
 export function select_color (node_id, rec, node_color) {
   // Select colored nodes
   return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)

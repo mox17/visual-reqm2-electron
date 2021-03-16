@@ -1,10 +1,17 @@
 ### Changelog
 
+## 2.0.2
+ * Fix for duplicate fulfilledby placholders. More automated test cases.
+ * Multiline regex needed for id-only search
 
 ## 2.0.0
- * Color-code fulfilledby links if comparison view, similar to the linksto links.
- * The filfilledby placleholders are now shown as 'ghosts', i.e. with a doctype specific background color that fades to a ghostly white. This is to indicate that these are not real specobjects, but are there to visualize the intended relation.
- * Added option to limit reachable nodes to 1 level. Thought to be useful for limiting size of diff diagrams.
+ * Refactored the tag search logic. `id:` is now just after `dt:` (doctype). Updated tooltip and documentation.
+   If you do advanced search this is a minor change in the order search terms are entered, to better reflect the order
+   in the ReqM2 xml schema.
+ * The **'new:'**, **'chg:'** and **'rem:'** markers are no longer part of the **'id:'**, but are seperate tags.
+ * Color-code fulfilledby links in comparison view, similar to the linksto links.
+ * The filfilledby placeholders are now shown as 'ghosts' :ghost:, i.e. with a doctype specific background color that fades to a ghostly white. This is to indicate that these are not real specobjects, but are there to visualize the intended relation.
+ * Added option to limit reachable nodes to 1 level. Thought to be useful for limiting size of diff diagrams. Use **"depth=1"** checkbox.
  * Fixed bug with lost 1st click on controls.
  * `npm run-script test:cov` generates coverage report - see report in `./coverage/index.html`.
  * In comparison diagrams, any modifications to linksto links arew now shown as color coded edges/arrows with labels 'new', 'changed' or 'removed'.
@@ -76,14 +83,15 @@ Options:
  * Specobject boxes have cleaner outline. Graphviz would sometimes show a double outline.
  * Cluster outlines have rounded corners and slightly thicker. This is for selected nodes, new, changed and modified nodes.
  * Logic for handling duplicates much improved. Now believed to follow what is specified for ReqM2 itself.
-   * Duplicates are grouped together in a cluster with a grey 'duplicates' box around them, one box for each unique \<id>.
-   * To distinguish duplicate specobjects, they will have their version appended to their 'key' in the graph. The 'key' is usually just the \<id>.
+   * Duplicates are grouped together in a cluster with a grey 'duplicates' box around them, one box for each unique `<id>`.
+   * To distinguish duplicate specobjects, they will have their version appended to their 'key' in the graph. The 'key' is usually just the `<id>`.
    * This is relevant when excluding nodes. With duplicate nodes, it is not obvious which duplicate
    should be excluded.
-   * With this change, the duplicates will have a `key`, which is different from their \<id>.
-   The first encountered instance of a set of duplicates will have just \<id> as `key`.
-   * When several duplicates share the SAME \<version>, The `key` is constructed from \<id> with the string
+   * With this change, the duplicates will have a `key`, which is different from their `<id>`.
+   The first encountered instance of a set of duplicates will have just `<id>` as `key`.
+   * When several duplicates share the SAME `<version>`, The `key` is constructed from `<id>` with the string
    `:<version>` appended repeatedly until the `key` is unique.
+   * Duplicate specobjects are marked with the **'dup:'** tag, accessible from search box.
  * Save diagram in `.dot` format is a new option.
  * Automated tests are added. run `npm install && npm test` to see them in action. A folder `./tmp/` is generated,
    which contains a variety of generated artifacts, screenshots etc.

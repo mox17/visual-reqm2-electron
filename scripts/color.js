@@ -1,4 +1,5 @@
 'use strict'
+// eslint-disable-next-line no-redeclare
 /* global localStorage */
 import { remote } from 'electron'
 import fs from 'fs'

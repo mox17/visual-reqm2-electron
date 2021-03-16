@@ -191,6 +191,15 @@ function createWindow () {
     electron_settings.setSync('mainWindow_width', mainWindow_width)
     electron_settings.setSync('mainWindow_height', mainWindow_height)
   })
+
+  mainWindow.on('focus', (_event) => {
+    accelerators_setup()
+  })
+
+  mainWindow.on('blur', (_event) => {
+    globalShortcut.unregisterAll()
+  })
+
 }
 
 function accelerators_setup () {
@@ -273,7 +282,6 @@ app.on('ready', () => {
   debug = args.debug
   run_autoupdater = args.update
 
-  accelerators_setup()
   mainWindow_width = 1920 // electron_settings.getSync('mainWindow_width', 1024);
   mainWindow_height = 1080 // electron_settings.getSync('mainWindow_height', 768);
   createWindow()
