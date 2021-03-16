@@ -184,6 +184,13 @@ export function clear_oreqm_ref () {
 export const COLOR_UP = 1
 export const COLOR_DOWN = 2
 
+/**
+ * Check if node is selected
+ * @param {string} node_id key of node
+ * @param {object} rec JS object for node
+ * @param {Set} node_color color
+ * @return {boolean} true if selected
+ */
 export function select_color (node_id, rec, node_color) {
   // Select colored nodes
   return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)

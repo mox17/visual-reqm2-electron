@@ -6,6 +6,9 @@
 /** placeholder for XMLSerializer instance */
 let serializer = null
 
+/** depth at this level and above is infinite (does not count down) */
+const INFINITE_DEPTH = 100
+
 /**
  * Process xml input text and display possible errors detected
  * @param {string} xmlString
@@ -530,7 +533,8 @@ export class ReqM2Specobjects {
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }
-    if (this.color.get(req_id).has(color)) {
+    let color_depth = {color: color, depth: depth}
+    if (this.color.get(req_id).has(color_depth)) {
       return // already visited
     }
     // console.log(this.requirements.get(req_id).doctype)
@@ -544,13 +548,13 @@ export class ReqM2Specobjects {
     if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
-    const col_set = this.color.get(req_id)
-    col_set.add(color)
-    this.color.set(req_id, col_set)
+    this.color.get(req_id).add(color)
+    this.color.get(req_id).add(color_depth)
     if (depth > 0) { //rq: ->(rq_limited_walk)
       if (this.linksto_rev.has(req_id)) {
+        let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const child of this.linksto_rev.get(req_id)) {
-          this.mark_and_flood_down(color, child, depth-1)
+          this.mark_and_flood_down(color, child, next_depth)
         }
       }
     }
@@ -574,7 +578,8 @@ export class ReqM2Specobjects {
     if (!this.color.has(req_id)) {
       return // unknown <id> (bug)
     }
-    if (this.color.get(req_id).has(color)) {
+    let color_depth = {color: color, depth: depth}
+    if (this.color.get(req_id).has(color_depth)) {
       return // already visited
     }
     if (this.excluded_doctypes.includes(rec.doctype)) { //rq: ->(rq_sel_doctype)
@@ -587,13 +592,13 @@ export class ReqM2Specobjects {
     if (this.excluded_ids.includes(req_id)) { //rq: ->(rq_excl_id)
       return // blacklisted id
     }
-    const col_set = this.color.get(req_id)
-    col_set.add(color)
-    this.color.set(req_id, col_set)
+    this.color.get(req_id).add(color)
+    this.color.get(req_id).add(color_depth)
     if (depth > 0) { //rq: ->(rq_limited_walk)
       if (this.linksto.has(req_id)) {
+        let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const ancestor of this.linksto.get(req_id)) {
-          this.mark_and_flood_up(color, ancestor, depth-1)
+          this.mark_and_flood_up(color, ancestor, next_depth)
         }
       }
     }
