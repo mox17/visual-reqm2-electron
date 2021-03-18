@@ -8,14 +8,14 @@ export const default_program_settings = {
     id: true,
     comment: true,
     covstatus: true, // generated
-    dependson: true,
+    dependson: true, // list
     description: true,
     doctype: true,
     fulfilledby: true,
     furtherinfo: true,
-    linksto: true,
-    needsobj: true,
-    platform: true,
+    linksto: true, // list
+    needsobj: true, // list
+    platform: true, // list
     rationale: true,
     safetyclass: true,
     safetyrationale: true,
@@ -23,12 +23,25 @@ export const default_program_settings = {
     source: true,
     sourcefile: false,
     sourceline: false,
+    sourcerevision: true,
+    creationdate: true,
+    category: false,
+    priority: false,
+    securityclass: false,
+    securityrationale: false,
+    verifymethods: false, // list
+    verifycond: false,
+    testin: false,
+    testexec: false,
+    testout: false,
+    releases: false, // list
+    conflicts: false, // list
     status: true,
-    tags: true,
+    tags: true, // list
     usecase: true,
     verifycrit: true,
     version: true,
-    violations: false
+    violations: false // list
   },
   max_calc_nodes: 1000,
   show_coverage: true,

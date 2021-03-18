@@ -338,6 +338,19 @@ export class ReqM2Specobjects {
     req.source = get_xml_text(comp, 'source')
     req.sourcefile = get_xml_text(comp, 'sourcefile')
     req.sourceline = get_xml_text(comp, 'sourceline')
+    req.sourcerevision = get_xml_text(comp, 'sourcerevision')
+    req.creationdate = get_xml_text(comp, 'creationdate')
+    req.category = get_xml_text(comp, 'category')
+    req.priority = get_xml_text(comp, 'priority')
+    req.securityclass = get_xml_text(comp, 'securityclass')
+    req.securityrationale = get_xml_text(comp, 'securityrationale')
+    req.verifymethods = get_list_of(comp, 'verifymethod')
+    req.verifycond = get_xml_text(comp, 'verifycond')
+    req.testin = get_xml_text(comp, 'testin')
+    req.testexec = get_xml_text(comp, 'testexec')
+    req.testout = get_xml_text(comp, 'testout')
+    req.releases = get_list_of(comp, 'release')
+    req.conflicts = get_list_of(comp, 'conflictswith')
     req.status = get_xml_text(comp, 'status')
     req.tags = get_list_of(comp, 'tag')
     req.usecase = get_xml_text(comp, 'usecase')
@@ -434,6 +447,19 @@ export class ReqM2Specobjects {
               source: '',
               sourcefile: '',
               sourceline: '',
+              sourcerevision: '',
+              creationdate: '',
+              category: '',
+              priority: '',
+              securityclass: '',
+              securityrationale: '',
+              verifymethods: [],
+              verifycond: '',
+              testin: '',
+              testexec: '',
+              testout: '',
+              releases: [],
+              conflicts: [],
               status: '',
               tags: [],
               usecase: '',
@@ -850,7 +876,7 @@ export class ReqM2Specobjects {
       }
     }
   }
-    
+
   /**
    * Mark all linksto as new in 'diff' field
    * @param {string} id
@@ -978,6 +1004,18 @@ export class ReqM2Specobjects {
       let needsobj = ''
       rec.needsobj.forEach(element =>
         needsobj += '\nno:' + element)
+      let verifymethods = ''
+      rec.verifymethods.forEach(element =>
+        verifymethods += '\nvm:' + element)
+      let releases = ''
+      rec.releases.forEach(element =>
+        releases += '\nrel:' + element)
+      let dependson = ''
+      rec.dependson.forEach(element =>
+        dependson += '\ndep:' + element)
+      let conflicts = ''
+      rec.conflicts.forEach(element =>
+        conflicts += '\ncon:' + element)
       const dup = this.duplicates.has(rec.id) ? '\ndup:' : '' //rq: ->(rq_dup_req_search)
       const all_text = 'dt:' + rec.doctype +
         '\nid:' + rec.id +
@@ -989,8 +1027,17 @@ export class ReqM2Specobjects {
         '\nsr:' + rec.safetyrationale +
         '\nsc:' + rec.safetyclass +
         '\nsd:' + rec.shortdesc +
+        verifymethods +
         '\nuc:' + rec.usecase +
         '\nvc:' + rec.verifycrit +
+        '\nvco:' + rec.verifycond +
+        '\nti:' + rec.testin +
+        '\ntx:' + rec.testexec +
+        '\nto:' + rec.testout +
+
+        releases +
+        dependson +
+        conflicts +
         '\nco:' + rec.comment +
         '\ncs:' + rec.covstatus +
         needsobj +

@@ -177,6 +177,32 @@ function format_nonexistent_links (rec) {
 }
 
 /**
+ * Create table row with category and priority data
+ * @param {object} rec JS specobject
+ * @returns {string} table row or empty string
+ */
+function rel_category_priority (rec) {
+  const releases = rec.releases.length ? `rel: ${dot_format(rec.releases.join(','))}` : ''
+  const category = rec.category ? `cat: ${rec.category}` : ''
+  const priority = rec.priority ? `pri: ${rec.priority}` : ''
+  let c_p = ''
+  if (releases.length || category.length || priority.length) {
+    c_p = `<TR><TD>${releases}</TD><TD>${category}</TD><TD>${priority}</TD></TR>`
+  }
+  return c_p
+}
+
+function depends_conflicts (rec) {
+  let dep_con = ''
+  const depends = rec.dependson.length ? `dep: ${dot_format(rec.dependson.join(','))}` : ''
+  const conflicts = rec.conflicts.length ? `con: ${dot_format(rec.conflicts.join(','))}` : ''
+  if (depends.length || conflicts.length) {
+    dep_con = `<TR><TD COLSPAN="2">${depends}</TD><TD>${conflicts}</TD></TR>`
+  }
+  return dep_con
+}
+
+/**
  * Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
  * @param  {string} node_id  Specobject <id>
  * @param  {object} rec Object with specobject data
@@ -189,7 +215,9 @@ function format_nonexistent_links (rec) {
 function format_node (node_id, rec, ghost, oreqm, show_coverage, color_status) {
   //rq: ->(rq_doctype_color)
   let node_table = ''
+  const rel_cat_prio = rel_category_priority(rec)
   const nonexist_link = format_nonexistent_links(rec)
+  const dep_con = depends_conflicts(rec)
   const violations = rec.violations.length ? `        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">${dot_format(format_violations(rec.violations, oreqm.rules))}</TD></TR>\n` : ''
   const furtherinfo = rec.furtherinfo ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: ${dot_format(rec.furtherinfo)}</TD></TR>\n` : ''
   const safetyrationale = rec.safetyrationale ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: ${dot_format(rec.safetyrationale)}</TD></TR>\n` : ''
@@ -204,7 +232,7 @@ function format_node (node_id, rec, ghost, oreqm, show_coverage, color_status) {
       <TABLE BGCOLOR="${get_color(rec.doctype)}${ghost ? ':white' : ''}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="${ghost ? 'grey' : 'black'}" >
         <TR><TD CELLSPACING="0" >${rec.id}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">${dot_format(rec.description)}</TD><TD>${rec.needsobj.join('<BR/>')}</TD></TR>\n${
-          shortdesc}${rationale}${safetyrationale}${verifycrit}${comment}${furtherinfo}${source}${status}${violations}${nonexist_link}      </TABLE>`
+          shortdesc}${rationale}${safetyrationale}${verifycrit}${comment}${furtherinfo}${source}${dep_con}${rel_cat_prio}${status}${violations}${nonexist_link}      </TABLE>`
   const node = `  "${node_id}" [id="${node_id}" label=<${node_table}>];\n`
   return node
 }
@@ -451,8 +479,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     for (const dup_list of arrays_of_duplicates) {
       //rq: ->(rq_dup_req_display)
       const dup_cluster_id = this.requirements.get(dup_list[0]).id
-      const versions = dup_list.map((a) => a.version)
-      const dup_versions = versions.length !== new Set(versions).size
+      const versions = dup_list.map((a) => this.requirements.get(a).version)
+      const versions_set = new Set(versions)
+      const version_set_size = versions_set.size
+      //console.log(dup_list, versions, versions_set, versions.length, version_set_size)
+      const dup_versions = versions.length !== version_set_size
       const label = 'duplicate' + (dup_versions ? ' id + version' : ' id') //rq: ->(rq_dup_id_ver_disp)
       const fontcolor = dup_versions ? 'fontcolor="red" ' : ''
       graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=2 label="${label}" ${fontcolor}fontname="Arial" labelloc="t" style="rounded"\n`
