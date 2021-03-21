@@ -334,6 +334,8 @@ export class ReqM2Specobjects {
     req.rationale = get_xml_text(comp, 'rationale')
     req.safetyclass = get_xml_text(comp, 'safetyclass')
     req.safetyrationale = get_xml_text(comp, 'safetyrationale')
+    req.securityclass = get_xml_text(comp, 'securityclass')
+    req.securityrationale = get_xml_text(comp, 'securityrationale')
     req.shortdesc = get_xml_text(comp, 'shortdesc')
     req.source = get_xml_text(comp, 'source')
     req.sourcefile = get_xml_text(comp, 'sourcefile')
@@ -349,6 +351,7 @@ export class ReqM2Specobjects {
     req.testin = get_xml_text(comp, 'testin')
     req.testexec = get_xml_text(comp, 'testexec')
     req.testout = get_xml_text(comp, 'testout')
+    req.testpasscrit = get_xml_text(comp, 'testpasscrit')
     req.releases = get_list_of(comp, 'release')
     req.conflicts = get_list_of(comp, 'conflictswith')
     req.status = get_xml_text(comp, 'status')
@@ -458,6 +461,7 @@ export class ReqM2Specobjects {
               testin: '',
               testexec: '',
               testout: '',
+              testpasscrit: '',
               releases: [],
               conflicts: [],
               status: '',

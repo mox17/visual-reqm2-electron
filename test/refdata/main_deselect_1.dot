@@ -187,6 +187,7 @@ digraph "" {
       <TABLE BGCOLOR="#E7B1FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >/home/foo/bar/baz/fie/impl/pirate.hpp_15</TD><TD>1</TD><TD>impl</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT"></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: /home/foo/bar/baz/fie/impl/pirate.hpp:15</TD></TR>
         <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 

@@ -7,7 +7,7 @@ export const default_program_settings = {
   compare_fields: {
     id: true,
     comment: true,
-    covstatus: true, // generated
+    covstatus: false, // generated
     dependson: true, // list
     description: true,
     doctype: true,
@@ -25,17 +25,18 @@ export const default_program_settings = {
     sourceline: false,
     sourcerevision: true,
     creationdate: true,
-    category: false,
-    priority: false,
-    securityclass: false,
-    securityrationale: false,
-    verifymethods: false, // list
-    verifycond: false,
-    testin: false,
-    testexec: false,
-    testout: false,
-    releases: false, // list
-    conflicts: false, // list
+    category: true,
+    priority: true,
+    securityclass: true,
+    securityrationale: true,
+    verifymethods: true, // list
+    verifycond: true,
+    testin: true,
+    testexec: true,
+    testout: true,
+    testpasscrit: true,
+    releases: true, // list
+    conflicts: true, // list
     status: true,
     tags: true, // list
     usecase: true,
