@@ -49,6 +49,7 @@ The specobject diagram representation is like this:
 
 Only fields present in oreqm file will be rendered
 
+Note: Untraced links are not currently processed by Visual ReqM2. All other fields are believed to be handled.
 
 ## 2.0.2
  * Fix for duplicate fulfilledby placholders. More automated test cases.
