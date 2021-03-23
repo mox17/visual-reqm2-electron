@@ -99,24 +99,12 @@ subgraph "cluster_zork.game.location.flatheadia_removed" { color=red penwidth=2 
   # Edges
   "cc.game.locations" -> "cc.game.overview" [style=bold fontname="Arial" label=""];
   "cc.game.location.westlands" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
-  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-source status 'proposed' 
-excluded from tracing."];
-  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)
-source status 'proposed' 
-excluded from tracing."];
-  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)
-referenced object does 
-not exist."];
-  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=orange3 dir=back fontcolor="red" fontname="Arial" label="ffb (chg)
-referenced object does 
-not exist."];
-  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)
-referenced object does 
-not exist."];
-  "zork.game.location.flatheadia" -> "cc.game.location.westlands" [style=bold color="#C00000" style=dashed dir=back fontcolor="red" fontname="Arial" label="ffb (removed)
-referenced object does 
-not exist."];
+  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nsource status 'proposed' \nexcluded from tracing."];
+  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)\nsource status 'proposed' \nexcluded from tracing."];
+  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)\nreferenced object does \nnot exist."];
+  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=orange3 dir=back fontcolor="red" fontname="Arial" label="ffb (chg)\nreferenced object does \nnot exist."];
+  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)\nreferenced object does \nnot exist."];
+  "zork.game.location.flatheadia" -> "cc.game.location.westlands" [style=bold color="#C00000" style=dashed dir=back fontcolor="red" fontname="Arial" label="ffb (removed)\nreferenced object does \nnot exist."];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">

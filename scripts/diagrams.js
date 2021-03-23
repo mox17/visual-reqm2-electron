@@ -187,7 +187,7 @@ function rel_category_priority (rec) {
   const priority = rec.priority ? `priority: ${rec.priority}` : ''
   let c_p = ''
   if (releases.length || category.length || priority.length) {
-    c_p = `        <TR><TD>${releases}</TD><TD>${category}</TD><TD>${priority}</TD>\n`
+    c_p = `        <TR><TD>${releases}</TD><TD>${category}</TD><TD>${priority}</TD></TR>\n`
   }
   return c_p
 }
@@ -305,7 +305,7 @@ function format_edge (from_node, to_node, kind, error, color = '', lbl = '') {
   if (error && error.length) {
     //rq: ->(rq_edge_probs)
     // insert newlines in long texts
-    error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
+    error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\\n')
   }
   if (kind === 'fulfilledby') {
     //rq: ->(rq_edge_pcov_ffb)
@@ -315,7 +315,7 @@ function format_edge (from_node, to_node, kind, error, color = '', lbl = '') {
     }
     edge_label = ` [style=bold color=${color} dir=back fontname="Arial" label="${label}"]`
     if (error.length) {
-      label += '\n' + error
+      label += '\\n' + error
       edge_label = ` [style=bold color=${color} dir=back fontcolor="red" fontname="Arial" label="${label}"]`
     }
   } else {

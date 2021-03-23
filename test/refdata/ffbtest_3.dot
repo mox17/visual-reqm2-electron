@@ -270,34 +270,18 @@ digraph "" {
   "cc.game.location.maze.2" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.3" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.4" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
-  "cc.game.location.maze.5" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor=red label="destination version 1 
-does not match required 
-version 2."];
+  "cc.game.location.maze.5" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor=red label="destination version 1 \ndoes not match required \nversion 2."];
   "cc.game.location.maze.6" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor=red label="unrequested coverage."];
   "cc.game.location.maze.7" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.8" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.9" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "/home/foo/bar/baz/fie/impl/pirate.hpp_15" -> "cc.game.character.pirate" [style=bold fontname="Arial" fontcolor=red label="unrequested coverage."];
-  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-destination version 2 
-does not match required 
-version 1."];
-  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-destination version 2 
-does not match required 
-version 1."];
-  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
-  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
-  "zork.game.location.frobozz" -> "cc.game.character.troll" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
-  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
+  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\ndestination version 2 \ndoes not match required \nversion 1."];
+  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\ndestination version 2 \ndoes not match required \nversion 1."];
+  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "zork.game.location.frobozz" -> "cc.game.character.troll" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">
