@@ -182,7 +182,7 @@ function format_nonexistent_links (rec) {
  * @returns {string} table row or empty string
  */
 function rel_category_priority (rec) {
-  const releases = rec.releases.length ? `releases: ${dot_format(rec.releases.join(','))}` : ''
+  const releases = rec.releases.length ? `releases: ${dot_format(rec.releases.join(', '))}` : ''
   const category = rec.category ? `category: ${rec.category}` : ''
   const priority = rec.priority ? `priority: ${rec.priority}` : ''
   let c_p = ''
@@ -194,8 +194,8 @@ function rel_category_priority (rec) {
 
 function depends_conflicts (rec) {
   let dep_con = ''
-  const depends = rec.dependson.length ? `dep: ${dot_format(rec.dependson.join(','))}` : ''
-  const conflicts = rec.conflicts.length ? `con: ${dot_format(rec.conflicts.join(','))}` : ''
+  const depends = rec.dependson.length ? `dep: ${dot_format(rec.dependson.join(', '))}` : ''
+  const conflicts = rec.conflicts.length ? `con: ${dot_format(rec.conflicts.join(', '))}` : ''
   if (depends.length || conflicts.length) {
     dep_con = `        <TR><TD COLSPAN="2" ALIGN="LEFT">${depends}</TD><TD>${conflicts}</TD></TR>\n`
   }
@@ -214,7 +214,7 @@ function security_rationale_class (rec) {
 
 function verify_met_cond (rec) {
   let ver_met_con = ''
-  let ver_met = rec.verifymethods.length ? `ver_m: ${dot_format(rec.verifymethods.join('<BR ALIGN="LEFT"/>'))}` : ''
+  let ver_met = rec.verifymethods.length ? `ver_m: ${dot_format(rec.verifymethods.join('\n'))}` : ''
   let ver_cond = rec.verifycond ? `ver_c: ${rec.verifycond}` : ''
   if (ver_met.length || ver_cond.length) {
     ver_met_con = `        <TR><TD COLSPAN="2" ALIGN="LEFT">${ver_met}</TD><TD>${ver_cond}</TD></TR>\n`
