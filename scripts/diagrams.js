@@ -238,7 +238,9 @@ function source_file_line (rec) {
   let file = rec.sourcefile ? rec.sourcefile : ''
   let line = rec.sourceline ? rec.sourceline : ''
   if (file.length || line.length) {
-    row = `        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: ${file}:${line}</TD></TR>\n`
+    row = `        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: ${
+      file.replace( /([^\n]{70,500}?(\\|\/))/g,
+                    '$1<BR ALIGN="LEFT"/>')}:${line}<BR ALIGN="LEFT"/></TD></TR>\n`
   }
   return row
 }
@@ -319,6 +321,10 @@ function format_edge (from_node, to_node, kind, error, color = '', lbl = '') {
       edge_label = ` [style=bold color=${color} dir=back fontcolor="red" fontname="Arial" label="${label}"]`
     }
   } else {
+    if (kind==='untraced') {
+      color = 'blue style=dashed'
+      lbl = (lbl.length > 0) ? lbl+ 'untraced' : 'untraced'
+    }
     const col = (color !== '') ? `color=${color} ` : ''
     const fontcolor = error.length ? 'fontcolor=red ' : ''
     label = (lbl !== '') ? `${lbl}: ${error}` : error
@@ -688,6 +694,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
             linkerror = this.get_ffb_link_error(link, req_id)
           } else {
             kind = null
+            if (this.untraced.has(req_id) &&
+                this.untraced.get(req_id).has(link))  {
+              kind = 'untraced'
+              console.log(kind)
+            }
             linkerror = this.get_link_error(req_id, link)
           }
           graph += format_edge(

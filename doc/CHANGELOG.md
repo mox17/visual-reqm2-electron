@@ -16,6 +16,7 @@
    * testpasscrit
    * dependson
    * conflictswith
+   * untracedLink
 
 The specobject diagram representation is like this:
 
@@ -49,7 +50,7 @@ The specobject diagram representation is like this:
 
 Only fields present in oreqm file will be rendered
 
-Note: Untraced links are not currently processed by Visual ReqM2. All other fields are believed to be handled.
+Note: Untraced links are shown with dotted lines and the label 'untraced'
 
 ## 2.0.2
  * Fix for duplicate fulfilledby placholders. More automated test cases.
