@@ -198,6 +198,64 @@ function stringEqual (a_in, b_in, ignore_list) {
   return equal
 }
 
+export const search_tags = [
+  { key: 'dt', field: 'doctype', list: false},
+  { key: 'id', field: 'id', list: false},
+  { key: 've', field: 'version', list: false},
+  { key: 'de', field: 'description', list: false},
+  { key: 'no', field: 'needsobj', list: true},
+  { key: 'sd', field: 'shortdesc', list: false},
+  { key: 'rt', field: 'rationale', list: false},
+  { key: 'sr', field: 'safetyrationale', list: false},
+  { key: 'scr', field: 'securityrationale', list: false},
+  { key: 'scl', field: 'securityclass', list: false},
+  { key: 'vc', field: 'verifycrit', list: false},
+  { key: 'vm', field: 'verifymethods', list: true},
+  { key: 'vco', field: 'verifycond', list: false},
+  { key: 'co', field: 'comment', list: false},
+  { key: 'fi', field: 'furtherinfo', list: false},
+  { key: 'uc', field: 'usecase', list: false},
+  { key: 'src', field: 'source', list: false},
+  { key: 'srv', field: 'sourcerevision', list: false},
+  { key: 'cd', field: 'creationdate', list: false},
+  { key: 'sf', field: 'sourcefile', list: false},
+  { key: 'ti', field: 'testin', list: false},
+  { key: 'tx', field: 'testexec', list: false},
+  { key: 'to', field: 'testout', list: false},
+  { key: 'tp', field: 'testpasscrit', list: false},
+  { key: 'dep', field: 'dependson', list: true},
+  { key: 'con', field: 'conflicts', list: true},
+  { key: 'rel', field: 'releases', list: true},
+  { key: 'cat', field: 'category', list: false},
+  { key: 'pri', field: 'priority', list: false},
+  { key: 'tag', field: 'tags', list: true},
+  { key: 'plt', field: 'platform', list: true},
+  { key: 'sc', field: 'safetyclass', list: false},
+  { key: 'st', field: 'status', list: false},
+  { key: 'cs', field: 'covstatus', list: false},
+  { key: 'ffb', field: 'fulfilledby', list: true}
+  // below are meta items
+  // { key: 'dup', field: '', list: false},
+  // { key: 'rem', field: '', list: false},
+  // { key: 'chg', field: '', list: false},
+  // { key: 'new', field: '', list: false},
+  // { key: '', field: '', list: false}
+]
+
+/**
+ * Generate tooltip string from table of searchable tags
+ * @returns string
+ */
+export function search_tooltip () {
+  let tooltip = '&nbsp;<b>Use tags in this order:</b><br/>'
+  for (let row of search_tags) {
+    tooltip += `<b>&nbsp;${row.key}:</b>&nbsp;&lt;${row.field}&gt;<br/>`
+  }
+  tooltip += '<b>&nbsp;dup:</b>&nbsp;duplicate<br/>'
+  tooltip += '<b>&nbsp;rem:</b>|<b>chg:</b>|<b>new:</b>&nbsp;diff'
+  return tooltip
+}
+
 /**
  * This class reads and manages information in ReqM2 .oreqm files
  */
@@ -251,6 +309,39 @@ export class ReqM2Specobjects {
    */
   set_svg_guide () {
     this.dot = 'digraph "" {label="Select filter criteria and exclusions, then click\\l                    [update graph]\\l(Unfiltered graphs may be too large to render)"\n  labelloc=b\n  fontsize=24\n  fontcolor=grey\n  fontname="Arial"\n}\n'
+  }
+
+  /**
+   * Table driven creation of tagged search string
+   * @param {object} rec
+   * @returns string
+   */
+  build_tagged_string(rec) {
+    let tag_str = ''
+    for (let row of search_tags) {
+      if (!row.list) {
+        tag_str += `${row.key}:${rec[row.field]}\n`
+      } else {
+        for (let item of rec[row.field]) {
+          let entry
+          switch (row.field) {
+            case 'fulfilledby':
+              entry = `${row.key}:${item.id}\n`
+              break;
+            default:
+              entry = `${row.key}:${item}\n`
+              break;
+          }
+          tag_str += entry
+        }
+      }
+    }
+    // Handle meta-properties
+    tag_str += this.duplicates.has(rec.id) ? '\ndup:' : ''
+    tag_str += this.removed_reqs.includes(rec.id) ? '\nrem:' : ''
+    tag_str += this.updated_reqs.includes(rec.id) ? '\nchg:' : ''
+    tag_str += this.new_reqs.includes(rec.id) ? '\nnew:' : ''
+    return tag_str
   }
 
   /**
@@ -334,10 +425,26 @@ export class ReqM2Specobjects {
     req.rationale = get_xml_text(comp, 'rationale')
     req.safetyclass = get_xml_text(comp, 'safetyclass')
     req.safetyrationale = get_xml_text(comp, 'safetyrationale')
+    req.securityclass = get_xml_text(comp, 'securityclass')
+    req.securityrationale = get_xml_text(comp, 'securityrationale')
     req.shortdesc = get_xml_text(comp, 'shortdesc')
     req.source = get_xml_text(comp, 'source')
     req.sourcefile = get_xml_text(comp, 'sourcefile')
     req.sourceline = get_xml_text(comp, 'sourceline')
+    req.sourcerevision = get_xml_text(comp, 'sourcerevision')
+    req.creationdate = get_xml_text(comp, 'creationdate')
+    req.category = get_xml_text(comp, 'category')
+    req.priority = get_xml_text(comp, 'priority')
+    req.securityclass = get_xml_text(comp, 'securityclass')
+    req.securityrationale = get_xml_text(comp, 'securityrationale')
+    req.verifymethods = get_list_of(comp, 'verifymethod')
+    req.verifycond = get_xml_text(comp, 'verifycond')
+    req.testin = get_xml_text(comp, 'testin')
+    req.testexec = get_xml_text(comp, 'testexec')
+    req.testout = get_xml_text(comp, 'testout')
+    req.testpasscrit = get_xml_text(comp, 'testpasscrit')
+    req.releases = get_list_of(comp, 'release')
+    req.conflicts = get_list_of(comp, 'conflictswith')
     req.status = get_xml_text(comp, 'status')
     req.tags = get_list_of(comp, 'tag')
     req.usecase = get_xml_text(comp, 'usecase')
@@ -434,6 +541,20 @@ export class ReqM2Specobjects {
               source: '',
               sourcefile: '',
               sourceline: '',
+              sourcerevision: '',
+              creationdate: '',
+              category: '',
+              priority: '',
+              securityclass: '',
+              securityrationale: '',
+              verifymethods: [],
+              verifycond: '',
+              testin: '',
+              testexec: '',
+              testout: '',
+              testpasscrit: '',
+              releases: [],
+              conflicts: [],
               status: '',
               tags: [],
               usecase: '',
@@ -850,7 +971,7 @@ export class ReqM2Specobjects {
       }
     }
   }
-    
+
   /**
    * Mark all linksto as new in 'diff' field
    * @param {string} id
@@ -963,6 +1084,7 @@ export class ReqM2Specobjects {
     if (this.search_cache.has(req_id)) {
       return this.search_cache.get(req_id)
     } else {
+      /*
       // Get all text fields as combined string
       const rec = this.requirements.get(req_id)
       const diff = this.diff_status(rec.id)
@@ -978,6 +1100,18 @@ export class ReqM2Specobjects {
       let needsobj = ''
       rec.needsobj.forEach(element =>
         needsobj += '\nno:' + element)
+      let verifymethods = ''
+      rec.verifymethods.forEach(element =>
+        verifymethods += '\nvm:' + element)
+      let releases = ''
+      rec.releases.forEach(element =>
+        releases += '\nrel:' + element)
+      let dependson = ''
+      rec.dependson.forEach(element =>
+        dependson += '\ndep:' + element)
+      let conflicts = ''
+      rec.conflicts.forEach(element =>
+        conflicts += '\ncon:' + element)
       const dup = this.duplicates.has(rec.id) ? '\ndup:' : '' //rq: ->(rq_dup_req_search)
       const all_text = 'dt:' + rec.doctype +
         '\nid:' + rec.id +
@@ -989,8 +1123,17 @@ export class ReqM2Specobjects {
         '\nsr:' + rec.safetyrationale +
         '\nsc:' + rec.safetyclass +
         '\nsd:' + rec.shortdesc +
+        verifymethods +
         '\nuc:' + rec.usecase +
         '\nvc:' + rec.verifycrit +
+        '\nvco:' + rec.verifycond +
+        '\nti:' + rec.testin +
+        '\ntx:' + rec.testexec +
+        '\nto:' + rec.testout +
+
+        releases +
+        dependson +
+        conflicts +
         '\nco:' + rec.comment +
         '\ncs:' + rec.covstatus +
         needsobj +
@@ -999,7 +1142,8 @@ export class ReqM2Specobjects {
         plat +
         dup +
         '\n' + diff
-
+        */
+      let all_text = this.build_tagged_string(this.requirements.get(req_id))
       this.search_cache.set(req_id, all_text)
       return all_text
     }

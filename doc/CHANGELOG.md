@@ -1,5 +1,56 @@
 ### Changelog
 
+## 2.0.3
+ * Display more specobjects fields
+   * securityrationale
+   * securityclass
+   * verifymethod (list)
+   * verifycond
+   * usecase
+   * sourcerevison
+   * creationdate
+   * sourcefile:sourceline
+   * testin
+   * testexec
+   * testout
+   * testpasscrit
+   * dependson
+   * conflictswith
+
+The specobject diagram representation is like this:
+
+
+<table>
+  <tr><td>id</td><td>version</td><td>doctype</td></tr>
+  <tr><td colspan="2">description</td><td>needsobj</td></tr>
+  <tr><td colspan="3">shortdesc</td></tr>
+  <tr><td colspan="3">rationale</td></tr>
+  <tr><td colspan="3">safetyrationale</td></tr>
+  <tr><td colspan="3">shortdesc</td></tr>
+  <tr><td colspan="2">securityrationale</td><td>securityclass</td></tr>
+  <tr><td colspan="3">verifycrit</td></tr>
+  <tr><td colspan="2">verifymethod[]</td><td>verifycond</td></tr>
+  <tr><td colspan="3">comment</td></tr>
+  <tr><td colspan="3">furtherinfo</td></tr>
+  <tr><td colspan="3">usecase</td></tr>
+  <tr><td>source</td><td>sourcerevision</td><td>creationdate</td></tr>
+  <tr><td colspan="3">sourcefile:sourceline</td></tr>
+  <tr><td colspan="3">testin</td></tr>
+  <tr><td colspan="3">testexec</td></tr>
+  <tr><td colspan="3">testout</td></tr>
+  <tr><td colspan="3">testpasscrit</td></tr>
+  <tr><td colspan="2">dependson</td><td>conflictswith</td></tr>
+  <tr><td>releases[]</td><td>category</td><td>priority</td></tr>
+  <tr><td>tags+platforms</td><td>safetyclass</td><td>status+covstatus</td></tr>
+  <tr><td colspan="3">violations[]</td></tr>
+  <tr><td colspan="3">linkerrors[]</td></tr>
+</table>
+
+
+Only fields present in oreqm file will be rendered
+
+Note: Untraced links are not currently processed by Visual ReqM2. All other fields are believed to be handled.
+
 ## 2.0.2
  * Fix for duplicate fulfilledby placholders. More automated test cases.
  * Multiline regex needed for id-only search

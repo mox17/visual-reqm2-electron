@@ -8,6 +8,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.overview</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall be a text adventure.<BR ALIGN="LEFT"/></TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: Safety cannot be guaranteed in adventure games.<BR ALIGN="LEFT"/>Proceed at own risk.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:26</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -16,6 +17,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.locations</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall have the following locations:<BR ALIGN="LEFT"/>&lt;itemizedlist&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;House&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Meadow&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Grate&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Maze&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Witt's End&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Westlands&lt;/listitem&gt;<BR ALIGN="LEFT"/>&lt;/itemizedlist&gt;<BR ALIGN="LEFT"/></TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">comment: The locations are connected<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:43</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -24,6 +26,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.movement</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">The following direction verbs shall be available:<BR ALIGN="LEFT"/>&lt;itemizedlist&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;East&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;West&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;North&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;South&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Up&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Down&lt;/listitem&gt;<BR ALIGN="LEFT"/>&lt;/itemizedlist&gt;<BR ALIGN="LEFT"/></TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">comment: Restrictions may apply, depending on location<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:73</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -31,6 +34,7 @@ digraph "" {
       <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.characters</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">The following characters shall roam the caves:<BR ALIGN="LEFT"/>&lt;itemizedlist&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Troll&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Dragon&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Bird&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Snake&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Pirate&lt;/listitem&gt;<BR ALIGN="LEFT"/>&lt;/itemizedlist&gt;<BR ALIGN="LEFT"/></TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:104</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -39,6 +43,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.location.house</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are inside a building, a well house for a large spring.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: You're inside building.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:135</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -47,6 +52,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.location.meadow</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are standing at the end of a road before a small brick building.<BR ALIGN="LEFT"/>Around you is a forest.  A small stream flows out of the building and<BR ALIGN="LEFT"/>down a gully.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: &lt;shortdesc/&gt;<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:155</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -55,6 +61,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.location.grate</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a 20-foot depression floored with bare dirt.  Set into the<BR ALIGN="LEFT"/>dirt is a strong steel grate mounted in concrete.  A dry streambed<BR ALIGN="LEFT"/>leads into the depression.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Steel grate<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:178</TD></TR>
         <TR><TD>platforms: Steely</TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -62,6 +69,7 @@ digraph "" {
       <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a maze of twisty little passages, all alike.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:204</TD></TR>
         <TR><TD>tags: </TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -70,6 +78,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.location.witt</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are at Witt's End.  Passages lead off in *ALL* directions.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: You're at Witt's End.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:226</TD></TR>
         <TR><TD>tags: location</TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -79,6 +88,7 @@ digraph "" {
         <TR><TD COLSPAN="2" ALIGN="LEFT">Frobozz, an ancient province in the northern part of the Westlands,<BR ALIGN="LEFT"/>is the site of many historic settlements such as Galepath, Mareilon,<BR ALIGN="LEFT"/>and the Castle Largoneth.<BR ALIGN="LEFT"/>This province of Frobozz corresponds roughly to the<BR ALIGN="LEFT"/>Kingdom of Quendor during the reign of Entharion.<BR ALIGN="LEFT"/></TD><TD>vaporware*</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Northern Westlands<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: Frobozz is not actually part of Colossal Cave, but features<BR ALIGN="LEFT"/>in the related series of Zork adventures<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:250</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -86,6 +96,7 @@ digraph "" {
       <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.character.troll</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Trolls are close relatives with the rocks and have skin as tough as<BR ALIGN="LEFT"/>that of a rhinoceros.<BR ALIGN="LEFT"/></TD><TD>swdd<BR/>vaporware*</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:307</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -94,6 +105,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.character.dragon</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">A huge green fierce dragon bars the way!<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The dragon is sprawled out on a Persian rug!!<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:336</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -102,6 +114,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.character.bird</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">The bird eyes you suspiciously and flutters away.  A moment later you<BR ALIGN="LEFT"/>feel something wet land on your head, but upon looking up you can see<BR ALIGN="LEFT"/>no sign of the culprit.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The bird is not hungry (it's merely pinin' for the fjords).  Besides, you<BR ALIGN="LEFT"/>have no bird seed.!<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:357</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -110,6 +123,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.character.snake</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">A huge green fierce snake bars the way!<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The snake is hissing venomously.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:381</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -118,6 +132,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.character.pirate</TD><TD>1</TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Out from the shadows behind you pounces a bearded pirate!  &quot;Har, har,&quot;<BR ALIGN="LEFT"/>he chortles, &quot;I'll just take all this booty and hide it away with me<BR ALIGN="LEFT"/>chest deep in the maze!&quot;  He snatches your treasure and vanishes into<BR ALIGN="LEFT"/>the gloom.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: &quot;Shiver me timbers!&quot; he cries, &quot;I've been spotted!&quot;<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:402</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -125,6 +140,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.1</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a maze of twisting little passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:430</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -132,6 +148,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.2</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a little maze of twisty passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:452</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -139,6 +156,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.3</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a twisting maze of little passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:474</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -146,6 +164,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.4</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a twisting little maze of passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:496</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -153,6 +172,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.5</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a twisty little maze of passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:518</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -160,6 +180,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.6</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a little twisty maze of passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:540</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -167,6 +188,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.7</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a maze of little twisting passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:562</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -174,6 +196,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.8</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a maze of little twisty passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:584</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -181,6 +204,7 @@ digraph "" {
       <TABLE BGCOLOR="#FCFDB1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.maze.9</TD><TD>1</TD><TD>swdd</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">You are in a twisty maze of little passages, all different.<BR ALIGN="LEFT"/></TD><TD>swdd</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:606</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -188,6 +212,7 @@ digraph "" {
       <TABLE BGCOLOR="#E7B1FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >/home/foo/bar/baz/fie/impl/pirate.hpp_15</TD><TD>1</TD><TD>impl</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT"></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: /home/foo/bar/baz/fie/impl/pirate.hpp:15</TD></TR>
         <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -195,6 +220,7 @@ digraph "" {
       <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >zork.game.location.floodcontroldam</TD><TD>2</TD><TD>vaporware</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Flood Control Dam #3 is a staggering engineering feat that must be seen to be believed.<BR ALIGN="LEFT"/>It was constructed in year 783 GUE of the Great Underground Empire to harness the mighty Frigid River.<BR ALIGN="LEFT"/>This work was supported by a grant of 37 million zorkmids from the local omnipotent tyrant of the era,<BR ALIGN="LEFT"/>Lord Dimwit Flathead the Excessive, leaving a big footprint in the Empire's economy.<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:654</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -202,6 +228,7 @@ digraph "" {
       <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >zork.game.location.portfoozle</TD><TD>2</TD><TD>vaporware</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Port Foozle is the primary seaport of the Frigid River Valley, the busiest seaport in the Eastlands<BR ALIGN="LEFT"/>and a common departure point for ships to Antharia.<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb3.oreqm.needscov:667</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -243,34 +270,18 @@ digraph "" {
   "cc.game.location.maze.2" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.3" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.4" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
-  "cc.game.location.maze.5" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor=red label="destination version 1 
-does not match required 
-version 2."];
+  "cc.game.location.maze.5" -> "cc.game.location.maze" [style=bold fontname="Arial" fontcolor=red label="destination version 1 \ndoes not match required \nversion 2."];
   "cc.game.location.maze.6" -> "cc.game.locations" [style=bold fontname="Arial" fontcolor=red label="unrequested coverage."];
   "cc.game.location.maze.7" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.8" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "cc.game.location.maze.9" -> "cc.game.location.maze" [style=bold fontname="Arial" label=""];
   "/home/foo/bar/baz/fie/impl/pirate.hpp_15" -> "cc.game.character.pirate" [style=bold fontname="Arial" fontcolor=red label="unrequested coverage."];
-  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-destination version 2 
-does not match required 
-version 1."];
-  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-destination version 2 
-does not match required 
-version 1."];
-  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
-  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
-  "zork.game.location.frobozz" -> "cc.game.character.troll" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
-  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-referenced object does 
-not exist."];
+  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\ndestination version 2 \ndoes not match required \nversion 1."];
+  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\ndestination version 2 \ndoes not match required \nversion 1."];
+  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "zork.game.location.frobozz" -> "cc.game.character.troll" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">

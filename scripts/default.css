@@ -391,7 +391,9 @@
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 200px;
+  column-count: 2;
+  width: 300px;
+  overflow-y: visible;
   background-color: #555;
   color: #fff;
   text-align: left;
@@ -405,7 +407,7 @@
   z-index: 1;
   bottom: 125%;
   left: 50%;
-  margin-left: -60px;
+  margin-left: -80px;
 
   /* Fade in tooltip */
   opacity: 0;

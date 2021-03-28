@@ -17,6 +17,7 @@ import {
   update_graph, svg_result, create_oreqm_main, create_oreqm_ref, dot_source,
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
+import { search_tooltip } from './reqm2oreqm.js'
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -246,6 +247,8 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   // console.dir(args)
   set_limit_reporter(report_limit_as_toast)
   handle_settings(settings_updated, args)
+
+  document.getElementById('search_tooltip').innerHTML = search_tooltip()
 
   // istanbul ignore else
   if ((args.newVer !== false) && (args.newVer === true || program_settings.check_for_updates)) {

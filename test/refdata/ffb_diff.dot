@@ -8,6 +8,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.overview</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall be a text adventure.<BR ALIGN="LEFT"/></TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: Safety cannot be guaranteed in adventure games.<BR ALIGN="LEFT"/>Proceed at own risk.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:26</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -16,6 +17,7 @@ digraph "" {
         <TR><TD CELLSPACING="0" >cc.game.locations</TD><TD>1</TD><TD>fea</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall have the following locations:<BR ALIGN="LEFT"/>&lt;itemizedlist&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;House&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Meadow&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Grate&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Maze&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Witt's End&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Westlands&lt;/listitem&gt;<BR ALIGN="LEFT"/>&lt;/itemizedlist&gt;<BR ALIGN="LEFT"/></TD><TD>swrs</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">comment: The locations are connected<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:43</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -27,6 +29,7 @@ subgraph "cluster_cc.game.location.westlands_changed" { color=orange3 penwidth=2
         <TR><TD COLSPAN="2" ALIGN="LEFT">Frobozz, an ancient province in the northern part of the Westlands,<BR ALIGN="LEFT"/>is the site of many historic settlements such as Galepath, Mareilon,<BR ALIGN="LEFT"/>and the Castle Largoneth.<BR ALIGN="LEFT"/>This province of Frobozz corresponds roughly to the<BR ALIGN="LEFT"/>Kingdom of Quendor during the reign of Entharion.<BR ALIGN="LEFT"/></TD><TD>vaporware*</TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Northern Westlands<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: Frobozz is not actually part of Colossal Cave, but features<BR ALIGN="LEFT"/>in the related series of Zork adventures<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:250</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 }
@@ -38,6 +41,7 @@ subgraph "cluster_zork.game.location.floodcontroldam_changed" { color=orange3 pe
       <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >zork.game.location.floodcontroldam</TD><TD>2</TD><TD>vaporware</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Flood Control Dam #3 is a staggering engineering feat that must be seen to be believed.<BR ALIGN="LEFT"/>It was constructed in year 783 GUE of the Great Underground Empire to harness the mighty Frigid River.<BR ALIGN="LEFT"/>This work was supported by a grant of 37 million zorkmids from the local omnipotent tyrant of the era,<BR ALIGN="LEFT"/>Lord Dimwit Flathead the Excessive, leaving a big footprint in the Empire's economy.<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:647</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 }
@@ -47,6 +51,7 @@ subgraph "cluster_zork.game.location.floodcontroldam_changed" { color=orange3 pe
       <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >zork.game.location.portfoozle</TD><TD>2</TD><TD>vaporware</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">Port Foozle is the primary seaport of the Frigid River Valley, the busiest seaport in the Eastlands<BR ALIGN="LEFT"/>and a common departure point for ships to Antharia.<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:660</TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
       </TABLE>>];
 
@@ -94,24 +99,12 @@ subgraph "cluster_zork.game.location.flatheadia_removed" { color=red penwidth=2 
   # Edges
   "cc.game.locations" -> "cc.game.overview" [style=bold fontname="Arial" label=""];
   "cc.game.location.westlands" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
-  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb
-source status 'proposed' 
-excluded from tracing."];
-  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)
-source status 'proposed' 
-excluded from tracing."];
-  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)
-referenced object does 
-not exist."];
-  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=orange3 dir=back fontcolor="red" fontname="Arial" label="ffb (chg)
-referenced object does 
-not exist."];
-  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)
-referenced object does 
-not exist."];
-  "zork.game.location.flatheadia" -> "cc.game.location.westlands" [style=bold color="#C00000" style=dashed dir=back fontcolor="red" fontname="Arial" label="ffb (removed)
-referenced object does 
-not exist."];
+  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nsource status 'proposed' \nexcluded from tracing."];
+  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)\nsource status 'proposed' \nexcluded from tracing."];
+  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)\nreferenced object does \nnot exist."];
+  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=orange3 dir=back fontcolor="red" fontname="Arial" label="ffb (chg)\nreferenced object does \nnot exist."];
+  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontcolor="red" fontname="Arial" label="ffb (new)\nreferenced object does \nnot exist."];
+  "zork.game.location.flatheadia" -> "cc.game.location.westlands" [style=bold color="#C00000" style=dashed dir=back fontcolor="red" fontname="Arial" label="ffb (removed)\nreferenced object does \nnot exist."];
 
   label=<
     <table border="0" cellspacing="0" cellborder="1">

@@ -706,4 +706,28 @@ describe('Application launch', function () {
       await wait_for_operation(app)
     })
   })
+
+  describe('all tags', function () {
+    it('Clear old data', async function () {
+      await click_button(app, '#clear_ref_oreqm')
+      await wait_for_operation(app)
+      await click_button(app, '#clear_search_regex')
+      await wait_for_operation(app)
+      await click_button(app, '#limit_depth_input')
+      await wait_for_operation(app)
+    })
+
+    it ('allReqmTags', async function () {
+      const oreqm_main = './testdata/0002_allReqmTags.oreqm'
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_main] }])
+      await click_button(app, '#get_main_oreqm_file')
+      await wait_for_operation(app)
+      const dot_filename = './tmp/0002_allReqmTags.dot'
+      const ref_file = './test/refdata/0002_allReqmTags.dot'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
+      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await wait_for_operation(app)
+      await compare_files(dot_filename, ref_file)
+    })
+  })
 })

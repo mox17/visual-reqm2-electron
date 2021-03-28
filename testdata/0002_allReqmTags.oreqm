@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tracingresults>
+  <environment>
+    <toolname>ReqM2</toolname>
+    <toolversion>1.19.0 (stable)</toolversion>
+    <toolcopyright>Copyright 2010 - 2018 Elektrobit Automotive GmbH</toolcopyright>
+    <libxmlversion>2.0014</libxmlversion>
+    <libxml2compileversion>2.9.0</libxml2compileversion>
+    <libxml2runtimeversion>20900</libxml2runtimeversion>
+    <perlversion>v5.14.4</perlversion>
+    <perlptrsize>64</perlptrsize>
+    <commandline>-t -q -o - allReqmTags_multi.reqm</commandline>
+    <timestamp>Wed Dec 30 17:24:14 2020</timestamp>
+  </environment>
+  <cmdline>
+    <cmdparam>
+      <name>o</name>
+      <values>
+        <value>-</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>q</name>
+    </cmdparam>
+    <cmdparam>
+      <name>t</name>
+    </cmdparam>
+  </cmdline>
+  <inputfiles>
+    <inputfile>allReqmTags_multi.reqm</inputfile>
+  </inputfiles>
+  <configuration>
+    <settings>
+      <defaultfolders>
+        <!-- <reqm2output>.reqm2</reqm2output> -->
+      <!-- <exporteroutput>result</exporteroutput> -->
+        <doctypefolders>
+          <doctypefolder doctype="requirement">
+            <folder>req</folder>
+            <folder>reqs</folder>
+            <folder>reqdef</folder>
+            <folder>reqdefs</folder>
+            <folder>requirement</folder>
+            <folder>requirements</folder>
+            <folder>Requirements</folder>
+          </doctypefolder>
+          <doctypefolder doctype="testcase">
+            <folder>test</folder>
+            <folder>tests</folder>
+            <folder>Tests</folder>
+            <folder>testspec</folder>
+            <folder>testcase</folder>
+            <folder>testcases</folder>
+            <folder>TestSpecifications</folder>
+            <folder>TestCases</folder>
+          </doctypefolder>
+          <doctypefolder doctype="design">
+            <folder>design</folder>
+            <folder>SoftwareDesign</folder>
+          </doctypefolder>
+          <doctypefolder doctype="sourcecode">
+            <folder>src</folder>
+            <folder>source</folder>
+            <folder>SourceCode</folder>
+            <folder>sourcecode</folder>
+          </doctypefolder>
+        </doctypefolders>
+      </defaultfolders>
+    </settings>
+    <doctypes>
+      <regexs>
+        <regex>feature</regex>
+        <regex>requirement</regex>
+        <regex>customerreq</regex>
+        <regex>systemreq</regex>
+        <regex>subsystemreq</regex>
+        <regex>internalreq</regex>
+        <regex>functionalreq</regex>
+        <regex>nonfunctionreq</regex>
+        <regex>safetyreq</regex>
+        <regex>testcase</regex>
+        <regex>design</regex>
+        <regex>sourcecode</regex>
+        <regex>testcode</regex>
+        <regex>testresult</regex>
+        <regex>userdoc</regex>
+      </regexs>
+    </doctypes>
+  </configuration>
+  <specdocument>
+    <specobjects baseline="mybaseline" doctype="userdoc" title="My Title">
+      <specobject>
+        <id>SingleObj</id>
+        <status>approved</status>
+        <shortdesc>Just an example</shortdesc>
+        <source>source: This may contain <em>arbitrary</em> tags</source>
+        <sourcefile>some.file</sourcefile>
+        <sourceline>27</sourceline>
+        <sourcerevision>url://repository/some.file@4711</sourcerevision>
+        <creationdate>some date</creationdate>
+        <version>0.1</version>
+        <category>TheCategory</category>
+        <priority>low</priority>
+        <description>description: This may contain <em>arbitrary</em> tags</description>
+        <rationale>rationale: This may contain <em>arbitrary</em> tags</rationale>
+        <usecase>my usecase</usecase>
+        <furtherinfo>my furtherinfo</furtherinfo>
+        <comment>comment: This may contain <em>arbitrary</em> tags</comment>
+        <safetyclass>QM(A)</safetyclass>
+        <safetyrationale>my safetyrationale</safetyrationale>
+        <securityclass>CAL2</securityclass>
+        <securityrationale>my fancy securityrationale</securityrationale>
+        <verifymethods>
+          <verifymethod>verify method FOO</verifymethod>
+          <verifymethod>verify method BAR</verifymethod>
+        </verifymethods>
+        <verifycond>my verifycond</verifycond>
+        <verifycrit>my verifycrit</verifycrit>
+        <testin>my testin</testin>
+        <testexec>my testexec</testexec>
+        <testout>my testout</testout>
+        <testpasscrit>my testpasscrit</testpasscrit>
+        <releases>
+          <release>0.1</release>
+          <release>0.2</release>
+          <release>0.3</release>
+        </releases>
+        <tags>
+          <tag>mytag1</tag>
+          <tag>mytag2</tag>
+          <tag>mytag3</tag>
+        </tags>
+        <platforms>
+          <platform>Foo</platform>
+          <platform>Bar</platform>
+          <platform>CP/M</platform>
+        </platforms>
+        <dependencies>
+          <dependson>mydependson1</dependson>
+          <dependson>mydependson2</dependson>
+          <dependson>mydependson3</dependson>
+        </dependencies>
+        <conflicts>
+          <conflictswith>myconflictswith1</conflictswith>
+          <conflictswith>myconflictswith2</conflictswith>
+          <conflictswith>myconflictswith3</conflictswith>
+        </conflicts>
+        <needscoverage>
+          <needscov>
+            <needsobj>feature1</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby/>
+          </needscov>
+          <needscov>
+            <needsobj>feature2</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby/>
+          </needscov>
+          <needscov>
+            <needsobj>feature3</needsobj>
+            <objcovstatus>uncovered</objcovstatus>
+            <coveredby/>
+          </needscov>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </needscoverage>
+        <fulfilledby>
+          <ffbObj>
+            <ffbId>ffbId-1</ffbId>
+            <ffbType>userdoc27</ffbType>
+            <ffbVersion>x11</ffbVersion>
+            <ffbLinkstatus>linkerror</ffbLinkstatus>
+            <ffbLinkerror>referenced object does not exist.</ffbLinkerror>
+            <ffbObjcovstatus>uncovered</ffbObjcovstatus>
+          </ffbObj>
+          <ffbObj>
+            <ffbId>ffbId-2</ffbId>
+            <ffbType>userdoc27</ffbType>
+            <ffbVersion>x11</ffbVersion>
+            <ffbLinkstatus>linkerror</ffbLinkstatus>
+            <ffbLinkerror>referenced object does not exist.</ffbLinkerror>
+            <ffbObjcovstatus>uncovered</ffbObjcovstatus>
+          </ffbObj>
+          <ffbObj>
+            <ffbId>ffbId-3</ffbId>
+            <ffbType>userdoc27</ffbType>
+            <ffbVersion>x11</ffbVersion>
+            <ffbLinkstatus>linkerror</ffbLinkstatus>
+            <ffbLinkerror>referenced object does not exist.</ffbLinkerror>
+            <ffbObjcovstatus>uncovered</ffbObjcovstatus>
+          </ffbObj>
+          <containerCovstatus>uncovered</containerCovstatus>
+        </fulfilledby>
+        <providescoverage>
+          <provcov>
+            <linksto>Object1</linksto>
+            <dstversion>0.1</dstversion>
+            <linkstatus>linkerror</linkstatus>
+            <linkdestdoctype/>
+            <linkerror>referenced object does not exist.</linkerror>
+          </provcov>
+          <provcov>
+            <linksto>Object2</linksto>
+            <dstversion>0.1</dstversion>
+            <linkstatus>linkerror</linkstatus>
+            <linkdestdoctype/>
+            <linkerror>referenced object does not exist.</linkerror>
+          </provcov>
+          <provcov>
+            <linksto>Object3</linksto>
+            <dstversion>0.1</dstversion>
+            <linkstatus>linkerror</linkstatus>
+            <linkdestdoctype/>
+            <linkerror>referenced object does not exist.</linkerror>
+          </provcov>
+        </providescoverage>
+        <untracedLinks>
+          <untracedLink>
+            <target>target-1</target>
+            <targetDoctype>userdoc1234</targetDoctype>
+            <targetVersion>targetVersion27</targetVersion>
+            <comment>untracedLinks comment (1): This may contain <em>arbitrary</em> tags</comment>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>referenced object does not exist.</linkerror>
+          </untracedLink>
+          <untracedLink>
+            <target>target-2</target>
+            <targetDoctype>userdoc1234</targetDoctype>
+            <targetVersion>targetVersion27</targetVersion>
+            <comment>untracedLinks comment (2): This may contain <em>arbitrary</em> tags</comment>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>referenced object does not exist.</linkerror>
+          </untracedLink>
+          <untracedLink>
+            <target>target-3</target>
+            <targetDoctype>userdoc1234</targetDoctype>
+            <targetVersion>targetVersion27</targetVersion>
+            <comment>untracedLinks comment (3): This may contain <em>arbitrary</em> tags</comment>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>referenced object does not exist.</linkerror>
+          </untracedLink>
+        </untracedLinks>
+        <violations/>
+        <oreqmViolations/>
+        <covstatus>uncovered</covstatus>
+        <internalId>0</internalId>
+      </specobject>
+    </specobjects>
+  </specdocument>
+  <violations/>
+  <oreqmViolations/>
+</tracingresults>

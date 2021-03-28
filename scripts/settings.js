@@ -7,15 +7,15 @@ export const default_program_settings = {
   compare_fields: {
     id: true,
     comment: true,
-    covstatus: true, // generated
-    dependson: true,
+    covstatus: false, // generated
+    dependson: true, // list
     description: true,
     doctype: true,
     fulfilledby: true,
     furtherinfo: true,
-    linksto: true,
-    needsobj: true,
-    platform: true,
+    linksto: true, // list
+    needsobj: true, // list
+    platform: true, // list
     rationale: true,
     safetyclass: true,
     safetyrationale: true,
@@ -23,12 +23,26 @@ export const default_program_settings = {
     source: true,
     sourcefile: false,
     sourceline: false,
+    sourcerevision: true,
+    creationdate: true,
+    category: true,
+    priority: true,
+    securityclass: true,
+    securityrationale: true,
+    verifymethods: true, // list
+    verifycond: true,
+    testin: true,
+    testexec: true,
+    testout: true,
+    testpasscrit: true,
+    releases: true, // list
+    conflicts: true, // list
     status: true,
-    tags: true,
+    tags: true, // list
     usecase: true,
     verifycrit: true,
     version: true,
-    violations: false
+    violations: false // list
   },
   max_calc_nodes: 1000,
   show_coverage: true,
