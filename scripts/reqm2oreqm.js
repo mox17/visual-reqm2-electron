@@ -98,7 +98,45 @@ function get_linksto (node) {
       linksto: linksto[0].textContent,
       dstversion: dstversion_txt,
       linkerror: link_error_txt,
-      diff: '' // In comparisons of oreqm files this may become 'rem' or 'new'
+      diff: '', // In comparisons of oreqm files this may become 'rem' or 'new'
+      kind: 'provcov'
+    }
+    result.push(link)
+  }
+  return result
+}
+
+/**
+ * Get untracedLink references from specobject XML
+ * @param {specobject} node
+ * @return {object[]} an array of objects with .target .targetVersion and .linkerror
+ */
+ function get_untracedLink (node) {
+  const result = []
+  const items = node.getElementsByTagName('untracedLink')
+  let i
+  for (const item of items) {
+    const target = item.getElementsByTagName('target')
+    const targetVersion = item.getElementsByTagName('targetVersion')
+    let targetVersion_txt
+    // istanbul ignore next
+    if (targetVersion.length === 1) {
+      targetVersion_txt = targetVersion[0].textContent
+    } else {
+      targetVersion_txt = ''
+    }
+    const linkerror = item.getElementsByTagName('linkerror')
+    let link_error_txt = (linkerror && linkerror.length > 0) ? linkerror[0].textContent : ''
+    if (link_error_txt && link_error_txt.startsWith('source ')) {
+      // Do not render 'source not covered.' and 'source status 'rejected' excluded from tracing.' in diagram edges
+      link_error_txt = ''
+    }
+    const link = {
+      linksto: target[0].textContent,
+      dstversion: targetVersion_txt,
+      linkerror: link_error_txt,
+      diff: '', // In comparisons of oreqm files this may become 'rem' or 'new'
+      kind: 'untraced'
     }
     result.push(link)
   }
@@ -275,6 +313,7 @@ export class ReqM2Specobjects {
     this.linksto = new Map() // {id:{id}} -- map to set of linked ids
     this.linksto_rev = new Map() // {id:{id}} -- reverse direction of linksto. i.e. top-down
     this.fulfilledby = new Map() // {id:{id}}
+    this.untraced = new Map() // {id:{id}}
     this.excluded_doctypes = excluded_doctypes // [doctype]
     this.excluded_ids = excluded_ids // [id]
     this.no_rejects = true // skip rejected specobjects
@@ -419,7 +458,8 @@ export class ReqM2Specobjects {
     req.doctype = doctype
     req.fulfilledby = get_fulfilledby(comp)
     req.furtherinfo = get_xml_text(comp, 'furtherinfo')
-    req.linksto = get_linksto(comp)
+    let untraced = get_untracedLink(comp)
+    req.linksto = get_linksto(comp).concat(untraced)
     req.needsobj = get_list_of(comp, 'needsobj')
     req.platform = get_list_of(comp, 'platform')
     req.rationale = get_xml_text(comp, 'rationale')
@@ -638,6 +678,13 @@ export class ReqM2Specobjects {
           this.linksto_rev.set(lt_key, new Set())
         }
         this.linksto_rev.get(lt_key).add(req_id)
+
+        if (link.kind === 'untraced') {
+          if (!this.untraced.has(req_id)) {
+            this.untraced.set(req_id, new Set())
+          }
+          this.untraced.get(req_id).add(lt_key)
+        }
       }
       for (const ffb_arr of rec.fulfilledby) {
         const ffb_link = this.get_key_for_id_ver(ffb_arr.id, ffb_arr.version)

@@ -17,7 +17,7 @@ digraph "" {
         <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: my furtherinfo<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">usecase: my usecase<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD>source: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD><TD>url://repository/some.file@4711<BR ALIGN="LEFT"/></TD><TD>some date</TD></TR>
-        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: some.file:27</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: some.file:27<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">testin: my testin<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">testexec: my testexec<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">testout: my testout<BR ALIGN="LEFT"/></TD></TR>
@@ -25,7 +25,7 @@ digraph "" {
         <TR><TD COLSPAN="2" ALIGN="LEFT">dep: mydependson1, mydependson2, mydependson3<BR ALIGN="LEFT"/></TD><TD>con: myconflictswith1, myconflictswith2, myconflictswith3<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD>releases: 0.1, 0.2, 0.3<BR ALIGN="LEFT"/></TD><TD>category: TheCategory</TD><TD>priority: low</TD></TR>
         <TR><TD>tags: mytag1, mytag2, mytag3<BR ALIGN="LEFT"/>platforms: Foo, Bar, CP/M</TD><TD>QM(A)</TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
-        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object1<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object2<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object3<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object1<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object2<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object3<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;target-1<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;target-2<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;target-3<BR ALIGN="LEFT"/></TD></TR>
       </TABLE>>];
 
   "ffbId-1" [id="ffbId-1" label=<
