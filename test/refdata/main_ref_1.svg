@@ -296,20 +296,22 @@
 <!-- /home/foo/bar/baz/fie/impl/pirate.hpp_15 -->
 <g id="/home/foo/bar/baz/fie/impl/pirate.hpp_15" class="node">
 <title>/home/foo/bar/baz/fie/impl/pirate.hpp_15</title>
-<polygon fill="#e7b1fd" stroke="transparent" points="1762.6858,-320.5 1762.6858,-409.5 2148.6858,-409.5 2148.6858,-320.5 1762.6858,-320.5"/>
-<polygon fill="none" stroke="#000000" points="1762.6858,-384 1762.6858,-409 2054.6858,-409 2054.6858,-384 1762.6858,-384"/>
-<text text-anchor="start" x="1765.533" y="-391.6" font-family="Arial" font-size="16.00" fill="#000000">/home/foo/bar/baz/fie/impl/pirate.hpp_15</text>
-<polygon fill="none" stroke="#000000" points="2054.6858,-384 2054.6858,-409 2068.6858,-409 2068.6858,-384 2054.6858,-384"/>
-<text text-anchor="start" x="2057.2386" y="-391.6" font-family="Arial" font-size="16.00" fill="#000000">1</text>
-<polygon fill="none" stroke="#000000" points="2068.6858,-384 2068.6858,-409 2148.6858,-409 2148.6858,-384 2068.6858,-384"/>
-<text text-anchor="start" x="2094.025" y="-391.6" font-family="Arial" font-size="16.00" fill="#000000">impl</text>
-<polygon fill="none" stroke="#000000" points="1762.6858,-378 1762.6858,-384 2068.6858,-384 2068.6858,-378 1762.6858,-378"/>
-<polygon fill="none" stroke="#000000" points="2068.6858,-378 2068.6858,-384 2148.6858,-384 2148.6858,-378 2068.6858,-378"/>
-<polygon fill="none" stroke="#000000" points="1762.6858,-320 1762.6858,-378 2054.6858,-378 2054.6858,-320 1762.6858,-320"/>
-<polygon fill="none" stroke="#000000" points="2054.6858,-320 2054.6858,-378 2068.6858,-378 2068.6858,-320 2054.6858,-320"/>
-<polygon fill="none" stroke="#000000" points="2068.6858,-320 2068.6858,-378 2148.6858,-378 2148.6858,-320 2068.6858,-320"/>
-<text text-anchor="start" x="2075.3394" y="-356.6" font-family="Arial" font-size="16.00" fill="#000000">approved</text>
-<text text-anchor="start" x="2080.2338" y="-331.6" font-family="Arial" font-size="16.00" fill="#000000">covered</text>
+<polygon fill="#e7b1fd" stroke="transparent" points="1762.6858,-308 1762.6858,-422 2148.6858,-422 2148.6858,-308 1762.6858,-308"/>
+<polygon fill="none" stroke="#000000" points="1762.6858,-397 1762.6858,-422 2054.6858,-422 2054.6858,-397 1762.6858,-397"/>
+<text text-anchor="start" x="1765.533" y="-404.6" font-family="Arial" font-size="16.00" fill="#000000">/home/foo/bar/baz/fie/impl/pirate.hpp_15</text>
+<polygon fill="none" stroke="#000000" points="2054.6858,-397 2054.6858,-422 2068.6858,-422 2068.6858,-397 2054.6858,-397"/>
+<text text-anchor="start" x="2057.2386" y="-404.6" font-family="Arial" font-size="16.00" fill="#000000">1</text>
+<polygon fill="none" stroke="#000000" points="2068.6858,-397 2068.6858,-422 2148.6858,-422 2148.6858,-397 2068.6858,-397"/>
+<text text-anchor="start" x="2094.025" y="-404.6" font-family="Arial" font-size="16.00" fill="#000000">impl</text>
+<polygon fill="none" stroke="#000000" points="1762.6858,-391 1762.6858,-397 2068.6858,-397 2068.6858,-391 1762.6858,-391"/>
+<polygon fill="none" stroke="#000000" points="2068.6858,-391 2068.6858,-397 2148.6858,-397 2148.6858,-391 2068.6858,-391"/>
+<polygon fill="none" stroke="#000000" points="1762.6858,-366 1762.6858,-391 2148.6858,-391 2148.6858,-366 1762.6858,-366"/>
+<text text-anchor="start" x="1765.6858" y="-373.6" font-family="Arial" font-size="16.00" fill="#000000">src file: /home/foo/bar/baz/fie/impl/pirate.hpp:15</text>
+<polygon fill="none" stroke="#000000" points="1762.6858,-308 1762.6858,-366 2054.6858,-366 2054.6858,-308 1762.6858,-308"/>
+<polygon fill="none" stroke="#000000" points="2054.6858,-308 2054.6858,-366 2068.6858,-366 2068.6858,-308 2054.6858,-308"/>
+<polygon fill="none" stroke="#000000" points="2068.6858,-308 2068.6858,-366 2148.6858,-366 2148.6858,-308 2068.6858,-308"/>
+<text text-anchor="start" x="2075.3394" y="-344.6" font-family="Arial" font-size="16.00" fill="#000000">approved</text>
+<text text-anchor="start" x="2080.2338" y="-319.6" font-family="Arial" font-size="16.00" fill="#000000">covered</text>
 </g>
 <!-- /home/foo/bar/baz/fie/impl/pirate.hpp_15&#45;&gt;cc.game.character.pirate -->
 <g id="edge8" class="edge">

@@ -1,0 +1,64 @@
+digraph "" {
+  rankdir="RL"
+  node [shape=plaintext fontname="Arial" fontsize=16]
+  edge [color="blue",dir="forward",arrowhead="normal",arrowtail="normal"];
+
+  "SingleObj" [id="SingleObj" label=<
+      <TABLE BGCOLOR="#B1FDFA" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >SingleObj</TD><TD>0.1</TD><TD>userdoc</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">description: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD><TD>feature1<BR/>feature2<BR/>feature3<BR/>userdoc27*</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Just an example<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">rationale: rationale: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: my safetyrationale<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">sec_rat: my fancy securityrationale<BR ALIGN="LEFT"/></TD><TD>sec_cls: CAL2</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">my verifycrit<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">ver_m: verify method FOO<BR ALIGN="LEFT"/>verify method BAR<BR ALIGN="LEFT"/></TD><TD>ver_c: my verifycond</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: comment: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: my furtherinfo<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">usecase: my usecase<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>source: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD><TD>url://repository/some.file@4711<BR ALIGN="LEFT"/></TD><TD>some date</TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: some.file:27<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">testin: my testin<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">testexec: my testexec<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">testout: my testout<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">testpasscrit: my testpasscrit<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">dep: mydependson1, mydependson2, mydependson3<BR ALIGN="LEFT"/></TD><TD>con: myconflictswith1, myconflictswith2, myconflictswith3<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD>releases: 0.1, 0.2, 0.3<BR ALIGN="LEFT"/></TD><TD>category: TheCategory</TD><TD>priority: low</TD></TR>
+        <TR><TD>tags: mytag1, mytag2, mytag3<BR ALIGN="LEFT"/>platforms: Foo, Bar, CP/M</TD><TD>QM(A)</TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">Referenced object does not exist:<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object1<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object2<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;Object3<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;target-1<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;target-2<BR ALIGN="LEFT"/>&nbsp;&nbsp;*&nbsp;target-3<BR ALIGN="LEFT"/></TD></TR>
+      </TABLE>>];
+
+  "ffbId-1" [id="ffbId-1" label=<
+      <TABLE BGCOLOR="#B1FDB8:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >ffbId-1</TD><TD>x11</TD><TD>userdoc27</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+
+  "ffbId-2" [id="ffbId-2" label=<
+      <TABLE BGCOLOR="#B1FDB8:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >ffbId-2</TD><TD>x11</TD><TD>userdoc27</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+
+  "ffbId-3" [id="ffbId-3" label=<
+      <TABLE BGCOLOR="#B1FDB8:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >ffbId-3</TD><TD>x11</TD><TD>userdoc27</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+
+
+  # Edges
+  "ffbId-1" -> "SingleObj" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "ffbId-2" -> "SingleObj" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+  "ffbId-3" -> "SingleObj" [style=bold color=purple dir=back fontcolor="red" fontname="Arial" label="ffb\nreferenced object does \nnot exist."];
+
+  label=<
+    <table border="0" cellspacing="0" cellborder="1">
+      <tr><td cellspacing="0" >File</td><td>./testdata/0002_allReqmTags.oreqm</td><td>Wed Dec 30 17:24:14 2020</td></tr>
+    </table>>
+  labelloc=b
+  fontsize=18
+  fontcolor=black
+  fontname="Arial"
+
+}

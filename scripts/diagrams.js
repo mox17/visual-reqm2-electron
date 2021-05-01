@@ -177,6 +177,75 @@ function format_nonexistent_links (rec) {
 }
 
 /**
+ * Create table row with category and priority data
+ * @param {object} rec JS specobject
+ * @returns {string} table row or empty string
+ */
+function rel_category_priority (rec) {
+  const releases = rec.releases.length ? `releases: ${dot_format(rec.releases.join(', '))}` : ''
+  const category = rec.category ? `category: ${rec.category}` : ''
+  const priority = rec.priority ? `priority: ${rec.priority}` : ''
+  let c_p = ''
+  if (releases.length || category.length || priority.length) {
+    c_p = `        <TR><TD>${releases}</TD><TD>${category}</TD><TD>${priority}</TD></TR>\n`
+  }
+  return c_p
+}
+
+function depends_conflicts (rec) {
+  let dep_con = ''
+  const depends = rec.dependson.length ? `dep: ${dot_format(rec.dependson.join(', '))}` : ''
+  const conflicts = rec.conflicts.length ? `con: ${dot_format(rec.conflicts.join(', '))}` : ''
+  if (depends.length || conflicts.length) {
+    dep_con = `        <TR><TD COLSPAN="2" ALIGN="LEFT">${depends}</TD><TD>${conflicts}</TD></TR>\n`
+  }
+  return dep_con
+}
+
+function security_rationale_class (rec) {
+  let sec_rat_cls = ''
+  let sec_rat = rec.securityrationale ? `sec_rat: ${dot_format(rec.securityrationale)}` : ''
+  let sec_class = rec.securityclass ? `sec_cls: ${rec.securityclass}` : ''
+  if (sec_rat.length || sec_class.length) {
+    sec_rat_cls = `        <TR><TD COLSPAN="2" ALIGN="LEFT">${sec_rat}</TD><TD>${sec_class}</TD></TR>\n`
+  }
+  return sec_rat_cls
+}
+
+function verify_met_cond (rec) {
+  let ver_met_con = ''
+  let ver_met = rec.verifymethods.length ? `ver_m: ${dot_format(rec.verifymethods.join('\n'))}` : ''
+  let ver_cond = rec.verifycond ? `ver_c: ${rec.verifycond}` : ''
+  if (ver_met.length || ver_cond.length) {
+    ver_met_con = `        <TR><TD COLSPAN="2" ALIGN="LEFT">${ver_met}</TD><TD>${ver_cond}</TD></TR>\n`
+  }
+  return ver_met_con
+}
+
+function src_rev_date (rec) {
+  let row = ''
+  let src = rec.source ? dot_format(rec.source) : ''
+  let rev = rec.sourcerevision ? dot_format(rec.sourcerevision) : ''
+  let date = rec.creationdate ? rec.creationdate : ''
+  if (src.length || rec.length || date.length ) {
+    row = `        <TR><TD>${src}</TD><TD>${rev}</TD><TD>${date}</TD></TR>\n`
+  }
+  return row
+}
+
+function source_file_line (rec) {
+  let row = ''
+  let file = rec.sourcefile ? rec.sourcefile : ''
+  let line = rec.sourceline ? rec.sourceline : ''
+  if (file.length || line.length) {
+    row = `        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: ${
+      file.replace( /([^\n]{70,500}?(\\|\/))/g,
+                    '$1<BR ALIGN="LEFT"/>')}:${line}<BR ALIGN="LEFT"/></TD></TR>\n`
+  }
+  return row
+}
+
+/**
  * Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
  * @param  {string} node_id  Specobject <id>
  * @param  {object} rec Object with specobject data
@@ -189,22 +258,34 @@ function format_nonexistent_links (rec) {
 function format_node (node_id, rec, ghost, oreqm, show_coverage, color_status) {
   //rq: ->(rq_doctype_color)
   let node_table = ''
+  const rel_cat_prio = rel_category_priority(rec)
   const nonexist_link = format_nonexistent_links(rec)
+  const dep_con = depends_conflicts(rec)
+  const secur = security_rationale_class(rec)
+  const ver_met_cond = verify_met_cond(rec)
   const violations = rec.violations.length ? `        <TR><TD COLSPAN="3" ALIGN="LEFT" BGCOLOR="#FF6666">${dot_format(format_violations(rec.violations, oreqm.rules))}</TD></TR>\n` : ''
   const furtherinfo = rec.furtherinfo ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: ${dot_format(rec.furtherinfo)}</TD></TR>\n` : ''
+  const usecase = rec.usecase ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">usecase: ${dot_format(rec.usecase)}</TD></TR>\n` : ''
   const safetyrationale = rec.safetyrationale ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: ${dot_format(rec.safetyrationale)}</TD></TR>\n` : ''
   const shortdesc = rec.shortdesc ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: ${dot_format(rec.shortdesc)}</TD></TR>\n` : ''
   const rationale = rec.rationale ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">rationale: ${dot_format(rec.rationale)}</TD></TR>\n` : ''
   const verifycrit = rec.verifycrit ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">${dot_format(rec.verifycrit)}</TD></TR>\n` : ''
   const comment = rec.comment ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: ${dot_format(rec.comment)}</TD></TR>\n` : ''
-  const source = rec.source ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">source: ${dot_format(rec.source)}</TD></TR>\n` : ''
+  const source = src_rev_date(rec)
+  const src_file = source_file_line(rec)
+  const testin = rec.testin ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">testin: ${dot_format(rec.testin)}</TD></TR>\n` : ''
+  const testexec = rec.testexec ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">testexec: ${dot_format(rec.testexec)}</TD></TR>\n` : ''
+  const testout = rec.testout ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">testout: ${dot_format(rec.testout)}</TD></TR>\n` : ''
+  const testpasscrit = rec.testpasscrit ? `        <TR><TD COLSPAN="3" ALIGN="LEFT">testpasscrit: ${dot_format(rec.testpasscrit)}</TD></TR>\n` : ''
   const status = rec.status ? `        <TR><TD>${tags_line(rec.tags, rec.platform)}</TD><TD>${rec.safetyclass}</TD><TD>${
                                                                  status_cell(rec, show_coverage, color_status)}</TD></TR>\n` : ''
   node_table = `
       <TABLE BGCOLOR="${get_color(rec.doctype)}${ghost ? ':white' : ''}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="${ghost ? 'grey' : 'black'}" >
         <TR><TD CELLSPACING="0" >${rec.id}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">${dot_format(rec.description)}</TD><TD>${rec.needsobj.join('<BR/>')}</TD></TR>\n${
-          shortdesc}${rationale}${safetyrationale}${verifycrit}${comment}${furtherinfo}${source}${status}${violations}${nonexist_link}      </TABLE>`
+          shortdesc}${rationale}${safetyrationale}${secur}${verifycrit}${
+          ver_met_cond}${comment}${furtherinfo}${usecase}${source}${
+          src_file}${testin}${testexec}${testout}${testpasscrit}${dep_con}${rel_cat_prio}${status}${violations}${nonexist_link}      </TABLE>`
   const node = `  "${node_id}" [id="${node_id}" label=<${node_table}>];\n`
   return node
 }
@@ -226,7 +307,7 @@ function format_edge (from_node, to_node, kind, error, color = '', lbl = '') {
   if (error && error.length) {
     //rq: ->(rq_edge_probs)
     // insert newlines in long texts
-    error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\n')
+    error = error.replace(/([^\n]{20,500}?(:|;| |\/|-))/g, '$1\\n')
   }
   if (kind === 'fulfilledby') {
     //rq: ->(rq_edge_pcov_ffb)
@@ -236,10 +317,14 @@ function format_edge (from_node, to_node, kind, error, color = '', lbl = '') {
     }
     edge_label = ` [style=bold color=${color} dir=back fontname="Arial" label="${label}"]`
     if (error.length) {
-      label += '\n' + error
+      label += '\\n' + error
       edge_label = ` [style=bold color=${color} dir=back fontcolor="red" fontname="Arial" label="${label}"]`
     }
   } else {
+    if (kind==='untraced') {
+      color = 'blue style=dashed'
+      lbl = (lbl.length > 0) ? lbl+ 'untraced' : 'untraced'
+    }
     const col = (color !== '') ? `color=${color} ` : ''
     const fontcolor = error.length ? 'fontcolor=red ' : ''
     label = (lbl !== '') ? `${lbl}: ${error}` : error
@@ -451,8 +536,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     for (const dup_list of arrays_of_duplicates) {
       //rq: ->(rq_dup_req_display)
       const dup_cluster_id = this.requirements.get(dup_list[0]).id
-      const versions = dup_list.map((a) => a.version)
-      const dup_versions = versions.length !== new Set(versions).size
+      const versions = dup_list.map((a) => this.requirements.get(a).version)
+      const versions_set = new Set(versions)
+      const version_set_size = versions_set.size
+      //console.log(dup_list, versions, versions_set, versions.length, version_set_size)
+      const dup_versions = versions.length !== version_set_size
       const label = 'duplicate' + (dup_versions ? ' id + version' : ' id') //rq: ->(rq_dup_id_ver_disp)
       const fontcolor = dup_versions ? 'fontcolor="red" ' : ''
       graph += `subgraph "cluster_${dup_cluster_id}_dups" { color=grey penwidth=2 label="${label}" ${fontcolor}fontname="Arial" labelloc="t" style="rounded"\n`
@@ -606,6 +694,11 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
             linkerror = this.get_ffb_link_error(link, req_id)
           } else {
             kind = null
+            if (this.untraced.has(req_id) &&
+                this.untraced.get(req_id).has(link))  {
+              kind = 'untraced'
+              console.log(kind)
+            }
             linkerror = this.get_link_error(req_id, link)
           }
           graph += format_edge(
