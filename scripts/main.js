@@ -108,6 +108,15 @@ function createWindow () {
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_as') }
         },
         { type: 'separator' },
+        {
+          label: 'Save diagram context...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_ctx') }
+        },
+        {
+          label: 'Load diagram context...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_diagram_ctx') }
+        },
+        { type: 'separator' },
         { role: 'quit' }
       ]
     },

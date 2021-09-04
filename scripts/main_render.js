@@ -5,7 +5,7 @@ import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
-import { ipcRenderer, remote, shell } from 'electron'
+import { dialog, ipcRenderer, remote, shell } from 'electron'
 import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -92,6 +92,14 @@ ipcRenderer.on('show_issues', (_item, _window, _key_ev) => {
 
 ipcRenderer.on('open_settings', (_item, _window, _key_ev) => {
   open_settings()
+})
+
+ipcRenderer.on('save_diagram_ctx', (_item, _window, _key_ev) => {
+  save_diagram_ctx()
+})
+
+ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
+  load_diagram_ctx()
 })
 
 /** Keyboard accelerators for svg pan zoom */
@@ -781,6 +789,252 @@ function menu_save_as () {
   }
 }
 
+/**
+ * Save diagram context will save a json file with
+ * the paths of input files and the selection parameters
+ * used to generate the current diagram.
+ *
+ * Also save the settings in the json file.
+ *
+ */
+function save_diagram_ctx () {
+  let defPath = ""
+  if (oreqm_main) {
+    if (path.isAbsolute(oreqm_main.filename)) {
+      defPath = path.dirname(oreqm_main.filename)
+    } else {
+      defPath = path.join(process.cwd(), path.dirname(oreqm_main.filename))
+    }
+  }
+
+  const save_options = {
+    filters: [
+      { name: 'ReqM2 context files', extensions: ['vr2ctx'] }
+    ],
+    properties: ['openFile'],
+    defaultPath: defPath,
+    title: "Save ReqM2 context file"
+
+  }
+  // Suggest to save in same directory as oreqm_main
+  const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  // istanbul ignore else
+  if (typeof (savePath) !== 'undefined') {
+    save_diagram_context(savePath)
+  }
+}
+
+/**
+ * Load diagram context will load a json file with
+ * the paths of input file(s) and the selection parameters used.
+ * It will then replace current input file(s) with the ones listed
+ * in json file, and apply the specified selection parameters.
+ *
+ * TODO: devise a strategy for handling settings that is not totally surprising
+ * for the user.
+ * The scenario to consider is that a rendering of a context file dependS on certain settings,
+ * which the user loading this file may not have selected.
+ * After finishing looking at the diagram, and and the user loads something else, how to
+ * revert to 'normal' settings, and how to explain this behavior.
+ * For now we 'solve' this by ignoring the problem.
+ */
+function load_diagram_ctx () {
+  let LoadPath = remote.dialog.showOpenDialogSync(
+    {
+      filters: [{ name: 'ReqM2 context files', extensions: ['vr2ctx'] }],
+      properties: ['openFile'],
+      defaultPath: process.cwd(),
+      title: "Load ReqM2 context file"
+    })
+  if (LoadPath) {
+    load_diagram_context(LoadPath)
+  }
+}
+
+/**
+ * Calculate the absolute path of supplied filename/path
+ * @param {string} filename
+ * @returns
+ */
+function calcAbsPath(filename) {
+  let absPath
+  if (path.isAbsolute(filename)) {
+    absPath = filename
+  } else {
+    absPath = path.join(process.cwd(), filename)
+  }
+  return absPath
+}
+
+/**
+ * Create json object which specifies absolute and relative paths
+ * to input oreqm files as well as the applied parameters.
+ *
+ * @param {string} ctxPath file path to store json context
+ */
+function save_diagram_context (ctxPath) {
+  if (oreqm_main) {
+    let absPath = calcAbsPath(oreqm_main.filename)
+    // Make context file relative paths portable between Linux and Windows
+    let relPath = path.relative(path.dirname(ctxPath), absPath).replace('\\', '/')
+    let absPath_ref = ""
+    let relPath_ref = ""
+    if (oreqm_ref) {
+      absPath_ref = calcAbsPath(oreqm_ref.filename)
+      relPath_ref = path.relative(path.dirname(ctxPath), absPath_ref).replace('\\', '/')
+    }
+
+    let diagCtx = {
+      version: 1,
+      vr2ctx_path: ctxPath,
+      main_oreqm_rel: relPath,
+      main_oreqm_abs: absPath,
+      ref_oreqm_rel: relPath_ref,
+      ref_oreqm_abs: absPath_ref,
+      no_rejects: document.getElementById('no_rejects').checked,
+      id_checkbox_input: document.getElementById('id_checkbox_input').checked,
+      search_regex: document.getElementById('search_regex').value,
+      excluded_ids: document.getElementById('excluded_ids').value,
+      limit_depth_input: document.getElementById('limit_depth_input').checked,
+      excluded_doctypes: oreqm_main.get_excluded_doctypes(),
+      // Settings here
+      settings: {
+        compare_fields: program_settings.compare_fields,
+        safety_link_rules: program_settings.safety_link_rules,
+        show_errors: program_settings.show_errors,
+        show_coverage: program_settings.show_coverage,
+        color_status: program_settings.color_status
+      }
+    }
+    let json_ctx = JSON.stringify(diagCtx, null, 2)
+    console.log(json_ctx)
+    fs.writeFileSync(ctxPath, json_ctx, 'utf8')
+  }
+}
+
+/**
+ * Load context file, check content and load if OK
+ * The following checks are performed:
+ * 1) If relative paths resolve use those
+ * 2) otherwise use absolute paths
+ * 3) If a file is not found then report failure
+ * 4) Update selection data
+ * 5) load file(s)
+ *
+ * @param {string[]} ctxPath
+ */
+function load_diagram_context (ctxPath) {
+  let save_auto = auto_update
+  auto_update = false
+  let diagCtx = JSON.parse(fs.readFileSync(ctxPath[0], { encoding: 'utf8', flag: 'r' }))
+  let ctxDir = path.dirname(ctxPath[0])
+  let main_rel_path = path.join(ctxDir, diagCtx.main_oreqm_rel)
+  let ref_rel_path = null
+
+  let main_rel = fs.existsSync(main_rel_path)
+  let main_abs = fs.existsSync(diagCtx.main_oreqm_abs)
+  let load_ref = diagCtx.ref_oreqm_abs !== ""
+  let ref_rel = false
+  let ref_abs = false
+  if (load_ref) {
+    ref_rel_path = path.join(ctxDir, diagCtx.ref_oreqm_rel)
+    ref_rel = fs.existsSync(ref_rel_path)
+    ref_abs = fs.existsSync(diagCtx.ref_oreqm_abs)
+  }
+  if (main_rel && load_ref && ref_rel) {
+    // both relative paths OK
+    load_file_main_fs(main_rel_path, ref_rel_path)
+  } else if (main_rel && !load_ref) {
+    // main rel only
+    load_file_main_fs(main_rel_path, null)
+  } else if (main_abs && load_ref && ref_abs) {
+    // both absolute paths OK
+    load_file_main_fs(diagCtx.main_oreqm_abs, diagCtx.ref_oreqm_abs)
+  } else if (main_abs && !load_ref) {
+    // main abs only
+    load_file_main_fs(diagCtx.main_oreqm_abs, null)
+  } else {
+    // display error message
+    let msg = "File status:\n"
+    if (load_ref) {
+      msg += main_rel + ': ' + main_rel_path + '\n'
+      msg += main_abs + ': ' + diagCtx.main_oreqm_abs + '\n'
+      msg += ref_rel + ': ' + ref_rel_path + '\n'
+      msg += ref_abs + ': ' + diagCtx.ref_oreqm_abs + '\n'
+    } else {
+      msg += main_rel + main_rel_path + '\n'
+      msg += main_abs + diagCtx.main_oreqm_abs + '\n'
+    }
+    dialog.showErrorBox("ReqM2Context file", msg)
+    return
+  }
+  // The loading and processing happens asynchronously
+  // Set up a handler to restore parameters
+  vr2ctx_ctx = {
+    diagCtx: diagCtx,
+    auto_update: save_auto
+  }
+  vr2ctx_handler = vr2ctx_handler_func
+}
+
+let vr2ctx_handler = null
+let vr2ctx_ctx = null
+
+function vr2ctx_handler_func() {
+  update_settings_from_context(vr2ctx_ctx.diagCtx)
+  restoreContextAttributes(vr2ctx_ctx.diagCtx)
+  set_excluded_doctype_checkboxes()
+  auto_update = vr2ctx_ctx.auto_update
+  filter_change()
+  vr2ctx_handler = null
+}
+
+/**
+ * Restore the attributes stored in the context object
+ * @param {object} ctx
+ */
+function restoreContextAttributes(ctx) {
+  document.getElementById('no_rejects').checked = ctx.no_rejects
+  document.getElementById('id_checkbox_input').checked = ctx.id_checkbox_input
+  document.getElementById('search_regex').value = ctx.search_regex
+  document.getElementById('excluded_ids').value = ctx.excluded_ids
+  document.getElementById('limit_depth_input').checked = ctx.limit_depth_input
+  oreqm_main.set_excluded_doctypes(ctx.excluded_doctypes)
+}
+
+/**
+ * Update settings found in context file (these are not ALL settings)
+ * @param {object} ctx
+ */
+function update_settings_from_context (ctx) {
+  for (const key in ctx.settings.compare_fields) {
+    if (program_settings.compare_fields[key] !== ctx.settings.compare_fields[key]) {
+      console.log(key, program_settings.compare_fields[key], ctx.settings.compare_fields[key])
+    }
+    program_settings.compare_fields[key] = ctx.settings.compare_fields[key]
+  }
+
+  if (program_settings.safety_link_rules != ctx.settings.safety_link_rules) {
+    //console.log("safety_link_rules", program_settings.safety_link_rules, ctx.settings.safety_link_rules)
+  }
+  program_settings.safety_link_rules = ctx.settings.safety_link_rules
+
+  if (program_settings.show_errors !== ctx.settings.show_errors) {
+    console.log("show_errors", program_settings.show_errors, ctx.settings.show_errors)
+  }
+  program_settings.show_errors = ctx.settings.show_errors
+
+  if (program_settings.show_coverage !== ctx.settings.show_coverage) {
+    console.log("show_coverage", program_settings.show_coverage, ctx.settings.show_coverage)
+  }
+  program_settings.show_coverage = ctx.settings.show_coverage
+
+  if (program_settings.color_status !== ctx.settings.color_status) {
+    console.log("color_status", program_settings.color_status, ctx.settings.color_status)
+  }
+  program_settings.color_status = ctx.settings.color_status
+}
+
 document.querySelector('#format select').addEventListener('change', function () {
   selected_format = document.querySelector('#format select').value
   if (selected_format === 'svg') {
@@ -1072,6 +1326,8 @@ function load_file_main_fs (file, ref_file) {
     process_data_main(file, data)
     if (ref_file) {
       load_file_ref_fs(ref_file)
+    } else if (vr2ctx_handler) {
+      vr2ctx_handler()
     }
   })
 }
@@ -1140,6 +1396,9 @@ function load_file_ref_fs (file) {
     // read file asynchronously
     fs.readFile(file, 'UTF-8', (err, data) => {
       process_data_ref(file, data)
+      if (vr2ctx_handler) {
+        vr2ctx_handler()
+      }
     })
   } else {
     alert('No main file selected')
@@ -1186,6 +1445,24 @@ function get_excluded_doctypes () {
   }
   return excluded_list
 }
+
+/**
+ * Set checkboxes according to excluded doctypes
+ */
+ function set_excluded_doctype_checkboxes () {
+  // istanbul ignore else
+  if (oreqm_main) {
+    const doctypes = oreqm_main.get_doctypes()
+    const names = doctypes.keys()
+    const ex_list = oreqm_main.get_excluded_doctypes()
+    for (const doctype of names) {
+      const box = document.getElementById(`doctype_${doctype}`)
+      box.checked = ex_list.includes(doctype)
+    }
+    doctype_filter_change()
+  }
+}
+
 
 /**
  * Set all doctypes to excluded/included

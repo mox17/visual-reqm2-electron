@@ -183,7 +183,7 @@ the regex in the **Selection criteria** box. All additional nodes reachable from
 Similarly an explicitly **selected** node can also be **de-selected** again from the right-click menu.
 It is not possible to deselect nodes that were matched with anything but a specific `<id>$`.
 
-**Note**: the Visual ReqM2 specific right-click menu only works in `svg` mode, i.e. not if the diagram is 
+**Note**: the Visual ReqM2 specific right-click menu only works in `svg` mode, i.e. not if the diagram is
 displayed as png file.
 
 ### Excluding nodes
@@ -261,7 +261,7 @@ Each doctype is represented by a box with its associated color. The total number
 listed along with the count of each safetyclass represented by specobjects of this doctype.
 
 There are arrows indicating providescoverage/linksto relations and stippled arrows for fulfilledby relations.
-**GREEN** arrows are supposed to indicate permitted relations and **RED** arrows to indicate relations that are violating 
+**GREEN** arrows are supposed to indicate permitted relations and **RED** arrows to indicate relations that are violating
 safety rules.
 
 Visual ReqM2 has a log of various problems detected. This is accessible through the `issues` button in the upper
@@ -277,7 +277,7 @@ Each **"doctype:safetyclass>doctype:safetyclass"** string will then be tested ag
 until one of them match, or all expressions have failed.
 
 The **'>'** character shall be read as "provides coverage to", and the **':'** character is the separator between
-`<doctype>` and `<safetyclass>` strings. 
+`<doctype>` and `<safetyclass>` strings.
 
 Fulfilledby links are considered 'in reverse direction' to aligh with this logic.
 
