@@ -85,10 +85,10 @@
         "mimeType": "application/oreqm+xml"
       },
       {
-        "ext": "vr2ctx",
+        "ext": "vr2x",
         "name": "Visual ReqM2 context File",
         "role": "Viewer",
-        "mimeType": "application/oreqm+xml"
+        "mimeType": "application/vr2x+xml"
       }
     ],
     "win": {

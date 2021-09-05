@@ -14,6 +14,7 @@ const log = require('electron-log')
 const { autoUpdater } = require('electron-updater')
 const electron_settings = require('electron-settings')
 const { settings_configure } = require('./settings_helper.js')
+const { dialog } = require('electron')
 // const fs = require('fs');
 
 // Optional logging
@@ -267,7 +268,8 @@ app.on('ready', () => {
       settFile: { type: 'string', alias: 'F', desc: 'Settings json file', default: undefined },
       settDir: { type: 'string', alias: 'D', desc: 'Settings directory', default: undefined },
       oreqm_main: { type: 'string', alias: 'm', desc: 'main oreqm file', default: undefined },
-      oreqm_ref: { type: 'string', alias: 'z', desc: 'ref oreqm file (older)', default: undefined }
+      oreqm_ref: { type: 'string', alias: 'z', desc: 'ref oreqm file (older)', default: undefined },
+      context: { type: 'string', alias: 'c', desc: 'Context .vr2x file', default: undefined }
     })
     .usage('$0 options [main_oreqm [ref_oreqm]]')
     .argv
@@ -275,7 +277,7 @@ app.on('ready', () => {
   settings_configure(electron_settings, args.settDir, args.settFile)
   // Allow 1 or 2 positional parameters
   // yargs lets other arguments sneak in, which happens in test scenarios.
-  // Therefore positional parameters have to end with '.oreqm' to be accepted.
+  // Therefore positional parameters have to end with '.oreqm' or '.vr2x' to be accepted.
   if (!args.oreqm_main && args._.length > 0) {
     // istanbul ignore next
     if (args._[0].endsWith('.oreqm')) {
@@ -285,6 +287,9 @@ app.on('ready', () => {
           args.oreqm_ref = args._[1]
         }
       }
+    } else if (args._[0].endsWith('.vr2x')) {
+      // Handle positional context file
+      args.context = args._[0]
     }
   }
   // console.dir(args);
@@ -328,6 +333,10 @@ ipcMain.on('cmd_quit', (_evt, _arg) => {
 
 ipcMain.on('cmd_echo', (evt, arg) => {
   mainWindow.webContents.send('cl_cmd', arg)
+})
+
+ipcMain.on('cmd_show_error', (_evt, title, msg) => {
+  dialog.showErrorBox(title, msg)
 })
 
 // Handle automatic updates

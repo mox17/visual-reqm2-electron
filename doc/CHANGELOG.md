@@ -2,11 +2,12 @@
 
 ## 2.1.0
  * Diagram context save and load
-   * store a `vr2ctx` file (json format) with the paths to oreqm file(s), selection criteria and settings afecting rendering
-     Use the "Save diagram context..." and "Load diagram context...". The vr2ctx file uses both absolute paths and relative paths
-     the vr2ctx file. This allows copying of oreqm files as well as vr2ctx file to another user, who can then open exactly the same
-     view.
-     Caveat: Settings in program are updated by the vr2ctx file, but are not saved. To do this enter the settings dialog and exit with [OK]
+   * store a `.vr2x` file (json format) with the paths to `.oreqm` file(s), selection criteria and settings affecting rendering.
+     Use the "Save diagram context..." and "Load diagram context..." in File menu.
+     The `.vr2x` file uses relative paths to the `.oreqm` files.
+     This allows copying of `.oreqm` files as well as `.vr2x` file to another user, who can then open exactly the same view.
+     *Caveat:* Settings in program are updated by the `.vr2x` file, but are not saved. To save enter the Settings dialog and exit with [OK], or restart program to discard settings read from context.
+   * Added --context command line parameter to load `.vr2x` file from cmd line and from double-clicking a `.vr2x` file.
 
 ## 2.0.3
  * Display more specobjects fields

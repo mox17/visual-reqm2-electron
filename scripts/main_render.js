@@ -297,6 +297,17 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   }
   if (ok && main) {
     load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null)
+  } else if (args.context !== undefined && args.context.length > 0) {
+    // Check for context file (exclusive with oreqm_main & oreqm_ref)
+    const check_context = find_file(args.context)
+    // istanbul ignore else
+    if (check_context.length) {
+      args.context = check_context
+    }
+    const ctx_stat = fs.existsSync(args.context) ? fs.statSync(args.context) : null
+    if (ctx_stat && ctx_stat.isFile()) {
+      load_diagram_context(args.context)
+    }
   }
 })
 
@@ -809,7 +820,7 @@ function save_diagram_ctx () {
 
   const save_options = {
     filters: [
-      { name: 'ReqM2 context files', extensions: ['vr2ctx'] }
+      { name: 'ReqM2 context files', extensions: ['vr2x'] }
     ],
     properties: ['openFile'],
     defaultPath: defPath,
@@ -841,13 +852,13 @@ function save_diagram_ctx () {
 function load_diagram_ctx () {
   let LoadPath = remote.dialog.showOpenDialogSync(
     {
-      filters: [{ name: 'ReqM2 context files', extensions: ['vr2ctx'] }],
+      filters: [{ name: 'ReqM2 context files', extensions: ['vr2x'] }],
       properties: ['openFile'],
       defaultPath: process.cwd(),
       title: "Load ReqM2 context file"
     })
   if (LoadPath) {
-    load_diagram_context(LoadPath)
+    load_diagram_context(LoadPath[0])
   }
 }
 
@@ -874,9 +885,9 @@ function calcAbsPath(filename) {
  */
 function save_diagram_context (ctxPath) {
   if (oreqm_main) {
-    let absPath = calcAbsPath(oreqm_main.filename)
+    let absPath_main = calcAbsPath(oreqm_main.filename)
     // Make context file relative paths portable between Linux and Windows
-    let relPath = path.relative(path.dirname(ctxPath), absPath).replace('\\', '/')
+    let relPath = path.relative(path.dirname(ctxPath), absPath_main).replace('\\', '/')
     let absPath_ref = ""
     let relPath_ref = ""
     if (oreqm_ref) {
@@ -886,11 +897,8 @@ function save_diagram_context (ctxPath) {
 
     let diagCtx = {
       version: 1,
-      vr2ctx_path: ctxPath,
       main_oreqm_rel: relPath,
-      main_oreqm_abs: absPath,
       ref_oreqm_rel: relPath_ref,
-      ref_oreqm_abs: absPath_ref,
       no_rejects: document.getElementById('no_rejects').checked,
       id_checkbox_input: document.getElementById('id_checkbox_input').checked,
       search_regex: document.getElementById('search_regex').value,
@@ -921,25 +929,23 @@ function save_diagram_context (ctxPath) {
  * 4) Update selection data
  * 5) load file(s)
  *
- * @param {string[]} ctxPath
+ * @param {string} ctxPath
  */
 function load_diagram_context (ctxPath) {
+  // suppress display updates while loading context
   let save_auto = auto_update
   auto_update = false
-  let diagCtx = JSON.parse(fs.readFileSync(ctxPath[0], { encoding: 'utf8', flag: 'r' }))
-  let ctxDir = path.dirname(ctxPath[0])
+  let diagCtx = JSON.parse(fs.readFileSync(ctxPath, { encoding: 'utf8', flag: 'r' }))
+  let ctxDir = path.dirname(ctxPath)
   let main_rel_path = path.join(ctxDir, diagCtx.main_oreqm_rel)
   let ref_rel_path = null
 
   let main_rel = fs.existsSync(main_rel_path)
-  let main_abs = fs.existsSync(diagCtx.main_oreqm_abs)
-  let load_ref = diagCtx.ref_oreqm_abs !== ""
+  let load_ref = diagCtx.ref_oreqm_rel !== ""
   let ref_rel = false
-  let ref_abs = false
   if (load_ref) {
     ref_rel_path = path.join(ctxDir, diagCtx.ref_oreqm_rel)
     ref_rel = fs.existsSync(ref_rel_path)
-    ref_abs = fs.existsSync(diagCtx.ref_oreqm_abs)
   }
   if (main_rel && load_ref && ref_rel) {
     // both relative paths OK
@@ -947,46 +953,45 @@ function load_diagram_context (ctxPath) {
   } else if (main_rel && !load_ref) {
     // main rel only
     load_file_main_fs(main_rel_path, null)
-  } else if (main_abs && load_ref && ref_abs) {
-    // both absolute paths OK
-    load_file_main_fs(diagCtx.main_oreqm_abs, diagCtx.ref_oreqm_abs)
-  } else if (main_abs && !load_ref) {
-    // main abs only
-    load_file_main_fs(diagCtx.main_oreqm_abs, null)
   } else {
+    auto_update = save_auto
     // display error message
-    let msg = "File status:\n"
+    let msg = "Could not open:\n"
     if (load_ref) {
-      msg += main_rel + ': ' + main_rel_path + '\n'
-      msg += main_abs + ': ' + diagCtx.main_oreqm_abs + '\n'
-      msg += ref_rel + ': ' + ref_rel_path + '\n'
-      msg += ref_abs + ': ' + diagCtx.ref_oreqm_abs + '\n'
+      msg += main_rel ? "" : main_rel_path + '\n'
+      msg += ref_rel ? "" : ref_rel_path + '\n'
     } else {
-      msg += main_rel + main_rel_path + '\n'
-      msg += main_abs + diagCtx.main_oreqm_abs + '\n'
+      msg += main_rel_path + '\n'
     }
-    dialog.showErrorBox("ReqM2Context file", msg)
+    msg = msg.replace(/([^\n]{35,400}?(\/|\\))/g, '$1\n  ')
+    ipcRenderer.send('cmd_show_error', "ReqM2 Context file", msg)
     return
   }
   // The loading and processing happens asynchronously
-  // Set up a handler to restore parameters
-  vr2ctx_ctx = {
+  // Set up a handler to restore parameters when load of oreqm file(s) complete
+  vr2x_ctx = {
     diagCtx: diagCtx,
     auto_update: save_auto
   }
-  vr2ctx_handler = vr2ctx_handler_func
+  // Set up async handler for context load
+  vr2x_handler = vr2x_handler_func
 }
 
-let vr2ctx_handler = null
-let vr2ctx_ctx = null
+let vr2x_handler = null
+let vr2x_ctx = null
 
-function vr2ctx_handler_func() {
-  update_settings_from_context(vr2ctx_ctx.diagCtx)
-  restoreContextAttributes(vr2ctx_ctx.diagCtx)
+/**
+ * Async handler called after loading of oreqm file(s)
+ * to set search parameters and settings
+ */
+function vr2x_handler_func() {
+  update_settings_from_context(vr2x_ctx.diagCtx)
+  restoreContextAttributes(vr2x_ctx.diagCtx)
   set_excluded_doctype_checkboxes()
-  auto_update = vr2ctx_ctx.auto_update
+  auto_update = vr2x_ctx.auto_update
   filter_change()
-  vr2ctx_handler = null
+  // Clear handler - it only applies to context loads
+  vr2x_handler = null
 }
 
 /**
@@ -1326,8 +1331,8 @@ function load_file_main_fs (file, ref_file) {
     process_data_main(file, data)
     if (ref_file) {
       load_file_ref_fs(ref_file)
-    } else if (vr2ctx_handler) {
-      vr2ctx_handler()
+    } else if (vr2x_handler) {
+      vr2x_handler()
     }
   })
 }
@@ -1396,8 +1401,8 @@ function load_file_ref_fs (file) {
     // read file asynchronously
     fs.readFile(file, 'UTF-8', (err, data) => {
       process_data_ref(file, data)
-      if (vr2ctx_handler) {
-        vr2ctx_handler()
+      if (vr2x_handler) {
+        vr2x_handler()
       }
     })
   } else {

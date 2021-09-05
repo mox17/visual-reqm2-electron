@@ -339,6 +339,27 @@ There are sample color `.json` files in the `./testdata/` directory.
 A project may wish to define a color scheme for the relevant doctypes, as this will make diagrams more recognizable when
 doctypes always appear in the same color.
 
+### Context files
+
+The current context, that is the paths to the loaded .oreqm file(s) and the selected search parameters plus a subset of settings
+can now be stored in a 'context' file with the extension `.vr2x`.
+The context file can later be loaded, and will restore the loaded files, selection parameters and related settings.
+
+This allows resuming later with same selection, or providing others with a particular view.
+The file type `.vr2x` is associated with Visual ReqM2 on installation/upgrade and allows double-clicking on a context
+file to open the associated `.oreqm` files.
+
+The context saving and loading operations can be found in the file menu.
+
+The context files does not contain the `.oreqm` files, only the relative paths to them, from the `.vr2x` file.
+So for the context to function, the relative locations of the `.vr2x` file and the `.oreqm` file(s) must be maintained.
+
+*NOTE:* The settings "Fields to ignore", "Safety rules", "Show coverage", "Color status" and "Show link errors" are updated
+BUT NOT SAVED when a context is loaded. This is to make the appeance of a 'context' the same as the originator, while not
+forcing new settings on a user.
+To save the new settings, enter the settings dialog and exit dialog with OK. To discard the settings, exit and restart the program.
+
+
 ## Examples
 
 The `./testdata/` directory contains a few sample `.oreqm` files, which can illustrate the features of
