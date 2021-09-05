@@ -1,6 +1,6 @@
 {
   "name": "visualreqm2",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "Visual ReqM2 - oreqm file viewer.",
   "main": "lib/main.js",
   "scripts": {
@@ -83,6 +83,12 @@
         "name": "OREQM File",
         "role": "Viewer",
         "mimeType": "application/oreqm+xml"
+      },
+      {
+        "ext": "vr2x",
+        "name": "Visual ReqM2 context File",
+        "role": "Viewer",
+        "mimeType": "application/vr2x+xml"
       }
     ],
     "win": {

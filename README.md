@@ -183,7 +183,7 @@ the regex in the **Selection criteria** box. All additional nodes reachable from
 Similarly an explicitly **selected** node can also be **de-selected** again from the right-click menu.
 It is not possible to deselect nodes that were matched with anything but a specific `<id>$`.
 
-**Note**: the Visual ReqM2 specific right-click menu only works in `svg` mode, i.e. not if the diagram is 
+**Note**: the Visual ReqM2 specific right-click menu only works in `svg` mode, i.e. not if the diagram is
 displayed as png file.
 
 ### Excluding nodes
@@ -261,7 +261,7 @@ Each doctype is represented by a box with its associated color. The total number
 listed along with the count of each safetyclass represented by specobjects of this doctype.
 
 There are arrows indicating providescoverage/linksto relations and stippled arrows for fulfilledby relations.
-**GREEN** arrows are supposed to indicate permitted relations and **RED** arrows to indicate relations that are violating 
+**GREEN** arrows are supposed to indicate permitted relations and **RED** arrows to indicate relations that are violating
 safety rules.
 
 Visual ReqM2 has a log of various problems detected. This is accessible through the `issues` button in the upper
@@ -277,7 +277,7 @@ Each **"doctype:safetyclass>doctype:safetyclass"** string will then be tested ag
 until one of them match, or all expressions have failed.
 
 The **'>'** character shall be read as "provides coverage to", and the **':'** character is the separator between
-`<doctype>` and `<safetyclass>` strings. 
+`<doctype>` and `<safetyclass>` strings.
 
 Fulfilledby links are considered 'in reverse direction' to aligh with this logic.
 
@@ -338,6 +338,27 @@ There are sample color `.json` files in the `./testdata/` directory.
 
 A project may wish to define a color scheme for the relevant doctypes, as this will make diagrams more recognizable when
 doctypes always appear in the same color.
+
+### Context files
+
+The current context, that is the paths to the loaded .oreqm file(s) and the selected search parameters plus a subset of settings
+can now be stored in a 'context' file with the extension `.vr2x`.
+The context file can later be loaded, and will restore the loaded files, selection parameters and related settings.
+
+This allows resuming later with same selection, or providing others with a particular view.
+The file type `.vr2x` is associated with Visual ReqM2 on installation/upgrade and allows double-clicking on a context
+file to open the associated `.oreqm` files.
+
+The context saving and loading operations can be found in the file menu.
+
+The context files does not contain the `.oreqm` files, only the relative paths to them, from the `.vr2x` file.
+So for the context to function, the relative locations of the `.vr2x` file and the `.oreqm` file(s) must be maintained.
+
+*NOTE:* The settings "Fields to ignore", "Safety rules", "Show coverage", "Color status" and "Show link errors" are updated
+BUT NOT SAVED when a context is loaded. This is to make the appeance of a 'context' the same as the originator, while not
+forcing new settings on a user.
+To save the new settings, enter the settings dialog and exit dialog with OK. To discard the settings, exit and restart the program.
+
 
 ## Examples
 

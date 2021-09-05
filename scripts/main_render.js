@@ -5,7 +5,7 @@ import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
-import { ipcRenderer, remote, shell } from 'electron'
+import { dialog, ipcRenderer, remote, shell } from 'electron'
 import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -92,6 +92,14 @@ ipcRenderer.on('show_issues', (_item, _window, _key_ev) => {
 
 ipcRenderer.on('open_settings', (_item, _window, _key_ev) => {
   open_settings()
+})
+
+ipcRenderer.on('save_diagram_ctx', (_item, _window, _key_ev) => {
+  save_diagram_ctx()
+})
+
+ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
+  load_diagram_ctx()
 })
 
 /** Keyboard accelerators for svg pan zoom */
@@ -289,13 +297,24 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   }
   if (ok && main) {
     load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null)
+  } else if (args.context !== undefined && args.context.length > 0) {
+    // Check for context file (exclusive with oreqm_main & oreqm_ref)
+    const check_context = find_file(args.context)
+    // istanbul ignore else
+    if (check_context.length) {
+      args.context = check_context
+    }
+    const ctx_stat = fs.existsSync(args.context) ? fs.statSync(args.context) : null
+    if (ctx_stat && ctx_stat.isFile()) {
+      load_diagram_context(args.context)
+    }
   }
 })
 
 /**
-   * Handle command line parameters related to 'batch' execution
-   * @param {object} args the input argument object
-   */
+ * Handle command line parameters related to 'batch' execution
+ * @param {object} args the input argument object
+ */
 function cmd_line_parameters (args) {
   if (args.select !== undefined) {
     search_pattern = args.select
@@ -341,6 +360,7 @@ function cmd_line_parameters (args) {
   }
   if (args.diagram||args.hierarchy||args.safety) {
     cmd_queue.push('done')
+    // cmd_queue.push('quit')  // TODO: consider implied quit when diagram generation is spoecified
   }
   if (args.quit) {
     // istanbul ignore next
@@ -527,6 +547,7 @@ function updateOutput (_result) {
     svg_element.addEventListener('paneresize', function () {
       panZoom.resize()
     }, false)
+
     window.addEventListener('resize', function () {
       panZoom.resize()
     })
@@ -537,6 +558,7 @@ function updateOutput (_result) {
       })
     }, svg_element)
 
+    // Keyboard shortcuts when focus on graph pane
     document.getElementById('graph').onkeydown = function (e) // istanbul ignore next
     {
       //rq: ->(rq_navigate_sel)
@@ -657,18 +679,20 @@ window.addEventListener('beforeunload', function () {
   return beforeUnloadMessage
 })
 
+// Context menu handler
 document.getElementById('menu_copy_id').addEventListener('click', function () {
   copy_id_node(false)
 })
 
+// Context menu handler
 document.getElementById('menu_copy_ffb').addEventListener('click', function () {
   copy_id_node(true)
 })
 
 /**
-   * Put id of selected specobject on clipboard in selected format
-   * @param {boolean} ffb_format true: id:doctype:version ; false: id
-   */
+ * Put id of selected specobject on clipboard in selected format
+ * @param {boolean} ffb_format true: id:doctype:version ; false: id
+ */
 function copy_id_node (ffb_format) {
   const ta = document.createElement('textarea')
   const rec = oreqm_main.requirements.get(selected_node)
@@ -776,6 +800,246 @@ function menu_save_as () {
   }
 }
 
+/**
+ * Save diagram context will save a json file with
+ * the paths of input files and the selection parameters
+ * used to generate the current diagram.
+ *
+ * Also save the settings in the json file.
+ *
+ */
+function save_diagram_ctx () {
+  let defPath = ""
+  if (oreqm_main) {
+    if (path.isAbsolute(oreqm_main.filename)) {
+      defPath = path.dirname(oreqm_main.filename)
+    } else {
+      defPath = path.join(process.cwd(), path.dirname(oreqm_main.filename))
+    }
+  }
+
+  const save_options = {
+    filters: [
+      { name: 'ReqM2 context files', extensions: ['vr2x'] }
+    ],
+    properties: ['openFile'],
+    defaultPath: defPath,
+    title: "Save ReqM2 context file"
+
+  }
+  // Suggest to save in same directory as oreqm_main
+  const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  // istanbul ignore else
+  if (typeof (savePath) !== 'undefined') {
+    save_diagram_context(savePath)
+  }
+}
+
+/**
+ * Load diagram context will load a json file with
+ * the paths of input file(s) and the selection parameters used.
+ * It will then replace current input file(s) with the ones listed
+ * in json file, and apply the specified selection parameters.
+ *
+ * TODO: devise a strategy for handling settings that is not totally surprising
+ * for the user.
+ * The scenario to consider is that a rendering of a context file dependS on certain settings,
+ * which the user loading this file may not have selected.
+ * After finishing looking at the diagram, and and the user loads something else, how to
+ * revert to 'normal' settings, and how to explain this behavior.
+ * For now we 'solve' this by ignoring the problem.
+ */
+function load_diagram_ctx () {
+  let LoadPath = remote.dialog.showOpenDialogSync(
+    {
+      filters: [{ name: 'ReqM2 context files', extensions: ['vr2x'] }],
+      properties: ['openFile'],
+      defaultPath: process.cwd(),
+      title: "Load ReqM2 context file"
+    })
+  if (LoadPath) {
+    load_diagram_context(LoadPath[0])
+  }
+}
+
+/**
+ * Calculate the absolute path of supplied filename/path
+ * @param {string} filename
+ * @returns
+ */
+function calcAbsPath(filename) {
+  let absPath
+  if (path.isAbsolute(filename)) {
+    absPath = filename
+  } else {
+    absPath = path.join(process.cwd(), filename)
+  }
+  return absPath
+}
+
+/**
+ * Create json object which specifies absolute and relative paths
+ * to input oreqm files as well as the applied parameters.
+ *
+ * @param {string} ctxPath file path to store json context
+ */
+function save_diagram_context (ctxPath) {
+  if (oreqm_main) {
+    let absPath_main = calcAbsPath(oreqm_main.filename)
+    // Make context file relative paths portable between Linux and Windows
+    let relPath = path.relative(path.dirname(ctxPath), absPath_main).replace('\\', '/')
+    let absPath_ref = ""
+    let relPath_ref = ""
+    if (oreqm_ref) {
+      absPath_ref = calcAbsPath(oreqm_ref.filename)
+      relPath_ref = path.relative(path.dirname(ctxPath), absPath_ref).replace('\\', '/')
+    }
+
+    let diagCtx = {
+      version: 1,
+      main_oreqm_rel: relPath,
+      ref_oreqm_rel: relPath_ref,
+      no_rejects: document.getElementById('no_rejects').checked,
+      id_checkbox_input: document.getElementById('id_checkbox_input').checked,
+      search_regex: document.getElementById('search_regex').value,
+      excluded_ids: document.getElementById('excluded_ids').value,
+      limit_depth_input: document.getElementById('limit_depth_input').checked,
+      excluded_doctypes: oreqm_main.get_excluded_doctypes(),
+      // Settings here
+      settings: {
+        compare_fields: program_settings.compare_fields,
+        safety_link_rules: program_settings.safety_link_rules,
+        show_errors: program_settings.show_errors,
+        show_coverage: program_settings.show_coverage,
+        color_status: program_settings.color_status
+      }
+    }
+    let json_ctx = JSON.stringify(diagCtx, null, 2)
+    console.log(json_ctx)
+    fs.writeFileSync(ctxPath, json_ctx, 'utf8')
+  }
+}
+
+/**
+ * Load context file, check content and load if OK
+ * The following checks are performed:
+ * 1) If relative paths resolve use those
+ * 2) otherwise use absolute paths
+ * 3) If a file is not found then report failure
+ * 4) Update selection data
+ * 5) load file(s)
+ *
+ * @param {string} ctxPath
+ */
+function load_diagram_context (ctxPath) {
+  // suppress display updates while loading context
+  let save_auto = auto_update
+  auto_update = false
+  let diagCtx = JSON.parse(fs.readFileSync(ctxPath, { encoding: 'utf8', flag: 'r' }))
+  let ctxDir = path.dirname(ctxPath)
+  let main_rel_path = path.join(ctxDir, diagCtx.main_oreqm_rel)
+  let ref_rel_path = null
+
+  let main_rel = fs.existsSync(main_rel_path)
+  let load_ref = diagCtx.ref_oreqm_rel !== ""
+  let ref_rel = false
+  if (load_ref) {
+    ref_rel_path = path.join(ctxDir, diagCtx.ref_oreqm_rel)
+    ref_rel = fs.existsSync(ref_rel_path)
+  }
+  if (main_rel && load_ref && ref_rel) {
+    // both relative paths OK
+    load_file_main_fs(main_rel_path, ref_rel_path)
+  } else if (main_rel && !load_ref) {
+    // main rel only
+    load_file_main_fs(main_rel_path, null)
+  } else {
+    auto_update = save_auto
+    // display error message
+    let msg = "Could not open:\n"
+    if (load_ref) {
+      msg += main_rel ? "" : main_rel_path + '\n'
+      msg += ref_rel ? "" : ref_rel_path + '\n'
+    } else {
+      msg += main_rel_path + '\n'
+    }
+    msg = msg.replace(/([^\n]{35,400}?(\/|\\))/g, '$1\n  ')
+    ipcRenderer.send('cmd_show_error', "ReqM2 Context file", msg)
+    return
+  }
+  // The loading and processing happens asynchronously
+  // Set up a handler to restore parameters when load of oreqm file(s) complete
+  vr2x_ctx = {
+    diagCtx: diagCtx,
+    auto_update: save_auto
+  }
+  // Set up async handler for context load
+  vr2x_handler = vr2x_handler_func
+}
+
+let vr2x_handler = null
+let vr2x_ctx = null
+
+/**
+ * Async handler called after loading of oreqm file(s)
+ * to set search parameters and settings
+ */
+function vr2x_handler_func() {
+  update_settings_from_context(vr2x_ctx.diagCtx)
+  restoreContextAttributes(vr2x_ctx.diagCtx)
+  set_excluded_doctype_checkboxes()
+  auto_update = vr2x_ctx.auto_update
+  filter_change()
+  // Clear handler - it only applies to context loads
+  vr2x_handler = null
+}
+
+/**
+ * Restore the attributes stored in the context object
+ * @param {object} ctx
+ */
+function restoreContextAttributes(ctx) {
+  document.getElementById('no_rejects').checked = ctx.no_rejects
+  document.getElementById('id_checkbox_input').checked = ctx.id_checkbox_input
+  document.getElementById('search_regex').value = ctx.search_regex
+  document.getElementById('excluded_ids').value = ctx.excluded_ids
+  document.getElementById('limit_depth_input').checked = ctx.limit_depth_input
+  oreqm_main.set_excluded_doctypes(ctx.excluded_doctypes)
+}
+
+/**
+ * Update settings found in context file (these are not ALL settings)
+ * @param {object} ctx
+ */
+function update_settings_from_context (ctx) {
+  for (const key in ctx.settings.compare_fields) {
+    if (program_settings.compare_fields[key] !== ctx.settings.compare_fields[key]) {
+      console.log(key, program_settings.compare_fields[key], ctx.settings.compare_fields[key])
+    }
+    program_settings.compare_fields[key] = ctx.settings.compare_fields[key]
+  }
+
+  if (program_settings.safety_link_rules != ctx.settings.safety_link_rules) {
+    //console.log("safety_link_rules", program_settings.safety_link_rules, ctx.settings.safety_link_rules)
+  }
+  program_settings.safety_link_rules = ctx.settings.safety_link_rules
+
+  if (program_settings.show_errors !== ctx.settings.show_errors) {
+    console.log("show_errors", program_settings.show_errors, ctx.settings.show_errors)
+  }
+  program_settings.show_errors = ctx.settings.show_errors
+
+  if (program_settings.show_coverage !== ctx.settings.show_coverage) {
+    console.log("show_coverage", program_settings.show_coverage, ctx.settings.show_coverage)
+  }
+  program_settings.show_coverage = ctx.settings.show_coverage
+
+  if (program_settings.color_status !== ctx.settings.color_status) {
+    console.log("color_status", program_settings.color_status, ctx.settings.color_status)
+  }
+  program_settings.color_status = ctx.settings.color_status
+}
+
 document.querySelector('#format select').addEventListener('change', function () {
   selected_format = document.querySelector('#format select').value
   if (selected_format === 'svg') {
@@ -802,9 +1066,9 @@ function update_diagram (selected_format) {
 }
 
 /**
-   * Update context menu for selected node
-   * @param {string} node_id
-   */
+ * Update context menu for selected node
+ * @param {string} node_id
+ */
 function update_menu_options (node_id) {
   // get individual context menu options as appropriate
   if (oreqm_main && oreqm_main.check_node_id(node_id)) {
@@ -833,10 +1097,10 @@ function update_menu_options (node_id) {
 }
 
 /**
-   * Update doctype table with counts of nodes actually displayed
-   * @param {Map<string,string[]>} visible_nodes mapping from doctypes to list of visible nodes of each doctype
-   * @param {string[]} selected_nodes list of id's
-   */
+ * Update doctype table with counts of nodes actually displayed
+ * @param {Map<string,string[]>} visible_nodes mapping from doctypes to list of visible nodes of each doctype
+ * @param {string[]} selected_nodes list of id's
+ */
 function set_doctype_count_shown (visible_nodes, selected_nodes) {
   let doctypes = visible_nodes.keys()
   let shown_count = 0
@@ -876,9 +1140,9 @@ function clear_doctypes_table () {
 }
 
 /**
-   * Create doctype table with counts and exclusion checkboxes
-   * @param {Map<string,string[]>} doctype_dict
-   */
+ * Create doctype table with counts and exclusion checkboxes
+ * @param {Map<string,string[]>} doctype_dict
+ */
 function display_doctypes_with_count (doctype_dict) {
   const doctype_names = Array.from(doctype_dict.keys())
   doctype_names.sort()
@@ -950,9 +1214,7 @@ function display_doctypes_with_count (doctype_dict) {
 function doctype_filter_change () {
   set_doctype_all_checkbox()
   // console.log("doctype_filter_change (click)")
-  if (auto_update) {
-    filter_graph()
-  }
+  filter_change()
 }
 
 /** Invert all doctype exclusions and update */
@@ -963,9 +1225,7 @@ function doctype_filter_all_change () {
 document.getElementById('auto_update').addEventListener('click', function () {
   // console.log("auto_update_click")
   auto_update = document.getElementById('auto_update').checked
-  if (auto_update) {
-    filter_graph()
-  }
+  filter_change()
 })
 
 document.getElementById('id_checkbox_input').addEventListener('change', function () {
@@ -991,9 +1251,9 @@ function filter_change () {
 }
 
 /**
-   * Set auto-update status
-   * @param {boolean} state true: do auto update, false: user has to trigger update
-   */
+ * Set auto-update status
+ * @param {boolean} state true: do auto update, false: user has to trigger update
+ */
 // eslint-disable-next-line no-unused-vars
 function set_auto_update (state) {
   document.getElementById('auto_update').checked = state
@@ -1001,10 +1261,10 @@ function set_auto_update (state) {
 }
 
 /**
-   * Create main oreqm object from XML string
-   * @param {string} name filename of oreqm file
-   * @param {string} data xml data
-   */
+ * Create main oreqm object from XML string
+ * @param {string} name filename of oreqm file
+ * @param {string} data xml data
+ */
 function process_data_main (name, data) {
   create_oreqm_main(name, data)
   document.getElementById('name').innerHTML = oreqm_main.filename
@@ -1031,18 +1291,18 @@ function process_data_main (name, data) {
 }
 
 /**
-   * Update window title
-   * @param {string} extra typically pathname of oreqm
-   */
+ * Update window title
+ * @param {string} extra typically pathname of oreqm
+ */
 function set_window_title (extra) {
   const title = `Visual ReqM2 - ${extra}`
   mainWindow.setTitle(title)
 }
 
 /**
-   * Load and process a single oreqm file
-   * @param {string} file
-   */
+ * Load and process a single oreqm file
+ * @param {string} file
+ */
 export function load_file_main (file) {
   // console.log("load_file_main", file);
   clear_diagram()
@@ -1057,10 +1317,10 @@ export function load_file_main (file) {
 }
 
 /**
-   * Load and process both main and reference oreqm files
-   * @param {string} file
-   * @param {string} ref_file
-   */
+ * Load and process both main and reference oreqm files
+ * @param {string} file
+ * @param {string} ref_file
+ */
 function load_file_main_fs (file, ref_file) {
   // console.log("load_file_main", file);
   clear_diagram()
@@ -1071,6 +1331,8 @@ function load_file_main_fs (file, ref_file) {
     process_data_main(file, data)
     if (ref_file) {
       load_file_ref_fs(ref_file)
+    } else if (vr2x_handler) {
+      vr2x_handler()
     }
   })
 }
@@ -1094,9 +1356,11 @@ function get_main_oreqm_file () {
 }
 
 function process_data_ref (name, data) {
-  // Process the loaded data
-  oreqm_main.remove_ghost_requirements(true)
-  update_doctype_table()
+  // Clean up data related to a previous ref file
+  oreqm_main.remove_ghost_requirements(true)  // possible ghost reqs were related to now disappearing ref file
+  update_doctype_table()  // This includes reqs of doctypes that might now be gone
+
+  // load new reference
   create_oreqm_ref(name, data)
   document.getElementById('ref_name').innerHTML = name
   document.getElementById('ref_size').innerHTML = (Math.round(data.length / 1024)) + ' KiB'
@@ -1104,16 +1368,14 @@ function process_data_ref (name, data) {
   const gr = compare_oreqm(oreqm_main, oreqm_ref)
   set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
   display_doctypes_with_count(oreqm_main.get_doctypes())
-  if (auto_update) {
-    filter_graph()
-  }
+  filter_change()
   set_window_title(`${oreqm_main.filename} vs. ${oreqm_ref.filename}`)
 }
 
 /**
-   * Load reference oreqm from specified pathname
-   * @param {string} file reference oreqm filename
-   */
+ * Load reference oreqm from specified pathname
+ * @param {string} file reference oreqm filename
+ */
 function load_file_ref (file) {
   // Load reference file
   if (oreqm_main) {
@@ -1129,9 +1391,9 @@ function load_file_ref (file) {
 }
 
 /**
-   * Load reference oreqm file. Main oreqm file is expected to be present.
-   * @param {string} file
-   */
+ * Load reference oreqm file. Main oreqm file is expected to be present.
+ * @param {string} file
+ */
 function load_file_ref_fs (file) {
   // Load reference file
   if (oreqm_main) {
@@ -1139,6 +1401,9 @@ function load_file_ref_fs (file) {
     // read file asynchronously
     fs.readFile(file, 'UTF-8', (err, data) => {
       process_data_ref(file, data)
+      if (vr2x_handler) {
+        vr2x_handler()
+      }
     })
   } else {
     alert('No main file selected')
@@ -1150,8 +1415,8 @@ document.getElementById('get_ref_oreqm_file').addEventListener('click', function
 })
 
 /**
-   * Interactive selection of input file
-   */
+ * Interactive selection of input file
+ */
 function get_ref_oreqm_file () {
   //rq: ->(rq_filesel_ref_oreqm)
   const filePath = remote.dialog.showOpenDialogSync(
@@ -1166,9 +1431,9 @@ function get_ref_oreqm_file () {
 }
 
 /**
-   * Get the list of doctypes with checked 'excluded' status from html
-   * @return {string[]} list of doctypes
-   */
+ * Get the list of doctypes with checked 'excluded' status from html
+ * @return {string[]} list of doctypes
+ */
 function get_excluded_doctypes () {
   const excluded_list = []
   if (oreqm_main) {
@@ -1187,8 +1452,26 @@ function get_excluded_doctypes () {
 }
 
 /**
-   * Set all doctypes to excluded/included
-   */
+ * Set checkboxes according to excluded doctypes
+ */
+ function set_excluded_doctype_checkboxes () {
+  // istanbul ignore else
+  if (oreqm_main) {
+    const doctypes = oreqm_main.get_doctypes()
+    const names = doctypes.keys()
+    const ex_list = oreqm_main.get_excluded_doctypes()
+    for (const doctype of names) {
+      const box = document.getElementById(`doctype_${doctype}`)
+      box.checked = ex_list.includes(doctype)
+    }
+    doctype_filter_change()
+  }
+}
+
+
+/**
+ * Set all doctypes to excluded/included
+ */
 function toggle_exclude () {
   // istanbul ignore else
   if (oreqm_main) {
@@ -1212,8 +1495,8 @@ document.getElementById('invert_exclude').addEventListener('click', function () 
 })
 
 /**
-   * Toggle each doctype exclusion individually
-   */
+ * Toggle each doctype exclusion individually
+ */
 function invert_exclude () {
   // Invert the exclusion status of all doctypes
   // istanbul ignore else
@@ -1247,9 +1530,9 @@ function set_doctype_all_checkbox () {
 }
 
 /**
-   * Get the regular expression from "Selection criteria" box
-   * @return {string} regular expression
-   */
+ * Get the regular expression from "Selection criteria" box
+ * @return {string} regular expression
+ */
 function get_search_regex_clean () {
   const raw_search = document.getElementById('search_regex').value
   const clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
@@ -1261,8 +1544,8 @@ document.getElementById('filter_graph').addEventListener('click', function () {
 })
 
 /**
-   * Update diagram with current selection and exclusion parameters
-   */
+ * Update diagram with current selection and exclusion parameters
+ */
 function filter_graph () {
   reset_selection()
   clear_toast()
@@ -1300,8 +1583,8 @@ function filter_graph () {
 }
 
 /**
-   * Take exclusion parameters (excluded doctypes and excluded <id>s) from UI and transfer to oreqm object
-   */
+ * Take exclusion parameters (excluded doctypes and excluded <id>s) from UI and transfer to oreqm object
+ */
 function handle_pruning () {
   if (oreqm_main) {
     let ex_id_list = []
@@ -1330,8 +1613,8 @@ let selected_width = ''
 let selected_color = ''
 
 /**
-   * Clear node selection list and visible combobox
-   */
+ * Clear node selection list and visible combobox
+ */
 function reset_selection () {
   selected_nodes = []
   selected_index = 0
@@ -1340,9 +1623,9 @@ function reset_selection () {
 }
 
 /**
-   * Set list of selected <id>'s in combobox above diagram
-   * @param {list} selection list of \<id>'s
-   */
+ * Set list of selected <id>'s in combobox above diagram
+ * @param {list} selection list of \<id>'s
+ */
 function set_selection (selection) {
   selected_nodes = selection
   selected_index = 0
@@ -1351,16 +1634,16 @@ function set_selection (selection) {
 }
 
 /**
-   * Checks if a node is explicitly selected, i.e. whole id is present in selection string.
-   * @param {string} node id string
-   */
+ * Checks if a node is explicitly selected, i.e. whole id is present in selection string.
+ * @param {string} node id string
+ */
 function selected_node_check (node) {
   return selected_nodes.includes(node)
 }
 
 /**
-   * Update svg outline around selected specobject
-   */
+ * Update svg outline around selected specobject
+ */
 function clear_selection_highlight () {
   if (selected_polygon) {
     selected_polygon.setAttribute('stroke-width', selected_width)
@@ -1370,9 +1653,9 @@ function clear_selection_highlight () {
 }
 
 /**
-   * Set highlight in svg around specified node
-   * @param {DOMobject} node SVG object. Naming is 'sel_'+id
-   */
+ * Set highlight in svg around specified node
+ * @param {DOMobject} node SVG object. Naming is 'sel_'+id
+ */
 function set_selection_highlight (node) {
   clear_selection_highlight()
   const outline = node.querySelector('.cluster > path')
@@ -1427,9 +1710,9 @@ function next_selected () {
 }
 
 /**
-   * Search all id strings for a match to regex and create selection list
-   * @param {string} regex regular expression
-   */
+ * Search all id strings for a match to regex and create selection list
+ * @param {string} regex regular expression
+ */
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
   oreqm_main.clear_marks()
@@ -1448,9 +1731,9 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
 }
 
 /**
-   * Search combined tagged string for a match to regex and create selection list
-   * @param {string} regex search criteria
-   */
+ * Search combined tagged string for a match to regex and create selection list
+ * @param {string} regex search criteria
+ */
 function txt_search (regex) { //rq: ->(rq_sel_txt)
   const results = oreqm_main.find_reqs_with_text(regex)
   oreqm_main.clear_marks()
@@ -1479,9 +1762,7 @@ function clear_reference_oreqm () {
     document.getElementById('ref_name').innerHTML = ''
     document.getElementById('ref_size').innerHTML = ''
     document.getElementById('ref_timestamp').innerHTML = ''
-    if (auto_update) {
-      filter_graph()
-    }
+    filter_change()
   }
   set_window_title(oreqm_main.filename)
 }
@@ -1648,9 +1929,9 @@ function clear_excluded_ids () {
 }
 
 /**
-   * Center svg diagram around the selected specobject
-   * @param {string} node_name
-   */
+ * Center svg diagram around the selected specobject
+ * @param {string} node_name
+ */
 function center_node (node_name) {
   let found = false
   // Get translation applied to svg coordinates by Graphviz
@@ -1827,10 +2108,10 @@ document.addEventListener('dragover', (event) => {
 })
 
 /**
-   * Process dropped file, if there is just one file
-   * @param {object} ev
-   * @param {boolean} main_file true: main file, false: reference file
-   */
+ * Process dropped file, if there is just one file
+ * @param {object} ev
+ * @param {boolean} main_file true: main file, false: reference file
+ */
 function process_dropped_file (ev, main_file) {
   let dropped_file
   let count = 0
@@ -1892,8 +2173,8 @@ function show_doctypes_safety () {
 }
 
 /**
-   * Update count in 'issues' button
-   */
+ * Update count in 'issues' button
+ */
 function set_issue_count () {
   let count = 0
   if (oreqm_main) {
@@ -1903,11 +2184,11 @@ function set_issue_count () {
 }
 
 /**
-   * Add git style '+', '-' in front of changed lines.
-   * The part can be multi-line and is expected to end with a newline
-   * @param {object} part diff object
-   * @return {string} updated string
-   */
+ * Add git style '+', '-' in front of changed lines.
+ * The part can be multi-line and is expected to end with a newline
+ * @param {object} part diff object
+ * @return {string} updated string
+ */
 function src_add_plus_minus (part) {
   const insert = part.added ? '+' : part.removed ? '-' : ' '
   let txt = part.value
@@ -1922,8 +2203,8 @@ document.getElementById('menu_xml_txt').addEventListener('click', function () {
 })
 
 /**
-   * Show selected node as XML in the source code modal (html)
-   */
+ * Show selected node as XML in the source code modal (html)
+ */
 function show_source () {
   if (selected_node.length) {
     const ref = document.getElementById('req_src')
@@ -1960,8 +2241,8 @@ function show_source () {
 }
 
 /**
-   * Context menu handler to show internal tagged search format
-   */
+ * Context menu handler to show internal tagged search format
+ */
 document.getElementById('menu_search_txt').addEventListener('click', function () {
   show_internal()
 })
@@ -2018,40 +2299,36 @@ function clear_problems () {
 }
 
 /**
-   * Update doctype table. Colors associated with doctypes may have changed, therefore cached
-   * visualization data is cleared.
-   */
+ * Update doctype table. Colors associated with doctypes may have changed, therefore cached
+ * visualization data is cleared.
+ */
 function update_doctype_table () {
   if (oreqm_main) {
     oreqm_main.clear_cache()
     display_doctypes_with_count(oreqm_main.doctypes)
-    if (auto_update) {
-      filter_graph()
-    }
+    filter_change()
   }
 }
 
 /**
-   * Handle display (or not) of rejected specobjects
-   */
+ * Handle display (or not) of rejected specobjects
+ */
 document.getElementById('no_rejects').addEventListener('change', function () {
   no_rejects_click()
 })
 
 function no_rejects_click () {
   no_rejects = document.getElementById('no_rejects').checked
-  if (auto_update) {
-    filter_graph()
-  }
+  filter_change()
 }
 
 /**
-   * Compare two oreqm files, each represented as objects.
-   * The main object will have visualization elements added and default diff related search terms are added.
-   * @param {object} oreqm_main
-   * @param {object} oreqm_ref
-   * @return {object} diff graph
-   */
+ * Compare two oreqm files, each represented as objects.
+ * The main object will have visualization elements added and default diff related search terms are added.
+ * @param {object} oreqm_main
+ * @param {object} oreqm_ref
+ * @return {object} diff graph
+ */
 function compare_oreqm (oreqm_main, oreqm_ref) {
   // Both main and reference oreqm have been read.
   // Highlight new, changed and removed nodes in main oreqm (removed are added as 'ghosts')
@@ -2142,8 +2419,8 @@ function url_click_handler (e, url) {
 }
 
 /**
-   * Make URLs clickable
-   */
+ * Make URLs clickable
+ */
 function prepareTags () {
   document.url_click_handler = url_click_handler
   document.shell_openExternal = shell.openExternal
@@ -2158,9 +2435,9 @@ function prepareTags () {
 }
 
 /**
-   * Get latest release tag from github and check against this version.
-   * Update 'About' dialog with release version and set button green.
-   */
+ * Get latest release tag from github and check against this version.
+ * Update 'About' dialog with release version and set button green.
+ */
 function check_newer_release_available () {
   //rq: ->(rq_check_github_release)
   const options = {
