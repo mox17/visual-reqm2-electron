@@ -178,6 +178,16 @@ function get_fulfilledby (node) {
 
 // let magic = 'BAT_SDK_1'
 
+function linkstoCompare(a, b) {
+  if (a.linksto < b.linksto) {
+    return -1
+  }
+  if (a.linksto > b.linksto) {
+    return 1
+  }
+  return 0
+}
+
 /**
  * Compare a_in and b_in objects, while ignoring the fields listed in ignore_list
  * @param {object} a_in
@@ -190,6 +200,26 @@ function stringEqual (a_in, b_in, ignore_list) {
   const a = cloneDeep(a_in)
   const b = cloneDeep(b_in)
   // console.log(typeof(a), a, typeof(b), b)
+
+  // Make sure list items are in same order for comparison
+  a.linksto.sort(linkstoCompare)
+  a.dependson.sort()
+  a.needsobj.sort()
+  a.platform.sort()
+  a.verifymethods.sort()
+  a.releases.sort()
+  a.conflicts.sort()
+  a.tags.sort()
+
+  b.linksto.sort(linkstoCompare)
+  b.dependson.sort()
+  b.needsobj.sort()
+  b.platform.sort()
+  b.verifymethods.sort()
+  b.releases.sort()
+  b.conflicts.sort()
+  b.tags.sort()
+
   // istanbul ignore else
   if (typeof (a) === 'object' && typeof (b) === 'object') {
     for (const field of ignore_list) {
@@ -219,7 +249,7 @@ function stringEqual (a_in, b_in, ignore_list) {
       lt.diff = ''
       }
     }
-    if (a.fulfilledby !== null) {
+    if (b.fulfilledby !== null) {
       for (let ffb of b.fulfilledby) {
       ffb.ffblinkerror = null
       ffb.diff = null
@@ -233,6 +263,9 @@ function stringEqual (a_in, b_in, ignore_list) {
   // if (!equal && a_s.includes(magic)) {
   //   console.log(a_s, b_s)
   // }
+  if (!equal) {
+    //console.log(a_in.id)
+  }
   return equal
 }
 
