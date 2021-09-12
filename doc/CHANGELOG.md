@@ -4,7 +4,18 @@
 Handle ReqM2 traces where the <id> names contain regex meta characters such as '(' ')' '[' '{' etc.
 This previously broke the select/deselect logic because the id's were regexes that didn't match themselves.
 
-The '.' character continues to be an un-escaped metacharacter, which could lead to finding too many spebjects, but it does not force regex knowledge on the users of Visual ReqM2.
+The '.' character continues to be an un-escaped metacharacter, which could lead to finding too many spebjects,
+but it does not force regex knowledge on the users of Visual ReqM2.
+
+Harmonize names of binaries in releases
+| Type                | Filename                    |
+|---------------------|-----------------------------|
+| Windows stand-alone | visualreqm2-2.1.2.exe       |
+| Windows installer   | visualreqm2-2.1.2-Setup.exe |
+| Linux stand-alone   | visualreqm2-2.1.2.AppImage  |
+| Linux Debian        | visualreqm2-2.1.2.deb       |
+| Linux RPM           | visualreqm2-2.1.2.rpm       |
+
 
 ## 2.1.1
 Fix bug with detecting differences between `.oreqm` files.
