@@ -125,7 +125,7 @@
       "deleteAppDataOnUninstall": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "artifactName": "${productName}-${version}-Setup.${ext}",
+      "artifactName": "${productName}-${version}-setup.${ext}",
       "license": "LICENSE"
     },
     "linux": {
@@ -133,7 +133,7 @@
       "description": "Visual ReqM2 is an unofficial app to visualize requirement relationships.",
       "synopsis": "ReqM2 requirements viewer",
       "desktop": {},
-      "artifactName": "${productName}-${version}.${ext}",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
       "target": [
         {
           "target": "AppImage",

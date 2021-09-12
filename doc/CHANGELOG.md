@@ -8,13 +8,13 @@ The '.' character continues to be an un-escaped metacharacter, which could lead 
 but it does not force regex knowledge on the users of Visual ReqM2.
 
 Harmonize names of binaries in releases
-| Type                | Filename                    |
-|---------------------|-----------------------------|
-| Windows stand-alone | visualreqm2-2.1.2.exe       |
-| Windows installer   | visualreqm2-2.1.2-Setup.exe |
-| Linux stand-alone   | visualreqm2-2.1.2.AppImage  |
-| Linux Debian        | visualreqm2-2.1.2.deb       |
-| Linux RPM           | visualreqm2-2.1.2.rpm       |
+| Type                | Filename                          |
+|---------------------|-----------------------------------|
+| Windows stand-alone | visualreqm2-2.1.2.exe             |
+| Windows installer   | visualreqm2-2.1.2-setup.exe       |
+| Linux stand-alone   | visualreqm2-2.1.2-x86_64.AppImage |
+| Linux Debian        | visualreqm2-2.1.2-amd64.deb       |
+| Linux RPM           | visualreqm2-2.1.2-x86_64.rpm      |
 
 
 ## 2.1.1
