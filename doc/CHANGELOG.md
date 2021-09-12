@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.1.1
+Fix bug with detecting differences between `.oreqm` files.
+
+Phantom differences were caused by differing order of items in lists within specobjects.
+These lists are now sorted before comparison.
+
 ## 2.1.0
  * Diagram context save and load
    * store a `.vr2x` file (json format) with the paths to `.oreqm` file(s), selection criteria and settings affecting rendering.
