@@ -1852,12 +1852,27 @@ window.onclick = function (event) {
   }
 }
 
+function escRegexMetaChars (str) {
+  return str.replaceAll('\\', '\\\\')
+            .replaceAll('^', '\\^')
+            .replaceAll('$', '\\$')
+//            .replaceAll('.', '\\.') // strictly speaking this should be included, but may confuse users not consciously using regex
+            .replaceAll('|', '\\|')
+            .replaceAll('?', '\\?')
+            .replaceAll('*', '\\*')
+            .replaceAll('+', '\\+')
+            .replaceAll('(', '\\(')
+            .replaceAll(')', '\\)')
+            .replaceAll('[', '\\[')
+            .replaceAll('{', '\\{')
+}
+
 // Selection/deselection of nodes by right-clicking the diagram
 document.getElementById('menu_select').addEventListener('click', function () {
   // Add node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_add_selection)
   const node = selected_node
-  let node_select_str = `${node}$`
+  let node_select_str = escRegexMetaChars(node)+'$'
   let search_pattern = document.getElementById('search_regex').value.trim()
   if (oreqm_main && oreqm_main.check_node_id(node)) {
     if (!search_pattern.includes(node_select_str)) {
@@ -1876,7 +1891,7 @@ document.getElementById('menu_select').addEventListener('click', function () {
 document.getElementById('menu_deselect').addEventListener('click', function () {
   // Remove node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_deselect)
-  const node = selected_node
+  const node = escRegexMetaChars(escRegexMetaChars(selected_node))
   const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
   const org_search_pattern = document.getElementById('search_regex').value.trim()
   const search_pattern = org_search_pattern.replace(/\n/g, '')
