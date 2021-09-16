@@ -1867,14 +1867,23 @@ function escRegexMetaChars (str) {
             .replaceAll('{', '\\{')
 }
 
+// For duplicates remove the disambiguating id suffix of :\d and check if it is valid
+function remDupSuffix (str) {
+  const pureId = str.replace(/:\d+$/, '')
+  if (oreqm_main.duplicates.has(pureId)) {
+    str = pureId;
+  }
+  return str
+}
+
 // Selection/deselection of nodes by right-clicking the diagram
 document.getElementById('menu_select').addEventListener('click', function () {
   // Add node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_add_selection)
   const node = selected_node
-  let node_select_str = escRegexMetaChars(node)+'$'
-  let search_pattern = document.getElementById('search_regex').value.trim()
   if (oreqm_main && oreqm_main.check_node_id(node)) {
+    let node_select_str = escRegexMetaChars(remDupSuffix(node))+'$'
+    let search_pattern = document.getElementById('search_regex').value.trim()
     if (!search_pattern.includes(node_select_str)) {
       if (search_pattern.length) {
         node_select_str = '\n|' + node_select_str
@@ -1891,22 +1900,24 @@ document.getElementById('menu_select').addEventListener('click', function () {
 document.getElementById('menu_deselect').addEventListener('click', function () {
   // Remove node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_deselect)
-  const node = escRegexMetaChars(escRegexMetaChars(selected_node))
-  const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
-  const org_search_pattern = document.getElementById('search_regex').value.trim()
-  const search_pattern = org_search_pattern.replace(/\n/g, '')
-  let new_search_pattern = search_pattern.replace(node_select_str, '')
-  if (new_search_pattern[0] === '|') {
-    new_search_pattern = new_search_pattern.slice(1)
-  }
-  new_search_pattern = new_search_pattern.replace(/\|/g, '\n|')
-  if (new_search_pattern !== search_pattern) {
-    document.getElementById('search_regex').value = new_search_pattern
-    // console.log("deselect_node() - search ", node, search_pattern, new_search_pattern)
-    filter_change()
-  } else {
-    const alert_text = `'${node}' is not a selected node\nPerhaps try 'Exclude'?`
-    alert(alert_text)
+  if (oreqm_main && oreqm_main.check_node_id(selected_node)) {
+    const node = escRegexMetaChars(escRegexMetaChars(remDupSuffix(selected_node)))
+    const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
+    const org_search_pattern = document.getElementById('search_regex').value.trim()
+    const search_pattern = org_search_pattern.replace(/\n/g, '')
+    let new_search_pattern = search_pattern.replace(node_select_str, '')
+    if (new_search_pattern[0] === '|') {
+      new_search_pattern = new_search_pattern.slice(1)
+    }
+    new_search_pattern = new_search_pattern.replace(/\|/g, '\n|')
+    if (new_search_pattern !== search_pattern) {
+      document.getElementById('search_regex').value = new_search_pattern
+      // console.log("deselect_node() - search ", node, search_pattern, new_search_pattern)
+      filter_change()
+    } else {
+      const alert_text = `'${node}' is not a selected node\nPerhaps try 'Exclude'?`
+      alert(alert_text)
+    }
   }
 })
 

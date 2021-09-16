@@ -1,7 +1,11 @@
 ### Changelog
 
+## 2.1.3
+When selecting a duplicate from the context menu, all duplicate entries are selected.
+Individual duplicates can excluded.
+
 ## 2.1.2
-Handle ReqM2 traces where the <id> names contain regex meta characters such as '(' ')' '[' '{' etc.
+Handle ReqM2 traces where the `<id>` names contain regex meta characters such as '(' ')' '[' '{' etc.
 This previously broke the select/deselect logic because the id's were regexes that didn't match themselves.
 
 The '.' character continues to be an un-escaped metacharacter, which could lead to finding too many spebjects,
