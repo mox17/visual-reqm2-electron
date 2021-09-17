@@ -339,6 +339,24 @@ ipcMain.on('cmd_show_error', (_evt, title, msg) => {
   dialog.showErrorBox(title, msg)
 })
 
+/**
+ * This handler is called from fs.watchFile() logic in render thread
+ */
+ipcMain.on('file_updated', (_evt, title, path) => {
+  console.log(title, path)
+  const choice = dialog.showMessageBoxSync(
+    {
+      type: 'question',
+      buttons: ['Ignore', 'Reload'],
+      defaultId: 0,
+      title: title,
+      message: `File updated:\n${path}`
+    })
+    if (choice === 1) {
+      mainWindow.webContents.send('file_updated', title, path)
+    }
+})
+
 // Handle automatic updates
 // istanbul ignore next
 autoUpdater.on('update-available', () => {

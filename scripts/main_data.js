@@ -4,6 +4,7 @@
 import { ReqM2Oreqm } from './diagrams.js'
 import Viz from 'viz.js'
 import fs from 'fs'
+import { ipcRenderer } from 'electron'
 
 /**
  * Callback when updated settings are taken into use
@@ -118,7 +119,15 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
  * @param {*} data XML content of file
  */
 export function create_oreqm_main (name, data) {
+  // Stop watching any previous file
+  if (oreqm_main) {
+    fs.unwatchFile(oreqm_main.filename)
+  }
   oreqm_main = new ReqM2Oreqm(name, data, [], [])
+  fs.watchFile(name, (_curr, _prev) => {
+    // console.log("File updated: ", name)
+    ipcRenderer.send('file_updated', 'Main .oreqm changed', name)
+  })
   return oreqm_main
 }
 
@@ -128,7 +137,15 @@ export function create_oreqm_main (name, data) {
  * @param {*} data XML content of file
  */
 export function create_oreqm_ref (name, data) {
+  // Stop watching any previous file
+  if (oreqm_ref) {
+    fs.unwatchFile(oreqm_ref.filename)
+  }
   oreqm_ref = new ReqM2Oreqm(name, data, [], [])
+  fs.watchFile(name, (_curr, _prev) => {
+    // console.log("File updated: ", name)
+    ipcRenderer.send('file_updated', 'Reference .oreqm changed', name)
+  })
   return oreqm_ref
 }
 
@@ -174,6 +191,7 @@ export function save_diagram_file (savePath) {
  * clean up reference oreqm object
  */
 export function clear_oreqm_ref () {
+  fs.unwatchFile(oreqm_ref.filename)
   oreqm_ref = null
   oreqm_main.remove_ghost_requirements(true)
 }

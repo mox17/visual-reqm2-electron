@@ -449,6 +449,20 @@ ipcRenderer.on('cl_cmd', (_evt, arg) => {
   }
 })
 
+/**
+ * Called when a user accepts the option to reload a modified file
+ * The selection between main and ref is based on the presence of
+ * 'main' (case ignored) in the title.
+ */
+ipcRenderer.on('file_updated', (_evt, title, path)  => {
+  // console.log("ipcRenderer.on('file_updated", title, path)
+  if (title.toLowerCase().includes('main')) {
+    load_file_main_fs(path, null)
+  } else {
+    load_file_ref_fs(path)
+  }
+})
+
 document.getElementById('prog_version').innerHTML = remote.app.getVersion()
 document.getElementById('auto_update').checked = auto_update
 
