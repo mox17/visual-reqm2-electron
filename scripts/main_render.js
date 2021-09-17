@@ -1300,29 +1300,12 @@ function set_window_title (extra) {
 }
 
 /**
- * Load and process a single oreqm file
- * @param {string} file
- */
-export function load_file_main (file) {
-  // console.log("load_file_main", file);
-  clear_diagram()
-  clear_doctypes_table()
-  spinner_show()
-  // setting up the reader
-  const reader = new FileReader()
-  reader.readAsText(file, 'UTF-8')
-  reader.onload = readerEvent => {
-    process_data_main(file.path.length ? file.path : file.name, readerEvent.target.result)
-  }
-}
-
-/**
  * Load and process both main and reference oreqm files
  * @param {string} file
  * @param {string} ref_file
  */
 function load_file_main_fs (file, ref_file) {
-  // console.log("load_file_main", file);
+  // console.log("load_file_main_fs", file);
   clear_diagram()
   clear_doctypes_table()
   spinner_show()
@@ -1370,24 +1353,6 @@ function process_data_ref (name, data) {
   display_doctypes_with_count(oreqm_main.get_doctypes())
   filter_change()
   set_window_title(`${oreqm_main.filename} vs. ${oreqm_ref.filename}`)
-}
-
-/**
- * Load reference oreqm from specified pathname
- * @param {string} file reference oreqm filename
- */
-function load_file_ref (file) {
-  // Load reference file
-  if (oreqm_main) {
-    spinner_show()
-    const reader = new FileReader()
-    reader.readAsText(file, 'UTF-8')
-    reader.onload = readerEvent => {
-      process_data_ref(file.path.length ? file.path : file.name, readerEvent.target.result)
-    }
-  } else {
-    alert('No main file selected')
-  }
 }
 
 /**
@@ -2162,10 +2127,11 @@ function process_dropped_file (ev, main_file) {
     }
   }
   if (count === 1) {
+    const filename = dropped_file.path.length ? dropped_file.path : dropped_file.name
     if (main_file) {
-      load_file_main(dropped_file)
+      load_file_main_fs(filename)
     } else {
-      load_file_ref(dropped_file)
+      load_file_ref_fs(filename)
     }
   }
 }
@@ -2498,6 +2464,9 @@ function check_newer_release_available () {
   })
 }
 
+/**
+ * Helper function to save coverage data for unit tests
+ */
 window.addEventListener('unload', function(_event) {
   if (window.__coverage__) {
     let name = '.nyc_output/coverage.json'
