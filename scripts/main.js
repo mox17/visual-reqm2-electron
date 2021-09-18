@@ -301,7 +301,12 @@ app.on('ready', () => {
   createWindow()
 
   mainWindow.webContents.on('did-finish-load', () => {
+    // console.log("did-finish-load")
+  })
+
+  mainWindow.webContents.once('dom-ready', () => {
     // console.log("argv:", process.argv, args)
+    // console.log("dom-ready")
     mainWindow.webContents.send('argv', process.argv, args)
   })
 })

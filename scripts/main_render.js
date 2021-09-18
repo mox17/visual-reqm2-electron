@@ -252,6 +252,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   let main = false
   let ref = false
 
+  // console.log("ipcRenderer.on('argv'")
   // console.dir(args)
   set_limit_reporter(report_limit_as_toast)
   handle_settings(settings_updated, args)
@@ -296,10 +297,12 @@ ipcRenderer.on('argv', (event, parameters, args) => {
     }
   }
   if (ok && main) {
+    // console.log("render files:", args.oreqm_main, args.oreqm_ref)
     load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null)
   } else if (args.context !== undefined && args.context.length > 0) {
     // Check for context file (exclusive with oreqm_main & oreqm_ref)
     const check_context = find_file(args.context)
+    // console.log("render context:", args.context)
     // istanbul ignore else
     if (check_context.length) {
       args.context = check_context
@@ -432,6 +435,7 @@ function check_cmd_line_steps () {
         // istanbul ignore next
         console.log(`Unknown operation '${next_operation}'`)
     }
+    document.getElementById('vrm2_batch').innerHTML = next_operation
   }
 }
 
@@ -441,6 +445,7 @@ function check_cmd_line_steps () {
  * The processing then continues via this handler.
  */
 ipcRenderer.on('cl_cmd', (_evt, arg) => {
+  // console.log("cl_cmd", arg)
   // istanbul ignore else
   if (arg === 'next') {
     check_cmd_line_steps()
@@ -1075,6 +1080,7 @@ function diagram_error (message) {
 }
 
 function update_diagram (selected_format) {
+  // console.log("update_diagram")
   clear_diagram()
   update_graph(selected_format, spinner_show, spinner_clear, updateOutput, diagram_error)
 }
@@ -1280,6 +1286,7 @@ function set_auto_update (state) {
  * @param {string} data xml data
  */
 function process_data_main (name, data) {
+  // console.log("process_data_main")
   create_oreqm_main(name, data)
   document.getElementById('name').innerHTML = oreqm_main.filename
   document.getElementById('size').innerHTML = (Math.round(data.length / 1024)) + ' KiB'
@@ -1319,19 +1326,34 @@ function set_window_title (extra) {
  * @param {string} ref_file
  */
 function load_file_main_fs (file, ref_file) {
-  // console.log("load_file_main_fs", file);
+  console.log("load_file_main_fs", file, ref_file);
   clear_diagram()
+  console.log("load_file_main_fs 2");
   clear_doctypes_table()
+  console.log("load_file_main_fs 3");
   spinner_show()
+  console.log("load_file_main_fs 4");
+
+  // This is  a work-around. When testing on Windows the async filereading hangs
+  let data = fs.readFileSync(file, 'UTF-8')
+  console.log("main file read")
+  process_data_main(file, data)
+  if (ref_file) {
+    load_file_ref_fs(ref_file)
+  } else if (vr2x_handler) {
+    vr2x_handler()
+  }
+
   // read file asynchronously
-  fs.readFile(file, 'UTF-8', (err, data) => {
-    process_data_main(file, data)
-    if (ref_file) {
-      load_file_ref_fs(ref_file)
-    } else if (vr2x_handler) {
-      vr2x_handler()
-    }
-  })
+  // fs.readFile(file, 'UTF-8', (err, data) => {
+  //   console.log("main file read")
+  //   process_data_main(file, data)
+  //   if (ref_file) {
+  //     load_file_ref_fs(ref_file)
+  //   } else if (vr2x_handler) {
+  //     vr2x_handler()
+  //   }
+  // })
 }
 
 /** Handle button click for interactive load of main oreqm via file selector */
@@ -1357,6 +1379,7 @@ function process_data_ref (name, data) {
   oreqm_main.remove_ghost_requirements(true)  // possible ghost reqs were related to now disappearing ref file
   update_doctype_table()  // This includes reqs of doctypes that might now be gone
 
+  // console.log("process_data_ref")
   // load new reference
   create_oreqm_ref(name, data)
   document.getElementById('ref_name').innerHTML = name
@@ -1377,13 +1400,23 @@ function load_file_ref_fs (file) {
   // Load reference file
   if (oreqm_main) {
     spinner_show()
+
+    // read file synchronously
+    let data = fs.readFileSync(file, 'UTF-8')
+    console.log("load_file_ref_fs readfile done")
+    process_data_ref(file, data)
+    if (vr2x_handler) {
+      vr2x_handler()
+    }
+
     // read file asynchronously
-    fs.readFile(file, 'UTF-8', (err, data) => {
-      process_data_ref(file, data)
-      if (vr2x_handler) {
-        vr2x_handler()
-      }
-    })
+    // fs.readFile(file, 'UTF-8', (err, data) => {
+    //   console.log("load_file_ref_fs readfile done")
+    //   process_data_ref(file, data)
+    //   if (vr2x_handler) {
+    //     vr2x_handler()
+    //   }
+    // })
   } else {
     alert('No main file selected')
   }
@@ -1526,6 +1559,7 @@ document.getElementById('filter_graph').addEventListener('click', function () {
  * Update diagram with current selection and exclusion parameters
  */
 function filter_graph () {
+  console.log("filter_graph")
   reset_selection()
   clear_toast()
   if (oreqm_main) {
