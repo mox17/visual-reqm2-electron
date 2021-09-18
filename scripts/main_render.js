@@ -1,11 +1,11 @@
 'use strict'
 // eslint-disable-next-line no-redeclare
-/* global DOMParser, Event, Split, alert, svgPanZoom, FileReader, Diff, ClipboardItem  */
+/* global DOMParser, Event, Split, alert, svgPanZoom, Diff, ClipboardItem  */
 import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
-import { dialog, ipcRenderer, remote, shell } from 'electron'
+import { ipcRenderer, remote, shell } from 'electron'
 import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -326,7 +326,7 @@ function cmd_line_parameters (args) {
   document.getElementById('id_checkbox_input').checked = args.idOnly
   document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
-    document.getElementById('excluded_ids').value = args.exclIds.replace(',', '\n')
+    document.getElementById('excluded_ids').value = args.exclIds.replaceAll(',', '\n')
   }
   document.getElementById('no_rejects').checked = !args.inclRejected
   if (args.exclDoctypes !== undefined) {
@@ -906,12 +906,18 @@ function save_diagram_context (ctxPath) {
   if (oreqm_main) {
     let absPath_main = calcAbsPath(oreqm_main.filename)
     // Make context file relative paths portable between Linux and Windows
-    let relPath = path.relative(path.dirname(ctxPath), absPath_main).replace('\\', '/')
+    let relPath = path.relative(path.dirname(ctxPath), absPath_main).replaceAll('\\', '/')
+    if (relPath[0] !== '.') {
+      relPath = './' + relPath
+    }
     let absPath_ref = ""
     let relPath_ref = ""
     if (oreqm_ref) {
       absPath_ref = calcAbsPath(oreqm_ref.filename)
-      relPath_ref = path.relative(path.dirname(ctxPath), absPath_ref).replace('\\', '/')
+      relPath_ref = path.relative(path.dirname(ctxPath), absPath_ref).replaceAll('\\', '/')
+      if (relPath_ref[0] !== '.') {
+        relPath_ref = './' + relPath_ref
+      }
     }
 
     let diagCtx = {
@@ -956,14 +962,21 @@ function load_diagram_context (ctxPath) {
   auto_update = false
   let diagCtx = JSON.parse(fs.readFileSync(ctxPath, { encoding: 'utf8', flag: 'r' }))
   let ctxDir = path.dirname(ctxPath)
-  let main_rel_path = path.join(ctxDir, diagCtx.main_oreqm_rel)
+  let main_rel_path = path.join(ctxDir, diagCtx.main_oreqm_rel).replaceAll('\\', '/')
   let ref_rel_path = null
 
   let main_rel = fs.existsSync(main_rel_path)
   let load_ref = diagCtx.ref_oreqm_rel !== ""
   let ref_rel = false
+  // Set up async handler for context load
+  vr2x_handler = vr2x_handler_func
+  // Set up a handler to restore parameters when load of oreqm file(s) complete
+  vr2x_ctx = {
+    diagCtx: diagCtx,
+    auto_update: save_auto
+  }
   if (load_ref) {
-    ref_rel_path = path.join(ctxDir, diagCtx.ref_oreqm_rel)
+    ref_rel_path = path.join(ctxDir, diagCtx.ref_oreqm_rel).replaceAll('\\', '/')
     ref_rel = fs.existsSync(ref_rel_path)
   }
   if (main_rel && load_ref && ref_rel) {
@@ -986,14 +999,6 @@ function load_diagram_context (ctxPath) {
     ipcRenderer.send('cmd_show_error', "ReqM2 Context file", msg)
     return
   }
-  // The loading and processing happens asynchronously
-  // Set up a handler to restore parameters when load of oreqm file(s) complete
-  vr2x_ctx = {
-    diagCtx: diagCtx,
-    auto_update: save_auto
-  }
-  // Set up async handler for context load
-  vr2x_handler = vr2x_handler_func
 }
 
 let vr2x_handler = null
@@ -1285,7 +1290,7 @@ function set_auto_update (state) {
  * @param {string} name filename of oreqm file
  * @param {string} data xml data
  */
-function process_data_main (name, data) {
+function process_data_main (name, data, update) {
   // console.log("process_data_main")
   create_oreqm_main(name, data)
   document.getElementById('name').innerHTML = oreqm_main.filename
@@ -1300,11 +1305,13 @@ function process_data_main (name, data) {
     set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
   }
   display_doctypes_with_count(oreqm_main.get_doctypes())
-  if (auto_update) {
-    filter_graph()
-  } else {
-    oreqm_main.set_svg_guide()
-    update_diagram(selected_format)
+  if (update) {
+    if (auto_update) {
+      filter_graph()
+    } else {
+      oreqm_main.set_svg_guide()
+      update_diagram(selected_format)
+    }
   }
   document.getElementById('get_ref_oreqm_file').disabled = false
   document.getElementById('clear_ref_oreqm').disabled = false
@@ -1326,18 +1333,15 @@ function set_window_title (extra) {
  * @param {string} ref_file
  */
 function load_file_main_fs (file, ref_file) {
-  console.log("load_file_main_fs", file, ref_file);
+  // console.log("load_file_main_fs", file, ref_file);
   clear_diagram()
-  console.log("load_file_main_fs 2");
   clear_doctypes_table()
-  console.log("load_file_main_fs 3");
   spinner_show()
-  console.log("load_file_main_fs 4");
 
   // This is  a work-around. When testing on Windows the async filereading hangs
   let data = fs.readFileSync(file, 'UTF-8')
   console.log("main file read")
-  process_data_main(file, data)
+  process_data_main(file, data, ref_file === null)
   if (ref_file) {
     load_file_ref_fs(ref_file)
   } else if (vr2x_handler) {

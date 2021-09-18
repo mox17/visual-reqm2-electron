@@ -1,8 +1,12 @@
+.husky/
 .nyc_output/*
 .vscode/*
+*.js_
 *.tgz
+**/tmp/*
 coverage/*
 dist/*
+doc/.*
 electron-builder.yml
 lib/*
 node_modules/*
@@ -10,4 +14,4 @@ out/*
 package-lock.json
 reqm2/*
 testdata/ITREQM2*
-tmp*/*
+testdata/oreqm/*
