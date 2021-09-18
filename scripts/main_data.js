@@ -50,6 +50,7 @@ export var dot_source = ''
  * @param {function} cb_error some_function(error)
  */
 export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, cb_success, cb_error) {
+  // console.log("update_graph")
   action_start()
   if (vizjs_worker) {
     vizjs_worker.terminate()
@@ -60,6 +61,7 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
     cb_spinner_run('Processing dot')
   }
   vizjs_worker.onmessage = function (e) {
+    // console.log("vizjs_worker.onmessage")
     svg_result = e.data
     if (cb_spinner_stop) {
       cb_spinner_stop()

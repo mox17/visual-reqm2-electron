@@ -1,0 +1,2 @@
+Detected problems:
+specobject 'TestDemoSpec.Object004' is duplicated with same version '1'

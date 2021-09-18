@@ -54,6 +54,7 @@ function holdBeforeFileExists (filePath, timeout) {
   timeout = timeout < 1000 ? 1000 : timeout
   return new Promise((resolve) => {
     const timer = setTimeout(function () {
+      console.log("Timeout", timeout, filePath)
       resolve()
     }, timeout)
 
@@ -68,6 +69,7 @@ function holdBeforeFileExists (filePath, timeout) {
 }
 
 async function compare_files (main_file, ref_file) {
+  await holdBeforeFileExists(main_file, 10000)
   const main_txt = eol.auto(fs.readFileSync(main_file, 'utf8'))
   const ref_txt = eol.auto(fs.readFileSync(ref_file, 'utf8'))
   assert.strictEqual(main_txt, ref_txt)
@@ -391,6 +393,16 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await wait_for_operation(app)
       assert.ok(fs.existsSync(png_filename)) //rq: ->(rq_save_png_file)
+    })
+
+    it('save diagram context', async function () {
+      const context_filename = './tmp/main_ref_1.vr2x'
+      await remove_file(context_filename)
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: context_filename }])
+      await fakeMenu.clickMenu('File', 'Save diagram context...')
+      await wait_for_operation(app)
+      assert.ok(fs.existsSync(context_filename))
+      await compare_files(context_filename, './test/refdata/main_ref_1.vr2x')
     })
 
     it('save comparison as svg', async function () {
@@ -728,6 +740,29 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await wait_for_operation(app)
       await compare_files(dot_filename, ref_file)
+    })
+  })
+
+  describe('Load context', function () {
+    /**
+     * Load previous saved context and check the save diagram is created
+     * by saving a new .dot
+     */
+     it('Load diagram context', async function () {
+      const context_filename = './tmp/main_ref_1.vr2x'
+      const dot_filename = './tmp/context.dot'
+      assert.ok(fs.existsSync(context_filename))
+      await remove_file(dot_filename)
+
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [context_filename] }])
+      await fakeMenu.clickMenu('File', 'Load diagram context...')
+      await wait_for_operation(app)
+
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
+      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await wait_for_operation(app)
+      // TODO: Details of pathnames need handling here
+      // await compare_files(dot_filename, './test/refdata/main_ref_1.dot')
     })
   })
 })
