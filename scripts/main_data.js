@@ -73,11 +73,13 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
   }
 
   vizjs_worker.onerror = function (e) {
-    const message = e.message === undefined ? 'An error occurred while processing the graph input.' : e.message
+    // const message = e.message === undefined ? 'An error occurred while processing the graph input.' : e.message
+    const message = 'The Graphviz library could not generate a graph from the input.\nLimit the number of shown specobjects.'
     console.error(e)
     //console.log(dot_source)
     e.preventDefault()
     if (cb_error) {
+      cb_spinner_stop()
       cb_error(message)
     }
     action_done()

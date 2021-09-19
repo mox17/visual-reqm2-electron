@@ -357,16 +357,19 @@
 
   /* spinner */
   .loader {
-   /* margin: auto;*/
     border: 16px solid #f3f3f3;
-    border-radius: 50%;
     border-top: 16px solid #3498db;
+    border-radius: 50%;
     width: 120px;
     height: 120px;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
-    align-self: center;
     overflow: hidden;
+
+    position: absolute;
+    left: 35%;
+    top: 35%;
+    transform: translate(-50%, -50%);
   }
 
   /* Safari */

@@ -475,12 +475,12 @@ document.getElementById('prog_version').innerHTML = remote.app.getVersion()
 document.getElementById('auto_update').checked = auto_update
 
 function spinner_show () {
-  document.querySelector('#output').classList.add('loader')
+  document.querySelector('#spinner').classList.add('loader')
   document.querySelector('#output').classList.remove('error')
 }
 
 function spinner_clear () {
-  document.querySelector('#output').classList.remove('loader')
+  document.querySelector('#spinner').classList.remove('loader')
   document.querySelector('#output').classList.remove('error')
 }
 
@@ -507,6 +507,7 @@ function error_show (message) {
     error.removeChild(error.firstChild)
   }
   document.querySelector('#error').appendChild(document.createTextNode(message))
+  document.querySelector('#output').classList.add('error')
 }
 
 /** svg element parsed from graphviz svg output */
@@ -2194,7 +2195,7 @@ function process_dropped_file (ev, main_file) {
     const filename = dropped_file.path.length ? dropped_file.path : dropped_file.name
     if (filename.endsWith('.vr2x')) {
       load_diagram_context(filename)
-    } else {
+    } else if (filename.endsWith('.oreqm')) {
       if (main_file) {
         load_file_main_fs(filename)
       } else {

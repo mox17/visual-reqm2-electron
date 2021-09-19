@@ -6,6 +6,8 @@
 * File watching. If a currently displayed `.oreqm` is updated, the user will be offered
   to reload the file or ignore the change.
 * Allow drag-and-drop of `.vr2x` file to load a diagram context.
+* Cosmetic changes to spinner.
+* Show error message when Graphviz fails (typically because of too complex graph).
 
 
 ## 2.1.2
