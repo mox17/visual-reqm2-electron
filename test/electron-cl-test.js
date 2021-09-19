@@ -77,15 +77,6 @@ describe('command line processing', function () {
     remove_file('./tmp/cl-test-safety.svg')
   })
 
-  after(async function () {
-    if (app && await app.isRunning()) {
-      await app.stop()
-    }
-    await compare_files('./tmp/cl-test-diagram.svg', './test/refdata/cl-test-diagram.svg') //rq: ->(rq_automatic_diagram)
-    await compare_files('./tmp/cl-test-doctypes.svg', './test/refdata/cl-test-doctypes.svg')
-    await compare_files('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
-  })
-
   it('launch the application', async function () {
     app = new Application({
       path: electronPath,
@@ -108,25 +99,37 @@ describe('command line processing', function () {
     fakeMenu.apply(app)
     fakeDialog.apply(app)
 
-    // console.log("app.start 1")
     await app.start().then(appSuccess, appFailure)
-    // console.log("promise done")
     await app.client.waitUntilTextExists('#vrm2_batch', 'done', {timeout: 20010})
-    // console.log("promise done 2")
     // console.log("render logs", await app.client.getRenderProcessLogs())
     // console.log("main logs", await app.client.getMainProcessLogs())
   })
 
+  it('Check program exit', async function () {
+    if (app && await app.isRunning()) {
+      await app.stop()
+    }
+  })
+
+  it('Check specobject diagram', async function () {
+    await compare_files('./tmp/cl-test-diagram.svg', './test/refdata/cl-test-diagram.svg') //rq: ->(rq_automatic_diagram)
+  })
+
+  it('Check hierarchy diagram', async function () {
+    await compare_files('./tmp/cl-test-doctypes.svg', './test/refdata/cl-test-doctypes.svg')
+  })
+
+  it('Check safetyclass diagram', async function () {
+    await compare_files('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
+  })
+
   async function appSuccess () {
     assert.strictEqual(app.isRunning(), true)
-    // console.log("app.then 2")
     chaiAsPromised.transferPromiseness = app.transferPromiseness
 
     const response = await app.client.getWindowHandles()
-    // console.log(response)
     assert.strictEqual(response.length, 1)
 
-    // console.log("app.then 3")
     await app.browserWindow
     .getBounds()
     .should.eventually.roughly(5)
@@ -136,9 +139,7 @@ describe('command line processing', function () {
       width: 200,
       height: 100
     })
-    // console.log("app.then 4")
     await app.client.waitUntilTextExists('#vrm2_batch', 'done', {timeout: 20200})
-    // console.log("app.then 5")
   }
 
   function appFailure (reason) {

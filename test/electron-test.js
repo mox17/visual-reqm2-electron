@@ -761,8 +761,7 @@ describe('Application launch', function () {
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dot_filename }])
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await wait_for_operation(app)
-      // TODO: Details of pathnames need handling here
-      // await compare_files(dot_filename, './test/refdata/main_ref_1.dot')
+      await compare_files(dot_filename, './test/refdata/main_ref_1.dot')
     })
   })
 })

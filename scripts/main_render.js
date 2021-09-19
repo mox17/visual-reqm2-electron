@@ -39,8 +39,11 @@ let panZoom = null
 const parser = new DOMParser()
 /** Version available on github.com */
 let latest_version = 'unknown'
+// eslint-disable-next-line no-unused-vars
 let image_type = 'none'
+// eslint-disable-next-line no-unused-vars
 let image_mime = ''
+// eslint-disable-next-line no-unused-vars
 let image_data = ''
 /** When true specobject in state 'rejected' are ignored */
 let no_rejects = true // shall specobjects with status===rejected be displayed?
@@ -975,9 +978,15 @@ function load_diagram_context (ctxPath) {
     diagCtx: diagCtx,
     auto_update: save_auto
   }
+  if (!path.isAbsolute(main_rel_path) && main_rel_path[0] !== '.') {
+    main_rel_path = './' + main_rel_path
+  }
   if (load_ref) {
     ref_rel_path = path.join(ctxDir, diagCtx.ref_oreqm_rel).replaceAll('\\', '/')
     ref_rel = fs.existsSync(ref_rel_path)
+    if (ref_rel && !path.isAbsolute(ref_rel_path) && ref_rel_path[0] !== '.') {
+      ref_rel_path = './' + ref_rel_path
+    }
   }
   if (main_rel && load_ref && ref_rel) {
     // both relative paths OK
@@ -1289,6 +1298,7 @@ function set_auto_update (state) {
  * Create main oreqm object from XML string
  * @param {string} name filename of oreqm file
  * @param {string} data xml data
+ * @param {boolean} Update diagrame when loaded (not wanted if caller has load of a reference file pending.)
  */
 function process_data_main (name, data, update) {
   // console.log("process_data_main")
@@ -1338,10 +1348,11 @@ function load_file_main_fs (file, ref_file) {
   clear_doctypes_table()
   spinner_show()
 
-  // This is  a work-around. When testing on Windows the async filereading hangs
+  // This is a work-around. When testing on Windows the async filereading hangs,
+  // so use sync interface instead.
   let data = fs.readFileSync(file, 'UTF-8')
-  console.log("main file read")
-  process_data_main(file, data, ref_file === null)
+  // console.log("main file read", ref_file)
+  process_data_main(file, data, ref_file ? false : true)
   if (ref_file) {
     load_file_ref_fs(ref_file)
   } else if (vr2x_handler) {
@@ -1563,7 +1574,7 @@ document.getElementById('filter_graph').addEventListener('click', function () {
  * Update diagram with current selection and exclusion parameters
  */
 function filter_graph () {
-  console.log("filter_graph")
+  // console.log("filter_graph")
   reset_selection()
   clear_toast()
   if (oreqm_main) {
@@ -2178,12 +2189,17 @@ function process_dropped_file (ev, main_file) {
       count++
     }
   }
+  // Check file. Only one, either .oreqm or .vrm2x
   if (count === 1) {
     const filename = dropped_file.path.length ? dropped_file.path : dropped_file.name
-    if (main_file) {
-      load_file_main_fs(filename)
+    if (filename.endsWith('.vr2x')) {
+      load_diagram_context(filename)
     } else {
-      load_file_ref_fs(filename)
+      if (main_file) {
+        load_file_main_fs(filename)
+      } else {
+        load_file_ref_fs(filename)
+      }
     }
   }
 }
