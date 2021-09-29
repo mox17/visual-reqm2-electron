@@ -47,7 +47,8 @@
       "usecase": true,
       "verifycrit": true,
       "version": true,
-      "violations": false
+      "violations": false,
+      "errors": false
     },
     "safety_link_rules": [
       "^\\w+:>\\w+:$",

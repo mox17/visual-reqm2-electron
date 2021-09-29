@@ -56,6 +56,9 @@ function get_list_of (node, tag_name) {
   const items = node.getElementsByTagName(tag_name)
   let i
   for (i = 0; i < items.length; i++) {
+    if (tag_name === 'linkerror' && items[i].textContent.length === 0) {
+      continue
+    }
     result.push(items[i].textContent)
   }
   return result
@@ -304,7 +307,8 @@ export const search_tags = [
   { key: 'sc', field: 'safetyclass', list: false},
   { key: 'st', field: 'status', list: false},
   { key: 'cs', field: 'covstatus', list: false},
-  { key: 'ffb', field: 'fulfilledby', list: true}
+  { key: 'ffb', field: 'fulfilledby', list: true},
+  { key: 'err', field: 'errors', list: true}
   // below are meta items
   // { key: 'dup', field: '', list: false},
   // { key: 'rem', field: '', list: false},
@@ -524,6 +528,7 @@ export class ReqM2Specobjects {
     req.verifycrit = get_xml_text(comp, 'verifycrit')
     req.version = get_xml_text(comp, 'version')
     req.violations = get_list_of(comp, 'ruleid')
+    req.errors = get_list_of(comp, 'linkerror')
     req.ffb_placeholder = false
     req.xml = comp
     this.add_specobject_rec(req)
@@ -634,6 +639,7 @@ export class ReqM2Specobjects {
               verifycrit: '',
               version: ff_version,
               violations: [],
+              errors: [],
               ffb_placeholder: true,
               xml: ff_arr.xml
             }
@@ -789,7 +795,9 @@ export class ReqM2Specobjects {
       if (this.linksto_rev.has(req_id)) {
         let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const child of this.linksto_rev.get(req_id)) {
-          this.mark_and_flood_down(color, child, next_depth)
+          if (child !== req_id) {
+            this.mark_and_flood_down(color, child, next_depth)
+          }
         }
       }
     }
@@ -833,12 +841,33 @@ export class ReqM2Specobjects {
       if (this.linksto.has(req_id)) {
         let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const ancestor of this.linksto.get(req_id)) {
-          this.mark_and_flood_up(color, ancestor, next_depth)
+          if (ancestor !== req_id) {
+            this.mark_and_flood_up(color, ancestor, next_depth)
+          }
         }
       }
     }
   }
 
+  /**
+   * 
+   * @param {string} req_id
+   * @returns {set} This is a set of { id: doctype:}
+   */
+  get_ancestors (req_id, ancestors) {
+    if (this.linksto.has(req_id)) {
+      for (const ancestor of this.linksto.get(req_id)) {
+        ancestors.add( {id: ancestor, doctype: this.requirements.get(req_id).doctype })
+        if (ancestor !== req_id) {
+          let new_ancestors = this.get_ancestors(ancestor, ancestors)
+          for (n in new_ancestors) {
+            ancestors.add(n)
+          }
+        }
+      }
+    }
+    return ancestors
+  }
   /**
    * Extract execution timestamp from oreqm report
    * @return {string} time

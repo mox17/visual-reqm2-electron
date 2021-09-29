@@ -105,6 +105,10 @@ ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
   load_diagram_ctx()
 })
 
+ipcRenderer.on('save_diagram_sel', (_item, _window, _key_ev) => {
+  save_diagram_sel()
+})
+
 /** Keyboard accelerators for svg pan zoom */
 // istanbul ignore next
 ipcRenderer.on('svg_reset_zoom', () => {
@@ -723,6 +727,8 @@ function copy_id_node (ffb_format) {
     ta.value = `${rec.id}:${rec.doctype}:${rec.version}` //rq: ->(rq_ctx_copy_id_dt_ver)
   } else {
     ta.value = rec.id //rq: ->(rq_ctx_copy_id)
+    let s = oreqm_main.get_ancestors(rec.id, new Set())
+    console.log(s)
   }
   ta.setAttribute('readonly', '')
   ta.style = { position: 'absolute', left: '-9999px' }
@@ -1073,6 +1079,59 @@ function update_settings_from_context (ctx) {
   }
   program_settings.color_status = ctx.settings.color_status
 }
+
+/**
+ * Save diagram selection will save a text file with
+ * the ids and doctypes of the selected nodes and the set of ancestors
+ * (also id and doctype) from the current diagram.
+ *
+ */
+ function save_diagram_sel () {
+  let defPath = ""
+  if (oreqm_main) {
+    if (path.isAbsolute(oreqm_main.filename)) {
+      defPath = path.dirname(oreqm_main.filename)
+    } else {
+      defPath = path.join(process.cwd(), path.dirname(oreqm_main.filename))
+    }
+  } else {
+    return
+  }
+
+  const save_options = {
+    filters: [
+      { name: 'ReqM2 select files', extensions: ['slx'] }
+    ],
+    properties: ['openFile'],
+    defaultPath: defPath,
+    title: "Save ReqM2 selection file"
+  }
+
+  // Suggest to save in same directory as oreqm_main
+  const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  // istanbul ignore else
+  if (typeof (savePath) !== 'undefined') {
+    save_diagram_selection(savePath)
+  }
+}
+
+function save_diagram_selection (pathname) {
+  // List of selected nodes
+  let output = "sel_id,sel_dt,ancestor_id,acestor_dt\n"
+  for (let s of oreqm_main.subset) {
+    let ancestors = oreqm_main.get_ancestors(s, new Set())
+    let sel_dt = oreqm_main.requirements.get(s).doctype
+    if (ancestors.size > 0) {
+      for (let a of ancestors) {
+        output += `${s},${sel_dt},${a.id},${a.doctype}\n`
+      }
+    } else {
+      output += `${s},${sel_dt},,\n`
+    }
+  }
+  fs.writeFileSync(pathname, output, 'utf8')
+}
+
 
 document.querySelector('#format select').addEventListener('change', function () {
   selected_format = document.querySelector('#format select').value
@@ -1745,7 +1804,7 @@ function next_selected () {
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
   oreqm_main.clear_marks()
-  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000 //rq: ->(rq_limited_walk)
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 99 //rq: ->(rq_limited_walk)
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
@@ -1766,7 +1825,7 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
 function txt_search (regex) { //rq: ->(rq_sel_txt)
   const results = oreqm_main.find_reqs_with_text(regex)
   oreqm_main.clear_marks()
-  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 99
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
