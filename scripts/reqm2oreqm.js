@@ -56,12 +56,65 @@ function get_list_of (node, tag_name) {
   const items = node.getElementsByTagName(tag_name)
   let i
   for (i = 0; i < items.length; i++) {
-    if ((tag_name === 'linkerror' || tag_name === 'ffbLinkerror') && items[i].textContent.length === 0) {
-      continue
-    }
     result.push(items[i].textContent)
   }
   return result
+}
+
+/**
+ * Return list of <linkerror> and <ffbLinkerror> with error text and addressed specobject
+ * @param {object} node
+ * @return {string[]} list of text
+ */
+ function get_error_list_of (node) {
+  const result = []
+  const pcov = node.getElementsByTagName('provcov')
+  for (let p of pcov) {
+    let err = get_xml_text(p, 'linkerror')
+    if (err.length) {
+      let id = get_xml_text(p, 'linksto')
+      result.push(`${err} <id> ${id}`)
+    }
+  }
+  return result
+}
+
+/**
+ * Return list of <linkerror> and <ffbLinkerror> with error text and addressed specobject
+ * @param {object} node
+ * @return {string[]} list of text
+ */
+ function get_ffb_error_list_of (node) {
+  const result = []
+  const ffbs = node.getElementsByTagName('ffbObj')
+  for (let f of ffbs) {
+    let err = get_xml_text(f, 'ffbLinkerror')
+    if (err.length) {
+      let id = get_xml_text(f, 'ffbId')
+      result.push(`ffb ${err} <id> ${id}`)
+    }
+  }
+  return result
+}
+
+
+/**
+ * A specobject needs coverage, but hasn't any for some doctype
+ * I.e. at least one <linkedfrom> in every <needscov>
+ * @param {string} node xml object
+ * @returns list of missing doctypes
+ */
+function check_needsobj_coverage_missing(node) {
+  let missing = []
+  const nc = node.getElementsByTagName('needscov')
+  for (let n of nc) {
+    let dt = get_xml_text(n, 'needsobj')
+    const items = n.getElementsByTagName('linkedfrom')
+    if (items.length === 0) {
+      missing.push(dt)
+    }
+  }
+  return missing
 }
 
 /**
@@ -309,7 +362,9 @@ export const search_tags = [
   { key: 'cs', field: 'covstatus', list: false},
   { key: 'ffb', field: 'fulfilledby', list: true},
   { key: 'vio', field: 'violations', list: true},
-  { key: 'err', field: 'errors', list: true}
+  { key: 'err', field: 'errors', list: true},
+  { key: 'fer', field: 'ffberrors', list: true},
+  { key: 'mic', field: 'mic', list: true}
   // below are meta items
   // { key: 'dup', field: '', list: false},
   // { key: 'rem', field: '', list: false},
@@ -529,7 +584,9 @@ export class ReqM2Specobjects {
     req.verifycrit = get_xml_text(comp, 'verifycrit')
     req.version = get_xml_text(comp, 'version')
     req.violations = get_list_of(comp, 'ruleid')
-    req.errors = get_list_of(comp, 'linkerror').concat(get_list_of(comp, 'ffbLinkerror'))
+    req.errors = get_error_list_of(comp)
+    req.ffberrors = get_ffb_error_list_of(comp)
+    req.mic = check_needsobj_coverage_missing(comp)
     req.ffb_placeholder = false
     req.xml = comp
     this.add_specobject_rec(req)
@@ -641,6 +698,8 @@ export class ReqM2Specobjects {
               version: ff_version,
               violations: [],
               errors: [],
+              ffberrors: [],
+              mic: [],
               ffb_placeholder: true,
               xml: ff_arr.xml
             }
@@ -857,9 +916,9 @@ export class ReqM2Specobjects {
   }
 
   /**
-   * 
+   * Return an unordered collection of "upstream" specobjects
    * @param {string} req_id
-   * @returns {set} This is a set of { id: doctype:}
+   * @returns {set} This is a set of { id: <id> doctype: <doctype> }
    */
   get_ancestors (req_id, ancestors) {
     if (this.linksto.has(req_id)) {

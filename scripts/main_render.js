@@ -1134,20 +1134,27 @@ function save_diagram_selection (pathname) {
     let ancestors = oreqm_main.get_ancestors(s, new Set())
     let rec = oreqm_main.requirements.get(s)
     let sel_dt = rec.doctype
-    let err = ''
+    let err_set = new Set()
+    for (let m of rec.mic) {
+      err_set.add(`Missing coverage from doctype ${m}`)
+    }
     for (let e of rec.errors) {
-      err += `${e.trim()}\n`
+      err_set.add(`${e.trim()}`)
+    }
+    for (let f of rec.ffberrors) {
+      err_set.add(`${f.trim()}`)
     }
     for (let v of rec.violations) {
-      err += `${v.trim()}\n`
+      err_set.add(`${v.trim()}`)
     }
-    err = err.trim()
-    if (ancestors.size > 0) {
-      for (let a of ancestors) {
-        output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"\n`
+    for (let err of err_set) {
+      if (ancestors.size > 0) {
+        for (let a of ancestors) {
+          output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"\n`
+        }
+      } else {
+        output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}${comma}\n`
       }
-    } else {
-      output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}${comma}\n`
     }
   }
   fs.writeFileSync(pathname, output, 'utf8')
