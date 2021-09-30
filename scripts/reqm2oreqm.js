@@ -56,7 +56,7 @@ function get_list_of (node, tag_name) {
   const items = node.getElementsByTagName(tag_name)
   let i
   for (i = 0; i < items.length; i++) {
-    if (tag_name === 'linkerror' && items[i].textContent.length === 0) {
+    if ((tag_name === 'linkerror' || tag_name === 'ffbLinkerror') && items[i].textContent.length === 0) {
       continue
     }
     result.push(items[i].textContent)
@@ -529,7 +529,7 @@ export class ReqM2Specobjects {
     req.verifycrit = get_xml_text(comp, 'verifycrit')
     req.version = get_xml_text(comp, 'version')
     req.violations = get_list_of(comp, 'ruleid')
-    req.errors = get_list_of(comp, 'linkerror')
+    req.errors = get_list_of(comp, 'linkerror').concat(get_list_of(comp, 'ffbLinkerror'))
     req.ffb_placeholder = false
     req.xml = comp
     this.add_specobject_rec(req)
