@@ -308,6 +308,7 @@ export const search_tags = [
   { key: 'st', field: 'status', list: false},
   { key: 'cs', field: 'covstatus', list: false},
   { key: 'ffb', field: 'fulfilledby', list: true},
+  { key: 'vio', field: 'violations', list: true},
   { key: 'err', field: 'errors', list: true}
   // below are meta items
   // { key: 'dup', field: '', list: false},
@@ -703,6 +704,9 @@ export class ReqM2Specobjects {
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       for (const link of rec.linksto) {
+        if (link.linksto === req_id) {
+          this.problem_report(`linksto points to specobject itself ${req_id}`)
+        }
         // key to speobjects, can be !== id for duplicated id's
         const lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
 
@@ -726,6 +730,9 @@ export class ReqM2Specobjects {
         }
       }
       for (const ffb_arr of rec.fulfilledby) {
+        if (ffb_arr.id === req_id) {
+          this.problem_report(`ffbId points to specobject itself ${req_id}`)
+        }
         const ffb_link = this.get_key_for_id_ver(ffb_arr.id, ffb_arr.version)
         // top-down
         if (!this.linksto_rev.has(req_id)) {

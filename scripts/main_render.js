@@ -1100,7 +1100,7 @@ function update_settings_from_context (ctx) {
 
   const save_options = {
     filters: [
-      { name: 'ReqM2 select files', extensions: ['slx'] }
+      { name: 'ReqM2 select files (csv)', extensions: ['csv'] }
     ],
     properties: ['openFile'],
     defaultPath: defPath,
@@ -1115,18 +1115,39 @@ function update_settings_from_context (ctx) {
   }
 }
 
+/**
+ * Get the system list separator, which is needed for csv files (on this machine)
+ * @returns separator, i.e. ';' for some european locales or ','
+ */
+function get_separator() {
+  const list = ['a', 'b'];
+  const s = list.toLocaleString();
+  const sep = s[1];
+  return sep
+}
+
 function save_diagram_selection (pathname) {
   // List of selected nodes
-  let output = "sel_id,sel_dt,ancestor_id,acestor_dt\n"
+  const comma = get_separator()
+  let output = `"sel_id"${comma}"sel_dt"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"\n`
   for (let s of oreqm_main.subset) {
     let ancestors = oreqm_main.get_ancestors(s, new Set())
-    let sel_dt = oreqm_main.requirements.get(s).doctype
+    let rec = oreqm_main.requirements.get(s)
+    let sel_dt = rec.doctype
+    let err = ''
+    for (let e of rec.errors) {
+      err += `${e.trim()}\n`
+    }
+    for (let v of rec.violations) {
+      err += `${v.trim()}\n`
+    }
+    err = err.trim()
     if (ancestors.size > 0) {
       for (let a of ancestors) {
-        output += `${s},${sel_dt},${a.id},${a.doctype}\n`
+        output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"\n`
       }
     } else {
-      output += `${s},${sel_dt},,\n`
+      output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}${comma}\n`
     }
   }
   fs.writeFileSync(pathname, output, 'utf8')
