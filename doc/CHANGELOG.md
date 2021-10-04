@@ -1,5 +1,17 @@
 ### Changelog
 
+## 2.2.2
+Additional error details in exported error table:
+* mic: Missing direct coverage. ´Missing coverage from doctype g_swintts´
+* fer: ffb errors. Such as  ´ffb referenced object does not exist. <id> some.id.follows.here´
+
+## 2.2.0
+Menu option to generate .csv table of errors in current selection of nodes.
+Table includes the ancestor specobjects of the objects w. errors.
+
+This table generation works even if Visual ReqM2 is not able to render a svg diagram of the
+selected nodes.
+
 ## 2.1.3
 * When selecting a duplicate from the context menu, all duplicate entries are selected.
   Individual duplicates can excluded.
