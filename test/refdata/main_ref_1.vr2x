@@ -48,7 +48,9 @@
       "verifycrit": true,
       "version": true,
       "violations": false,
-      "errors": false
+      "errors": false,
+      "ffberrors": false,
+      "miscov": false
     },
     "safety_link_rules": [
       "^\\w+:>\\w+:$",
