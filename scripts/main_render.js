@@ -727,8 +727,6 @@ function copy_id_node (ffb_format) {
     ta.value = `${rec.id}:${rec.doctype}:${rec.version}` //rq: ->(rq_ctx_copy_id_dt_ver)
   } else {
     ta.value = rec.id //rq: ->(rq_ctx_copy_id)
-    let s = oreqm_main.get_ancestors(rec.id, new Set())
-    console.log(s)
   }
   ta.setAttribute('readonly', '')
   ta.style = { position: 'absolute', left: '-9999px' }
@@ -1135,7 +1133,7 @@ function save_diagram_selection (pathname) {
     let rec = oreqm_main.requirements.get(s)
     let sel_dt = rec.doctype
     let err_set = new Set()
-    for (let m of rec.mic) {
+    for (let m of rec.miscov) {
       err_set.add(`Missing coverage from doctype ${m}`)
     }
     for (let e of rec.errors) {

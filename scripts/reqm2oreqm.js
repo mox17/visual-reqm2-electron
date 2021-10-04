@@ -364,7 +364,7 @@ export const search_tags = [
   { key: 'vio', field: 'violations', list: true},
   { key: 'err', field: 'errors', list: true},
   { key: 'fer', field: 'ffberrors', list: true},
-  { key: 'mic', field: 'mic', list: true}
+  { key: 'mic', field: 'miscov', list: true}
   // below are meta items
   // { key: 'dup', field: '', list: false},
   // { key: 'rem', field: '', list: false},
@@ -586,7 +586,7 @@ export class ReqM2Specobjects {
     req.violations = get_list_of(comp, 'ruleid')
     req.errors = get_error_list_of(comp)
     req.ffberrors = get_ffb_error_list_of(comp)
-    req.mic = check_needsobj_coverage_missing(comp)
+    req.miscov = check_needsobj_coverage_missing(comp)
     req.ffb_placeholder = false
     req.xml = comp
     this.add_specobject_rec(req)
@@ -699,7 +699,7 @@ export class ReqM2Specobjects {
               violations: [],
               errors: [],
               ffberrors: [],
-              mic: [],
+              miscov: [],
               ffb_placeholder: true,
               xml: ff_arr.xml
             }
