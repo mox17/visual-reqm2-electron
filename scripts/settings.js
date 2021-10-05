@@ -42,7 +42,10 @@ export const default_program_settings = {
     usecase: true,
     verifycrit: true,
     version: true,
-    violations: false // list
+    violations: false, // list
+    errors: false, // list
+    ffberrors: false, // list
+    miscov: false // list
   },
   max_calc_nodes: 1000,
   show_coverage: true,

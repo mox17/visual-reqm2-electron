@@ -521,6 +521,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         limit_reporter(max_nodes) //rq: ->(rq_config_node_limit)
         break // hard limit on node count
       }
+      this.subset = selected_nodes // keep this subset to enable "save selection"
     }
     let show_top;
     ({ show_top, graph } = this.handle_top_node(top_doctypes, graph))

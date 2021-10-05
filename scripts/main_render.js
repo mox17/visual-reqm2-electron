@@ -105,6 +105,10 @@ ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
   load_diagram_ctx()
 })
 
+ipcRenderer.on('save_diagram_sel', (_item, _window, _key_ev) => {
+  save_diagram_sel()
+})
+
 /** Keyboard accelerators for svg pan zoom */
 // istanbul ignore next
 ipcRenderer.on('svg_reset_zoom', () => {
@@ -1074,6 +1078,87 @@ function update_settings_from_context (ctx) {
   program_settings.color_status = ctx.settings.color_status
 }
 
+/**
+ * Save diagram selection will save a text file with
+ * the ids and doctypes of the selected nodes and the set of ancestors
+ * (also id and doctype) from the current diagram.
+ *
+ */
+ function save_diagram_sel () {
+  let defPath = ""
+  if (oreqm_main) {
+    if (path.isAbsolute(oreqm_main.filename)) {
+      defPath = path.dirname(oreqm_main.filename)
+    } else {
+      defPath = path.join(process.cwd(), path.dirname(oreqm_main.filename))
+    }
+  } else {
+    return
+  }
+
+  const save_options = {
+    filters: [
+      { name: 'ReqM2 select files (csv)', extensions: ['csv'] }
+    ],
+    properties: ['openFile'],
+    defaultPath: defPath,
+    title: "Save ReqM2 selection file"
+  }
+
+  // Suggest to save in same directory as oreqm_main
+  const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  // istanbul ignore else
+  if (typeof (savePath) !== 'undefined') {
+    save_diagram_selection(savePath)
+  }
+}
+
+/**
+ * Get the system list separator, which is needed for csv files (on this machine)
+ * @returns separator, i.e. ';' for some european locales or ','
+ */
+function get_separator() {
+  const list = ['a', 'b'];
+  const s = list.toLocaleString();
+  const sep = s[1];
+  return sep
+}
+
+function save_diagram_selection (pathname) {
+  // List of selected nodes
+  const comma = get_separator()
+  let output = `"sel_id"${comma}"sel_dt"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"\n`
+  for (let s of oreqm_main.subset) {
+    let ancestors = oreqm_main.get_ancestors(s, new Set())
+    let rec = oreqm_main.requirements.get(s)
+    let sel_dt = rec.doctype
+    let err_set = new Set()
+    for (let m of rec.miscov) {
+      err_set.add(`Missing coverage from doctype ${m}`)
+    }
+    for (let e of rec.errors) {
+      err_set.add(`${e.trim()}`)
+    }
+    for (let f of rec.ffberrors) {
+      err_set.add(`${f.trim()}`)
+    }
+    for (let v of rec.violations) {
+      err_set.add(`${v.trim()}`)
+    }
+    for (let err of err_set) {
+      if (ancestors.size > 0) {
+        for (let a of ancestors) {
+          output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"\n`
+        }
+      } else {
+        output += `"${s}"${comma}"${sel_dt}"${comma}"${err}"${comma}${comma}\n`
+      }
+    }
+  }
+  fs.writeFileSync(pathname, output, 'utf8')
+}
+
+
 document.querySelector('#format select').addEventListener('change', function () {
   selected_format = document.querySelector('#format select').value
   if (selected_format === 'svg') {
@@ -1745,7 +1830,7 @@ function next_selected () {
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
   oreqm_main.clear_marks()
-  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000 //rq: ->(rq_limited_walk)
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 99 //rq: ->(rq_limited_walk)
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
@@ -1766,7 +1851,7 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
 function txt_search (regex) { //rq: ->(rq_sel_txt)
   const results = oreqm_main.find_reqs_with_text(regex)
   oreqm_main.clear_marks()
-  let depth = document.getElementById('limit_depth_input').checked ? 1 : 1000
+  let depth = document.getElementById('limit_depth_input').checked ? 1 : 99
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,

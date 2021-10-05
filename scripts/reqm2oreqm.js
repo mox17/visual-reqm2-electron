@@ -62,6 +62,62 @@ function get_list_of (node, tag_name) {
 }
 
 /**
+ * Return list of <linkerror> and <ffbLinkerror> with error text and addressed specobject
+ * @param {object} node
+ * @return {string[]} list of text
+ */
+ function get_error_list_of (node) {
+  const result = []
+  const pcov = node.getElementsByTagName('provcov')
+  for (let p of pcov) {
+    let err = get_xml_text(p, 'linkerror')
+    if (err.length) {
+      let id = get_xml_text(p, 'linksto')
+      result.push(`${err} <id> ${id}`)
+    }
+  }
+  return result
+}
+
+/**
+ * Return list of <linkerror> and <ffbLinkerror> with error text and addressed specobject
+ * @param {object} node
+ * @return {string[]} list of text
+ */
+ function get_ffb_error_list_of (node) {
+  const result = []
+  const ffbs = node.getElementsByTagName('ffbObj')
+  for (let f of ffbs) {
+    let err = get_xml_text(f, 'ffbLinkerror')
+    if (err.length) {
+      let id = get_xml_text(f, 'ffbId')
+      result.push(`ffb ${err} <id> ${id}`)
+    }
+  }
+  return result
+}
+
+
+/**
+ * A specobject needs coverage, but hasn't any for some doctype
+ * I.e. at least one <linkedfrom> in every <needscov>
+ * @param {string} node xml object
+ * @returns list of missing doctypes
+ */
+function check_needsobj_coverage_missing(node) {
+  let missing = []
+  const nc = node.getElementsByTagName('needscov')
+  for (let n of nc) {
+    let dt = get_xml_text(n, 'needsobj')
+    const items = n.getElementsByTagName('linkedfrom')
+    if (items.length === 0) {
+      missing.push(dt)
+    }
+  }
+  return missing
+}
+
+/**
  * Get linksto references from specobject XML
  * @param {specobject} node
  * @return {object[]} an array of objects with .linksto .dstversion and .linkerror
@@ -304,7 +360,11 @@ export const search_tags = [
   { key: 'sc', field: 'safetyclass', list: false},
   { key: 'st', field: 'status', list: false},
   { key: 'cs', field: 'covstatus', list: false},
-  { key: 'ffb', field: 'fulfilledby', list: true}
+  { key: 'ffb', field: 'fulfilledby', list: true},
+  { key: 'vio', field: 'violations', list: true},
+  { key: 'err', field: 'errors', list: true},
+  { key: 'fer', field: 'ffberrors', list: true},
+  { key: 'mic', field: 'miscov', list: true}
   // below are meta items
   // { key: 'dup', field: '', list: false},
   // { key: 'rem', field: '', list: false},
@@ -524,6 +584,9 @@ export class ReqM2Specobjects {
     req.verifycrit = get_xml_text(comp, 'verifycrit')
     req.version = get_xml_text(comp, 'version')
     req.violations = get_list_of(comp, 'ruleid')
+    req.errors = get_error_list_of(comp)
+    req.ffberrors = get_ffb_error_list_of(comp)
+    req.miscov = check_needsobj_coverage_missing(comp)
     req.ffb_placeholder = false
     req.xml = comp
     this.add_specobject_rec(req)
@@ -634,6 +697,9 @@ export class ReqM2Specobjects {
               verifycrit: '',
               version: ff_version,
               violations: [],
+              errors: [],
+              ffberrors: [],
+              miscov: [],
               ffb_placeholder: true,
               xml: ff_arr.xml
             }
@@ -697,6 +763,9 @@ export class ReqM2Specobjects {
     for (const req_id of ids) {
       const rec = this.requirements.get(req_id)
       for (const link of rec.linksto) {
+        if (link.linksto === req_id) {
+          this.problem_report(`linksto points to specobject itself ${req_id}`)
+        }
         // key to speobjects, can be !== id for duplicated id's
         const lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
 
@@ -720,6 +789,9 @@ export class ReqM2Specobjects {
         }
       }
       for (const ffb_arr of rec.fulfilledby) {
+        if (ffb_arr.id === req_id) {
+          this.problem_report(`ffbId points to specobject itself ${req_id}`)
+        }
         const ffb_link = this.get_key_for_id_ver(ffb_arr.id, ffb_arr.version)
         // top-down
         if (!this.linksto_rev.has(req_id)) {
@@ -789,7 +861,9 @@ export class ReqM2Specobjects {
       if (this.linksto_rev.has(req_id)) {
         let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const child of this.linksto_rev.get(req_id)) {
-          this.mark_and_flood_down(color, child, next_depth)
+          if (child !== req_id) {
+            this.mark_and_flood_down(color, child, next_depth)
+          }
         }
       }
     }
@@ -833,12 +907,33 @@ export class ReqM2Specobjects {
       if (this.linksto.has(req_id)) {
         let next_depth = (depth < INFINITE_DEPTH) ? depth - 1 : depth
         for (const ancestor of this.linksto.get(req_id)) {
-          this.mark_and_flood_up(color, ancestor, next_depth)
+          if (ancestor !== req_id) {
+            this.mark_and_flood_up(color, ancestor, next_depth)
+          }
         }
       }
     }
   }
 
+  /**
+   * Return an unordered collection of "upstream" specobjects
+   * @param {string} req_id
+   * @returns {set} This is a set of { id: <id> doctype: <doctype> }
+   */
+  get_ancestors (req_id, ancestors) {
+    if (this.linksto.has(req_id)) {
+      for (const ancestor of this.linksto.get(req_id)) {
+        ancestors.add( {id: ancestor, doctype: this.requirements.get(req_id).doctype })
+        if (ancestor !== req_id) {
+          let new_ancestors = this.get_ancestors(ancestor, ancestors)
+          for (n in new_ancestors) {
+            ancestors.add(n)
+          }
+        }
+      }
+    }
+    return ancestors
+  }
   /**
    * Extract execution timestamp from oreqm report
    * @return {string} time
