@@ -11,6 +11,8 @@ Table includes the ancestor specobjects of the objects w. errors.
 
 This table generation works even if Visual ReqM2 is not able to render a svg diagram of the
 selected nodes.
+NOTE: Raise the limit for nodes in a diagram in settings from default 1000 to something larger
+than the specobjects in trace, say 50000.
 
 ## 2.1.3
 * When selecting a duplicate from the context menu, all duplicate entries are selected.
