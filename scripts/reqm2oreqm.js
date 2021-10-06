@@ -769,6 +769,16 @@ export class ReqM2Specobjects {
         // key to speobjects, can be !== id for duplicated id's
         const lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
 
+        // check miscov items and remove false positives, i.e. actual coverage from 'missing' doctype
+        let lrec = this.requirements.get(lt_key)
+        if (lrec) {
+          const idx = lrec.miscov.indexOf(rec.doctype)
+          if (idx >= 0) {
+            lrec.miscov.splice(idx, 1)
+            this.requirements.set(lt_key, lrec)
+          }
+        }
+
         // bottom-up
         if (!this.linksto.has(req_id)) {
           this.linksto.set(req_id, new Set())

@@ -1,5 +1,9 @@
 ### Changelog
 
+## 2.3.0
+* Color code the needsobj entries when showing coverage errors. Doctypes with no coverage have a RED background.
+* Check for false positives for missing coverage (only relevant for old input oreqm files).
+
 ## 2.2.2
 Additional error details in exported error table:
 * mic: Missing direct coverage. ´Missing coverage from doctype g_swintts´

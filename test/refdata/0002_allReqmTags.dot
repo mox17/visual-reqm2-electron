@@ -6,7 +6,7 @@ digraph "" {
   "SingleObj" [id="SingleObj" label=<
       <TABLE BGCOLOR="#B1FDFA" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >SingleObj</TD><TD>0.1</TD><TD>userdoc</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">description: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD><TD>feature1<BR/>feature2<BR/>feature3<BR/>userdoc27*</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">description: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">feature1</TD></TR><TR><TD BGCOLOR="red">feature2</TD></TR><TR><TD BGCOLOR="red">feature3</TD></TR><TR><TD>userdoc27*</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Just an example<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">rationale: rationale: This may contain arbitrary tags<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: my safetyrationale<BR ALIGN="LEFT"/></TD></TR>

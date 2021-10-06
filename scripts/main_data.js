@@ -31,13 +31,11 @@ export function set_action_cb (start, done) {
 /** worker thread running graphviz */
 let vizjs_worker
 /** svg output from graphviz */
-export var svg_result
+export var svg_result = ''
 /** Object containing internal representation of main oreqm file */
-export var oreqm_main
+export var oreqm_main = null
 /** Object containing internal representation of reference oreqm file */
-export var oreqm_ref
-/** \n separated list of excluded ids */
-// var excluded_ids = ''
+export var oreqm_ref = null
 /** the generated 'dot' source submitted to graphviz */
 export var dot_source = ''
 
