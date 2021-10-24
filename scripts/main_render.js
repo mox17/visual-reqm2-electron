@@ -1664,6 +1664,7 @@ function filter_graph () {
   reset_selection()
   clear_toast()
   if (oreqm_main) {
+    spinner_show()
     oreqm_main.set_no_rejects(no_rejects)
     handle_pruning()
     // Collect filter criteria and generate .dot data
