@@ -87,6 +87,15 @@ function createWindow () {
       label: 'File',
       submenu: [
         {
+          label: 'Load main oreqm file...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_main_oreqm') }
+        },
+        {
+          label: 'Load reference oreqm file...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_ref_oreqm') }
+        },
+        { type: 'separator' },
+        {
           label: 'Save color scheme as...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_colors') }
         },

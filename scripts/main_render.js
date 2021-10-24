@@ -5,7 +5,7 @@ import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
-import { ipcRenderer, remote, shell } from 'electron'
+import { ipcRenderer, remote, shell, clipboard } from 'electron'
 import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -67,6 +67,16 @@ Split(['#oreqm_div', '#graph'], {
 // Handlers for menu operations triggered via RPC
 ipcRenderer.on('about', (_item, _window, _key_ev) => {
   show_about()
+})
+
+ipcRenderer.on('load_main_oreqm', (_item, _window, _key_ev) => {
+  get_main_oreqm_file()
+})
+
+ipcRenderer.on('load_ref_oreqm', (_item, _window, _key_ev) => {
+  if (oreqm_main) {
+    get_ref_oreqm_file()
+  }
 })
 
 ipcRenderer.on('save_colors', (_item, _window, _key_ev) => {
@@ -721,19 +731,14 @@ document.getElementById('menu_copy_ffb').addEventListener('click', function () {
  * @param {boolean} ffb_format true: id:doctype:version ; false: id
  */
 function copy_id_node (ffb_format) {
-  const ta = document.createElement('textarea')
+  let txt
   const rec = oreqm_main.requirements.get(selected_node)
   if (ffb_format) {
-    ta.value = `${rec.id}:${rec.doctype}:${rec.version}` //rq: ->(rq_ctx_copy_id_dt_ver)
+    txt = `${rec.id}:${rec.doctype}:${rec.version}` //rq: ->(rq_ctx_copy_id_dt_ver)
   } else {
-    ta.value = rec.id //rq: ->(rq_ctx_copy_id)
+    txt = rec.id //rq: ->(rq_ctx_copy_id)
   }
-  ta.setAttribute('readonly', '')
-  ta.style = { position: 'absolute', left: '-9999px' }
-  document.body.appendChild(ta)
-  ta.select()
-  document.execCommand('copy')
-  document.body.removeChild(ta)
+  clipboard.writeText(txt)
 }
 
 /*
@@ -1822,6 +1827,21 @@ function next_selected () {
     document.getElementById('nodeSelect').selectedIndex = selected_index
     center_node(selected_nodes[selected_index])
   }
+}
+
+document.getElementById('copy_selected').addEventListener('click', function () {
+  copy_selected()
+})
+
+/**
+ * Put list of selected <id>s on clipboard as text
+ */
+function copy_selected () {
+  let txt = ''
+  if (oreqm_main && selected_nodes.length) {
+    txt = selected_nodes.join('\n')+'\n'
+  }
+  clipboard.writeText(txt)
 }
 
 /**

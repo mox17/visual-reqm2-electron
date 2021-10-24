@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.3.0
+* Add button to copy list of selected `<id>`s to clipboard.
+* Fix bug in ancestor calculation for `.csv` exports.
+* Add File menu items to load oreqm files.
+
+
 ## 2.2.2
 Additional error details in exported error table:
 * mic: Missing direct coverage. ´Missing coverage from doctype g_swintts´
@@ -17,7 +23,7 @@ than the specobjects in trace, say 50000.
 ## 2.1.3
 * When selecting a duplicate from the context menu, all duplicate entries are selected.
   Individual duplicates can excluded.
-* File watching. If a currently displayed `.oreqm` is updated, the user will be offered
+* File watching. If a currently displayed `.oreqm` is updated on disk, the user will be offered
   to reload the file or ignore the change.
 * Allow drag-and-drop of `.vr2x` file to load a diagram context.
 * Cosmetic changes to spinner.
