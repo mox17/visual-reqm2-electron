@@ -5,7 +5,7 @@ import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
-import { ipcRenderer, remote, shell, clipboard } from 'electron'
+import { ipcRenderer, remote, shell, clipboard, Menu } from 'electron'
 import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -18,6 +18,7 @@ import {
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
+import { electron } from 'process'
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -74,9 +75,7 @@ ipcRenderer.on('load_main_oreqm', (_item, _window, _key_ev) => {
 })
 
 ipcRenderer.on('load_ref_oreqm', (_item, _window, _key_ev) => {
-  if (oreqm_main) {
-    get_ref_oreqm_file()
-  }
+  get_ref_oreqm_file()
 })
 
 ipcRenderer.on('save_colors', (_item, _window, _key_ev) => {
@@ -1416,6 +1415,7 @@ function process_data_main (name, data, update) {
   }
   document.getElementById('get_ref_oreqm_file').disabled = false
   document.getElementById('clear_ref_oreqm').disabled = false
+  ipcRenderer.send('menu_load_ref', true)
   set_window_title(name)
 }
 
