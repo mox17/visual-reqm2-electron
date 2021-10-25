@@ -4,7 +4,8 @@
 * Add button to copy list of selected `<id>`s to clipboard.
 * Fix bug in ancestor calculation for `.csv` exports.
 * Add File menu items to load oreqm files.
-
+* Color code the needsobj entries when showing coverage errors. Doctypes with no coverage have a RED background.
+* Check for false positives for missing coverage (only relevant for old input oreqm files).
 
 ## 2.2.2
 Additional error details in exported error table:
