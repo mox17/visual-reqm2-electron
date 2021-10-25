@@ -4,6 +4,7 @@ const app = electron.app
 const globalShortcut = electron.globalShortcut
 const BrowserWindow = electron.BrowserWindow
 const ipcMain = electron.ipcMain
+const Menu = electron.Menu
 
 const path = require('path')
 const url = require('url')
@@ -82,10 +83,21 @@ function createWindow () {
     mainWindow.webContents.openDevTools()
   }
 
-  const menu = electron.Menu.buildFromTemplate([
+  let menu = electron.Menu.buildFromTemplate([
     {
       label: 'File',
       submenu: [
+        {
+          label: 'Load main oreqm file...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_main_oreqm') }
+        },
+        {
+          label: 'Load reference oreqm file...',
+          id: 'load-ref-oreqm',
+          enabled: false,
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_ref_oreqm') }
+        },
+        { type: 'separator' },
         {
           label: 'Save color scheme as...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_colors') }
@@ -347,6 +359,10 @@ ipcMain.on('cmd_echo', (evt, arg) => {
 
 ipcMain.on('cmd_show_error', (_evt, title, msg) => {
   dialog.showErrorBox(title, msg)
+})
+
+ipcMain.on('menu_load_ref', (_evt, enable) => {
+  Menu.getApplicationMenu().getMenuItemById('load-ref-oreqm').enabled = enable
 })
 
 /**

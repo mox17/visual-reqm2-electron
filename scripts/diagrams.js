@@ -246,6 +246,25 @@ function source_file_line (rec) {
 }
 
 /**
+ * If a doctype has no coverage, i.e. is in .miscov list, then show it
+ * with a red background.
+ * @param {object} rec specobject representation
+ * @returns table formatted string or empty string
+ */
+function format_needsobj(rec, show_coverage) {
+  let nobj_table = ''
+  if (rec.needsobj.length > 0) {
+    nobj_table += '<TABLE BORDER="0">'
+    for (const d of rec.needsobj) {
+      const status_color = rec.miscov.includes(d) && show_coverage ? ' BGCOLOR="red"' : ''
+      nobj_table += `<TR><TD${status_color}>${d}</TD></TR>`
+    }
+    nobj_table += '</TABLE>'
+  }
+  return nobj_table
+}
+
+/**
  * Create 'dot' style 'html' table entry for the specobject. Rows without data are left out
  * @param  {string} node_id  Specobject <id>
  * @param  {object} rec Object with specobject data
@@ -282,7 +301,7 @@ function format_node (node_id, rec, ghost, oreqm, show_coverage, color_status) {
   node_table = `
       <TABLE BGCOLOR="${get_color(rec.doctype)}${ghost ? ':white' : ''}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="${ghost ? 'grey' : 'black'}" >
         <TR><TD CELLSPACING="0" >${rec.id}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">${dot_format(rec.description)}</TD><TD>${rec.needsobj.join('<BR/>')}</TD></TR>\n${
+        <TR><TD COLSPAN="2" ALIGN="LEFT">${dot_format(rec.description)}</TD><TD>${format_needsobj(rec, show_coverage)}</TD></TR>\n${
           shortdesc}${rationale}${safetyrationale}${secur}${verifycrit}${
           ver_met_cond}${comment}${furtherinfo}${usecase}${source}${
           src_file}${testin}${testexec}${testout}${testpasscrit}${dep_con}${rel_cat_prio}${status}${violations}${nonexist_link}      </TABLE>`

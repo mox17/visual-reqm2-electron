@@ -2,7 +2,7 @@
 'use strict'
 // eslint-disable-next-line no-redeclare
 /* global DOMParser, alert */
-import { clone, cloneDeep } from "lodash"
+import { cloneDeep } from "lodash"
 /** placeholder for XMLSerializer instance */
 let serializer = null
 
@@ -170,7 +170,6 @@ function get_linksto (node) {
  function get_untracedLink (node) {
   const result = []
   const items = node.getElementsByTagName('untracedLink')
-  let i
   for (const item of items) {
     const target = item.getElementsByTagName('target')
     const targetVersion = item.getElementsByTagName('targetVersion')
@@ -769,6 +768,16 @@ export class ReqM2Specobjects {
         // key to speobjects, can be !== id for duplicated id's
         const lt_key = this.get_key_for_id_ver(link.linksto, link.dstversion)
 
+        // check miscov items and remove false positives, i.e. actual coverage from 'missing' doctype
+        let lrec = this.requirements.get(lt_key)
+        if (lrec) {
+          const idx = lrec.miscov.indexOf(rec.doctype)
+          if (idx >= 0) {
+            lrec.miscov.splice(idx, 1)
+            this.requirements.set(lt_key, lrec)
+          }
+        }
+
         // bottom-up
         if (!this.linksto.has(req_id)) {
           this.linksto.set(req_id, new Set())
@@ -926,7 +935,7 @@ export class ReqM2Specobjects {
         ancestors.add( {id: ancestor, doctype: this.requirements.get(req_id).doctype })
         if (ancestor !== req_id) {
           let new_ancestors = this.get_ancestors(ancestor, ancestors)
-          for (n in new_ancestors) {
+          for (let n in new_ancestors) {
             ancestors.add(n)
           }
         }

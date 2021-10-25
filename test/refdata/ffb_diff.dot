@@ -6,7 +6,7 @@ digraph "" {
   "cc.game.overview" [id="cc.game.overview" label=<
       <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.overview</TD><TD>1</TD><TD>fea</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall be a text adventure.<BR ALIGN="LEFT"/></TD><TD>fea</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall be a text adventure.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>fea</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: Safety cannot be guaranteed in adventure games.<BR ALIGN="LEFT"/>Proceed at own risk.<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:26<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
@@ -15,7 +15,7 @@ digraph "" {
   "cc.game.locations" [id="cc.game.locations" label=<
       <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.locations</TD><TD>1</TD><TD>fea</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall have the following locations:<BR ALIGN="LEFT"/>&lt;itemizedlist&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;House&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Meadow&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Grate&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Maze&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Witt's End&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Westlands&lt;/listitem&gt;<BR ALIGN="LEFT"/>&lt;/itemizedlist&gt;<BR ALIGN="LEFT"/></TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall have the following locations:<BR ALIGN="LEFT"/>&lt;itemizedlist&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;House&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Meadow&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Grate&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Maze&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Witt's End&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Westlands&lt;/listitem&gt;<BR ALIGN="LEFT"/>&lt;/itemizedlist&gt;<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>swrs</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">comment: The locations are connected<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:43<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR><TR><TD BGCOLOR="red">uncovered</TD></TR></TABLE></TD></TR>
@@ -26,7 +26,7 @@ subgraph "cluster_cc.game.location.westlands_changed" { color=orange3 penwidth=2
   "cc.game.location.westlands" [id="cc.game.location.westlands" label=<
       <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
         <TR><TD CELLSPACING="0" >cc.game.location.westlands</TD><TD>1</TD><TD>swrs</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">Frobozz, an ancient province in the northern part of the Westlands,<BR ALIGN="LEFT"/>is the site of many historic settlements such as Galepath, Mareilon,<BR ALIGN="LEFT"/>and the Castle Largoneth.<BR ALIGN="LEFT"/>This province of Frobozz corresponds roughly to the<BR ALIGN="LEFT"/>Kingdom of Quendor during the reign of Entharion.<BR ALIGN="LEFT"/></TD><TD>vaporware*</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Frobozz, an ancient province in the northern part of the Westlands,<BR ALIGN="LEFT"/>is the site of many historic settlements such as Galepath, Mareilon,<BR ALIGN="LEFT"/>and the Castle Largoneth.<BR ALIGN="LEFT"/>This province of Frobozz corresponds roughly to the<BR ALIGN="LEFT"/>Kingdom of Quendor during the reign of Entharion.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>vaporware*</TD></TR></TABLE></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Northern Westlands<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: Frobozz is not actually part of Colossal Cave, but features<BR ALIGN="LEFT"/>in the related series of Zork adventures<BR ALIGN="LEFT"/></TD></TR>
         <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:250<BR ALIGN="LEFT"/></TD></TR>
