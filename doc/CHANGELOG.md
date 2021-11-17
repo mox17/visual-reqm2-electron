@@ -1,5 +1,8 @@
 ### Changelog
 
+## 2.3.1
+* Add columns with specobject `<status>` in diagram selection csv file.
+
 ## 2.3.0
 * Add button to copy list of selected `<id>`s to clipboard.
 * Fix bug in ancestor calculation for `.csv` exports.
