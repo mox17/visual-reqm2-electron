@@ -932,7 +932,7 @@ export class ReqM2Specobjects {
   get_ancestors (req_id, ancestors) {
     if (this.linksto.has(req_id)) {
       for (const ancestor of this.linksto.get(req_id)) {
-        ancestors.add( {id: ancestor, doctype: this.requirements.get(req_id).doctype })
+        ancestors.add( {id: ancestor, doctype: this.requirements.get(req_id).doctype, status: this.requirements.get(req_id).status})
         if (ancestor !== req_id) {
           let new_ancestors = this.get_ancestors(ancestor, ancestors)
           for (let n in new_ancestors) {
