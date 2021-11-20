@@ -533,17 +533,17 @@ function clear_diagram () {
   const graph = document.querySelector('#output')
 
   const svg = graph.querySelector('svg')
-  if (svg) {
+  if (svg && graph.contains(svg)) {
     graph.removeChild(svg)
   }
 
   const text = graph.querySelector('#text')
-  if (text) {
+  if (text && graph.contains(text)) {
     graph.removeChild(text)
   }
 
   const img = graph.querySelector('img')
-  if (img) {
+  if (img && graph.contains(img)) {
     graph.removeChild(img)
   }
 }
