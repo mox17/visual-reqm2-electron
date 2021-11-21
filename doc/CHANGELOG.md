@@ -1,5 +1,11 @@
 ### Changelog
 
+## 2.4.0
+* Single-node selection. Some selections may generate diagrams that are too large to render.
+  This 'single' select option gives the possibility to step through diagrams, where only a
+  single node is selected. The selection can be with `next`for `prev` buttons, of a specific node
+  can be chosen from the selection box.
+
 ## 2.3.1
 * Add columns with specobject `<status>` in diagram selection csv file.
 

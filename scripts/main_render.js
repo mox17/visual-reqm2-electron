@@ -1791,8 +1791,14 @@ function set_selection_highlight (node) {
 // Combobox handler
 document.getElementById('nodeSelect').addEventListener('change', function () {
   // Select node from drop-down
-  clear_selection_highlight()
-  center_node(selected_nodes[document.getElementById('nodeSelect').selectedIndex])
+  if (document.getElementById('single_select').checked) {
+    // Generate new diagram with *single* selected node
+    graph_results([selected_nodes[document.getElementById('nodeSelect').selectedIndex]], false)
+    update_diagram(selected_format)
+  } else {
+    clear_selection_highlight()
+    center_node(selected_nodes[document.getElementById('nodeSelect').selectedIndex])
+  }
 })
 
 document.getElementById('prev_selected').addEventListener('click', function () {
@@ -1808,7 +1814,13 @@ function prev_selected () {
     selected_index--
     if (selected_index < 0) selected_index = selected_nodes.length - 1
     document.getElementById('nodeSelect').selectedIndex = selected_index
-    center_node(selected_nodes[selected_index])
+    if (document.getElementById('single_select').checked) {
+      // Generate new diagram with *single* selected node
+      graph_results([selected_nodes[selected_index]], false)
+      update_diagram(selected_format)
+    } else {
+      center_node(selected_nodes[selected_index])
+    }
   }
 }
 
@@ -1818,14 +1830,22 @@ document.getElementById('next_selected').addEventListener('click', function () {
 })
 
 function next_selected () {
-  // step forwards through nodes and center display
+  // Create next diagram with a single selected node
   if (oreqm_main && selected_nodes.length) {
     // istanbul ignore next
     if (selected_index > selected_nodes.length) selected_index = 0
     selected_index++
     if (selected_index >= selected_nodes.length) selected_index = 0
     document.getElementById('nodeSelect').selectedIndex = selected_index
-    center_node(selected_nodes[selected_index])
+
+    if (document.getElementById('single_select').checked) {
+      // Generate new diagram with *single* selected node
+      graph_results([selected_nodes[selected_index]], false)
+      update_diagram(selected_format)
+    } else {
+      // Center diagram on next node
+      center_node(selected_nodes[selected_index])
+    }
   }
 }
 
@@ -1844,13 +1864,31 @@ function copy_selected () {
   clipboard.writeText(txt)
 }
 
+document.getElementById('single_select').addEventListener('change', function () {
+  if (document.getElementById('single_select').checked) {
+    graph_results([selected_nodes[selected_index]], false)
+  } else {
+    graph_results(selected_nodes, false)
+  }
+  update_diagram(selected_format)
+})
+
 /**
  * Search all id strings for a match to regex and create selection list
  * @param {string} regex regular expression
  */
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
-  oreqm_main.clear_marks()
+  graph_results(results)
+}
+
+/**
+ * Greate dot diagram from list of selected nods
+ * @param {*} results list of selected nodes
+ * @param {*} update_selection update node navigation selection box
+ */
+function graph_results (results, update_selection=true) {
+  oreqm_main.clear_color_marks()
   let depth = document.getElementById('limit_depth_input').checked ? 1 : 99 //rq: ->(rq_limited_walk)
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
@@ -1862,28 +1900,19 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
     program_settings.color_status)
   set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
   set_issue_count()
-  set_selection(graph.selected_nodes)
+  if (update_selection) {
+    set_selection(graph.selected_nodes)
+  }
 }
 
 /**
- * Search combined tagged string for a match to regex and create selection list
+ * Search combined tagged string for a match to regex and create selection list `results`
+ * Show digram with the matching nodes and reacable nodes.
  * @param {string} regex search criteria
  */
 function txt_search (regex) { //rq: ->(rq_sel_txt)
   const results = oreqm_main.find_reqs_with_text(regex)
-  oreqm_main.clear_marks()
-  let depth = document.getElementById('limit_depth_input').checked ? 1 : 99
-  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
-  const graph = oreqm_main.create_graph(select_color,
-    program_settings.top_doctypes,
-    oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
-    results,
-    program_settings.max_calc_nodes,
-    program_settings.show_coverage,
-    program_settings.color_status)
-  set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
-  set_issue_count()
-  set_selection(graph.selected_nodes)
+  graph_results(results)
 }
 
 document.getElementById('clear_ref_oreqm').addEventListener('click', function () {

@@ -1372,7 +1372,7 @@ export class ReqM2Specobjects {
   /**
    * Clear the 'color' tags on the requirements
    */
-  clear_marks () {
+  clear_color_marks () {
     const ids = this.color.keys()
     for (const id of ids) {
       this.color.set(id, new Set())
