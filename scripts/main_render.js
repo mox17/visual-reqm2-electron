@@ -215,6 +215,15 @@ function report_limit_as_toast (max_nodes) {
   })
 }
 
+function show_toast (message) {
+  toast_maybe_visible = true
+  showToast({
+    str: message,
+    time: 10000,
+    position: 'middle'
+  })
+}
+
 function clear_toast () {
   // istanbul ignore next
   if (toast_maybe_visible) {
@@ -2662,6 +2671,9 @@ function check_newer_release_available () {
         aboutButton.style.background = '#00FF00'
       }
       document.getElementById('latest_release').innerHTML = ` available for download is ${latest_version}`
+      if (latest_version > remote.app.getVersion()) {
+        show_toast(`A newer version ${latest_version} is available for download</br>Open <b>[About]</b> for more information`)
+      }
     })
   }).on('error', (err) => {
     console.log('Error: ' + err.message)
