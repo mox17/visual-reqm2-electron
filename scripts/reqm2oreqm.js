@@ -104,7 +104,7 @@ function get_list_of (node, tag_name) {
  * @param {string} node xml object
  * @returns list of missing doctypes
  */
-function check_needsobj_coverage_missing(node) {
+function check_needsobj_coverage_missing (node) {
   let missing = []
   const nc = node.getElementsByTagName('needscov')
   for (let n of nc) {
@@ -233,7 +233,7 @@ function get_fulfilledby (node) {
 
 // let magic = 'BAT_SDK_1'
 
-function linkstoCompare(a, b) {
+function linkstoCompare (a, b) {
   if (a.linksto < b.linksto) {
     return -1
   }

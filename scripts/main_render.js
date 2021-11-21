@@ -749,7 +749,7 @@ function copy_id_node (ffb_format) {
  * Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
  */
 /*
-  function copy_svg() {
+  function copy_svg () {
     let clip_txt = `<img src="data:image/svg;base64,${
       btoa(svg_result)}" width="${
       svg_element.getAttribute('width')}" height="${
@@ -766,7 +766,7 @@ function copy_id_node (ffb_format) {
   */
 
 /*
-  function copy_svg2() {
+  function copy_svg2 () {
     var image_blob = arrayBufferToBlob(svg_result, 'image/svg+xml')
     console.log(image_blob)
     let item = new ClipboardItem({'image/svg+xml': image_blob})
@@ -898,7 +898,7 @@ function load_diagram_ctx () {
  * @param {string} filename
  * @returns
  */
-function calcAbsPath(filename) {
+function calcAbsPath (filename) {
   let absPath
   if (path.isAbsolute(filename)) {
     absPath = filename
@@ -1026,7 +1026,7 @@ let vr2x_ctx = null
  * Async handler called after loading of oreqm file(s)
  * to set search parameters and settings
  */
-function vr2x_handler_func() {
+function vr2x_handler_func () {
   update_settings_from_context(vr2x_ctx.diagCtx)
   restoreContextAttributes(vr2x_ctx.diagCtx)
   set_excluded_doctype_checkboxes()
@@ -1040,7 +1040,7 @@ function vr2x_handler_func() {
  * Restore the attributes stored in the context object
  * @param {object} ctx
  */
-function restoreContextAttributes(ctx) {
+function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
   document.getElementById('id_checkbox_input').checked = ctx.id_checkbox_input
   document.getElementById('search_regex').value = ctx.search_regex
@@ -1121,7 +1121,7 @@ function update_settings_from_context (ctx) {
  * Get the system list separator, which is needed for csv files (on this machine)
  * @returns separator, i.e. ';' for some european locales or ','
  */
-function get_separator() {
+function get_separator () {
   const list = ['a', 'b'];
   const s = list.toLocaleString();
   const sep = s[1];

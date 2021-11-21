@@ -45,7 +45,7 @@ function holdBeforeFileExists (filePath, timeout) {
   })
 }
 
-function copy_file(filename_from, filename_to) {
+function copy_file (filename_from, filename_to) {
   const main_txt = fs.readFileSync(filename_from, 'utf8')
   fs.writeFileSync(filename_to, main_txt)
 }
