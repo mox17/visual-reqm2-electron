@@ -2,8 +2,8 @@
 
 ## 2.4.0
 * Single-node selection. Some selections may generate diagrams that are too large to render.
-  This 'single' select option gives the possibility to step through diagrams, where only a
-  single node is selected. The selection can be with `next`for `prev` buttons, of a specific node
+  This 'single' select option gives the possibility to step through multiple diagrams, where only a
+  single node is selected. The selection can be done with `next` or `prev` buttons, or a specific node
   can be chosen from the selection box.
 
 ## 2.3.1
