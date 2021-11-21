@@ -104,7 +104,7 @@ function get_list_of (node, tag_name) {
  * @param {string} node xml object
  * @returns list of missing doctypes
  */
-function check_needsobj_coverage_missing(node) {
+function check_needsobj_coverage_missing (node) {
   let missing = []
   const nc = node.getElementsByTagName('needscov')
   for (let n of nc) {
@@ -226,6 +226,9 @@ function get_fulfilledby (node) {
       diff: '',
       xml: ffbobj
     }
+    if (ff_entry.id.includes('&nbsp;')) {
+      ff_entry.id = ff_entry.id.replace('&nbsp;', '')
+    }
     ff_list.push(ff_entry)
   }
   return ff_list
@@ -233,7 +236,7 @@ function get_fulfilledby (node) {
 
 // let magic = 'BAT_SDK_1'
 
-function linkstoCompare(a, b) {
+function linkstoCompare (a, b) {
   if (a.linksto < b.linksto) {
     return -1
   }
@@ -543,6 +546,11 @@ export class ReqM2Specobjects {
   add_one_specobject (comp, doctype) {
     const req = new Object()
     req.id = get_xml_text(comp, 'id')
+    if (req.id.includes('&nbsp;')) {
+      const problem = `specobject <id> contains &amp;nbsp;  ${req.id}`
+      this.problem_report(problem)
+      req.id = req.id.replace('&nbsp;', '')
+    }
     req.comment = get_xml_text(comp, 'comment')
     req.covstatus = get_xml_text(comp, 'covstatus')
     req.dependson = get_list_of(comp, 'dependson')
@@ -1372,7 +1380,7 @@ export class ReqM2Specobjects {
   /**
    * Clear the 'color' tags on the requirements
    */
-  clear_marks () {
+  clear_color_marks () {
     const ids = this.color.keys()
     for (const id of ids) {
       this.color.set(id, new Set())

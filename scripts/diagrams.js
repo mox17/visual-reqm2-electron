@@ -251,7 +251,7 @@ function source_file_line (rec) {
  * @param {object} rec specobject representation
  * @returns table formatted string or empty string
  */
-function format_needsobj(rec, show_coverage) {
+function format_needsobj (rec, show_coverage) {
   let nobj_table = ''
   if (rec.needsobj.length > 0) {
     nobj_table += '<TABLE BORDER="0">'

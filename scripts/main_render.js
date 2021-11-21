@@ -215,6 +215,15 @@ function report_limit_as_toast (max_nodes) {
   })
 }
 
+function show_toast (message) {
+  toast_maybe_visible = true
+  showToast({
+    str: message,
+    time: 10000,
+    position: 'middle'
+  })
+}
+
 function clear_toast () {
   // istanbul ignore next
   if (toast_maybe_visible) {
@@ -533,17 +542,17 @@ function clear_diagram () {
   const graph = document.querySelector('#output')
 
   const svg = graph.querySelector('svg')
-  if (svg) {
+  if (svg && graph.contains(svg)) {
     graph.removeChild(svg)
   }
 
   const text = graph.querySelector('#text')
-  if (text) {
+  if (text && graph.contains(text)) {
     graph.removeChild(text)
   }
 
   const img = graph.querySelector('img')
-  if (img) {
+  if (img && graph.contains(img)) {
     graph.removeChild(img)
   }
 }
@@ -749,7 +758,7 @@ function copy_id_node (ffb_format) {
  * Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
  */
 /*
-  function copy_svg() {
+  function copy_svg () {
     let clip_txt = `<img src="data:image/svg;base64,${
       btoa(svg_result)}" width="${
       svg_element.getAttribute('width')}" height="${
@@ -766,7 +775,7 @@ function copy_id_node (ffb_format) {
   */
 
 /*
-  function copy_svg2() {
+  function copy_svg2 () {
     var image_blob = arrayBufferToBlob(svg_result, 'image/svg+xml')
     console.log(image_blob)
     let item = new ClipboardItem({'image/svg+xml': image_blob})
@@ -898,7 +907,7 @@ function load_diagram_ctx () {
  * @param {string} filename
  * @returns
  */
-function calcAbsPath(filename) {
+function calcAbsPath (filename) {
   let absPath
   if (path.isAbsolute(filename)) {
     absPath = filename
@@ -1026,7 +1035,7 @@ let vr2x_ctx = null
  * Async handler called after loading of oreqm file(s)
  * to set search parameters and settings
  */
-function vr2x_handler_func() {
+function vr2x_handler_func () {
   update_settings_from_context(vr2x_ctx.diagCtx)
   restoreContextAttributes(vr2x_ctx.diagCtx)
   set_excluded_doctype_checkboxes()
@@ -1040,7 +1049,7 @@ function vr2x_handler_func() {
  * Restore the attributes stored in the context object
  * @param {object} ctx
  */
-function restoreContextAttributes(ctx) {
+function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
   document.getElementById('id_checkbox_input').checked = ctx.id_checkbox_input
   document.getElementById('search_regex').value = ctx.search_regex
@@ -1121,7 +1130,7 @@ function update_settings_from_context (ctx) {
  * Get the system list separator, which is needed for csv files (on this machine)
  * @returns separator, i.e. ';' for some european locales or ','
  */
-function get_separator() {
+function get_separator () {
   const list = ['a', 'b'];
   const s = list.toLocaleString();
   const sep = s[1];
@@ -1791,8 +1800,15 @@ function set_selection_highlight (node) {
 // Combobox handler
 document.getElementById('nodeSelect').addEventListener('change', function () {
   // Select node from drop-down
-  clear_selection_highlight()
-  center_node(selected_nodes[document.getElementById('nodeSelect').selectedIndex])
+  selected_index = document.getElementById('nodeSelect').selectedIndex
+  if (document.getElementById('single_select').checked) {
+    // Generate new diagram with *single* selected node
+    graph_results([selected_nodes[selected_index]], false)
+    update_diagram(selected_format)
+  } else {
+    clear_selection_highlight()
+    center_node(selected_nodes[selected_index])
+  }
 })
 
 document.getElementById('prev_selected').addEventListener('click', function () {
@@ -1808,7 +1824,13 @@ function prev_selected () {
     selected_index--
     if (selected_index < 0) selected_index = selected_nodes.length - 1
     document.getElementById('nodeSelect').selectedIndex = selected_index
-    center_node(selected_nodes[selected_index])
+    if (document.getElementById('single_select').checked) {
+      // Generate new diagram with *single* selected node
+      graph_results([selected_nodes[selected_index]], false)
+      update_diagram(selected_format)
+    } else {
+      center_node(selected_nodes[selected_index])
+    }
   }
 }
 
@@ -1818,14 +1840,22 @@ document.getElementById('next_selected').addEventListener('click', function () {
 })
 
 function next_selected () {
-  // step forwards through nodes and center display
+  // Create next diagram with a single selected node
   if (oreqm_main && selected_nodes.length) {
     // istanbul ignore next
     if (selected_index > selected_nodes.length) selected_index = 0
     selected_index++
     if (selected_index >= selected_nodes.length) selected_index = 0
     document.getElementById('nodeSelect').selectedIndex = selected_index
-    center_node(selected_nodes[selected_index])
+
+    if (document.getElementById('single_select').checked) {
+      // Generate new diagram with *single* selected node
+      graph_results([selected_nodes[selected_index]], false)
+      update_diagram(selected_format)
+    } else {
+      // Center diagram on next node
+      center_node(selected_nodes[selected_index])
+    }
   }
 }
 
@@ -1844,13 +1874,31 @@ function copy_selected () {
   clipboard.writeText(txt)
 }
 
+document.getElementById('single_select').addEventListener('change', function () {
+  if (document.getElementById('single_select').checked) {
+    graph_results([selected_nodes[selected_index]], false)
+  } else {
+    graph_results(selected_nodes, false)
+  }
+  update_diagram(selected_format)
+})
+
 /**
  * Search all id strings for a match to regex and create selection list
  * @param {string} regex regular expression
  */
 function id_search (regex) { //rq: ->(rq_search_id_only)
   const results = oreqm_main.find_reqs_with_name(regex)
-  oreqm_main.clear_marks()
+  graph_results(results)
+}
+
+/**
+ * Greate dot diagram from list of selected nods
+ * @param {*} results list of selected nodes
+ * @param {*} update_selection update node navigation selection box
+ */
+function graph_results (results, update_selection=true) {
+  oreqm_main.clear_color_marks()
   let depth = document.getElementById('limit_depth_input').checked ? 1 : 99 //rq: ->(rq_limited_walk)
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
@@ -1862,28 +1910,19 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
     program_settings.color_status)
   set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
   set_issue_count()
-  set_selection(graph.selected_nodes)
+  if (update_selection) {
+    set_selection(graph.selected_nodes)
+  }
 }
 
 /**
- * Search combined tagged string for a match to regex and create selection list
+ * Search combined tagged string for a match to regex and create selection list `results`
+ * Show digram with the matching nodes and reacable nodes.
  * @param {string} regex search criteria
  */
 function txt_search (regex) { //rq: ->(rq_sel_txt)
   const results = oreqm_main.find_reqs_with_text(regex)
-  oreqm_main.clear_marks()
-  let depth = document.getElementById('limit_depth_input').checked ? 1 : 99
-  oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
-  const graph = oreqm_main.create_graph(select_color,
-    program_settings.top_doctypes,
-    oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
-    results,
-    program_settings.max_calc_nodes,
-    program_settings.show_coverage,
-    program_settings.color_status)
-  set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
-  set_issue_count()
-  set_selection(graph.selected_nodes)
+  graph_results(results)
 }
 
 document.getElementById('clear_ref_oreqm').addEventListener('click', function () {
@@ -2381,7 +2420,7 @@ function show_source () {
       const text_ref = xml_escape(oreqm_ref.get_xml_string(selected_node))
       const text_main = xml_escape(oreqm_main.get_xml_string(selected_node))
       let result = '<h2>XML format (changed specobject)</h2><pre>'
-      const diff = Diff.diffLines(text_ref, text_main)
+      const diff = Diff.diffLines(text_ref, text_main, {ignoreWhitespace: true})
       diff.forEach(function (part) {
         // green for additions, red for deletions, black for common parts
         const color = part.added ? 'green' : part.removed ? 'red' : 'grey'
@@ -2633,6 +2672,9 @@ function check_newer_release_available () {
         aboutButton.style.background = '#00FF00'
       }
       document.getElementById('latest_release').innerHTML = ` available for download is ${latest_version}`
+      if (latest_version > remote.app.getVersion()) {
+        show_toast(`A newer version ${latest_version} is available for download</br>Open <b>[About]</b> for more information`)
+      }
     })
   }).on('error', (err) => {
     console.log('Error: ' + err.message)
