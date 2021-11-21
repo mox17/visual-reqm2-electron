@@ -226,6 +226,9 @@ function get_fulfilledby (node) {
       diff: '',
       xml: ffbobj
     }
+    if (ff_entry.id.includes('&nbsp;')) {
+      ff_entry.id = ff_entry.id.replace('&nbsp;', '')
+    }
     ff_list.push(ff_entry)
   }
   return ff_list
@@ -543,6 +546,11 @@ export class ReqM2Specobjects {
   add_one_specobject (comp, doctype) {
     const req = new Object()
     req.id = get_xml_text(comp, 'id')
+    if (req.id.includes('&nbsp;')) {
+      const problem = `specobject <id> contains &amp;nbsp;  ${req.id}`
+      this.problem_report(problem)
+      req.id = req.id.replace('&nbsp;', '')
+    }
     req.comment = get_xml_text(comp, 'comment')
     req.covstatus = get_xml_text(comp, 'covstatus')
     req.dependson = get_list_of(comp, 'dependson')
