@@ -1800,13 +1800,14 @@ function set_selection_highlight (node) {
 // Combobox handler
 document.getElementById('nodeSelect').addEventListener('change', function () {
   // Select node from drop-down
+  selected_index = document.getElementById('nodeSelect').selectedIndex
   if (document.getElementById('single_select').checked) {
     // Generate new diagram with *single* selected node
-    graph_results([selected_nodes[document.getElementById('nodeSelect').selectedIndex]], false)
+    graph_results([selected_nodes[selected_index]], false)
     update_diagram(selected_format)
   } else {
     clear_selection_highlight()
-    center_node(selected_nodes[document.getElementById('nodeSelect').selectedIndex])
+    center_node(selected_nodes[selected_index])
   }
 })
 
@@ -2419,7 +2420,7 @@ function show_source () {
       const text_ref = xml_escape(oreqm_ref.get_xml_string(selected_node))
       const text_main = xml_escape(oreqm_main.get_xml_string(selected_node))
       let result = '<h2>XML format (changed specobject)</h2><pre>'
-      const diff = Diff.diffLines(text_ref, text_main)
+      const diff = Diff.diffLines(text_ref, text_main, {ignoreWhitespace: true})
       diff.forEach(function (part) {
         // green for additions, red for deletions, black for common parts
         const color = part.added ? 'green' : part.removed ? 'red' : 'grey'
