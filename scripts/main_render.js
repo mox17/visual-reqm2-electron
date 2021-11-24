@@ -1489,6 +1489,11 @@ function get_main_oreqm_file () {
   }
 }
 
+/**
+ * Calculate oreqm_ref and calculate diff to oreqm_main
+ * @param {string} name filename of reference oreqm file
+ * @param {string} data XML content of oreqm file
+ */
 function process_data_ref (name, data) {
   // Clean up data related to a previous ref file
   oreqm_main.remove_ghost_requirements(true)  // possible ghost reqs were related to now disappearing ref file

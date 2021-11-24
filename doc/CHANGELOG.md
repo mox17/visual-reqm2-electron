@@ -1,5 +1,10 @@
 ### Changelog
 
+## 2.4.1
+* In diff/comparison view do not render `<linksto>` links from reference `.oreqm` specobjects that
+  have links errors, such as `'referenced object does not exist'`. This is because such links are shown as
+  an attribute on the speobject, as there are no removed 'ghost' :ghost: specobjects to render a connection to.
+
 ## 2.4.0
 * Single-node selection. Some selections may generate diagrams that are too large to render.
   This 'single' select option gives the possibility to step through multiple diagrams, where only a

@@ -1207,7 +1207,9 @@ export class ReqM2Specobjects {
     }
     // Find the linksto that are no longer present
     for (const old_l of old_rec.linksto) {
-      if (!still_there.includes(old_l.linksto)) {
+      // Skip broken linksto from reference oreqm
+      if ((!still_there.includes(old_l.linksto)) &&
+          (!old_l.linkerror.startsWith('referenced object does not exist'))) {
         // Add a 'ghost' linksto
         //console.log(`Ghost linksto ${old_rec.id} to ${old_l.linksto}`)
         const ghost_linksto = { ...old_l } // make a clone
