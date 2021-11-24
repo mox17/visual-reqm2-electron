@@ -105,6 +105,13 @@ An indication will be shown when this limit is exceeded.
 At least the author believes that a diagram with more than 1000 nodes is not helping with the overview
 that this program aims to provide. So if too many nodes are rendered, make the filters more precise.
 
+### 'Single' mode
+
+Some selections may generate diagrams that are too large to render.
+The 'single' checkbox option gives the possibility to step through multiple diagrams, where only a
+single node is selected. The selection can be done with `next` or `prev` buttons, or a specific node
+can be chosen from the selection box.
+
 ### Filter Mechanisms
 
 There are three main ways to filter requirements:
@@ -136,26 +143,47 @@ The regular expression can be applied to the `<id>` only, or to a **combined** s
 **Note:** There is an option to limit reachability to only one (1) level with the **"depth=1"** checkbox.
 This is helpful for comparison (diff) views.
 
-The combined string concatenates the raw text from xml tags with some prefixes in the order below, separated by newlines.
+The combined search string concatenates the raw text from xml tags with some prefixes in the order below, separated by newlines.
 
 * `dt: <doctype>`
 * `id: <id>`
 * `ve: <version>`
-* `st: <status>`
 * `de: <description>`
-* `fi: <furtherinfo>`
+* `no: <needsobj>`
+* `sd: <shortdesc>`
 * `rt: <rationale>`
 * `sr: <safetyrationale>`
-* `sc: <safetyclass>`
-* `sd: <shortdesc>`
-* `uc: <usecase>`
+* `scr: <securityrationale>`
+* `scl: <securityclass>`
 * `vc: <verifycrit>`
+* `vm: <verifymethods>`
+* `vco: <verifycond>`
 * `co: <comment>`
-* `cs: <covstatus>`
-* `no: <needsobj>`
-* `ffb: <ffb id>`
+* `fi: <furtherinfo>`
+* `uc: <usecase>`
+* `src: <source>`
+* `srv: <sourcerevision>`
+* `cd: <creationdate>`
+* `sf: <sourcefile>`
+* `ti: <testin>`
+* `tx: <testexec>`
+* `to: <testout>`
+* `tp: <testpasscrit>`
+* `dep: <dependson>`
+* `con: <conflicts>`
+* `rel: <releases>`
+* `cat: <category>`
+* `pri: <priority>`
 * `tag: <tag>`
 * `plt: <platform>`
+* `sc: <safetyclass>`
+* `st: <status>`
+* `cs: <covstatus>`
+* `ffb: <fulfilledby>`
+* `vio: <violations>`
+* `err: <errors>`
+* `fer: <ffberrors>`
+* `mic: <miscov>`
 * `dup: duplicate`
 * `rem:|chg:|new: diff status`
 
@@ -185,6 +213,11 @@ It is not possible to deselect nodes that were matched with anything but a speci
 
 **Note**: the Visual ReqM2 specific right-click menu only works in `svg` mode, i.e. not if the diagram is
 displayed as png file.
+
+**Note:** The 'Single' checkbox is another way to see diagrams, when too many nodes are selected to render them all in one
+diagram. In 'Single' mode, the diagram is calculated based on a reachable specobjects from a **single** specobject.
+It is then possible to step through all the diagrams resulting from selecting one specobject at a time.
+This is a work-around, not a solution, for information overload.
 
 ### Excluding nodes
 
