@@ -1,4 +1,4 @@
-# Visual ReqM2              [![Build Status](https://travis-ci.com/mox17/visual-reqm2-electron.svg?branch=master)](https://travis-ci.com/mox17/visual-reqm2-electron)
+# Visual ReqM2
 
 Visual ReqM2 is an electron app that generates visualizations of requirements hierarchies.
 
