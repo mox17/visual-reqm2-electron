@@ -1,5 +1,8 @@
 ### Changelog
 
+## 2.4.2
+* Fix bug of empty display of 'dot' when no previous 'svg' display was done.
+
 ## 2.4.1
 * In diff/comparison view do not render `<linksto>` links from reference `.oreqm` specobjects that
   have links errors, such as `'referenced object does not exist'`. This is because such links are shown as

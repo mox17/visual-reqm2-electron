@@ -565,7 +565,7 @@ function updateOutput (_result) {
   const graph = document.querySelector('#output')
   clear_diagram()
   // istanbul ignore next
-  if (!svg_result) {
+  if ((selected_format === 'svg') && !svg_result) {
     return
   }
 
