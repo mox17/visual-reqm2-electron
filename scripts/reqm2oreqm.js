@@ -375,6 +375,26 @@ export const search_tags = [
   // { key: '', field: '', list: false}
 ]
 
+export const meta_tags = [
+  'dup',
+  'rem',
+  'chg',
+  'new'
+]
+
+// Create dictionary of tags to their order of appearance
+export let search_tag_order = new Map()
+let search_tag_ord = 0
+
+for (let t of search_tags) {
+  search_tag_order.set(t.key, search_tag_ord)
+  search_tag_ord++
+}
+for (let t of meta_tags) {
+  search_tag_order.set(t, search_tag_ord)
+  search_tag_ord++
+}
+
 /**
  * Generate tooltip string from table of searchable tags
  * @returns string

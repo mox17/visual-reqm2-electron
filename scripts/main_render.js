@@ -19,6 +19,7 @@ import {
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
 import { electron } from 'process'
+import { parse_search_criteria } from './vql_search.js'
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -1370,6 +1371,7 @@ document.getElementById('limit_depth_input').addEventListener('change', function
 })
 
 document.getElementById('search_regex').addEventListener('change', function () {
+  console.log(parse_search_criteria(document.getElementById('search_regex').value))
   filter_change()
 })
 

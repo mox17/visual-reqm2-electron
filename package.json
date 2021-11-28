@@ -19,6 +19,7 @@
     "build": "babel scripts -d lib && electron-builder build --win --publish never",
     "deploy": "babel scripts -d lib && electron-builder build --win --publish always",
     "reqm2": "bash ./run_reqm2.sh",
+    "parsergen": "nearleyc scripts/vql-grammar.ne > scripts/vql-parser.js",
     "precommit": "npm test",
     "prepare": "husky install"
   },
@@ -63,6 +64,7 @@
     "electron-settings": "^4.0.2",
     "electron-updater": "^4.3.5",
     "lodash": "^4.17.21",
+    "nearley": "^2.20.1",
     "shell": "^0.8.4",
     "show-toast": "^1.1.4",
     "split.js": "^1.6.2",
