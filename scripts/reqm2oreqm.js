@@ -955,7 +955,7 @@ export class ReqM2Specobjects {
   /**
    * Return an unordered collection of "upstream" specobjects
    * @param {string} req_id
-   * @returns {set} This is a set of { id: <id> doctype: <doctype> }
+   * @returns {Set} This is a set of { id: <id>, doctype: <doctype>, status: <status> }
    */
   get_ancestors (req_id, ancestors) {
     if (this.linksto.has(req_id)) {
@@ -971,6 +971,30 @@ export class ReqM2Specobjects {
     }
     return ancestors
   }
+
+  /**
+   * Return an unordered collection of "downstream" specobjects
+   * @param {Set} req_ids Starting nodes to find children from
+   * @param {Set} children This is a set of <id>
+   */
+  get_children (req_ids, children)
+  {
+    for (let id of req_ids) {
+      if (this.linksto_rev.has(id)) {
+        let generation = Set()
+        for (const child of this.linksto_rev.get(id)) {
+          children.add(child)
+          generation.add(child)
+        }
+        let grandchildren = this.get_children(generation, children)
+        for (let g of grandchildren) {
+          children.add(g)
+        }
+      }
+    }
+    return children
+  }
+
   /**
    * Extract execution timestamp from oreqm report
    * @return {string} time
