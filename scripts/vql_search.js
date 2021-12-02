@@ -49,7 +49,7 @@ export function vql_search(input_nodes, search_obj) {
 function and_search(nodes, a1, a2) {
     if (a1.op === 'd' && a2.op === 'd') {
       let aa = order_tags(a1, a2)
-      let regex = 
+
 
     }
 }
