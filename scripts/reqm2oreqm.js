@@ -466,7 +466,8 @@ export class ReqM2Specobjects {
   }
 
   /**
-   * Table driven creation of tagged search string
+   * Table driven creation of tagged search string.
+   * Each tag is between ':'s followed by value
    * @param {object} rec
    * @returns string
    */
@@ -474,16 +475,16 @@ export class ReqM2Specobjects {
     let tag_str = ''
     for (let row of search_tags) {
       if (!row.list) {
-        tag_str += `${row.key}:${rec[row.field]}\n`
+        tag_str += `:${row.key}:${rec[row.field]}\n`
       } else {
         for (let item of rec[row.field]) {
           let entry
           switch (row.field) {
             case 'fulfilledby':
-              entry = `${row.key}:${item.id}\n`
+              entry = `:${row.key}:${item.id}\n`
               break;
             default:
-              entry = `${row.key}:${item}\n`
+              entry = `:${row.key}:${item}\n`
               break;
           }
           tag_str += entry
@@ -491,10 +492,10 @@ export class ReqM2Specobjects {
       }
     }
     // Handle meta-properties
-    tag_str += this.duplicates.has(rec.id) ? '\ndup:' : ''
-    tag_str += this.removed_reqs.includes(rec.id) ? '\nrem:' : ''
-    tag_str += this.updated_reqs.includes(rec.id) ? '\nchg:' : ''
-    tag_str += this.new_reqs.includes(rec.id) ? '\nnew:' : ''
+    tag_str += this.duplicates.has(rec.id) ? '\n:dup:' : ''
+    tag_str += this.removed_reqs.includes(rec.id) ? '\n:rem:' : ''
+    tag_str += this.updated_reqs.includes(rec.id) ? '\n:chg:' : ''
+    tag_str += this.new_reqs.includes(rec.id) ? '\n:new:' : ''
     return tag_str
   }
 
@@ -1322,65 +1323,6 @@ export class ReqM2Specobjects {
     if (this.search_cache.has(req_id)) {
       return this.search_cache.get(req_id)
     } else {
-      /*
-      // Get all text fields as combined string
-      const rec = this.requirements.get(req_id)
-      const diff = this.diff_status(rec.id)
-      let ffb = ''
-      rec.fulfilledby.forEach(element =>
-        ffb += '\nffb:' + element.id)
-      let tags = ''
-      rec.tags.forEach(element =>
-        tags += '\ntag:' + element)
-      let plat = ''
-      rec.platform.forEach(element =>
-        plat += '\nplt:' + element)
-      let needsobj = ''
-      rec.needsobj.forEach(element =>
-        needsobj += '\nno:' + element)
-      let verifymethods = ''
-      rec.verifymethods.forEach(element =>
-        verifymethods += '\nvm:' + element)
-      let releases = ''
-      rec.releases.forEach(element =>
-        releases += '\nrel:' + element)
-      let dependson = ''
-      rec.dependson.forEach(element =>
-        dependson += '\ndep:' + element)
-      let conflicts = ''
-      rec.conflicts.forEach(element =>
-        conflicts += '\ncon:' + element)
-      const dup = this.duplicates.has(rec.id) ? '\ndup:' : '' //rq: ->(rq_dup_req_search)
-      const all_text = 'dt:' + rec.doctype +
-        '\nid:' + rec.id +
-        '\nve:' + rec.version +
-        '\nst:' + rec.status +
-        '\nde:' + rec.description +
-        '\nfi:' + rec.furtherinfo +
-        '\nrt:' + rec.rationale +
-        '\nsr:' + rec.safetyrationale +
-        '\nsc:' + rec.safetyclass +
-        '\nsd:' + rec.shortdesc +
-        verifymethods +
-        '\nuc:' + rec.usecase +
-        '\nvc:' + rec.verifycrit +
-        '\nvco:' + rec.verifycond +
-        '\nti:' + rec.testin +
-        '\ntx:' + rec.testexec +
-        '\nto:' + rec.testout +
-
-        releases +
-        dependson +
-        conflicts +
-        '\nco:' + rec.comment +
-        '\ncs:' + rec.covstatus +
-        needsobj +
-        ffb +
-        tags +
-        plat +
-        dup +
-        '\n' + diff
-        */
       let all_text = this.build_tagged_string(this.requirements.get(req_id))
       this.search_cache.set(req_id, all_text)
       return all_text
