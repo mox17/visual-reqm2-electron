@@ -974,6 +974,21 @@ export class ReqM2Specobjects {
   }
 
   /**
+   * Return an unordered collection of ancestors from set of ids
+   * @param {Set} req_ids Set of 'children' to find ancestors of
+   */
+  get_ancestors_set (req_ids) {
+    let result = new Set()
+    for (const r of req_ids) {
+      let a = this.get_ancestors(r, new Set())
+      for (const x of a) {
+        result.add(x.id)
+      }
+    }
+    return result
+  }
+
+  /**
    * Return an unordered collection of "downstream" specobjects
    * @param {Set} req_ids Starting nodes to find children from
    * @param {Set} children This is a set of <id>
@@ -982,7 +997,7 @@ export class ReqM2Specobjects {
   {
     for (let id of req_ids) {
       if (this.linksto_rev.has(id)) {
-        let generation = Set()
+        let generation = new Set()
         for (const child of this.linksto_rev.get(id)) {
           children.add(child)
           generation.add(child)
@@ -1341,6 +1356,38 @@ export class ReqM2Specobjects {
       const rx = new RegExp(regex, 'ims') // case-insensitive multi-line
       for (const id of ids) {
         if (rx.test(this.get_all_text(id))) { matches.push(id) }
+      }
+    } catch (err) {
+      const msg = `Selection criteria error:\n${err.message}`
+      console.log(msg)
+      alert(msg)
+    }
+    return matches
+  }
+
+  /**
+   * Return the set of all ids
+   * TODO: should FFB placeholders be returned?
+   * @returns Set(ids)
+   */
+  get_all_ids()
+  {
+    return new Set(this.requirements.keys())
+  }
+
+  /**
+   * Return the set of specobjects from `ids` that match the `regex`
+   * @param {Set} ids specobjects to examine
+   * @param {*} regex match expression (for tagged search string)
+   * @returns {Set} matching ids
+   */
+  find_reqs_from_set (ids, regex)
+  {
+    const matches = new Set()
+    try {
+      const rx = new RegExp(regex, 'ims') // case-insensitive multi-line
+      for (const id of ids) {
+        if (rx.test(this.get_all_text(id))) { matches.add(id) }
       }
     } catch (err) {
       const msg = `Selection criteria error:\n${err.message}`

@@ -5,7 +5,7 @@ import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
-import { ipcRenderer, remote, shell, clipboard, Menu } from 'electron'
+import { ipcRenderer, remote, shell, clipboard } from 'electron'
 import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -18,7 +18,6 @@ import {
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
-import { electron } from 'process'
 import { parse_search_criteria } from './vql_search.js'
 
 const mainWindow = remote.getCurrentWindow()
