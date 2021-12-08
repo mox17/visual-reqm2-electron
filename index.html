@@ -44,8 +44,14 @@
                     wrap="off" placeholder="search regex&#13;&#10;newlines are ignored&#13;&#10;rem:|chg:|new: select changes"
                     spellcheck="false"></textarea>
           <br>
-          <input type="checkbox" id="id_checkbox_input" title="Limit search to &lt;id&gt; fields only">
-          <label for="id_checkbox_input">search &lt;id&gt; only</label>
+          <div>
+            <input type="radio" id="id_checkbox_input"    name="search_lang" value="ids" title="Search &lt;id&gt; only">
+            <label for="id_checkbox_input">Search &lt;id&gt;</label>
+            <input type="radio" id="regex_checkbox_input" name="search_lang" value="reg" title="Simple regex search" checked>
+            <label for="regex_checkbox_input">RegEx</label>
+            <input type="radio" id="vql_checkbox_input"   name="search_lang" value="vql" title="Visual ReqM2 Query Language">
+            <label for="vql_checkbox_input">VQL</label>
+          </div>
           <input type="checkbox" id="limit_depth_input" title="Only immediate neighbors are reachable">
           <label for="limit_depth_input">depth=1</label>
           <p/>

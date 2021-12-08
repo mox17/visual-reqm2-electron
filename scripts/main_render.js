@@ -348,7 +348,9 @@ function cmd_line_parameters (args) {
     search_pattern = args.select
     document.getElementById('search_regex').value = args.select
   }
-  document.getElementById('id_checkbox_input').checked = args.idOnly
+  document.getElementById('id_checkbox_input').checked = args.idOnly && !args.vql
+  document.getElementById('regex_checkbox_input').checked = !args.idOnly && !args.vql
+  document.getElementById('vql_checkbox_input').checked = args.vql
   document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
     document.getElementById('excluded_ids').value = args.exclIds.replaceAll(',', '\n')
@@ -942,11 +944,12 @@ function save_diagram_context (ctxPath) {
     }
 
     let diagCtx = {
-      version: 1,
+      version: 2,
       main_oreqm_rel: relPath,
       ref_oreqm_rel: relPath_ref,
       no_rejects: document.getElementById('no_rejects').checked,
       id_checkbox_input: document.getElementById('id_checkbox_input').checked,
+      vql_checkbox_input: document.getElementById('vql_checkbox_input').checked,
       search_regex: document.getElementById('search_regex').value,
       excluded_ids: document.getElementById('excluded_ids').value,
       limit_depth_input: document.getElementById('limit_depth_input').checked,
@@ -1052,6 +1055,8 @@ function vr2x_handler_func () {
 function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
   document.getElementById('id_checkbox_input').checked = ctx.id_checkbox_input
+  document.getElementById('regex_checkbox_input').checked = !ctx.vql_checkbox_input && !ctx.id_checkbox_input
+  document.getElementById('vql_checkbox_input').checked = ctx.vql_checkbox_input
   document.getElementById('search_regex').value = ctx.search_regex
   document.getElementById('excluded_ids').value = ctx.excluded_ids
   document.getElementById('limit_depth_input').checked = ctx.limit_depth_input
@@ -1362,7 +1367,21 @@ document.getElementById('auto_update').addEventListener('click', function () {
 })
 
 document.getElementById('id_checkbox_input').addEventListener('change', function () {
-  filter_change()
+  if (document.getElementById('id_checkbox_input').checked) {
+    filter_change()
+  }
+})
+
+document.getElementById('regex_checkbox_input').addEventListener('change', function () {
+  if (document.getElementById('regex_checkbox_input').checked) {
+    filter_change()
+  }
+})
+
+document.getElementById('vql_checkbox_input').addEventListener('change', function () {
+  if (document.getElementById('vql_checkbox_input').checked) {
+    filter_change()
+  }
 })
 
 document.getElementById('limit_depth_input').addEventListener('change', function () {
