@@ -993,7 +993,7 @@ export class ReqM2Specobjects {
    * @param {Set} req_ids Starting nodes to find children from
    * @param {Set} children This is a set of <id>
    */
-  get_children (req_ids, children)
+  get_children (req_ids, children= new Set())
   {
     for (let id of req_ids) {
       if (this.linksto_rev.has(id)) {

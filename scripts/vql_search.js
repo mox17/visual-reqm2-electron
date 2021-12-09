@@ -8,25 +8,30 @@ import {oreqm_main} from './main_data.js'
  * @param {String} sc Search criteria string (in VQL)
  * @returns {Object} AST of parsed VQL exxpression
  */
-export function parse_search_criteria (sc) {
+export function vql_parse (sc) {
   let ans
   try {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
     ans = parser.feed(sc)
-    // Check if there are any results
-    if (ans.results.length) {
-      console.log(ans.results[0])
-      console.log(vql_evaluate(ans.results[0]))
-      return ans.results[0].toString()
-    } else {
-      // This means the input is incomplete.
-      var out = 'Error: incomplete input, parse failed. :('
-      return out
-    }
   } catch (e) {
     console.log(e)
     var error_out = `Error offset ${e.offset} chars into\n${sc}`
-    return error_out
+    alert(error_out)
+    return null
+  }
+  // Check if there are any results
+  if (ans.results.length) {
+    console.log(ans.results)
+    if (ans.results.length > 1) {
+      alert('Ambiguous result')
+    }
+    return vql_eval_root(ans.results[0])
+  } else {
+    // This means the input is incomplete.
+    var out = 'Error: incomplete input, parse failed.'
+    console.log(out)
+    alert(out)
+    return null
   }
 }
 
@@ -35,9 +40,9 @@ export function parse_search_criteria (sc) {
  * @param {Object} search_ast a parse object from search expression
  * @returns {Set} Matching specobject ids
  */
-export function vql_evaluate (search_ast) {
+export function vql_eval_root (search_ast) {
   let initial_set = oreqm_main.get_all_ids()
-  return vql_search(initial_set, search_ast)
+  return vql_eval(initial_set, search_ast)
 }
 
 /**
@@ -47,7 +52,7 @@ export function vql_evaluate (search_ast) {
  *
  * @returns {Set} set of matching keys (specobject ids)
  */
-export function vql_search (input_nodes, search_ast) {
+function vql_eval (input_nodes, search_ast) {
   switch (search_ast.op) {
     case 'AND':
       return and_search(input_nodes, search_ast.arg1, search_ast.arg2)
@@ -60,7 +65,8 @@ export function vql_search (input_nodes, search_ast) {
     case 'd':
       return d_search(input_nodes, search_ast)
     case 'NOT': {
-      let s1 = vql_search(input_nodes, search_ast.arg)
+      let s1 = vql_eval(input_nodes, search_ast.arg)
+      // return complementary set
       return new Set([...input_nodes].filter((x) => !s1.has(x)))
     }
     default:
@@ -78,10 +84,10 @@ export function vql_search (input_nodes, search_ast) {
  */
 function and_search (nodes, a1, a2) {
   // const results = oreqm_main.find_reqs_from_set (ids, regex)
-  let s1 = vql_search(nodes, a1)
+  let s1 = vql_eval(nodes, a1)
   if (s1.size) {
     // Only evaluate a2 if a1 returned non-empty set
-    let s2 = vql_search(nodes, a2)
+    let s2 = vql_eval(nodes, a2)
     return new Set([...s1].filter(x => s2.has(x)))
   } else {
     return s1
@@ -96,8 +102,8 @@ function and_search (nodes, a1, a2) {
  * @returns union of results from a1 and a2
  */
 function or_search (nodes, a1, a2) {
-  let s1 = vql_search(nodes, a1)
-  let s2 = vql_search(nodes, a2)
+  let s1 = vql_eval(nodes, a1)
+  let s2 = vql_eval(nodes, a2)
   return new Set([...s1, ...s2])
 }
 
@@ -109,8 +115,8 @@ function or_search (nodes, a1, a2) {
  * @returns {Set} Filtered set of children
  */
 function co_search (nodes, t1, t2) {
-  let parents = vql_search(nodes, t1)
-  return vql_search(oreqm_main.get_children(parents), t2)
+  let parents = vql_eval(nodes, t1)
+  return vql_eval(oreqm_main.get_children(parents), t2)
 }
 
 /**
@@ -121,9 +127,9 @@ function co_search (nodes, t1, t2) {
  * @returns {Set} Filtered set of ancestors
  */
 function ao_search (nodes, t1, t2) {
-  let children = vql_search(nodes, t1)
+  let children = vql_eval(nodes, t1)
   let ancestors = oreqm_main.get_ancestors_set(children)
-  return vql_search(ancestors, t2)
+  return vql_eval(ancestors, t2)
 }
 
 /**

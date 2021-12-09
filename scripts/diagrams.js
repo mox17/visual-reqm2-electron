@@ -1136,7 +1136,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    * @param {boolean} show_filters display selection criteria
    * @param {object} extra object with .title and .text for additional row
    * @param {object} oreqm_ref optional reference (2nd) oreqm object
-   * @param {boolean} id_checkbox search <id>s only
+   * @param {string} search_lang search language, one of 'id', 'reg', 'vql'
    * @param {string} search_pattern 'selection criteria' string
    * @return {string} 'dot' table
    */
@@ -1144,7 +1144,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     show_filters,
     extra,
     oreqm_ref,
-    id_checkbox,
+    search_lang,
     search_pattern
   ) {
     //rq: ->(rq_diagram_legend)
@@ -1170,7 +1170,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
           .trim()
           .replace(/([^\n]{40,500}?\|)/g, '$1<BR ALIGN="LEFT"/>')
           .replace(/\n/g, '<BR ALIGN="LEFT"/>')
-        if (id_checkbox) {
+        if (search_lang === 'ids') {
           title += `      <tr><td>Search &lt;id&gt;</td><td colspan="2">${pattern_string.replace(
             /\\/g,
             '\\\\'

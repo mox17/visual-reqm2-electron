@@ -18,7 +18,7 @@ import {
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
-import { parse_search_criteria } from './vql_search.js'
+import { vql_parse } from './vql_search.js'
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -27,7 +27,7 @@ const beforeUnloadMessage = null
 /** When true diagram is generated whenever selections or exclusions are updated */
 let auto_update = true
 /** When true only search ID field */
-let id_checkbox = false // flag for scope of search
+let search_language = 'reg' // search language
 /** regex for matching requirements */
 let search_pattern = ''
 /** initial set of excluded doctypes */
@@ -351,6 +351,13 @@ function cmd_line_parameters (args) {
   document.getElementById('id_checkbox_input').checked = args.idOnly && !args.vql
   document.getElementById('regex_checkbox_input').checked = !args.idOnly && !args.vql
   document.getElementById('vql_checkbox_input').checked = args.vql
+  if (args.vql) {
+    search_language = 'vql'
+  } else if (args.idOnly) {
+    search_language = 'ids'
+  } else {
+    search_language = 'reg'
+  }
   document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
     document.getElementById('excluded_ids').value = args.exclIds.replaceAll(',', '\n')
@@ -1368,18 +1375,21 @@ document.getElementById('auto_update').addEventListener('click', function () {
 
 document.getElementById('id_checkbox_input').addEventListener('change', function () {
   if (document.getElementById('id_checkbox_input').checked) {
+    search_language = document.getElementById('id_checkbox_input').value
     filter_change()
   }
 })
 
 document.getElementById('regex_checkbox_input').addEventListener('change', function () {
   if (document.getElementById('regex_checkbox_input').checked) {
+    search_language = document.getElementById('regex_checkbox_input').value
     filter_change()
   }
 })
 
 document.getElementById('vql_checkbox_input').addEventListener('change', function () {
   if (document.getElementById('vql_checkbox_input').checked) {
+    search_language = document.getElementById('vql_checkbox_input').value
     filter_change()
   }
 })
@@ -1389,7 +1399,7 @@ document.getElementById('limit_depth_input').addEventListener('change', function
 })
 
 document.getElementById('search_regex').addEventListener('change', function () {
-  console.log(parse_search_criteria(document.getElementById('search_regex').value))
+  console.log(vql_parse(document.getElementById('search_regex').value))
   filter_change()
 })
 
@@ -1707,14 +1717,19 @@ function filter_graph () {
     oreqm_main.set_no_rejects(no_rejects)
     handle_pruning()
     // Collect filter criteria and generate .dot data
-    id_checkbox = document.getElementById('id_checkbox_input').checked
     search_pattern = get_search_regex_clean()
     // console.log("filter_graph()", search_pattern)
     if (search_pattern) {
-      if (id_checkbox) {
-        id_search(search_pattern)
-      } else {
-        txt_search(search_pattern)
+      switch (search_language) {
+        case 'ids':
+          id_search(search_pattern)
+          break
+        case  'reg':
+          txt_search(search_pattern)
+          break
+        case 'vql':
+          vql_search(search_pattern)
+          break
       }
       update_diagram(selected_format)
     } else {
@@ -1919,8 +1934,8 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
 
 /**
  * Greate dot diagram from list of selected nods
- * @param {*} results list of selected nodes
- * @param {*} update_selection update node navigation selection box
+ * @param {string[]} results list of selected nodes
+ * @param {boolean} update_selection update node navigation selection box
  */
 function graph_results (results, update_selection=true) {
   oreqm_main.clear_color_marks()
@@ -1928,7 +1943,7 @@ function graph_results (results, update_selection=true) {
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
-    oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+    oreqm_main.construct_graph_title(true, null, oreqm_ref, search_language, search_pattern),
     results,
     program_settings.max_calc_nodes,
     program_settings.show_coverage,
@@ -1937,6 +1952,17 @@ function graph_results (results, update_selection=true) {
   set_issue_count()
   if (update_selection) {
     set_selection(graph.selected_nodes)
+  }
+}
+
+/**
+ * Parse VQL string and generate dot graph
+ * @param {string} vql_str 
+ */
+function vql_search (vql_str) {
+  let result = vql_parse(vql_str)
+  if (result) {
+    graph_results(Array.from(result))
   }
 }
 
@@ -2582,7 +2608,7 @@ function compare_oreqm (oreqm_main, oreqm_ref) {
   // console.log(results)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
-    oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+    oreqm_main.construct_graph_title(true, null, oreqm_ref, search_language, search_pattern),
     [],
     program_settings.max_calc_nodes,
     program_settings.show_coverage,
