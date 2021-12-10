@@ -2,7 +2,7 @@ const nearley = require('nearley')
 const grammar = require('./vql-parser.js')
 import {search_tag_order} from './reqm2oreqm'
 import {oreqm_main} from './main_data.js'
-
+import { remote } from 'electron'
 /**
  * Parse a VQL expression and evaluate it
  * @param {String} sc Search criteria string (in VQL)
@@ -15,8 +15,10 @@ export function vql_parse (sc) {
     ans = parser.feed(sc)
   } catch (e) {
     console.log(e)
-    var error_out = `Error offset ${e.offset} chars into\n${sc}`
-    alert(error_out)
+    //var error_out = `Error offset ${e.offset} chars into\n${sc}`
+    let msg = e.message.replace(/Instead.*/msg, '')
+    remote.dialog.showErrorBox("VQL parsing error", msg)
+    //alert(e.message)
     return null
   }
   // Check if there are any results
