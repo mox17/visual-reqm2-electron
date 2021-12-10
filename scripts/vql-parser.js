@@ -13,8 +13,11 @@ function esc_str (str) {
             .replaceAll('?', '\\?')
             .replaceAll('.', '\\.')
             .replaceAll('(', '\\(')
+            .replaceAll(')', '\\)')
             .replaceAll('{', '\\{')
+            .replaceAll('}', '\\}')
             .replaceAll('[', '\\[')
+            .replaceAll(']', '\\]')
 }
 
 // Filter out illegal search patterns

@@ -1697,7 +1697,12 @@ function set_doctype_all_checkbox () {
  */
 function get_search_regex_clean () {
   const raw_search = document.getElementById('search_regex').value
-  const clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
+  let clean_search
+  if (search_language === 'vql') {
+    clean_search = raw_search
+  } else {
+    clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
+  }
   return clean_search
 }
 
@@ -1957,7 +1962,7 @@ function graph_results (results, update_selection=true) {
 
 /**
  * Parse VQL string and generate dot graph
- * @param {string} vql_str 
+ * @param {string} vql_str search expression
  */
 function vql_search (vql_str) {
   let result = vql_parse(vql_str)
@@ -2106,41 +2111,79 @@ document.getElementById('menu_select').addEventListener('click', function () {
   // Add node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_add_selection)
   const node = selected_node
+  add_node_to_selection(node)
+})
+
+function add_node_to_selection (node) {
   if (oreqm_main && oreqm_main.check_node_id(node)) {
-    let node_select_str = escRegexMetaChars(remDupSuffix(node))+'$'
     let search_pattern = document.getElementById('search_regex').value.trim()
-    if (!search_pattern.includes(node_select_str)) {
-      if (search_pattern.length) {
-        node_select_str = '\n|' + node_select_str
+
+    if (search_language === 'vql') {
+      // For VQL the '@' prefixed string allows () and [] in name
+      // Prefix with id: and end with '$'
+      let id_str = `@id:${remDupSuffix(node)}$`
+      if (!search_pattern.includes(id_str)) {
+        if (search_pattern.length) {
+          id_str = '\nor ' + id_str
+        }
+        search_pattern += id_str
+        document.getElementById('search_regex').value = search_pattern
+        filter_change()
       }
-      search_pattern += node_select_str
-      // document.getElementById("id_checkbox_input").checked = true
-      document.getElementById('search_regex').value = search_pattern
-      filter_change()
+    } else {
+      let node_select_str = escRegexMetaChars(remDupSuffix(node))+'$'
+      if (!search_pattern.includes(node_select_str)) {
+        if (search_pattern.length) {
+          node_select_str = '\n|' + node_select_str
+        }
+        search_pattern += node_select_str
+        document.getElementById('search_regex').value = search_pattern
+        filter_change()
+      }
     }
   }
-})
+}
 
 /** Context menu handler  */
 document.getElementById('menu_deselect').addEventListener('click', function () {
   // Remove node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_deselect)
   if (oreqm_main && oreqm_main.check_node_id(selected_node)) {
-    const node = escRegexMetaChars(escRegexMetaChars(remDupSuffix(selected_node)))
-    const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
+    let new_search_pattern
+    let search_pattern
     const org_search_pattern = document.getElementById('search_regex').value.trim()
-    const search_pattern = org_search_pattern.replace(/\n/g, '')
-    let new_search_pattern = search_pattern.replace(node_select_str, '')
-    if (new_search_pattern[0] === '|') {
-      new_search_pattern = new_search_pattern.slice(1)
+    if (search_language === 'vql') {
+      let id_str = `@id:${remDupSuffix(selected_node)}$`
+      let id_str_or = '\nor ' + id_str
+      new_search_pattern = org_search_pattern
+      search_pattern = org_search_pattern
+      if (org_search_pattern.includes(id_str_or)) {
+        new_search_pattern = org_search_pattern.replace(id_str_or, '')
+      } else if (org_search_pattern.includes(id_str)) {
+        // Check if removing the 1st of several selected nodes, i.e. remove separating 'or'
+        let trailing_or = id_str + '\nor '
+        if (org_search_pattern.includes(trailing_or)) {
+          new_search_pattern = org_search_pattern.replace(trailing_or, '')
+        } else {
+          new_search_pattern = org_search_pattern.replace(id_str, '')
+        }
+      }
+    } else {
+      const node = escRegexMetaChars(escRegexMetaChars(remDupSuffix(selected_node)))
+      const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
+      search_pattern = org_search_pattern.replace(/\n/g, '')
+      new_search_pattern = search_pattern.replace(node_select_str, '')
+      if (new_search_pattern[0] === '|') {
+        new_search_pattern = new_search_pattern.slice(1)
+      }
+      new_search_pattern = new_search_pattern.replace(/\|/g, '\n|')
     }
-    new_search_pattern = new_search_pattern.replace(/\|/g, '\n|')
     if (new_search_pattern !== search_pattern) {
       document.getElementById('search_regex').value = new_search_pattern
       // console.log("deselect_node() - search ", node, search_pattern, new_search_pattern)
       filter_change()
     } else {
-      const alert_text = `'${node}' is not a selected node\nPerhaps try 'Exclude'?`
+      const alert_text = `'${selected_node}' is not a selected node\nPerhaps try 'Exclude'?`
       alert(alert_text)
     }
   }
