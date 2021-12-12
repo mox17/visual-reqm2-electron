@@ -145,6 +145,8 @@ This is helpful for comparison (diff) views.
 
 The combined search string concatenates the raw text from xml tags with some prefixes in the order below, separated by newlines.
 
+#### Search tags
+
 * `dt: <doctype>`
 * `id: <id>`
 * `ve: <version>`

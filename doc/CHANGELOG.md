@@ -1,10 +1,10 @@
 ### Changelog
 
 ## 2.5.0
-* VQL query language. This is a major new feature. See [VQL.md](VQL.md) about it.
-* `-q` `--vql` option for VQL search. Mutually exclusice with `-i` `--idOnly` and `-x` `--regex` options.
-* `-x` `--regex` option for Regex search. This takes precedence over `-i` `--idOnly` and `-q` `--vql` options.
-* radio-button choice to select between search 'languages'. Options are `<id>`, `regex` and `VQL`.
+* VQL query language for easier search. This is a major new feature. See [VQL.md](VQL.md) about details.
+* `-q` `--vql` command line option for VQL search. Mutually exclusive with `-i` `--idOnly` and `-x` `--regex` options.
+* `-x` `--regex` command line option for Regex search. Mutually exclusive with `-i` `--idOnly` and `-q` `--vql` options.
+* Radio-button choice to select between search 'languages'. Options are `<id>`, `regex` and `VQL`.
 
 ## 2.4.2
 * Fix bug of empty display of 'dot' when no previous 'svg' display was done.
