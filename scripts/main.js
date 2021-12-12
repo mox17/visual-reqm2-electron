@@ -270,9 +270,9 @@ app.on('ready', () => {
       update: { type: 'boolean', alias: 'u', desc: 'Do automatic update (if available)', default: false },
       newVer: { type: 'boolean', alias: 'V', desc: 'Check for new release', default: undefined }, // has a setting
       select: { type: 'string', alias: 's', desc: 'Selection criteria', default: undefined },
-      idOnly: { type: 'boolean', alias: 'i', desc: 'Search id only', default: false },
-      regex: { type: 'boolean', alias: 'x', desc: 'Regex Search', default: false },
-      vql: { type: 'boolean', alias: 'q', desc: 'VQL search', default: false },
+      idOnly: { type: 'boolean', alias: 'i', desc: '<id> Search', default: undefined },
+      regex: { type: 'boolean', alias: 'x', desc: 'Regex Search', default: undefined },
+      vql: { type: 'boolean', alias: 'q', desc: 'VQL Search', default: undefined },
       limitDepth: { type: 'boolean', alias: '1', desc: 'Limit reachable nodes to 1 level', default: false }, //rq: ->(rq_limited_walk_cl)
       exclIds: { type: 'string', alias: 'e', desc: 'Excluded ids, comma separated', default: undefined },
       inclRejected: { type: 'boolean', alias: 'R', desc: 'Include rejected specobjects', default: false },
@@ -290,6 +290,9 @@ app.on('ready', () => {
       oreqm_ref: { type: 'string', alias: 'z', desc: 'ref oreqm file (older)', default: undefined },
       context: { type: 'string', alias: 'c', desc: 'Context .vr2x file', default: undefined }
     })
+    .conflicts({"idOnly": ["vql", "regex"]})
+    .conflicts({"vql": ["idOnly", "regex"]})
+    .conflicts({"regex": ["idOnly", "vql"]})
     .usage('$0 options [main_oreqm [ref_oreqm]]')
     .argv
   // console.dir(args);
