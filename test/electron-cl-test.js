@@ -83,6 +83,7 @@ describe('command line processing', function () {
       args: [path.join(__dirname, '..'),
         '--settDir', './tmp', //rq: ->(rq_cl_settings_file)
         '--settFile', 'cl-settings.json',
+        '--regex',
         '--select', 'maze',
         '--exclIds', '"some_id,some_other_id"',
         '--exclDoctypes', '"foo,fie,fum"',

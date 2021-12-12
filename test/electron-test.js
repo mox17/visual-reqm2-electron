@@ -145,7 +145,7 @@ describe('Application launch', function () {
     app = new Application({
       path: electronPath,
       //env: { RUNNING_IN_SPECTRON: '1' },
-      args: [path.join(__dirname, '..'), '-D', './tmp', '-F', 'settings.json'], //rq: ->(rq_cl_settings_file,rq_settings_file)
+      args: [path.join(__dirname, '..'), '-D', './tmp', '-F', 'settings.json', '--regex'], //rq: ->(rq_cl_settings_file,rq_settings_file)
       chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver.log')
     })
     fakeMenu.apply(app)

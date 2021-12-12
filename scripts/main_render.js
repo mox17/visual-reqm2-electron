@@ -957,8 +957,7 @@ function save_diagram_context (ctxPath) {
       main_oreqm_rel: relPath,
       ref_oreqm_rel: relPath_ref,
       no_rejects: document.getElementById('no_rejects').checked,
-      id_checkbox_input: document.getElementById('id_checkbox_input').checked,
-      vql_checkbox_input: document.getElementById('vql_checkbox_input').checked,
+      search_language: search_language,
       search_regex: document.getElementById('search_regex').value,
       excluded_ids: document.getElementById('excluded_ids').value,
       limit_depth_input: document.getElementById('limit_depth_input').checked,
@@ -1063,13 +1062,17 @@ function vr2x_handler_func () {
  */
 function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
-  document.getElementById('id_checkbox_input').checked = ctx.id_checkbox_input
-  document.getElementById('regex_checkbox_input').checked = !ctx.vql_checkbox_input && !ctx.id_checkbox_input
-  document.getElementById('vql_checkbox_input').checked = ctx.vql_checkbox_input
+  // Handle version differences in file formats
+  if (ctx.version === 1) {
+    search_language = document.getElementById('id_checkbox_input').checked ? 'ids' : 'reg'
+  } else if (ctx.version === 2) {
+    search_language = ctx.search_language
+  }
   document.getElementById('search_regex').value = ctx.search_regex
   document.getElementById('excluded_ids').value = ctx.excluded_ids
   document.getElementById('limit_depth_input').checked = ctx.limit_depth_input
   oreqm_main.set_excluded_doctypes(ctx.excluded_doctypes)
+  set_search_language_buttons(search_language)
 }
 
 /**
