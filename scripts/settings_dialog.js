@@ -165,6 +165,12 @@ function settings_dialog_results () {
 }
 
 /**
+ * Save settings in file
+ */
+export function save_program_settings() {
+  electron_settings.setSync('program_settings', program_settings)
+}
+/**
  * User file selector for 'safety' rules, possibly showing alert
  */
 export function load_safety_rules_fs () {

@@ -2,7 +2,8 @@
 
 ## 2.5.0
 * VQL query language. This is a major new feature. See [VQL.md](VQL.md) about it.
-* `-q` `--vql` option for VQL search. This takes precedence over `-i` `--idOnly` option.
+* `-q` `--vql` option for VQL search. Mutually exclusice with `-i` `--idOnly` and `-x` `--regex` options.
+* `-x` `--regex` option for Regex search. This takes precedence over `-i` `--idOnly` and `-q` `--vql` options.
 * radio-button choice to select between search 'languages'. Options are `<id>`, `regex` and `VQL`.
 
 ## 2.4.2

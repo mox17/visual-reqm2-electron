@@ -3,7 +3,7 @@
 /* global DOMParser, Event, Split, alert, svgPanZoom, Diff, ClipboardItem  */
 import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
-import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
+import { handle_settings, load_safety_rules_fs, open_settings, save_program_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
 import { ipcRenderer, remote, shell, clipboard } from 'electron'
 import { base64StringToBlob } from 'blob-util'
@@ -18,7 +18,7 @@ import {
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
-import { vql_parse } from './vql_search.js'
+import { vql_parse } from './vql-search.js'
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -281,6 +281,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   // console.dir(args)
   set_limit_reporter(report_limit_as_toast)
   handle_settings(settings_updated, args)
+  set_search_language_buttons(program_settings.search_language)
 
   document.getElementById('search_tooltip').innerHTML = search_tooltip()
 
@@ -348,15 +349,16 @@ function cmd_line_parameters (args) {
     search_pattern = args.select
     document.getElementById('search_regex').value = args.select
   }
-  document.getElementById('id_checkbox_input').checked = args.idOnly && !args.vql
-  document.getElementById('regex_checkbox_input').checked = !args.idOnly && !args.vql
-  document.getElementById('vql_checkbox_input').checked = args.vql
+  // Override settings search language with cmd line options
   if (args.vql) {
+    document.getElementById('vql_checkbox_input').checked = true
     search_language = 'vql'
-  } else if (args.idOnly) {
-    search_language = 'ids'
-  } else {
+  } else if (args.regex) {
+    document.getElementById('regex_checkbox_input').checked = true
     search_language = 'reg'
+  } else if (args.idOnly) {
+    document.getElementById('id_checkbox_input').checked = true
+    search_language = 'ids'
   }
   document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
@@ -397,7 +399,7 @@ function cmd_line_parameters (args) {
   }
   if (args.diagram||args.hierarchy||args.safety) {
     cmd_queue.push('done')
-    // cmd_queue.push('quit')  // TODO: consider implied quit when diagram generation is spoecified
+    // cmd_queue.push('quit')  // TODO: consider implied quit when diagram generation is specified
   }
   if (args.quit) {
     // istanbul ignore next
@@ -1374,24 +1376,15 @@ document.getElementById('auto_update').addEventListener('click', function () {
 })
 
 document.getElementById('id_checkbox_input').addEventListener('change', function () {
-  if (document.getElementById('id_checkbox_input').checked) {
-    search_language = document.getElementById('id_checkbox_input').value
-    filter_change()
-  }
+  select_search_language('ids')
 })
 
 document.getElementById('regex_checkbox_input').addEventListener('change', function () {
-  if (document.getElementById('regex_checkbox_input').checked) {
-    search_language = document.getElementById('regex_checkbox_input').value
-    filter_change()
-  }
+  select_search_language('reg')
 })
 
 document.getElementById('vql_checkbox_input').addEventListener('change', function () {
-  if (document.getElementById('vql_checkbox_input').checked) {
-    search_language = document.getElementById('vql_checkbox_input').value
-    filter_change()
-  }
+  select_search_language('vql')
 })
 
 document.getElementById('limit_depth_input').addEventListener('change', function () {
@@ -1411,6 +1404,36 @@ function filter_change () {
   if (auto_update) {
     filter_graph()
   }
+}
+
+/**
+ * Handle UI selection of search language
+ * @param {string} lang 'ids', 'req' or 'vql' selected in UI
+ */
+function select_search_language (lang) {
+  search_language = lang
+  program_settings.search_language = search_language
+  save_program_settings()
+  filter_change()
+}
+
+/**
+ * Update radio-button for language selection as well as search_language variable
+ * @param {string} lang 'ids', 'req' or 'vql' from cmd line, settings or context file
+ */
+function set_search_language_buttons (lang) {
+  switch (lang) {
+    case 'ids':
+      document.getElementById('id_checkbox_input').checked = true
+      break
+    case 'reg':
+      document.getElementById('regex_checkbox_input').checked = true
+      break
+    case 'vql':
+      document.getElementById('vql_checkbox_input').checked = true
+      break
+    }
+    search_language = lang
 }
 
 /**
@@ -2643,7 +2666,11 @@ function compare_oreqm (oreqm_main, oreqm_ref) {
   if (!raw_search.includes('rem:')) new_search_array.push('rem:')
   const new_search = new_search_array.join('|')
   if (new_search.length && raw_search) {
-    raw_search = new_search + '|\n' + raw_search
+    if (search_language === 'vql') {
+      raw_search = raw_search + '\nor ' + new_search
+    } else {
+      raw_search = new_search + '|\n' + raw_search
+    }
   } else if (new_search.length) {
     raw_search = new_search
   }

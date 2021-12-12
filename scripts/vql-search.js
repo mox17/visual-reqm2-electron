@@ -2,11 +2,10 @@ const nearley = require('nearley')
 const grammar = require('./vql-parser.js')
 import {search_tag_order} from './reqm2oreqm'
 import {oreqm_main} from './main_data.js'
-import { remote } from 'electron'
 /**
- * Parse a VQL expression and evaluate it
+ * Parse a VQL expression and evaluate it.
  * @param {String} sc Search criteria string (in VQL)
- * @returns {Object} AST of parsed VQL exxpression
+ * @returns {Object} AST of parsed VQL expression
  */
 export function vql_parse (sc) {
   let ans
@@ -16,9 +15,8 @@ export function vql_parse (sc) {
   } catch (e) {
     console.log(e)
     //var error_out = `Error offset ${e.offset} chars into\n${sc}`
-    let msg = e.message.replace(/Instead.*/msg, '')
-    remote.dialog.showErrorBox("VQL parsing error", msg)
-    //alert(e.message)
+    let msg = e.message.replace(/xxInstead.*/msg, '')
+    alert(msg)
     return null
   }
   // Check if there are any results
@@ -30,7 +28,7 @@ export function vql_parse (sc) {
     return vql_eval_root(ans.results[0])
   } else {
     // This means the input is incomplete.
-    var out = 'Error: incomplete input, parse failed.'
+    var out = 'Error: incomplete VQL input, parse failed.'
     console.log(out)
     alert(out)
     return null
@@ -78,7 +76,7 @@ function vql_eval (input_nodes, search_ast) {
 }
 
 /**
- * AND two results. Return intersection
+ * AND two results. Return set intersection
  * @param {Set} nodes input to match against
  * @param {Object} a1
  * @param {Object} a2
@@ -97,7 +95,7 @@ function and_search (nodes, a1, a2) {
 }
 
 /**
- * OR two results. Return union of results
+ * OR two results. Return set union of results
  * @param {Set} nodes input to match against
  * @param {Object} a1
  * @param {Object} a2
@@ -149,7 +147,7 @@ function d_search (nodes, ast) {
   } else {
     regex = ast.v[0]
   }
-  console.log(`d_search ${regex}`)
+  //console.log(`d_search ${regex}`)
   return oreqm_main.find_reqs_from_set(nodes, regex)
 }
 
