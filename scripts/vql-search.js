@@ -158,11 +158,14 @@ function d_search (nodes, ast) {
  */
 function order_tags (tags) {
   let tagged_array = []
+  console.log(tags)
   for (let t of tags) {
-    let tag_match = t.match(/^[a-z]{2,3}:/)
-    tagged_array.push({t: tag_match[0], v: t})
+    let tag_match = t.match(/^([a-z]{2,3}):/)
+    tagged_array.push({t: tag_match[1], v: t})
   }
+  console.log(search_tag_order)
   tagged_array.sort((a, b) => (search_tag_order.get(a.t) > search_tag_order.get(b.t) ? 1 : -1))
+  console.log(tagged_array)
   let res = []
   for (let t of tagged_array) {
     res.push(t.v)
