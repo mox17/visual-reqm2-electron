@@ -764,4 +764,78 @@ describe('Application launch', function () {
       await compare_files(dot_filename, './test/refdata/main_ref_1.dot')
     })
   })
+
+  // Switch to VQL
+  describe('Select VQL', function () {
+    /**
+     * Click on VQL radio button
+     */
+    it('Click VQL', async function () {
+      const search_regex = await app.client.$('#search_regex')
+      await click_button(app, '#vql_checkbox_input')
+      await click_button(app, '#clear_search_regex')
+      await search_regex.setValue('ao( twisty little or passage, . )')
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
+      await screenshot(app, 'vql')
+      // Verify result by the selected node ids
+      await click_button(app, '#copy_selected')
+      let selected = await app.electron.clipboard.readText()
+      assert.strictEqual(selected, 'cc.game.location.maze\ncc.game.locations\ncc.game.overview\n')
+    })
+
+    it('VQL ancestors_of', async function () {
+      // again with long form of ancestor_of
+      const search_regex = await app.client.$('#search_regex')
+      await click_button(app, '#clear_search_regex')
+      await search_regex.setValue('ancestors_of( twisty little or passage, . )')
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
+      await screenshot(app, 'vql')
+      // Verify result by the selected node ids
+      await click_button(app, '#copy_selected')
+      let selected = await app.electron.clipboard.readText()
+      assert.strictEqual(selected, 'cc.game.location.maze\ncc.game.locations\ncc.game.overview\n')
+    })
+
+    it('VQL children_of', async function () {
+      const search_regex = await app.client.$('#search_regex')
+      await click_button(app, '#clear_search_regex')
+      await search_regex.setValue('co( @id:cc.game.locations$, dt:swdd and not twisting )')
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
+      await screenshot(app, 'vql')
+      // Verify result by the selected node ids
+      await click_button(app, '#copy_selected')
+      let selected = await app.electron.clipboard.readText()
+      assert.strictEqual(selected,
+        'cc.game.location.maze.2\ncc.game.location.maze.5\ncc.game.location.maze.6\ncc.game.location.maze.8\ncc.game.location.maze.9\n')
+      // again with long form of children_of
+      await click_button(app, '#clear_search_regex')
+      await search_regex.setValue('children_of( @id:cc.game.locations$, dt:swdd and not twisting )')
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
+      await screenshot(app, 'vql')
+      // Verify result by the selected node ids
+      await click_button(app, '#copy_selected')
+      selected = await app.electron.clipboard.readText()
+      assert.strictEqual(selected,
+        'cc.game.location.maze.2\ncc.game.location.maze.5\ncc.game.location.maze.6\ncc.game.location.maze.8\ncc.game.location.maze.9\n')
+  
+    })
+
+    /*
+    it('VQL multiple tagged terms', async function () {
+      const search_regex = await app.client.$('#search_regex')
+      await click_button(app, '#clear_search_regex')
+      await search_regex.setValue('de:\S+witt ')
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
+      await screenshot(app, 'vql')
+      // Verify result by the selected node ids
+      await click_button(app, '#copy_selected')
+      let selected = await app.electron.clipboard.readText()
+    })
+*/
+  })
 })
