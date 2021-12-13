@@ -475,16 +475,18 @@ export class ReqM2Specobjects {
     let tag_str = ''
     for (let row of search_tags) {
       if (!row.list) {
-        tag_str += `:${row.key}:${rec[row.field]}\n`
+        if (rec[row.field]) {
+          tag_str += `:${row.key}:${rec[row.field]}\n/${row.key}/\n`
+        }
       } else {
         for (let item of rec[row.field]) {
           let entry
           switch (row.field) {
             case 'fulfilledby':
-              entry = `:${row.key}:${item.id}\n`
+              entry = `:${row.key}:${item.id}\n/${row.key}/\n`
               break;
             default:
-              entry = `:${row.key}:${item}\n`
+              entry = `:${row.key}:${item}\n/${row.key}/\n`
               break;
           }
           tag_str += entry
