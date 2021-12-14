@@ -2668,14 +2668,14 @@ function compare_oreqm (oreqm_main, oreqm_ref) {
   if (!raw_search.includes('chg:')) new_search_array.push('chg:')
   if (!raw_search.includes('rem:')) new_search_array.push('rem:')
   const new_search = new_search_array.join('|')
-  if (new_search.length && raw_search) {
+  if (new_search_array.length && raw_search) {
     if (search_language === 'vql') {
-      raw_search = raw_search + '\nor ' + new_search
+      raw_search = raw_search + '\nor ' + new_search_array.join(' or ')
     } else {
       raw_search = new_search + '|\n' + raw_search
     }
   } else if (new_search.length) {
-    raw_search = new_search
+    raw_search = search_language === 'vql' ? new_search_array.join(' or ') : new_search
   }
   document.getElementById('search_regex').value = raw_search
   // console.log(results)

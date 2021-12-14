@@ -494,10 +494,10 @@ export class ReqM2Specobjects {
       }
     }
     // Handle meta-properties
-    tag_str += this.duplicates.has(rec.id) ? '\n:dup:' : ''
-    tag_str += this.removed_reqs.includes(rec.id) ? '\n:rem:' : ''
-    tag_str += this.updated_reqs.includes(rec.id) ? '\n:chg:' : ''
-    tag_str += this.new_reqs.includes(rec.id) ? '\n:new:' : ''
+    tag_str += this.duplicates.has(rec.id) ? '\n:dup:\n/dup/' : ''
+    tag_str += this.removed_reqs.includes(rec.id) ? '\n:rem:\n/rem/' : ''
+    tag_str += this.updated_reqs.includes(rec.id) ? '\n:chg:\n/chg/' : ''
+    tag_str += this.new_reqs.includes(rec.id) ? '\n:new:\n/new/' : ''
     return tag_str
   }
 

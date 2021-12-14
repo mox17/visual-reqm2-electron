@@ -29,10 +29,15 @@ function check_and_or (s) {
   return reserved
 }
 
-function qualifier (s) {
-  let m = s.match(/^:?([a-z]{2,3}):/)
+// Check for qualifier and if found add regex logic to match pattern *within* section
+// by using the tag terminators of /tag/
+// return object {q: [qualifiers], v: [(modified) regex match] }
+function qualifier  (s) {
+  // A tag is 2 or three letters, colon separated from pattern
+  let m = s.match(/^(:?([a-z]{2,3}):)(.*)/)
+  // groups         1  2             3
   if (m) {
-    return {q: [`${m[1]}:`], v: `${s}.*^/${m[1]}/`}
+    return {q: [`${m[2]}:`], v: `${m[1]}.*${m[3]}.*^/${m[2]}/`}
   } else {
     return {q: [], v: s }
   }
@@ -44,9 +49,9 @@ function check_ao_co (s) {
   return s
 }
 
-// return true if tag not already present in f
+// return true if tags already defined in f and s tag not already present in f
 function check_dup_tag(f, s) {
-  return ! f.includes(s[0])
+  return (! f.includes(s[0])) && f.length
 }
 
 // This is an optimization to enable combination of tagged terms into one regex
