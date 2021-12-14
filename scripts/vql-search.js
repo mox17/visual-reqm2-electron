@@ -140,7 +140,7 @@ function ao_search (nodes, t1, t2) {
  */
 function d_search (nodes, ast) {
   let regex
-  if (ast.q && ast.v.length > 1) {
+  if ((ast.q.length > 1) && (ast.v.length > 1)) {
     // Sort array according to tag order and construct combined regex
     let st = order_tags(ast.v)
     regex = st.join('.*')
@@ -160,7 +160,7 @@ function order_tags (tags) {
   let tagged_array = []
   console.log(tags)
   for (let t of tags) {
-    let tag_match = t.match(/^([a-z]{2,3}):/)
+    let tag_match = t.match(/^:?([a-z]{2,3}):/)
     tagged_array.push({t: tag_match[1], v: t})
   }
   console.log(search_tag_order)

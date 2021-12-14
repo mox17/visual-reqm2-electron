@@ -20,8 +20,8 @@ function esc_str (str) {
 
 // Filter out illegal search patterns
 function check_and_or (s) {
-	let t = s.toUpperCase()
-	let reserved = ['AND', 'OR', 'NOT', '(', ')', ','].includes(t) ||
+  let t = s.toUpperCase()
+  let reserved = ['AND', 'OR', 'NOT', '(', ')', ','].includes(t) ||
                  s.startsWith('ao(') ||
                  s.startsWith('co(') ||
                  s.startsWith('ancestors_of(') ||
@@ -30,8 +30,8 @@ function check_and_or (s) {
 }
 
 function qualifier (s) {
-  let m = s.match(/^[a-z]{2,3}:/)
-  return m ? m[0] : ''
+  let m = s.match(/^:?([a-z]{2,3}:)/)
+  return m ? [m[1]] : []
 }
 
 function check_ao_co (s) {
@@ -40,16 +40,24 @@ function check_ao_co (s) {
   return s
 }
 
+// return true if tag not already present in f
+function check_dup_tag(f, s) {
+  return ! f.includes(s[0])
+}
+
+// This is an optimization to enable combination of tagged terms into one regex
+// This requires that each tag only occurs once
 function check_and (f, s) {
-	if (f.q && s.q) {
-		return {op: 'd', q: f.q, v: f.v.concat(s.v) }
-	} else {
-		return {op: "AND", arg1: f, arg2: s }
-	}
+  if (f.q && s.q && check_dup_tag(f.q, s.q)) {
+    return {op: 'd', q: f.q.concat(s.q), v: f.v.concat(s.v) }
+  } else {
+    return {op: "AND", arg1: f, arg2: s }
+  }
 }
 
 %}
 
+# Grammar Rules                                            Semantic actions
 # Allow leading and trailing whitespace
 result -> _ or_term _                                      {% (d) => { return d[1] } %}
 
