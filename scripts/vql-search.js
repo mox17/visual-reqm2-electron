@@ -147,7 +147,7 @@ function d_search (nodes, ast) {
   } else {
     regex = ast.v[0]
   }
-  //console.log(`d_search ${regex}`)
+  console.log(`d_search ${regex}`)
   return oreqm_main.find_reqs_from_set(nodes, regex)
 }
 

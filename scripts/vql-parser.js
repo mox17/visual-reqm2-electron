@@ -32,8 +32,12 @@ function check_and_or (s) {
 }
 
 function qualifier (s) {
-  let m = s.match(/^:?([a-z]{2,3}:)/)
-  return m ? [m[1]] : []
+  let m = s.match(/^:?([a-z]{2,3}):/)
+  if (m) {
+    return {q: [`${m[1]}:`], v: `${s}.*^/${m[1]}/`}
+  } else {
+    return {q: [], v: s }
+  }
 }
 
 function check_ao_co (s) {
@@ -90,8 +94,11 @@ var grammar = {
     {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$4"]},
     {"name": "term", "symbols": ["term$subexpression$1", "_", {"literal":"("}, "_", "or_term", "_", {"literal":","}, "_", "or_term", "_", {"literal":")"}], "postprocess": 
         (d) => { return {op: `${check_ao_co(d[0].join(""))}`, arg1: d[4], arg2: d[8] } }
-                                                                   },
-    {"name": "term", "symbols": ["patt"], "postprocess": (d) => { return {op: 'd', q: qualifier(d[0]), v: [d[0]] } }},
+                                                                    },
+    {"name": "term", "symbols": ["patt"], "postprocess":  (d) => {
+          let q_v = qualifier(d[0])
+          return {op: 'd', q: q_v.q, v: [q_v.v] }
+        } },
     {"name": "term", "symbols": [{"literal":"("}, "__", "or_term", "__", {"literal":")"}], "postprocess": (d) => { return d[2] }},
     {"name": "patt$ebnf$1", "symbols": [/[\S]/]},
     {"name": "patt$ebnf$1", "symbols": ["patt$ebnf$1", /[\S]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
