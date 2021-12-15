@@ -34,14 +34,18 @@ function check_and_or (s) {
 // Check for qualifier and if found add regex logic to match pattern *within* section
 // by using the tag terminators of /tag/
 // return object {q: [qualifiers], v: [(modified) regex match] }
-function qualifier  (s) {
+function qualifier  (str, find_substring) {
   // A tag is 2 or three letters, colon separated from pattern
-  let m = s.match(/^(:?([a-z]{2,3}):)(.*)/)
-  // groups         1  2             3
+  let m = str.match(/^(:?([a-z]{2,3}):)(.*)/)
+  // groups           1  2             3
   if (m) {
-    return {q: [`${m[2]}:`], v: `${m[1]}.*${m[3]}.*^/${m[2]}/`}
+    if (find_substring) {
+      return {q: [`${m[2]}:`], v: `${m[1]}.*${m[3]}.*^/${m[2]}/`}
+    } else {
+      return {q: [`${m[2]}:`], v: `${m[1]}${m[3]}`}
+    }
   } else {
-    return {q: [], v: s }
+    return {q: [], v: str }
   }
 }
 
@@ -101,13 +105,13 @@ var grammar = {
         (d) => { return {op: `${check_ao_co(d[0].join(""))}`, arg1: d[4], arg2: d[8] } }
                                                                     },
     {"name": "term", "symbols": ["patt"], "postprocess":  (d) => {
-          let q_v = qualifier(d[0])
+          let q_v = qualifier(d[0].v, d[0].t)
           return {op: 'd', q: q_v.q, v: [q_v.v] }
         } },
     {"name": "term", "symbols": [{"literal":"("}, "__", "or_term", "__", {"literal":")"}], "postprocess": (d) => { return d[2] }},
     {"name": "patt$ebnf$1", "symbols": [/[\S]/]},
     {"name": "patt$ebnf$1", "symbols": ["patt$ebnf$1", /[\S]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "patt", "symbols": [{"literal":"@"}, "patt$ebnf$1"], "postprocess": (d) => { return esc_str(d[1].join("")) }},
+    {"name": "patt", "symbols": [{"literal":"@"}, "patt$ebnf$1"], "postprocess": (d) => { return { v: esc_str(d[1].join("")), t: false } }},
     {"name": "patt$ebnf$2", "symbols": []},
     {"name": "patt$ebnf$2", "symbols": ["patt$ebnf$2", /[\S]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "patt", "symbols": [/[^@\s]/, "patt$ebnf$2"], "postprocess":  (d, l, reject) => {
@@ -115,7 +119,7 @@ var grammar = {
           if (check_and_or(str)) {
             return reject
           } else {
-            return str
+            return { v: str, t: true }
           }
         } }
 ]

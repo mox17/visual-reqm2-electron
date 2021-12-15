@@ -32,14 +32,18 @@ function check_and_or (s) {
 // Check for qualifier and if found add regex logic to match pattern *within* section
 // by using the tag terminators of /tag/
 // return object {q: [qualifiers], v: [(modified) regex match] }
-function qualifier  (s) {
+function qualifier  (str, find_substring) {
   // A tag is 2 or three letters, colon separated from pattern
-  let m = s.match(/^(:?([a-z]{2,3}):)(.*)/)
-  // groups         1  2             3
+  let m = str.match(/^(:?([a-z]{2,3}):)(.*)/)
+  // groups           1  2             3
   if (m) {
-    return {q: [`${m[2]}:`], v: `${m[1]}.*${m[3]}.*^/${m[2]}/`}
+    if (find_substring) {
+      return {q: [`${m[2]}:`], v: `${m[1]}.*${m[3]}.*^/${m[2]}/`}
+    } else {
+      return {q: [`${m[2]}:`], v: `${m[1]}${m[3]}`}
+    }
   } else {
-    return {q: [], v: s }
+    return {q: [], v: str }
   }
 }
 
@@ -86,19 +90,19 @@ term -> ("ao"|"co"|"children_of"|"ancestors_of") _ "(" _ or_term _ "," _ or_term
                                                               (d) => { return {op: `${check_ao_co(d[0].join(""))}`, arg1: d[4], arg2: d[8] } }
                                                             %}
       | patt                                                {% (d) => {
-                                                              let q_v = qualifier(d[0])
+                                                              let q_v = qualifier(d[0].v, d[0].t)
                                                               return {op: 'd', q: q_v.q, v: [q_v.v] }
                                                             } %}
       | "(" __ or_term __ ")"                               {% (d) => { return d[2] } %}
 
 # '@' prefixed strings escapes all regex metacharacters
-patt -> "@" [\S]:+                                          {% (d) => { return esc_str(d[1].join("")) } %}
+patt -> "@" [\S]:+                                          {% (d) => { return { v: esc_str(d[1].join("")), t: false } } %}
       # 'and' and 'or' are not valid patterns, prefix with '@' if really needed
 patt -> [^@\s] [\S]:*                                       {% (d, l, reject) => {
                                                               let str = d[0]+d[1].join("");
                                                               if (check_and_or(str)) {
                                                                 return reject
                                                               } else {
-                                                                return str
+                                                                return { v: str, t: true }
                                                               }
                                                             } %}
