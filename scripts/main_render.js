@@ -283,7 +283,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   handle_settings(settings_updated, args)
   set_search_language_buttons(program_settings.search_language)
 
-  document.getElementById('search_tooltip').innerHTML = search_tooltip()
+  document.getElementById('search_tooltip').innerHTML = search_tooltip(search_language)
 
   // istanbul ignore else
   if ((args.newVer !== false) && (args.newVer === true || program_settings.check_for_updates)) {
@@ -1409,11 +1409,26 @@ function filter_change () {
   }
 }
 
+function set_search_language_hints(lang) {
+  let input = document.getElementById('search_regex')
+  switch (lang) {
+    case 'vql':
+      input.placeholder = "VQL search\nrem: or chg: or new: select changes\nAND, OR, NOT and ( ) operators\nand AO() CO() selections supported"
+      break
+    case 'reg':
+    case 'ids':
+      input.placeholder = "Regex search\nnewlines are ignored\nrem:|chg:|new: select changes"
+      break
+  }
+  document.getElementById('search_tooltip').innerHTML = search_tooltip(lang)
+}
+
 /**
  * Handle UI selection of search language
  * @param {string} lang 'ids', 'req' or 'vql' selected in UI
  */
 function select_search_language (lang) {
+  set_search_language_hints(lang)
   search_language = lang
   program_settings.search_language = search_language
   save_program_settings()
@@ -1437,7 +1452,8 @@ function set_search_language_buttons (lang) {
       break
     }
     search_language = lang
-}
+    set_search_language_hints(lang)
+  }
 
 /**
  * Set auto-update status

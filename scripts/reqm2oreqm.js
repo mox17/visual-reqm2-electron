@@ -399,8 +399,8 @@ for (let t of meta_tags) {
  * Generate tooltip string from table of searchable tags
  * @returns string
  */
-export function search_tooltip () {
-  let tooltip = '&nbsp;<b>Use tags in this order:</b><br/>'
+export function search_tooltip (lang) {
+  let tooltip = lang !== 'vql' ? '&nbsp;<b>Use tags in this order:</b><br/>' : '&nbsp;<b>Available tags:</b><br/>'
   for (let row of search_tags) {
     tooltip += `<b>&nbsp;${row.key}:</b>&nbsp;&lt;${row.field}&gt;<br/>`
   }

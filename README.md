@@ -183,9 +183,9 @@ The combined search string concatenates the raw text from xml tags with some pre
 * `cs: <covstatus>`
 * `ffb: <fulfilledby>`
 * `vio: <violations>`
-* `err: <errors>`
-* `fer: <ffberrors>`
-* `mic: <miscov>`
+* `err: errors`
+* `fer: ffb errors`
+* `mic: missing coverage`
 * `dup: duplicate`
 * `rem:|chg:|new: diff status`
 
