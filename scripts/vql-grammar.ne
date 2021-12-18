@@ -38,7 +38,12 @@ function qualifier  (str, find_substring) {
   // groups           1  2             3
   if (m) {
     if (find_substring) {
-      return {q: [`${m[2]}:`], v: `${m[1]}.*${m[3]}.*^/${m[2]}/`}
+      // the ¤ marker is replaced in module vql-search with the appropriate regex (or nothing)
+      // It is used to insert '.*' for fields with free format text in later processing
+      // The default for free format is defined in a table and can be overridden by '^' and '*'
+      // as 1st character after tag.
+      let marker = m[3].length ? '¤' : ''
+      return {q: [`${m[2]}:`], v: `${m[1]}${marker}${m[3]}.*^/${m[2]}/`}
     } else {
       return {q: [`${m[2]}:`], v: `${m[1]}${m[3]}`}
     }

@@ -1995,7 +1995,8 @@ function graph_results (results, update_selection=true) {
     program_settings.max_calc_nodes,
     program_settings.show_coverage,
     program_settings.color_status)
-  set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+  set_doctype_count_shown(graph.doctype_dict, oreqm_main.get_doctype_dict(results))
+  //set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
   set_issue_count()
   if (update_selection) {
     set_selection(graph.selected_nodes)

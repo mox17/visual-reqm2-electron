@@ -1,10 +1,13 @@
 ### Changelog
 
 ## 2.5.0
-* VQL query language for easier search. This is a major new feature. See [VQL.md](VQL.md) about details.
+* VQL query language for easier search. This is a major new feature. See [VQL.md](VQL.md) about details
+  of the new and hopefully easier search syntax.
 * `-q` `--vql` command line option for VQL search. Mutually exclusive with `-i` `--idOnly` and `-x` `--regex` options.
 * `-x` `--regex` command line option for Regex search. Mutually exclusive with `-i` `--idOnly` and `-q` `--vql` options.
 * Radio-button choice to select between search 'languages'. Options are `<id>`, `regex` and `VQL`.
+* In the doctype table, the 'select' column now also show counts for **excluded** doctypes. 
+  The 'shown' count is of course still zero. This shows if a query finds specobjects, even if nothing is shown.
 
 ## 2.4.2
 * Fix bug of empty display of 'dot' when no previous 'svg' display was done.

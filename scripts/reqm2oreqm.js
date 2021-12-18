@@ -327,46 +327,54 @@ function stringEqual (a_in, b_in, ignore_list) {
   return equal
 }
 
+/**
+ * These are the shorthand tags that maps to xml tags in speobjects
+ * key: is the name of the tag
+ * field: is the field name in the JS object
+ * list: indicates is this is a list of entries
+ * freetext: indicates if the content is free form, meaning that a search
+ * would like be for an embedded word, rather that an exact match
+ */
 export const search_tags = [
-  { key: 'dt', field: 'doctype', list: false},
-  { key: 'id', field: 'id', list: false},
-  { key: 've', field: 'version', list: false},
-  { key: 'de', field: 'description', list: false},
-  { key: 'no', field: 'needsobj', list: true},
-  { key: 'sd', field: 'shortdesc', list: false},
-  { key: 'rt', field: 'rationale', list: false},
-  { key: 'sr', field: 'safetyrationale', list: false},
-  { key: 'scr', field: 'securityrationale', list: false},
-  { key: 'scl', field: 'securityclass', list: false},
-  { key: 'vc', field: 'verifycrit', list: false},
-  { key: 'vm', field: 'verifymethods', list: true},
-  { key: 'vco', field: 'verifycond', list: false},
-  { key: 'co', field: 'comment', list: false},
-  { key: 'fi', field: 'furtherinfo', list: false},
-  { key: 'uc', field: 'usecase', list: false},
-  { key: 'src', field: 'source', list: false},
-  { key: 'srv', field: 'sourcerevision', list: false},
-  { key: 'cd', field: 'creationdate', list: false},
-  { key: 'sf', field: 'sourcefile', list: false},
-  { key: 'ti', field: 'testin', list: false},
-  { key: 'tx', field: 'testexec', list: false},
-  { key: 'to', field: 'testout', list: false},
-  { key: 'tp', field: 'testpasscrit', list: false},
-  { key: 'dep', field: 'dependson', list: true},
-  { key: 'con', field: 'conflicts', list: true},
-  { key: 'rel', field: 'releases', list: true},
-  { key: 'cat', field: 'category', list: false},
-  { key: 'pri', field: 'priority', list: false},
-  { key: 'tag', field: 'tags', list: true},
-  { key: 'plt', field: 'platform', list: true},
-  { key: 'sc', field: 'safetyclass', list: false},
-  { key: 'st', field: 'status', list: false},
-  { key: 'cs', field: 'covstatus', list: false},
-  { key: 'ffb', field: 'fulfilledby', list: true},
-  { key: 'vio', field: 'violations', list: true},
-  { key: 'err', field: 'errors', list: true},
-  { key: 'fer', field: 'ffberrors', list: true},
-  { key: 'mic', field: 'miscov', list: true}
+  { key: 'dt', field: 'doctype', list: false, freetext: false},
+  { key: 'id', field: 'id', list: false, freetext: false},
+  { key: 've', field: 'version', list: false, freetext: false},
+  { key: 'de', field: 'description', list: false, freetext: true},
+  { key: 'no', field: 'needsobj', list: true, freetext: false},
+  { key: 'sd', field: 'shortdesc', list: false, freetext: true},
+  { key: 'rt', field: 'rationale', list: false, freetext: true},
+  { key: 'sr', field: 'safetyrationale', list: false, freetext: true},
+  { key: 'scr', field: 'securityrationale', list: false, freetext: true},
+  { key: 'scl', field: 'securityclass', list: false, freetext: false},
+  { key: 'vc', field: 'verifycrit', list: false, freetext: true},
+  { key: 'vm', field: 'verifymethods', list: true, freetext: true},
+  { key: 'vco', field: 'verifycond', list: false, freetext: true},
+  { key: 'co', field: 'comment', list: false, freetext: true},
+  { key: 'fi', field: 'furtherinfo', list: false, freetext: true},
+  { key: 'uc', field: 'usecase', list: false, freetext: true},
+  { key: 'src', field: 'source', list: false, freetext: true},
+  { key: 'srv', field: 'sourcerevision', list: false, freetext: true},
+  { key: 'cd', field: 'creationdate', list: false, freetext: true},
+  { key: 'sf', field: 'sourcefile', list: false, freetext: true},
+  { key: 'ti', field: 'testin', list: false, freetext: true},
+  { key: 'tx', field: 'testexec', list: false, freetext: true},
+  { key: 'to', field: 'testout', list: false, freetext: true},
+  { key: 'tp', field: 'testpasscrit', list: false, freetext: true},
+  { key: 'dep', field: 'dependson', list: true, freetext: false},
+  { key: 'con', field: 'conflicts', list: true, freetext: false},
+  { key: 'rel', field: 'releases', list: true, freetext: false},
+  { key: 'cat', field: 'category', list: false, freetext: true},
+  { key: 'pri', field: 'priority', list: false, freetext: false},
+  { key: 'tag', field: 'tags', list: true, freetext: false},
+  { key: 'plt', field: 'platform', list: true, freetext: false},
+  { key: 'sc', field: 'safetyclass', list: false, freetext: false},
+  { key: 'st', field: 'status', list: false, freetext: false},
+  { key: 'cs', field: 'covstatus', list: false, freetext: false},
+  { key: 'ffb', field: 'fulfilledby', list: true, freetext: false},
+  { key: 'vio', field: 'violations', list: true, freetext: true},
+  { key: 'err', field: 'errors', list: true, freetext: true},
+  { key: 'fer', field: 'ffberrors', list: true, freetext: true},
+  { key: 'mic', field: 'miscov', list: true, freetext: true}
   // below are meta items
   // { key: 'dup', field: '', list: false},
   // { key: 'rem', field: '', list: false},
@@ -381,6 +389,15 @@ export const meta_tags = [
   'chg',
   'new'
 ]
+
+export function search_tags_lookup (keyval) {
+  for (let rec of search_tags) {
+    if (rec.key === keyval) {
+      return rec
+    }
+  }
+  return undefined
+}
 
 // Create dictionary of tags to their order of appearance
 export let search_tag_order = new Map()
@@ -402,7 +419,8 @@ for (let t of meta_tags) {
 export function search_tooltip (lang) {
   let tooltip = lang !== 'vql' ? '&nbsp;<b>Use tags in this order:</b><br/>' : '&nbsp;<b>Available tags:</b><br/>'
   for (let row of search_tags) {
-    tooltip += `<b>&nbsp;${row.key}:</b>&nbsp;&lt;${row.field}&gt;<br/>`
+    let freetext = row.freetext ? '*' : ''
+    tooltip += `<b>&nbsp;${row.key}:</b>&nbsp;&lt;${row.field}&gt;${freetext}<br/>`
   }
   tooltip += '<b>&nbsp;dup:</b>&nbsp;duplicate<br/>'
   tooltip += '<b>&nbsp;rem:</b>|<b>chg:</b>|<b>new:</b>&nbsp;diff'
@@ -1482,7 +1500,7 @@ export class ReqM2Specobjects {
    * @param {string} id
    * @return {string} in XML format
    */
-  get_xml_string(id) {
+  get_xml_string (id) {
     if (serializer === null) {
       serializer = new XMLSerializer()
     }
@@ -1500,5 +1518,24 @@ export class ReqM2Specobjects {
     } else {
       return `id ${id} not known`
     }
+  }
+
+  /**
+   * Get a dict keyed by doctypes for the supplied list of ids
+   * @returns {Object}
+   */
+  get_doctype_dict (id_list) {
+    let dt_dict = new Map()
+    let doctypes = this.doctypes.keys()
+    // populate with empty list all known doctypes
+    for (let dt of doctypes) {
+      dt_dict.set(dt, [])
+    }
+    // Add ids to specific lists
+    for (let id of id_list) {
+      let odt = this.requirements.get(id).doctype
+      dt_dict.get(odt).push(id)
+    }
+    return dt_dict
   }
 }

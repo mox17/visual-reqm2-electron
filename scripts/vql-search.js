@@ -1,6 +1,6 @@
 const nearley = require('nearley')
 const grammar = require('./vql-parser.js')
-import {search_tag_order} from './reqm2oreqm'
+import {search_tags, search_tag_order, search_tags_lookup} from './reqm2oreqm'
 import {oreqm_main} from './main_data.js'
 /**
  * Parse a VQL expression and evaluate it.
@@ -145,7 +145,7 @@ function d_search (nodes, ast) {
     let st = order_tags(ast.v)
     regex = st.join('.*')
   } else {
-    regex = ast.v[0]
+    regex = tag_prefix_handling(ast.v)[0]
   }
   console.log(`d_search ${regex}`)
   return oreqm_main.find_reqs_from_set(nodes, regex)
@@ -159,7 +159,9 @@ function d_search (nodes, ast) {
 function order_tags (tags) {
   let tagged_array = []
   console.log(tags)
-  for (let t of tags) {
+  let new_tags = tag_prefix_handling(tags)
+  console.log(new_tags)
+  for (let t of new_tags) {
     let tag_match = t.match(/^:?([a-z]{2,3}):/)
     tagged_array.push({t: tag_match[1], v: t})
   }
@@ -171,4 +173,44 @@ function order_tags (tags) {
     res.push(t.v)
   }
   return res
+}
+
+/**
+ * Handle profix pattern (or not) for tags with prefix marker '¤'
+ * Insert '.*' between tag on reset based on these rules
+ * if 1st char after tag is '*', insert '.*'
+ * if first char after tag is '^' do NOT insert '.*'
+ * otherwise insert '.*' if search_tags[tag].freetext is true
+ *
+ * The shorthand '*' and '^' and the defaults get transformed into
+ * a proper regex expression
+ *
+ * @param {Array} tags an array of tags
+ * @returns Array of modified tags
+ */
+function tag_prefix_handling (tags) {
+  let result = []
+  for (let tag of tags) {
+    let tag_match = tag.match(/^:?([a-z]{2,3}):¤(.)(.*)/)
+    //                            1             2  3
+    if (tag_match) {
+      let tag_id = tag_match[1]
+      let rest_of_tag = tag_match[2]+tag_match[3]
+      let st_rec = search_tags_lookup(tag_id)
+      let free_text = st_rec ? st_rec.freetext : false
+      if (tag_match[2] === '*') {
+        rest_of_tag = tag_match[3]
+        free_text = true
+      } else if (tag_match[2] === '^') {
+        rest_of_tag = tag_match[3]
+        free_text = false
+      }
+      let new_tag = `${tag_match[1]}:${free_text?'.*':''}${rest_of_tag}`
+      console.log(new_tag)
+      result.push(new_tag)
+    } else {
+      result.push(tag)
+    }
+  }
+  return result
 }
