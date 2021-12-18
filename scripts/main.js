@@ -184,6 +184,14 @@ function createWindow () {
       label: 'Help',
       submenu: [
         {
+          label: 'README.md',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('readme') }
+        },
+        {
+          label: 'VQL help',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('vql_help') }
+        },
+        {
           label: 'About',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('about') }
         }

@@ -5,7 +5,7 @@
 When Visual ReqM2 is rendering a diagram, a selection of the specobjects of interest
 is crucial to get a relevant diagram displayed.
 
-A new selection method, dubbed `Visual ReqM2 Query Language`, or `VQL` has been introduced.
+A new selection method, called `Visual ReqM2 Query Language`, or `VQL` has been introduced.
 It is one of three methods.
 Depending on user feeback, the number of methods may be reduced in future releases.
 
@@ -15,7 +15,7 @@ Depending on user feeback, the number of methods may be reduced in future releas
 | Regex   | The common method used up to now. The selection is a [regular expression](https://www.w3schools.com/jsref/jsref_obj_regexp.asp), which is used to match against a tagged search string |
 | VQL     | The new method described below. Simpler to use than Regular Expressions, but with features that make it more powerful |
 
-How the selection is interpreted is controlled by the radiobuttons below the input box.
+How the selection text is interpreted is controlled by the radiobuttons below the input box.
 There are 3 mutually exclusive choices \<id>, RegEx and VQL.
 
 (Previously there was a checkbox choosing between \<id> and RegEx).
@@ -24,12 +24,12 @@ There are 3 mutually exclusive choices \<id>, RegEx and VQL.
 
 ### Simple selection
 
-A simple selection is the enter the `<id>` of the specobject in the **Selection criteria**
+A simple selection is to enter the `<id>` of the specobject in the **Selection criteria**
 
 ![image](selection-criteria-id-1.png)
 
 It is also possible to select by simply entering words that occur in the relevant specobjects.
-In below example the word `Meadow` occurs in one speobject, so it can be used as a search term.
+In below example the word `Meadow` occurs in one speobject, so `meadow` can be used as a search term.
 
 ![image](selection-criteria-word-1.png)
 
@@ -38,19 +38,20 @@ occur in the same specobject.
 The 'AND' may also be spelled out, but is not necessary, as for example `meadow AND house`.
 The order of the words does not matter for the final result.
 
-The evaluation is from left-to-right, and subsequent test for 'house' are only done on specobjects known to contain 'meadow'. This is a performance optimization and is in most cases not relevant to consider.
+The evaluation is from left-to-right, and subsequent test for `house` are only done on specobjects known to contain `meadow`.
+This is a performance optimization and is in most cases not relevant to consider.
 
 ![image](selection-criteria-word-2.png)
 
 ### Scoping the selection to specific fields in specobject
 
-Each specobject has a search string, where simple prefixes, derived from the XML schema,
+Each specobject in Visual ReqM2 has an internal search string, where simple prefixes, derived from the XML schema,
 prefix the various data items. Also a few synthesized attributes are present.
 
 If you hover the mouse over the "Selection criteria" text, just over the input field, a tooltip will
 appear with an overview of the available prefixes.
 
-The curious can see the tagged search string for a specobject by right-clicking the object
+The curious can see the tagged search string for a specobject by right-clicking the specobject
 and choosing `show search format`.
 
 ![image](selection-criteria-tooltip-vql.png)
@@ -61,14 +62,13 @@ So to search for a 'grate' which is NOT in a specobject of doctype `fea`, simply
 grate not dt:fea
 ```
 
-
 This could also be written as
 
 ```
 grate and not dt:fea
 ```
 
-this is because the 'and' operation is implied between terms.
+this is because the `and` operation is implied between terms.
 
 Notice the RED outline (indicating what is selected) is only for the `swrs` object, not the `fea` object.
 
@@ -250,3 +250,6 @@ This finds related specobjects by following the 'uplinks'.
 
 Notice that these operations can be nested and combined with `AND`, `OR` and `NOT` operations on search
 terms, as well as grouping with `(` and `)`.
+
+
+Back to [README.md](../README.md)

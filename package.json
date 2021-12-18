@@ -65,6 +65,7 @@
     "electron-updater": "^4.3.5",
     "lodash": "^4.17.21",
     "nearley": "^2.20.1",
+    "open": "^8.4.0",
     "shell": "^0.8.4",
     "show-toast": "^1.1.4",
     "split.js": "^1.6.2",

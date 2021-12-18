@@ -19,6 +19,7 @@ import {
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
 import { vql_parse } from './vql-search.js'
+const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -68,6 +69,14 @@ Split(['#oreqm_div', '#graph'], {
 // Handlers for menu operations triggered via RPC
 ipcRenderer.on('about', (_item, _window, _key_ev) => {
   show_about()
+})
+
+ipcRenderer.on('readme', (_item, _window, _key_ev) => {
+  show_readme()
+})
+
+ipcRenderer.on('vql_help', (_item, _window, _key_ev) => {
+  show_vql_help()
 })
 
 ipcRenderer.on('load_main_oreqm', (_item, _window, _key_ev) => {
@@ -2840,3 +2849,11 @@ window.addEventListener('unload', function(_event) {
     fs.writeFileSync(name, JSON.stringify(window.__coverage__));
   }
 })
+
+function show_readme() {
+  open('https://github.com/mox17/visual-reqm2-electron#readme')
+}
+
+function show_vql_help() {
+  open('https://github.com/mox17/visual-reqm2-electron/blob/master/doc/VQL.md')
+}
