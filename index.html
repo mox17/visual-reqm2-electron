@@ -44,17 +44,25 @@
                     wrap="off" placeholder="search regex&#13;&#10;newlines are ignored&#13;&#10;rem:|chg:|new: select changes"
                     spellcheck="false"></textarea>
           <br>
-          <input type="checkbox" id="id_checkbox_input" title="Limit search to &lt;id&gt; fields only">
-          <label for="id_checkbox_input">search &lt;id&gt; only</label>
+          <div>
+            <input type="radio" id="id_checkbox_input"    name="search_lang" title="Search &lt;id&gt; only">
+            <label for="id_checkbox_input">Search &lt;id&gt;</label>
+            <input type="radio" id="regex_checkbox_input" name="search_lang" title="Simple regex search">
+            <label for="regex_checkbox_input">RegEx</label>
+            <input type="radio" id="vql_checkbox_input"   name="search_lang" title="Visual ReqM2 Query Language
+AND, OR, NOT operators
+CO(t, t) AO(t, t) hierarchy">
+            <label for="vql_checkbox_input">VQL</label>
+          </div>
           <input type="checkbox" id="limit_depth_input" title="Only immediate neighbors are reachable">
           <label for="limit_depth_input">depth=1</label>
           <p/>
 
           <span class="tooltip" style="float:left;"><b>Excluded &lt;id&gt;s</b>
-            <span class="tooltiptext">Excluded &lt;id&gt;s are
-              not shown and stops
-              dependency tracing to
-              nodes beyond them.
+            <span class="tooltiptext1">Excluded &lt;id&gt;s are<br/>
+              not shown and stops<br/>
+              dependency tracing to<br/>
+              nodes beyond them.<br/>
             </span>
           </span>
           <button id="clear_excluded_ids" type="button" style="float:right;">clear</button>

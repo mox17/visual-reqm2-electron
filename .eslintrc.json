@@ -9,6 +9,7 @@
         "ecmaVersion": 12,
         "sourceType": "module"
     },
+    "ignorePatterns": ["vql-parser.js"],
     "rules": {
         "no-unused-vars": [2, {"args": "after-used", "argsIgnorePattern": "^_"}]
     },

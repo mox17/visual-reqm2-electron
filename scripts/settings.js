@@ -63,7 +63,8 @@ export const default_program_settings = {
     '^impl.*>.*$', // impl can cover anything (maybe?)
     '^swintts.*>.*$', // swintts can cover anything (maybe?)
     '^swuts.*>.*$' // swuts can cover anything (maybe?)
-  ]
+  ],
+  search_language: 'vql'
 }
 
 /** These are data fields used from the specobject, plus a pseudo field (see below) */
@@ -109,6 +110,10 @@ export function check_and_upgrade_settings (sett_data) {
     }
     if (!('safety_link_rules' in program_settings)) {
       program_settings.safety_link_rules = default_program_settings.safety_link_rules
+      modified = true
+    }
+    if (!('search_language' in program_settings)) {
+      program_settings.search_language = default_program_settings.search_language
       modified = true
     }
   } else {

@@ -435,6 +435,36 @@
   opacity: 1;
 }
 
+.tooltip:hover .tooltiptext1 {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip .tooltiptext1 {
+  visibility: hidden;
+  /*column-count: 1;*/
+  width: 200px;
+  /*overflow-y: visible;*/
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  font-size: 10px;
+  font-family: monaco, courier, monospace;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 30%;
+  margin-left: -60px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
 /* auto update notification */
 #notification {
   position: fixed;

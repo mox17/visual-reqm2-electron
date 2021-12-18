@@ -1,9 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
   "main_oreqm_rel": "../testdata/oreqm_testdata_no_ogre.oreqm",
   "ref_oreqm_rel": "../testdata/oreqm_testdata_del_movement.oreqm",
   "no_rejects": true,
-  "id_checkbox_input": false,
+  "search_language": "reg",
   "search_regex": "new:|chg:|rem:",
   "excluded_ids": "",
   "limit_depth_input": false,

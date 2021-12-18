@@ -3,9 +3,9 @@
 /* global DOMParser, Event, Split, alert, svgPanZoom, Diff, ClipboardItem  */
 import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
-import { handle_settings, load_safety_rules_fs, open_settings } from './settings_dialog.js'
+import { handle_settings, load_safety_rules_fs, open_settings, save_program_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
-import { ipcRenderer, remote, shell, clipboard, Menu } from 'electron'
+import { ipcRenderer, remote, shell, clipboard } from 'electron'
 import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -18,7 +18,8 @@ import {
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
-import { electron } from 'process'
+import { vql_parse } from './vql-search.js'
+const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -27,7 +28,7 @@ const beforeUnloadMessage = null
 /** When true diagram is generated whenever selections or exclusions are updated */
 let auto_update = true
 /** When true only search ID field */
-let id_checkbox = false // flag for scope of search
+let search_language = 'reg' // search language
 /** regex for matching requirements */
 let search_pattern = ''
 /** initial set of excluded doctypes */
@@ -68,6 +69,14 @@ Split(['#oreqm_div', '#graph'], {
 // Handlers for menu operations triggered via RPC
 ipcRenderer.on('about', (_item, _window, _key_ev) => {
   show_about()
+})
+
+ipcRenderer.on('readme', (_item, _window, _key_ev) => {
+  show_readme()
+})
+
+ipcRenderer.on('vql_help', (_item, _window, _key_ev) => {
+  show_vql_help()
 })
 
 ipcRenderer.on('load_main_oreqm', (_item, _window, _key_ev) => {
@@ -281,8 +290,9 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   // console.dir(args)
   set_limit_reporter(report_limit_as_toast)
   handle_settings(settings_updated, args)
+  set_search_language_buttons(program_settings.search_language)
 
-  document.getElementById('search_tooltip').innerHTML = search_tooltip()
+  document.getElementById('search_tooltip').innerHTML = search_tooltip(search_language)
 
   // istanbul ignore else
   if ((args.newVer !== false) && (args.newVer === true || program_settings.check_for_updates)) {
@@ -348,7 +358,17 @@ function cmd_line_parameters (args) {
     search_pattern = args.select
     document.getElementById('search_regex').value = args.select
   }
-  document.getElementById('id_checkbox_input').checked = args.idOnly
+  // Override settings search language with cmd line options
+  if (args.vql) {
+    document.getElementById('vql_checkbox_input').checked = true
+    search_language = 'vql'
+  } else if (args.regex) {
+    document.getElementById('regex_checkbox_input').checked = true
+    search_language = 'reg'
+  } else if (args.idOnly) {
+    document.getElementById('id_checkbox_input').checked = true
+    search_language = 'ids'
+  }
   document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
     document.getElementById('excluded_ids').value = args.exclIds.replaceAll(',', '\n')
@@ -388,7 +408,7 @@ function cmd_line_parameters (args) {
   }
   if (args.diagram||args.hierarchy||args.safety) {
     cmd_queue.push('done')
-    // cmd_queue.push('quit')  // TODO: consider implied quit when diagram generation is spoecified
+    // cmd_queue.push('quit')  // TODO: consider implied quit when diagram generation is specified
   }
   if (args.quit) {
     // istanbul ignore next
@@ -942,11 +962,11 @@ function save_diagram_context (ctxPath) {
     }
 
     let diagCtx = {
-      version: 1,
+      version: 2,
       main_oreqm_rel: relPath,
       ref_oreqm_rel: relPath_ref,
       no_rejects: document.getElementById('no_rejects').checked,
-      id_checkbox_input: document.getElementById('id_checkbox_input').checked,
+      search_language: search_language,
       search_regex: document.getElementById('search_regex').value,
       excluded_ids: document.getElementById('excluded_ids').value,
       limit_depth_input: document.getElementById('limit_depth_input').checked,
@@ -1051,11 +1071,17 @@ function vr2x_handler_func () {
  */
 function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
-  document.getElementById('id_checkbox_input').checked = ctx.id_checkbox_input
+  // Handle version differences in file formats
+  if (ctx.version === 1) {
+    search_language = document.getElementById('id_checkbox_input').checked ? 'ids' : 'reg'
+  } else if (ctx.version === 2) {
+    search_language = ctx.search_language
+  }
   document.getElementById('search_regex').value = ctx.search_regex
   document.getElementById('excluded_ids').value = ctx.excluded_ids
   document.getElementById('limit_depth_input').checked = ctx.limit_depth_input
   oreqm_main.set_excluded_doctypes(ctx.excluded_doctypes)
+  set_search_language_buttons(search_language)
 }
 
 /**
@@ -1362,7 +1388,15 @@ document.getElementById('auto_update').addEventListener('click', function () {
 })
 
 document.getElementById('id_checkbox_input').addEventListener('change', function () {
-  filter_change()
+  select_search_language('ids')
+})
+
+document.getElementById('regex_checkbox_input').addEventListener('change', function () {
+  select_search_language('reg')
+})
+
+document.getElementById('vql_checkbox_input').addEventListener('change', function () {
+  select_search_language('vql')
 })
 
 document.getElementById('limit_depth_input').addEventListener('change', function () {
@@ -1370,6 +1404,7 @@ document.getElementById('limit_depth_input').addEventListener('change', function
 })
 
 document.getElementById('search_regex').addEventListener('change', function () {
+  console.log(vql_parse(document.getElementById('search_regex').value))
   filter_change()
 })
 
@@ -1382,6 +1417,52 @@ function filter_change () {
     filter_graph()
   }
 }
+
+function set_search_language_hints(lang) {
+  let input = document.getElementById('search_regex')
+  switch (lang) {
+    case 'vql':
+      input.placeholder = "VQL search\nrem: or chg: or new: select changes\nAND, OR, NOT and ( ) operators\nand AO() CO() selections supported"
+      break
+    case 'reg':
+    case 'ids':
+      input.placeholder = "Regex search\nnewlines are ignored\nrem:|chg:|new: select changes"
+      break
+  }
+  document.getElementById('search_tooltip').innerHTML = search_tooltip(lang)
+}
+
+/**
+ * Handle UI selection of search language
+ * @param {string} lang 'ids', 'req' or 'vql' selected in UI
+ */
+function select_search_language (lang) {
+  set_search_language_hints(lang)
+  search_language = lang
+  program_settings.search_language = search_language
+  save_program_settings()
+  filter_change()
+}
+
+/**
+ * Update radio-button for language selection as well as search_language variable
+ * @param {string} lang 'ids', 'req' or 'vql' from cmd line, settings or context file
+ */
+function set_search_language_buttons (lang) {
+  switch (lang) {
+    case 'ids':
+      document.getElementById('id_checkbox_input').checked = true
+      break
+    case 'reg':
+      document.getElementById('regex_checkbox_input').checked = true
+      break
+    case 'vql':
+      document.getElementById('vql_checkbox_input').checked = true
+      break
+    }
+    search_language = lang
+    set_search_language_hints(lang)
+  }
 
 /**
  * Set auto-update status
@@ -1667,7 +1748,12 @@ function set_doctype_all_checkbox () {
  */
 function get_search_regex_clean () {
   const raw_search = document.getElementById('search_regex').value
-  const clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
+  let clean_search
+  if (search_language === 'vql') {
+    clean_search = raw_search
+  } else {
+    clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
+  }
   return clean_search
 }
 
@@ -1687,14 +1773,19 @@ function filter_graph () {
     oreqm_main.set_no_rejects(no_rejects)
     handle_pruning()
     // Collect filter criteria and generate .dot data
-    id_checkbox = document.getElementById('id_checkbox_input').checked
     search_pattern = get_search_regex_clean()
     // console.log("filter_graph()", search_pattern)
     if (search_pattern) {
-      if (id_checkbox) {
-        id_search(search_pattern)
-      } else {
-        txt_search(search_pattern)
+      switch (search_language) {
+        case 'ids':
+          id_search(search_pattern)
+          break
+        case  'reg':
+          txt_search(search_pattern)
+          break
+        case 'vql':
+          vql_search(search_pattern)
+          break
       }
       update_diagram(selected_format)
     } else {
@@ -1899,8 +1990,8 @@ function id_search (regex) { //rq: ->(rq_search_id_only)
 
 /**
  * Greate dot diagram from list of selected nods
- * @param {*} results list of selected nodes
- * @param {*} update_selection update node navigation selection box
+ * @param {string[]} results list of selected nodes
+ * @param {boolean} update_selection update node navigation selection box
  */
 function graph_results (results, update_selection=true) {
   oreqm_main.clear_color_marks()
@@ -1908,15 +1999,27 @@ function graph_results (results, update_selection=true) {
   oreqm_main.mark_and_flood_up_down(results, COLOR_UP, COLOR_DOWN, depth)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
-    oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+    oreqm_main.construct_graph_title(true, null, oreqm_ref, search_language, search_pattern),
     results,
     program_settings.max_calc_nodes,
     program_settings.show_coverage,
     program_settings.color_status)
-  set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+  set_doctype_count_shown(graph.doctype_dict, oreqm_main.get_doctype_dict(results))
+  //set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
   set_issue_count()
   if (update_selection) {
     set_selection(graph.selected_nodes)
+  }
+}
+
+/**
+ * Parse VQL string and generate dot graph
+ * @param {string} vql_str search expression
+ */
+function vql_search (vql_str) {
+  let result = vql_parse(vql_str)
+  if (result) {
+    graph_results(Array.from(result))
   }
 }
 
@@ -2060,41 +2163,79 @@ document.getElementById('menu_select').addEventListener('click', function () {
   // Add node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_add_selection)
   const node = selected_node
+  add_node_to_selection(node)
+})
+
+function add_node_to_selection (node) {
   if (oreqm_main && oreqm_main.check_node_id(node)) {
-    let node_select_str = escRegexMetaChars(remDupSuffix(node))+'$'
     let search_pattern = document.getElementById('search_regex').value.trim()
-    if (!search_pattern.includes(node_select_str)) {
-      if (search_pattern.length) {
-        node_select_str = '\n|' + node_select_str
+
+    if (search_language === 'vql') {
+      // For VQL the '@' prefixed string allows () and [] in name
+      // Prefix with id: and end with '$'
+      let id_str = `@id:${remDupSuffix(node)}$`
+      if (!search_pattern.includes(id_str)) {
+        if (search_pattern.length) {
+          id_str = '\nor ' + id_str
+        }
+        search_pattern += id_str
+        document.getElementById('search_regex').value = search_pattern
+        filter_change()
       }
-      search_pattern += node_select_str
-      // document.getElementById("id_checkbox_input").checked = true
-      document.getElementById('search_regex').value = search_pattern
-      filter_change()
+    } else {
+      let node_select_str = escRegexMetaChars(remDupSuffix(node))+'$'
+      if (!search_pattern.includes(node_select_str)) {
+        if (search_pattern.length) {
+          node_select_str = '\n|' + node_select_str
+        }
+        search_pattern += node_select_str
+        document.getElementById('search_regex').value = search_pattern
+        filter_change()
+      }
     }
   }
-})
+}
 
 /** Context menu handler  */
 document.getElementById('menu_deselect').addEventListener('click', function () {
   // Remove node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_deselect)
   if (oreqm_main && oreqm_main.check_node_id(selected_node)) {
-    const node = escRegexMetaChars(escRegexMetaChars(remDupSuffix(selected_node)))
-    const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
+    let new_search_pattern
+    let search_pattern
     const org_search_pattern = document.getElementById('search_regex').value.trim()
-    const search_pattern = org_search_pattern.replace(/\n/g, '')
-    let new_search_pattern = search_pattern.replace(node_select_str, '')
-    if (new_search_pattern[0] === '|') {
-      new_search_pattern = new_search_pattern.slice(1)
+    if (search_language === 'vql') {
+      let id_str = `@id:${remDupSuffix(selected_node)}$`
+      let id_str_or = '\nor ' + id_str
+      new_search_pattern = org_search_pattern
+      search_pattern = org_search_pattern
+      if (org_search_pattern.includes(id_str_or)) {
+        new_search_pattern = org_search_pattern.replace(id_str_or, '')
+      } else if (org_search_pattern.includes(id_str)) {
+        // Check if removing the 1st of several selected nodes, i.e. remove separating 'or'
+        let trailing_or = id_str + '\nor '
+        if (org_search_pattern.includes(trailing_or)) {
+          new_search_pattern = org_search_pattern.replace(trailing_or, '')
+        } else {
+          new_search_pattern = org_search_pattern.replace(id_str, '')
+        }
+      }
+    } else {
+      const node = escRegexMetaChars(escRegexMetaChars(remDupSuffix(selected_node)))
+      const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
+      search_pattern = org_search_pattern.replace(/\n/g, '')
+      new_search_pattern = search_pattern.replace(node_select_str, '')
+      if (new_search_pattern[0] === '|') {
+        new_search_pattern = new_search_pattern.slice(1)
+      }
+      new_search_pattern = new_search_pattern.replace(/\|/g, '\n|')
     }
-    new_search_pattern = new_search_pattern.replace(/\|/g, '\n|')
     if (new_search_pattern !== search_pattern) {
       document.getElementById('search_regex').value = new_search_pattern
       // console.log("deselect_node() - search ", node, search_pattern, new_search_pattern)
       filter_change()
     } else {
-      const alert_text = `'${node}' is not a selected node\nPerhaps try 'Exclude'?`
+      const alert_text = `'${selected_node}' is not a selected node\nPerhaps try 'Exclude'?`
       alert(alert_text)
     }
   }
@@ -2553,16 +2694,20 @@ function compare_oreqm (oreqm_main, oreqm_ref) {
   if (!raw_search.includes('chg:')) new_search_array.push('chg:')
   if (!raw_search.includes('rem:')) new_search_array.push('rem:')
   const new_search = new_search_array.join('|')
-  if (new_search.length && raw_search) {
-    raw_search = new_search + '|\n' + raw_search
+  if (new_search_array.length && raw_search) {
+    if (search_language === 'vql') {
+      raw_search = raw_search + '\nor ' + new_search_array.join(' or ')
+    } else {
+      raw_search = new_search + '|\n' + raw_search
+    }
   } else if (new_search.length) {
-    raw_search = new_search
+    raw_search = search_language === 'vql' ? new_search_array.join(' or ') : new_search
   }
   document.getElementById('search_regex').value = raw_search
   // console.log(results)
   const graph = oreqm_main.create_graph(select_color,
     program_settings.top_doctypes,
-    oreqm_main.construct_graph_title(true, null, oreqm_ref, id_checkbox, search_pattern),
+    oreqm_main.construct_graph_title(true, null, oreqm_ref, search_language, search_pattern),
     [],
     program_settings.max_calc_nodes,
     program_settings.show_coverage,
@@ -2704,3 +2849,11 @@ window.addEventListener('unload', function(_event) {
     fs.writeFileSync(name, JSON.stringify(window.__coverage__));
   }
 })
+
+function show_readme() {
+  open('https://github.com/mox17/visual-reqm2-electron#readme')
+}
+
+function show_vql_help() {
+  open('https://github.com/mox17/visual-reqm2-electron/blob/master/doc/VQL.md')
+}
