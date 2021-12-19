@@ -7,7 +7,9 @@
 * `-x` `--regex` command line option for Regex search. Mutually exclusive with `-i` `--idOnly` and `-q` `--vql` options.
 * Radio-button choice to select between search 'languages'. Options are `<id>`, `regex` and `VQL`.
 * In the doctype table, the 'select' column now also show counts for **excluded** doctypes. 
-  The 'shown' count is of course still zero. This shows if a query finds specobjects, even if nothing is shown.
+  The 'shown' count is of course still zero. This indicates if a query finds specobjects, even if nothing is
+  displayed because of excluded doctypes.
+* Added links to README.md and VQL.md in 'help' menu. These are github hosted documents.
 
 ## 2.4.2
 * Fix bug of empty display of 'dot' when no previous 'svg' display was done.

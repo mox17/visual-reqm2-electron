@@ -1,6 +1,6 @@
 # Visual ReqM2 Query Language (VQL)
 
-## Purpose
+## Introduction
 
 When Visual ReqM2 is rendering a diagram, a selection of the specobjects of interest
 is crucial to get a relevant diagram displayed.
@@ -22,7 +22,12 @@ There are 3 mutually exclusive choices \<id>, RegEx and VQL.
 
 ![image](selection-criteria-radiobuttons.png)
 
-### Simple selection
+### Technology behind VQL
+
+VQL is a small language with a formal grammar, a generated parser and an interpreter executing
+searches based on the resulting abstract syntax tree.
+
+## Simple selection
 
 A simple selection is to enter the `<id>` of the specobject in the **Selection criteria**
 
