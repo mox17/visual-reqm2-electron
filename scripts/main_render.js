@@ -586,10 +586,12 @@ function updateOutput (_result) {
   clear_diagram()
   // istanbul ignore next
   if ((selected_format === 'svg') && !svg_result) {
+    // This is when creation of a diagram fails
+    console.log("svg generation failed")
     return
   }
 
-  if (selected_format === 'svg' && !document.querySelector('#raw input').checked) {
+  if (selected_format === 'svg') {
     //rq: ->(rq_show_svg)
     svg_element = parser.parseFromString(svg_result, 'image/svg+xml').documentElement
     svg_element.id = 'svg_output'
@@ -1197,22 +1199,10 @@ function save_diagram_selection (pathname) {
   fs.writeFileSync(pathname, output, 'utf8')
 }
 
-
 document.querySelector('#format select').addEventListener('change', function () {
   selected_format = document.querySelector('#format select').value
-  if (selected_format === 'svg') {
-    document.querySelector('#raw').classList.remove('disabled')
-    document.querySelector('#raw input').disabled = false
-  } else {
-    document.querySelector('#raw').classList.add('disabled')
-    document.querySelector('#raw input').disabled = true
-  }
   update_diagram(selected_format)
 })
-
-// document.querySelector('#raw input').addEventListener('change', function () {
-//   updateOutput()
-// })
 
 function diagram_error (message) {
   error_show(message)
