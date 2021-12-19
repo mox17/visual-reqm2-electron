@@ -40,8 +40,10 @@ function qualifier  (str, find_substring) {
   // groups           1  2             3
   if (m) {
     if (find_substring) {
-      // the ¤ marker is replaced in vql-search with appropriate regex (or nothing)
+      // the ¤ marker is replaced in module vql-search with the appropriate regex (or nothing)
       // It is used to insert '.*' for fields with free format text in later processing
+      // The default for free format is defined in a table and can be overridden by '^' and '*'
+      // as 1st character after tag.
       let marker = m[3].length ? '¤' : ''
       return {q: [`${m[2]}:`], v: `${m[1]}${marker}${m[3]}.*^/${m[2]}/`}
     } else {
@@ -66,7 +68,7 @@ function check_dup_tag(f, s) {
 // This is an optimization to enable combination of tagged terms into one regex
 // This requires that each tag only occurs once
 function check_and (f, s) {
-  if (f.q && s.q && check_dup_tag(f.q, s.q)) {
+  if (f.q && f.q.length && s.q && s.q.length && check_dup_tag(f.q, s.q)) {
     return {op: 'd', q: f.q.concat(s.q), v: f.v.concat(s.v) }
   } else {
     return {op: "AND", arg1: f, arg2: s }

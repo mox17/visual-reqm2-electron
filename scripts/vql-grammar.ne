@@ -66,7 +66,7 @@ function check_dup_tag(f, s) {
 // This is an optimization to enable combination of tagged terms into one regex
 // This requires that each tag only occurs once
 function check_and (f, s) {
-  if (f.q && s.q && check_dup_tag(f.q, s.q)) {
+  if (f.q && f.q.length && s.q && s.q.length && check_dup_tag(f.q, s.q)) {
     return {op: 'd', q: f.q.concat(s.q), v: f.v.concat(s.v) }
   } else {
     return {op: "AND", arg1: f, arg2: s }
