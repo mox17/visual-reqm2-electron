@@ -1212,12 +1212,33 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   }
 
   /**
-   * Create a HTML file (string)
+   * Create a HTML div with specobjects (string)
    * @param {string[]} req_list
    */
-  generate_html_table(req_list) {
-    let table = ''
-
+  generate_html_table (req_list) {
+    req_list.sort()
+    let table = '<div>\n'
+    for (let req_id of req_list) {
+      if (this.excluded_ids.includes(req_id)) {
+        continue
+      }
+      if (this.excluded_doctypes.includes(this.requirements.get(req_id).doctype)) {
+        continue
+      }
+      const ghost = this.removed_reqs.includes(req_id) || this.requirements.get(req_id).ffb_placeholder === true
+      let node = this.get_format_node(req_id, ghost, true, true)
+        .replace(/.*label=</, '')
+        .replace(/>\];/, '')
+        .replace(/COLOR="black"/, 'COLOR="black" width="100%"')
+        .replace(/ BORDER="0"/, ' BORDER="1"')
+      table += node
+      table += '\n<hr>\n'
+    }
+    table += '</div>\n'
+    return table
   }
 
+  get_id_list () {
+    return Array.from(this.requirements.keys())
+  }
 }

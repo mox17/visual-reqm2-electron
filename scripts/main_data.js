@@ -101,7 +101,6 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
 
   switch (selected_format) {
     case 'dot-source':
-    case 'html-table':
       if (cb_success) {
         cb_success(dot_source)
       }
@@ -110,6 +109,17 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
       }
       action_done()
       break;
+
+    case 'html-table':
+      if (cb_success) {
+        cb_success(null)
+      }
+      if (cb_spinner_stop) {
+        cb_spinner_stop()
+      }
+      action_done()
+      break;
+
     case 'svg':
     case 'png-image-element':
     default:

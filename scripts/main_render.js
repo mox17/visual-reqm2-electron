@@ -54,6 +54,9 @@ const cmd_queue = []
 let diagram_format = 'svg'
 let output_filename = 'diagram'
 
+/** list of selected specobjects */
+let selected_specobjects = null
+
 /** @description Draggable border between diagram and selection logic to the left */
 const resizeEvent = new Event('paneresize')
 Split(['#oreqm_div', '#graph'], {
@@ -768,7 +771,7 @@ function updateOutput (_result) {
     }
 
     case 'html-table': {
-      //const dot_text = document.createElement('div')
+      /*
       let entry = `\
       <TABLE BGCOLOR="#E7B1FD" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%" >
         <TR><TD CELLSPACING="0" >cc.game.character.bird</TD><TD>1</TD><TD>swrs</TD></TR>
@@ -777,19 +780,11 @@ function updateOutput (_result) {
         <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
       </TABLE>
       `
-      let table = '<div>'
-      let x = 0
-      while (x < 100) {
-        table += entry
-        table += '<hr>'
-        x += 1
-      }
-      table += '</div>'
+      */
+      let ids = selected_specobjects ? selected_specobjects : oreqm_main.get_id_list()
+      let table = oreqm_main.generate_html_table(ids)
       html_element = parser.parseFromString(table, 'text/html').documentElement
       html_element.id = 'html_table'
-
-      //dot_text.innerHTML = table
-      //graph.appendChild(dot_text)
       graph.appendChild(html_element)
       break
     }
@@ -1178,7 +1173,6 @@ function update_settings_from_context (ctx) {
  * Save diagram selection will save a text file with
  * the ids and doctypes of the selected nodes and the set of ancestors
  * (also id and doctype) from the current diagram.
- *
  */
  function save_diagram_sel () {
   let defPath = ""
@@ -1836,6 +1830,7 @@ function filter_graph () {
     } else {
       //rq: ->(rq_no_sel_show_all)
       // no pattern specified
+      selected_specobjects = null
       const title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, '')
       const graph = oreqm_main.create_graph(
         select_all,
@@ -2029,8 +2024,8 @@ document.getElementById('single_select').addEventListener('change', function () 
  * @param {string} regex regular expression
  */
 function id_search (regex) { //rq: ->(rq_search_id_only)
-  const results = oreqm_main.find_reqs_with_name(regex)
-  graph_results(results)
+  selected_specobjects = oreqm_main.find_reqs_with_name(regex)
+  graph_results(selected_specobjects)
 }
 
 /**
@@ -2064,7 +2059,8 @@ function graph_results (results, update_selection=true) {
 function vql_search (vql_str) {
   let result = vql_parse(vql_str)
   if (result) {
-    graph_results(Array.from(result))
+    selected_specobjects = Array.from(result)
+    graph_results(selected_specobjects)
   }
 }
 
@@ -2074,8 +2070,8 @@ function vql_search (vql_str) {
  * @param {string} regex search criteria
  */
 function txt_search (regex) { //rq: ->(rq_sel_txt)
-  const results = oreqm_main.find_reqs_with_text(regex)
-  graph_results(results)
+  selected_specobjects = oreqm_main.find_reqs_with_text(regex)
+  graph_results(selected_specobjects)
 }
 
 document.getElementById('clear_ref_oreqm').addEventListener('click', function () {
