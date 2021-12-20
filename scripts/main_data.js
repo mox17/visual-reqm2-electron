@@ -99,19 +99,24 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
     params.options.format = 'svg'
   }
 
-  if (selected_format === 'dot-source') {
-    if (cb_success) {
-      cb_success(dot_source)
-    }
-    if (cb_spinner_stop) {
-      cb_spinner_stop()
-    }
-    action_done()
-  } else {
-    vizjs_worker.postMessage(params)
-    if (cb_spinner_run) {
-      cb_spinner_run('Processing dot...')
-    }
+  switch (selected_format) {
+    case 'dot-source':
+    case 'html-table':
+      if (cb_success) {
+        cb_success(dot_source)
+      }
+      if (cb_spinner_stop) {
+        cb_spinner_stop()
+      }
+      action_done()
+      break;
+    case 'svg':
+    case 'png-image-element':
+    default:
+      vizjs_worker.postMessage(params)
+      if (cb_spinner_run) {
+        cb_spinner_run('Processing dot...')
+      }
   }
 }
 

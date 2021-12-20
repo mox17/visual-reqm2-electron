@@ -1210,4 +1210,14 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     // console.log(title)
     return title
   }
+
+  /**
+   * Create a HTML file (string)
+   * @param {string[]} req_list
+   */
+  generate_html_table(req_list) {
+    let table = ''
+
+  }
+
 }

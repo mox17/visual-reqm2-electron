@@ -555,6 +555,9 @@ function error_show (message) {
 /** svg element parsed from graphviz svg output */
 let svg_element = null
 
+/** holds table format of specobjecs */
+let html_element = null
+
 /**
  * Remove currently displayed graph
  */
@@ -575,6 +578,152 @@ function clear_diagram () {
   if (img && graph.contains(img)) {
     graph.removeChild(img)
   }
+
+  const html = graph.querySelector('#html_table')
+  if (html && graph.contains(html)) {
+    graph.removeChild(html)
+  }
+}
+
+function svg_keyboard_shortcut_event(e) {
+  //rq: ->(rq_navigate_sel)
+  switch (e.key) {
+    case 'n':
+      // alert("N key was pressed");
+      next_selected()
+      break
+    case 'p':
+      // alert("P key was pressed");
+      prev_selected()
+      break
+    case ' ':
+      panZoom.reset()
+      break
+    case '+':
+      panZoom.zoomIn()
+      break
+    case '-':
+      panZoom.zoomOut()
+      break
+    case '?':
+      console.dir(panZoom.getPan())
+      break
+    case 'a':
+    case 'ArrowLeft':
+      panZoom.panBy({ x: 100, y: 0 })
+      break
+    case 'd':
+    case 'ArrowRight':
+      panZoom.panBy({ x: -100, y: 0 })
+      break
+    case 'w':
+    case 'ArrowUp':
+      panZoom.panBy({ x: 0, y: 100 })
+      break
+    case 's':
+    case 'ArrowDown':
+      panZoom.panBy({ x: 0, y: -100 })
+      break
+    default:
+      // console.log(e)
+      break
+  }
+}
+
+function context_menu_event (event) {
+  const menuNode = document.getElementById('node-menu')
+  let str = ''
+  event.preventDefault()
+  // Grab all the siblings of the element that was actually clicked on
+  for (const sibling of event.target.parentElement.children) {
+    // Check if they're the title
+    if (sibling.nodeName !== 'title') continue
+    str = sibling.innerHTML
+    break
+  }
+  selected_node = str
+  if ((menuNode.style.display === '') ||
+        (menuNode.style.display === 'none') ||
+        (menuNode.style.display === 'initial')) {
+    // show context menu
+    const stage = document.getElementById('output')
+    const containerRect = stage.getBoundingClientRect()
+    menuNode.style.display = 'initial'
+    menuNode.style.top = '0'
+    menuNode.style.left = '0'
+    update_menu_options(selected_node)
+    const menu_width = menuNode.clientWidth
+    const menu_height = menuNode.clientHeight
+    let menu_rel_x = 2
+    let menu_rel_y = 2
+    if ((event.pageX + menu_width + menu_rel_x + 20) >= containerRect.right) {
+      menu_rel_x = -menu_rel_x - menu_width
+    }
+    if ((event.pageY + menu_height + menu_rel_y + 28) >= containerRect.bottom) {
+      menu_rel_y = -menu_rel_y - menu_height - 16 // compensate height of a row
+    }
+    menuNode.style.top = /* containerRect.top  + */ event.pageY + menu_rel_y + 'px'
+    menuNode.style.left = /* containerRect.left + */ event.pageX + menu_rel_x + 'px'
+  } else {
+    // Remove on 2nd right-click
+    menuNode.style.display = 'none'
+  }
+}
+
+function updateSvgOutput (graph) {
+  //rq: ->(rq_show_svg)
+  svg_element = parser.parseFromString(svg_result, 'image/svg+xml').documentElement
+  svg_element.id = 'svg_output'
+  graph.appendChild(svg_element)
+
+  //rq: ->(rq_svg_pan_zoom)
+  panZoom = svgPanZoom(svg_element, {
+    panEnabled: true,
+    zoomEnabled: true,
+    dblClickZoomEnabled: false,
+    controlIconsEnabled: true,
+    preventMouseEventsDefault: false,
+    fit: true,
+    center: true,
+    minZoom: 0.02,
+    maxZoom: 200,
+    zoomScaleSensitivity: 0.3
+  })
+
+  svg_element.addEventListener('paneresize', function () {
+    panZoom.resize()
+  }, false)
+
+  window.addEventListener('resize', function () {
+    panZoom.resize()
+  })
+
+  svg_element.addEventListener('focus', function () {
+    this.addEventListener('keypress', function () {
+      // console.log(e.keyCode);
+    })
+  }, svg_element)
+
+  // Keyboard shortcuts when focus on graph pane
+  document.getElementById('graph').onkeydown = svg_keyboard_shortcut_event
+
+  // context menu setup
+  //rq: ->(rq_svg_context_menu)
+  const menuNode = document.getElementById('node-menu')
+  svg_element.addEventListener('contextmenu', context_menu_event)
+
+  window.addEventListener('click', function (e) {
+    // hide context menu
+    if (menuNode.style.display !== 'none' && menuNode.style.display !== '') {
+      menuNode.style.display = 'none'
+      e.preventDefault()
+    }
+  })
+
+  // Setup for download of image
+  image_type = 'svg'
+  image_mime = 'image/svg+xml'
+  image_data = svg_result
 }
 
 /**
@@ -591,153 +740,59 @@ function updateOutput (_result) {
     return
   }
 
-  if (selected_format === 'svg') {
-    //rq: ->(rq_show_svg)
-    svg_element = parser.parseFromString(svg_result, 'image/svg+xml').documentElement
-    svg_element.id = 'svg_output'
-    graph.appendChild(svg_element)
+  switch (selected_format) {
+    case 'svg':
+      updateSvgOutput(graph)
+      break
 
-    //rq: ->(rq_svg_pan_zoom)
-    panZoom = svgPanZoom(svg_element, {
-      panEnabled: true,
-      zoomEnabled: true,
-      dblClickZoomEnabled: false,
-      controlIconsEnabled: true,
-      preventMouseEventsDefault: false,
-      fit: true,
-      center: true,
-      minZoom: 0.02,
-      maxZoom: 200,
-      zoomScaleSensitivity: 0.3
-    })
-
-    svg_element.addEventListener('paneresize', function () {
-      panZoom.resize()
-    }, false)
-
-    window.addEventListener('resize', function () {
-      panZoom.resize()
-    })
-
-    svg_element.addEventListener('focus', function () {
-      this.addEventListener('keypress', function () {
-        // console.log(e.keyCode);
-      })
-    }, svg_element)
-
-    // Keyboard shortcuts when focus on graph pane
-    document.getElementById('graph').onkeydown = function (e) // istanbul ignore next
-    {
-      //rq: ->(rq_navigate_sel)
-      if (e.key === 'n') {
-        // alert("N key was pressed");
-        next_selected()
-      } else if (e.key === 'p') {
-        // alert("P key was pressed");
-        prev_selected()
-      } else if (e.key === ' ') {
-        panZoom.reset()
-      } else if (e.key === '+') {
-        panZoom.zoomIn()
-      } else if (e.key === '-') {
-        panZoom.zoomOut()
-      } else if (e.key === '?') {
-        console.dir(panZoom.getPan())
-      } else if (e.key === 'a' || e.key === 'ArrowLeft') {
-        panZoom.panBy({ x: 100, y: 0 })
-      } else if (e.key === 'd' || e.key === 'ArrowRight') {
-        panZoom.panBy({ x: -100, y: 0 })
-      } else if (e.key === 'w' || e.key === 'ArrowUp') {
-        panZoom.panBy({ x: 0, y: 100 })
-      } else if (e.key === 's' || e.key === 'ArrowDown') {
-        panZoom.panBy({ x: 0, y: -100 })
-      } else {
-        // console.log(e)
-      }
+    case 'png-image-element': {
+      //rq: ->(rq_show_png)
+      const image = convert_svg_to_png(svg_result)
+      graph.appendChild(image)
+      image_type = 'png'
+      image_mime = 'image/png'
+      image_data = image
+      break
     }
 
-    // context menu setup
-    //rq: ->(rq_svg_context_menu)
-    const menuNode = document.getElementById('node-menu')
-    svg_element.addEventListener('contextmenu', event => {
-      let str = ''
-      event.preventDefault()
-      // Grab all the siblings of the element that was actually clicked on
-      for (const sibling of event.target.parentElement.children) {
-        // Check if they're the title
-        if (sibling.nodeName !== 'title') continue
-        str = sibling.innerHTML
-        break
-      }
-      selected_node = str
-      if ((menuNode.style.display === '') ||
-            (menuNode.style.display === 'none') ||
-            (menuNode.style.display === 'initial')) {
-        // show context menu
-        const stage = document.getElementById('output')
-        const containerRect = stage.getBoundingClientRect()
-        menuNode.style.display = 'initial'
-        menuNode.style.top = '0'
-        menuNode.style.left = '0'
-        update_menu_options(selected_node)
-        const menu_width = menuNode.clientWidth
-        const menu_height = menuNode.clientHeight
-        let menu_rel_x = 2
-        let menu_rel_y = 2
-        if ((event.pageX + menu_width + menu_rel_x + 20) >= containerRect.right) {
-          menu_rel_x = -menu_rel_x - menu_width
-        }
-        if ((event.pageY + menu_height + menu_rel_y + 28) >= containerRect.bottom) {
-          menu_rel_y = -menu_rel_y - menu_height - 16 // compensate height of a row
-        }
-        menuNode.style.top = /* containerRect.top  + */ event.pageY + menu_rel_y + 'px'
-        menuNode.style.left = /* containerRect.left + */ event.pageX + menu_rel_x + 'px'
-      } else {
-        // Remove on 2nd right-click
-        menuNode.style.display = 'none'
-      }
-    })
+    case 'dot-source': {
+      //rq: ->(rq_show_dot)
+      const dot_text = document.createElement('div')
+      dot_text.id = 'text'
+      dot_text.appendChild(document.createTextNode(dot_source))
+      graph.appendChild(dot_text)
+      image_type = 'dot'
+      image_mime = 'text/vnd.graphviz'
+      image_data = svg_result
+      break
+    }
 
-    window.addEventListener('click', function (e) {
-      // hide context menu
-      if (menuNode.style.display !== 'none' && menuNode.style.display !== '') {
-        menuNode.style.display = 'none'
-        e.preventDefault()
+    case 'html-table': {
+      //const dot_text = document.createElement('div')
+      let entry = `\
+      <TABLE BGCOLOR="#E7B1FD" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%" >
+        <TR><TD CELLSPACING="0" >cc.game.character.bird</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">The bird eyes you suspiciously and flutters away.  A moment later you<BR ALIGN="LEFT"/>feel something wet land on your head, but upon looking up you can see<BR ALIGN="LEFT"/>no sign of the culprit.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The bird is not hungry (it's merely pinin' for the fjords).  Besides, you<BR ALIGN="LEFT"/>have no bird seed.!<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>
+      `
+      let table = '<div>'
+      let x = 0
+      while (x < 100) {
+        table += entry
+        table += '<hr>'
+        x += 1
       }
-    })
+      table += '</div>'
+      html_element = parser.parseFromString(table, 'text/html').documentElement
+      html_element.id = 'html_table'
 
-    // Setup for download of image
-    image_type = 'svg'
-    image_mime = 'image/svg+xml'
-    image_data = svg_result
-  } else if (selected_format === 'png-image-element') {
-    //rq: ->(rq_show_png)
-    const image = convert_svg_to_png(svg_result)
-    graph.appendChild(image)
-    image_type = 'png'
-    image_mime = 'image/png'
-    image_data = image
-  } else if (selected_format === 'dot-source') {
-    //rq: ->(rq_show_dot)
-    const dot_text = document.createElement('div')
-    dot_text.id = 'text'
-    dot_text.appendChild(document.createTextNode(dot_source))
-    graph.appendChild(dot_text)
-    image_type = 'dot'
-    image_mime = 'text/vnd.graphviz'
-    image_data = svg_result
-  } else // istanbul ignore next
-  {
-    const plain_text = document.createElement('div')
-    plain_text.id = 'text'
-    plain_text.appendChild(document.createTextNode(svg_result))
-    graph.appendChild(plain_text)
-    // eslint-disable-next-line no-unused-vars
-    image_type = 'txt'
-    // eslint-disable-next-line no-unused-vars
-    image_mime = 'text/plain'
-    // eslint-disable-next-line no-unused-vars
-    image_data = svg_result
+      //dot_text.innerHTML = table
+      //graph.appendChild(dot_text)
+      graph.appendChild(html_element)
+      break
+    }
   }
   check_cmd_line_steps()
 }
