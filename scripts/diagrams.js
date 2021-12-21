@@ -1212,19 +1212,13 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   }
 
   /**
-   * Create a HTML div with specobjects (string)
-   * @param {string[]} req_list
+   * Create a HTML div with all specobjects
    */
-  generate_html_table (req_list) {
+  generate_html_table () {
+    let req_list = this.get_id_list()
     req_list.sort()
-    let table = '<div id="spec_html_table">\n'
+    let table = '<div>\n'
     for (let req_id of req_list) {
-      if (this.excluded_ids.includes(req_id)) {
-        continue
-      }
-      if (this.excluded_doctypes.includes(this.requirements.get(req_id).doctype)) {
-        continue
-      }
       const ghost = this.removed_reqs.includes(req_id) || this.requirements.get(req_id).ffb_placeholder === true
       const node_id = `spec_${req_id}`
       let node = this.get_format_node(req_id, ghost, true, true)
@@ -1238,6 +1232,14 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     return table
   }
 
+  is_req_visible (req_id) {
+    return !this.excluded_ids.includes(req_id) &&
+           !this.excluded_doctypes.includes(this.requirements.get(req_id).doctype)
+  }
+  /**
+   * Get all the specobject ids
+   * @returns list of strings
+   */
   get_id_list () {
     return Array.from(this.requirements.keys())
   }

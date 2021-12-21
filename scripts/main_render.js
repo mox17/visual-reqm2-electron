@@ -41,12 +41,6 @@ let panZoom = null
 const parser = new DOMParser()
 /** Version available on github.com */
 let latest_version = 'unknown'
-// eslint-disable-next-line no-unused-vars
-let image_type = 'none'
-// eslint-disable-next-line no-unused-vars
-let image_mime = ''
-// eslint-disable-next-line no-unused-vars
-let image_data = ''
 /** When true specobject in state 'rejected' are ignored */
 let no_rejects = true // shall specobjects with status===rejected be displayed?
 /** @global {string[]} Queue of operations for command line operations */
@@ -558,7 +552,7 @@ function error_show (message) {
 /** svg element parsed from graphviz svg output */
 let svg_element = null
 
-/** holds table format of specobjecs */
+/** Has html table been generated */
 let html_element = null
 
 /**
@@ -582,9 +576,9 @@ function clear_diagram () {
     graph.removeChild(img)
   }
 
-  const html = graph.querySelector('#html_table')
-  if (html && graph.contains(html)) {
-    graph.removeChild(html)
+  if (html_element) {
+    html_element.style.display = 'none'
+    html_element.style.overflow = 'hidden'
   }
 }
 
@@ -592,11 +586,9 @@ function svg_keyboard_shortcut_event(e) {
   //rq: ->(rq_navigate_sel)
   switch (e.key) {
     case 'n':
-      // alert("N key was pressed");
       next_selected()
       break
     case 'p':
-      // alert("P key was pressed");
       prev_selected()
       break
     case ' ':
@@ -722,11 +714,6 @@ function updateSvgOutput (graph) {
       e.preventDefault()
     }
   })
-
-  // Setup for download of image
-  image_type = 'svg'
-  image_mime = 'image/svg+xml'
-  image_data = svg_result
 }
 
 /**
@@ -752,9 +739,6 @@ function updateOutput (_result) {
       //rq: ->(rq_show_png)
       const image = convert_svg_to_png(svg_result)
       graph.appendChild(image)
-      image_type = 'png'
-      image_mime = 'image/png'
-      image_data = image
       break
     }
 
@@ -764,22 +748,48 @@ function updateOutput (_result) {
       dot_text.id = 'text'
       dot_text.appendChild(document.createTextNode(dot_source))
       graph.appendChild(dot_text)
-      image_type = 'dot'
-      image_mime = 'text/vnd.graphviz'
-      image_data = svg_result
       break
     }
 
     case 'html-table': {
-      let ids = selected_specobjects ? selected_specobjects : oreqm_main.get_id_list()
-      let table = oreqm_main.generate_html_table(ids)
-      html_element = parser.parseFromString(table, 'text/html').documentElement
-      html_element.id = 'html_table'
-      graph.appendChild(html_element)
+      show_html_table()
       break
     }
   }
   check_cmd_line_steps()
+}
+
+function show_html_table() {
+  let ids = selected_specobjects ? selected_specobjects : oreqm_main.get_id_list()
+  if (!html_element) {
+    // Create table 1st time
+    let table = oreqm_main.generate_html_table()
+    html_element = document.getElementById('html_table')
+    html_element.innerHTML = table
+  }
+  html_element.style.overflow = 'visible'
+  // Update visibility of selected specobjects
+  let all_divs = html_element.getElementsByTagName('div')
+  for (let div of all_divs) {
+      if (div.id.startsWith('spec_')) {
+        let test_id = div.id.replace(/^spec_/, '')
+        div.style.display = (ids.includes(test_id) &&
+                             oreqm_main.is_req_visible(test_id)) ? 'block' : 'none'
+      }
+  }
+  html_element.style.display = 'block'
+}
+
+/**
+ * Removes the html table  from the DOM and clears helper variables
+ */
+function clear_html_table () {
+  if (html_element) {
+    html_element.innerHTML = ''
+    html_element.style.display = 'none'
+    html_element.style.overflow = 'hidden'
+    html_element = null
+  }
 }
 
 window.addEventListener('beforeunload', function () {
@@ -1554,6 +1564,7 @@ function set_window_title (extra) {
  */
 function load_file_main_fs (file, ref_file) {
   // console.log("load_file_main_fs", file, ref_file);
+  clear_html_table()
   clear_diagram()
   clear_doctypes_table()
   spinner_show()
@@ -2071,6 +2082,7 @@ document.getElementById('clear_ref_oreqm').addEventListener('click', function ()
 function clear_reference_oreqm () {
   if (oreqm_ref) {
     clear_oreqm_ref()
+    clear_html_table()
     update_doctype_table()
     document.getElementById('ref_name').innerHTML = ''
     document.getElementById('ref_size').innerHTML = ''
