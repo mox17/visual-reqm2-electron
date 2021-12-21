@@ -10,6 +10,7 @@
   The 'shown' count is of course still zero. This indicates if a query finds specobjects, even if nothing is
   displayed because of excluded doctypes.
 * Added links to README.md and VQL.md in 'help' menu. These are github hosted documents.
+* Added HTML table as a display format.
 
 ## 2.4.2
 * Fix bug of empty display of 'dot' when no previous 'svg' display was done.

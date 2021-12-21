@@ -1217,7 +1217,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    */
   generate_html_table (req_list) {
     req_list.sort()
-    let table = '<div>\n'
+    let table = '<div id="spec_html_table">\n'
     for (let req_id of req_list) {
       if (this.excluded_ids.includes(req_id)) {
         continue
@@ -1226,13 +1226,13 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         continue
       }
       const ghost = this.removed_reqs.includes(req_id) || this.requirements.get(req_id).ffb_placeholder === true
+      const node_id = `spec_${req_id}`
       let node = this.get_format_node(req_id, ghost, true, true)
         .replace(/.*label=</, '')
         .replace(/>\];/, '')
         .replace(/COLOR="black"/, 'COLOR="black" width="100%"')
         .replace(/ BORDER="0"/, ' BORDER="1"')
-      table += node
-      table += '\n<hr>\n'
+      table += `<div id="${node_id}">${node}\n<hr>\n</div>`
     }
     table += '</div>\n'
     return table
@@ -1241,4 +1241,14 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   get_id_list () {
     return Array.from(this.requirements.keys())
   }
+
+}
+
+/**
+ * show/hide the div's representing the specobjects
+ * @param {Object} A mapping from <id> to
+ * @param {string[]} req_list
+ */
+export function filter_html_table (div_map, req_list) {
+
 }

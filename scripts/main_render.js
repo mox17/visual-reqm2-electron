@@ -771,16 +771,6 @@ function updateOutput (_result) {
     }
 
     case 'html-table': {
-      /*
-      let entry = `\
-      <TABLE BGCOLOR="#E7B1FD" BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%" >
-        <TR><TD CELLSPACING="0" >cc.game.character.bird</TD><TD>1</TD><TD>swrs</TD></TR>
-        <TR><TD COLSPAN="2" ALIGN="LEFT">The bird eyes you suspiciously and flutters away.  A moment later you<BR ALIGN="LEFT"/>feel something wet land on your head, but upon looking up you can see<BR ALIGN="LEFT"/>no sign of the culprit.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
-        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The bird is not hungry (it's merely pinin' for the fjords).  Besides, you<BR ALIGN="LEFT"/>have no bird seed.!<BR ALIGN="LEFT"/></TD></TR>
-        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
-      </TABLE>
-      `
-      */
       let ids = selected_specobjects ? selected_specobjects : oreqm_main.get_id_list()
       let table = oreqm_main.generate_html_table(ids)
       html_element = parser.parseFromString(table, 'text/html').documentElement
