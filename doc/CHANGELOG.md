@@ -11,6 +11,7 @@
   displayed because of excluded doctypes.
 * Added links to README.md and VQL.md in 'help' menu. These are github hosted documents.
 * Added HTML table as a display format.
+* Live error messages under selection box. Content evaluated after each keystroke. Checks RegEx and VQL syntax problems on-the-fly.
 
 ## 2.4.2
 * Fix bug of empty display of 'dot' when no previous 'svg' display was done.

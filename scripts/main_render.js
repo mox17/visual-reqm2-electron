@@ -18,7 +18,7 @@ import {
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
-import { vql_parse } from './vql-search.js'
+import { vql_parse, vql_validate } from './vql-search.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
@@ -1443,9 +1443,56 @@ document.getElementById('limit_depth_input').addEventListener('change', function
 })
 
 document.getElementById('search_regex').addEventListener('change', function () {
-  console.log(vql_parse(document.getElementById('search_regex').value))
   filter_change()
 })
+
+function search_validate(str) {
+  switch(search_language) {
+    case 'ids':
+    case 'reg':
+      try {
+        // eslint-disable-next-line no-unused-vars
+        let _regex_rule = new RegExp(str)
+      } catch (err) {
+        return err.message
+      }
+      return null
+
+    case 'vql':
+      return vql_validate(str)
+  }
+  return null
+}
+
+document.getElementById('search_regex').addEventListener('keyup', function(_ev) {
+  let text = this.value
+  let validation_error = search_validate(text)
+  if (text && validation_error) {
+    if (!this.errorbox) {
+      const rect = this.getBoundingClientRect();
+      const left = rect.left;
+      const top = rect.bottom;
+      const width = this.clientWidth
+      const fontSize = this.style.fontSize
+      //const width = rect.width
+      this.errorbox = document.createElement('div');
+      this.errorbox.innerHTML = validation_error
+      this.errorbox.setAttribute('style', `background: #f0a0a0; padding: 6px; position: absolute; top: ${top}px; left: ${left}px; width: ${width}px; border: 2px solid #ff0000; fontSize: ${fontSize};`);
+      this.parentNode.appendChild(this.errorbox);
+    } else {
+      this.errorbox.innerHTML = validation_error;
+      this.errorbox.style.display = 'block';
+    }
+  } else if (this.errorbox) {
+    this.errorbox.style.display = 'none';
+  }
+})
+
+document.getElementById('search_regex').addEventListener('blur', function(_event) {
+  if (this.errorbox) {
+    this.errorbox.style.display = 'none';
+  }
+});
 
 document.getElementById('excluded_ids').addEventListener('change', function () {
   filter_change()
@@ -1461,7 +1508,7 @@ function set_search_language_hints(lang) {
   let input = document.getElementById('search_regex')
   switch (lang) {
     case 'vql':
-      input.placeholder = "VQL search\nrem: or chg: or new: select changes\nAND, OR, NOT and ( ) operators\nand AO() CO() selections supported"
+      input.placeholder = "VQL search\nrem: or chg: or new: select changes\nAND, OR, NOT and ( ) operators\nand ao() co() selections supported"
       break
     case 'reg':
     case 'ids':

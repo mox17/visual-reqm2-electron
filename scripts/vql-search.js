@@ -36,6 +36,34 @@ export function vql_parse (sc) {
 }
 
 /**
+ * Validate VQL input
+ * @param {string} sc VQL string to check
+ * @returns null if OK, string with error if problem found
+ */
+export function vql_validate (sc) {
+  let ans
+  try {
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
+    ans = parser.feed(sc)
+  } catch (e) {
+    console.log(e)
+    let msg = e.message.replace(/xxInstead.*/msg, '')
+    return msg
+  }
+  // Check if there are any results
+  if (ans.results.length) {
+    console.log(ans.results)
+    if (ans.results.length > 1) {
+      return 'Ambiguous result'
+    }
+    return null
+  } else {
+    // This means the input is incomplete.
+    return 'Error: incomplete VQL input, parse failed.'
+  }
+}
+
+/**
  * Evaluate a VQL query against a oreqm object
  * @param {Object} search_ast a parse object from search expression
  * @returns {Set} Matching specobject ids
