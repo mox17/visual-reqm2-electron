@@ -1489,10 +1489,9 @@ function search_regex_validate(field) {
       const left = rect.left;
       const top = rect.bottom;
       const width = field.clientWidth
-      const fontSize = field.style.fontSize
-      //const width = rect.width
       field.errorbox = document.createElement('div');
       field.errorbox.innerHTML = validation_error
+      field.errorbox.classList.add('search_terms')
       field.errorbox.setAttribute('style', `background: #f0a0a0;
                                             padding: 6px;
                                             position: absolute;
@@ -1500,9 +1499,9 @@ function search_regex_validate(field) {
                                             left: ${left}px;
                                             width: ${width}px;
                                             border: 2px solid #ff0000;
-                                            fontSize: 9px;
                                             font-family: 'Courier New', monospace;
                                             `);
+      field.errorbox.style.fontSize = "75%"
       field.parentNode.appendChild(field.errorbox);
     } else {
       field.errorbox.innerHTML = validation_error;
