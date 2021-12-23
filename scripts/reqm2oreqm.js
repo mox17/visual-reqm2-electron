@@ -3,6 +3,7 @@
 // eslint-disable-next-line no-redeclare
 /* global DOMParser, alert */
 import { cloneDeep } from "lodash"
+import { get_time_now, get_delta_time, log_time_spent } from './util.js'
 /** placeholder for XMLSerializer instance */
 let serializer = null
 
@@ -464,6 +465,7 @@ export class ReqM2Specobjects {
     const success = this.process_oreqm_content(content) //rq: ->(rq_read_oreqm)
     // istanbul ignore else
     if (success) {
+      const now = get_time_now()
       this.read_reqm2_rules()
       this.read_req_descriptions()
       this.add_fulfilledby_nodes()
@@ -473,6 +475,7 @@ export class ReqM2Specobjects {
       // if (problems) {
       //   // alert(problems);
       // }
+      log_time_spent(now, 'Analyzing oreqm XML')
     }
   }
 
@@ -526,7 +529,9 @@ export class ReqM2Specobjects {
    */
   process_oreqm_content (content) {
     try {
+      const now = get_time_now()
       this.root = tryParseXML(content)
+      log_time_spent(now, 'tryParseXML')
     } catch (err) // istanbul ignore next
     {
       console.log(err)
@@ -1533,8 +1538,12 @@ export class ReqM2Specobjects {
     }
     // Add ids to specific lists
     for (let id of id_list) {
-      let odt = this.requirements.get(id).doctype
-      dt_dict.get(odt).push(id)
+      try {
+        let odt = this.requirements.get(id).doctype
+        dt_dict.get(odt).push(id)
+      } catch (e) {
+        console.log(`No doctype defined for ${id}`)
+      }
     }
     return dt_dict
   }

@@ -2,6 +2,8 @@ const nearley = require('nearley')
 const grammar = require('./vql-parser.js')
 import {search_tags, search_tag_order, search_tags_lookup} from './reqm2oreqm'
 import {oreqm_main} from './main_data.js'
+import { get_time_now, get_delta_time, log_time_spent } from './util.js'
+
 /**
  * Parse a VQL expression and evaluate it.
  * @param {String} sc Search criteria string (in VQL)
@@ -13,24 +15,16 @@ export function vql_parse (sc) {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
     ans = parser.feed(sc)
   } catch (e) {
-    console.log(e)
+    //console.log(e)
     //var error_out = `Error offset ${e.offset} chars into\n${sc}`
-    let msg = e.message.replace(/xxInstead.*/msg, '')
-    alert(msg)
+    //let msg = e.message.replace(/xxInstead.*/msg, '')
     return null
   }
   // Check if there are any results
   if (ans.results.length) {
-    console.log(ans.results)
-    if (ans.results.length > 1) {
-      alert('Ambiguous result')
-    }
     return vql_eval_root(ans.results[0])
   } else {
     // This means the input is incomplete.
-    var out = 'Error: incomplete VQL input, parse failed.'
-    console.log(out)
-    alert(out)
     return null
   }
 }
@@ -47,7 +41,8 @@ export function vql_validate (sc) {
     ans = parser.feed(sc)
   } catch (e) {
     console.log(e)
-    let msg = e.message.replace(/xxInstead.*/msg, '')
+    let msg = e.message.replace(/Instead.*/msg, '')
+    msg = msg.replace(/\n/msg, '<br>').replace(/ /msg, '&nbsp;')
     return msg
   }
   // Check if there are any results
@@ -70,7 +65,10 @@ export function vql_validate (sc) {
  */
 export function vql_eval_root (search_ast) {
   let initial_set = oreqm_main.get_all_ids()
-  return vql_eval(initial_set, search_ast)
+  const now = get_time_now()
+  const res = vql_eval(initial_set, search_ast)
+  log_time_spent(now, "vql_eval_root")
+  return res
 }
 
 /**

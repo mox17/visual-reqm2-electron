@@ -19,6 +19,7 @@ import {
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
 import { vql_parse, vql_validate } from './vql-search.js'
+import { get_time_now, get_delta_time, log_time_spent } from './util.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
@@ -1443,7 +1444,13 @@ document.getElementById('limit_depth_input').addEventListener('change', function
 })
 
 document.getElementById('search_regex').addEventListener('change', function () {
-  filter_change()
+  if (search_regex_validate(this)) {
+    filter_change()
+  }
+})
+
+document.getElementById('search_regex').addEventListener('focus', function () {
+  search_regex_validate(this)
 })
 
 function search_validate(str) {
@@ -1465,28 +1472,47 @@ function search_validate(str) {
 }
 
 document.getElementById('search_regex').addEventListener('keyup', function(_ev) {
-  let text = this.value
+  search_regex_validate(this)
+})
+
+/**
+ * Check if content of field is OK
+ * @param {DOM object} field 
+ * @returns true if field OK
+ */
+function search_regex_validate(field) {
+  let text = field.value
   let validation_error = search_validate(text)
   if (text && validation_error) {
-    if (!this.errorbox) {
-      const rect = this.getBoundingClientRect();
+    if (!field.errorbox) {
+      const rect = field.getBoundingClientRect();
       const left = rect.left;
       const top = rect.bottom;
-      const width = this.clientWidth
-      const fontSize = this.style.fontSize
+      const width = field.clientWidth
+      const fontSize = field.style.fontSize
       //const width = rect.width
-      this.errorbox = document.createElement('div');
-      this.errorbox.innerHTML = validation_error
-      this.errorbox.setAttribute('style', `background: #f0a0a0; padding: 6px; position: absolute; top: ${top}px; left: ${left}px; width: ${width}px; border: 2px solid #ff0000; fontSize: ${fontSize};`);
-      this.parentNode.appendChild(this.errorbox);
+      field.errorbox = document.createElement('div');
+      field.errorbox.innerHTML = validation_error
+      field.errorbox.setAttribute('style', `background: #f0a0a0;
+                                            padding: 6px;
+                                            position: absolute;
+                                            top: ${top}px;
+                                            left: ${left}px;
+                                            width: ${width}px;
+                                            border: 2px solid #ff0000;
+                                            fontSize: 9px;
+                                            font-family: 'Courier New', monospace;
+                                            `);
+      field.parentNode.appendChild(field.errorbox);
     } else {
-      this.errorbox.innerHTML = validation_error;
-      this.errorbox.style.display = 'block';
+      field.errorbox.innerHTML = validation_error;
+      field.errorbox.style.display = 'block';
     }
-  } else if (this.errorbox) {
-    this.errorbox.style.display = 'none';
+  } else if (field.errorbox) {
+    field.errorbox.style.display = 'none';
   }
-})
+  return !(text && validation_error)
+}
 
 document.getElementById('search_regex').addEventListener('blur', function(_event) {
   if (this.errorbox) {
@@ -1618,7 +1644,9 @@ function load_file_main_fs (file, ref_file) {
 
   // This is a work-around. When testing on Windows the async filereading hangs,
   // so use sync interface instead.
+  const now = get_time_now()
   let data = fs.readFileSync(file, 'UTF-8')
+  log_time_spent(now, "Read main oreqm")
   // console.log("main file read", ref_file)
   process_data_main(file, data, ref_file ? false : true)
   if (ref_file) {
