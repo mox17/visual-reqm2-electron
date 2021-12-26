@@ -3,6 +3,18 @@ import { search_tooltip } from './reqm2oreqm.js'
 
 /** When true only search ID field */
 export let search_language = 'reg' // search language
+/** regex for matching requirements */
+export let search_pattern = ''
+/** initial set of excluded doctypes */
+export let excluded_doctypes = []
+
+export function set_excluded_doctypes (ed) {
+  excluded_doctypes = ed
+}
+
+export function set_search_pattern (patt) {
+  search_pattern = patt
+}
 
 export function set_search_language (lang) {
   search_language = lang
