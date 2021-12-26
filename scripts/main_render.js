@@ -1208,7 +1208,7 @@ function update_settings_from_context (ctx) {
  * Get the system list separator, which is needed for csv files (on this machine)
  * @returns separator, i.e. ';' for some european locales or ','
  */
-function get_separator () {
+function get_list_separator () {
   const list = ['a', 'b'];
   const s = list.toLocaleString();
   const sep = s[1];
@@ -1217,7 +1217,7 @@ function get_separator () {
 
 function save_diagram_selection (pathname) {
   // List of selected nodes
-  const comma = get_separator()
+  const comma = get_list_separator()
   let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"\n`
   for (let s of oreqm_main.subset) {
     let ancestors = oreqm_main.get_ancestors(s, new Set())

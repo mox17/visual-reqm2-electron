@@ -156,6 +156,20 @@ function status_cell (rec, show_coverage, color_status) {
 }
 
 /**
+ * Format links as HTML table rows
+ * @param {object} rec 
+ * @returns {string} with HTML style rows of data (or empty string)
+ */
+function format_links (rec) {
+  let result = ''
+  for (let l of rec.linksto) {
+    let row = `        <TR><TD>${l.linksto}</TD><TD>${l.dstversion}</TD><TD>${l.linkerror}</TD></TR>\n`
+    result += row
+  }
+  return result
+}
+
+/**
  * Generate a string of possible missing referenced objects
  * @param {specobject} rec
  * @return {string} dot table row
@@ -1251,6 +1265,6 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
  * @param {Object} A mapping from <id> to
  * @param {string[]} req_list
  */
-export function filter_html_table (div_map, req_list) {
+export function filter_html_table (_div_map, _req_list) {
 
 }
