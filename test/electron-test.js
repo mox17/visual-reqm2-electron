@@ -821,7 +821,6 @@ describe('Application launch', function () {
       selected = await app.electron.clipboard.readText()
       assert.strictEqual(selected,
         'cc.game.location.maze.2\ncc.game.location.maze.5\ncc.game.location.maze.6\ncc.game.location.maze.8\ncc.game.location.maze.9\n')
-  
     })
 
     /*

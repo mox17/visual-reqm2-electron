@@ -11,37 +11,33 @@ import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 import https from 'https'
-import showToast from 'show-toast'
 import {
   settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
   svg_result, create_oreqm_main, create_oreqm_ref,
   convert_svg_to_png, clear_oreqm_ref
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
-import { vql_parse } from './vql-search.js'
 import { get_time_now, log_time_spent } from './util'
 import { search_language, set_search_language, search_regex_validate, set_search_language_hints,
-         set_search_language_buttons, get_search_regex_clean,
-         search_pattern, set_search_pattern, excluded_doctypes, set_excluded_doctypes } from './search'
+         set_search_language_buttons, search_pattern, excluded_doctypes, set_excluded_doctypes } from './search'
 import { cmd_line_parameters, check_cmd_line_steps } from './cmdline'
 import { show_doctypes_safety, show_doctypes, selected_format, clear_html_table, update_diagram,
-         clear_diagram, spinner_show, set_selected_specobjects, selected_nodes, set_selected_nodes,
-         selected_specobjects, selected_node, panZoom, next_selected, prev_selected, selected_index,
+         clear_diagram, spinner_show, selected_nodes,
+         selected_node, panZoom, next_selected, prev_selected, selected_index,
          set_selected_index, graph_results, center_node, set_doctype_count_shown, clear_doctypes_table,
-         clear_selection_highlight } from './show_diagram'
-import { set_issue_count } from './issues.js'
+         clear_selection_highlight, filter_change, filter_graph, auto_update, set_auto_update,
+         report_limit_as_toast, show_toast, set_excluded_doctype_checkboxes, toggle_exclude,
+         doctype_filter_change } from './show_diagram'
+import { set_issue_count } from './issues'
+import { copy_id_node, menu_deselect, add_node_to_selection } from './context-menu.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
 
 const beforeUnloadMessage = null
 
-/** When true diagram is generated whenever selections or exclusions are updated */
-let auto_update = true
 /** Version available on github.com */
 let latest_version = 'unknown'
-/** When true specobject in state 'rejected' are ignored */
-let no_rejects = true // shall specobjects with status===rejected be displayed?
 
 /** @description Draggable border between diagram and selection logic to the left */
 const resizeEvent = new Event('paneresize')
@@ -197,43 +193,6 @@ ipcRenderer.on('filter_graph', () => {
   }
 })
 
-/** Avoid flickering of toast 'killer' */
-let toast_maybe_visible = false
-/**
- * Show a toast when graph has been limited to max_nodes nodes
- * @param {number} max_nodes The limit
- */
-// istanbul ignore next
-function report_limit_as_toast (max_nodes) {
-  toast_maybe_visible = true
-  showToast({
-    str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
-    time: 10000,
-    position: 'middle'
-  })
-}
-
-function show_toast (message) {
-  toast_maybe_visible = true
-  showToast({
-    str: message,
-    time: 10000,
-    position: 'middle'
-  })
-}
-
-function clear_toast () {
-  // istanbul ignore next
-  if (toast_maybe_visible) {
-    showToast({
-      str: '',
-      time: 0,
-      position: 'middle'
-    })
-    toast_maybe_visible = false
-  }
-}
-
 /**
  * This function will check for the existence of a file.
  * When running as a portable app on Windows, the PWD changes,
@@ -374,6 +333,18 @@ window.addEventListener('beforeunload', function () {
   return beforeUnloadMessage
 })
 
+// Selection/deselection of nodes by right-clicking the diagram
+document.getElementById('menu_select').addEventListener('click', function () {
+  // Add node to the selection criteria (if not already selected)
+  //rq: ->(rq_ctx_add_selection)
+  add_node_to_selection(selected_node)
+})
+
+/** Context menu handler  */
+document.getElementById('menu_deselect').addEventListener('click', function () {
+  menu_deselect()
+})
+
 // Context menu handler
 document.getElementById('menu_copy_id').addEventListener('click', function () {
   copy_id_node(false)
@@ -383,21 +354,6 @@ document.getElementById('menu_copy_id').addEventListener('click', function () {
 document.getElementById('menu_copy_ffb').addEventListener('click', function () {
   copy_id_node(true)
 })
-
-/**
- * Put id of selected specobject on clipboard in selected format
- * @param {boolean} ffb_format true: id:doctype:version ; false: id
- */
-function copy_id_node (ffb_format) {
-  let txt
-  const rec = oreqm_main.requirements.get(selected_node)
-  if (ffb_format) {
-    txt = `${rec.id}:${rec.doctype}:${rec.version}` //rq: ->(rq_ctx_copy_id_dt_ver)
-  } else {
-    txt = rec.id //rq: ->(rq_ctx_copy_id)
-  }
-  clipboard.writeText(txt)
-}
 
 /*
   document.getElementById('menu_copy_svg').addEventListener("click", function() {
@@ -630,7 +586,7 @@ function save_diagram_context (ctxPath) {
 function load_diagram_context (ctxPath) {
   // suppress display updates while loading context
   let save_auto = auto_update
-  auto_update = false
+  set_auto_update(false)
   let diagCtx = JSON.parse(fs.readFileSync(ctxPath, { encoding: 'utf8', flag: 'r' }))
   let ctxDir = path.dirname(ctxPath)
   let main_rel_path = path.join(ctxDir, diagCtx.main_oreqm_rel).replaceAll('\\', '/')
@@ -663,7 +619,7 @@ function load_diagram_context (ctxPath) {
     // main rel only
     load_file_main_fs(main_rel_path, null)
   } else {
-    auto_update = save_auto
+    set_auto_update(save_auto)
     // display error message
     let msg = "Could not open:\n"
     if (load_ref) {
@@ -689,7 +645,7 @@ function vr2x_handler_func () {
   update_settings_from_context(vr2x_ctx.diagCtx)
   restoreContextAttributes(vr2x_ctx.diagCtx)
   set_excluded_doctype_checkboxes()
-  auto_update = vr2x_ctx.auto_update
+  set_auto_update(vr2x_ctx.auto_update)
   filter_change()
   // Clear handler - it only applies to context loads
   vr2x_handler = null
@@ -897,13 +853,6 @@ function display_doctypes_with_count (doctype_dict) {
   document.getElementById('doctype_table').appendChild(table)
 }
 
-/** doctype exclusion was toggled */
-function doctype_filter_change () {
-  set_doctype_all_checkbox()
-  // console.log("doctype_filter_change (click)")
-  filter_change()
-}
-
 /** Invert all doctype exclusions and update */
 function doctype_filter_all_change () {
   toggle_exclude()
@@ -911,7 +860,7 @@ function doctype_filter_all_change () {
 
 document.getElementById('auto_update').addEventListener('click', function () {
   // console.log("auto_update_click")
-  auto_update = document.getElementById('auto_update').checked
+  set_auto_update(document.getElementById('auto_update').checked)
   filter_change()
 })
 
@@ -956,12 +905,6 @@ document.getElementById('excluded_ids').addEventListener('change', function () {
   filter_change()
 })
 
-function filter_change () {
-  if (auto_update) {
-    filter_graph()
-  }
-}
-
 /**
  * Handle UI selection of search language
  * @param {string} lang 'ids', 'req' or 'vql' selected in UI
@@ -979,9 +922,9 @@ function select_search_language (lang) {
  * @param {boolean} state true: do auto update, false: user has to trigger update
  */
 // eslint-disable-next-line no-unused-vars
-function set_auto_update (state) {
+function update_auto_update (state) {
   document.getElementById('auto_update').checked = state
-  auto_update = state
+  set_auto_update(state)
 }
 
 /**
@@ -1156,66 +1099,6 @@ function get_ref_oreqm_file () {
   }
 }
 
-/**
- * Get the list of doctypes with checked 'excluded' status from html
- * @return {string[]} list of doctypes
- */
-function get_excluded_doctypes () {
-  const excluded_list = []
-  if (oreqm_main) {
-    const doctypes = oreqm_main.get_doctypes()
-    const names = doctypes.keys()
-    for (const doctype of names) {
-      const cb_name = `doctype_${doctype}`
-      const status = document.getElementById(cb_name)
-      if (status && status.checked) {
-        excluded_list.push(doctype)
-      }
-      // console.log(doctype, status, status.checked)
-    }
-  }
-  return excluded_list
-}
-
-/**
- * Set checkboxes according to excluded doctypes
- */
- function set_excluded_doctype_checkboxes () {
-  // istanbul ignore else
-  if (oreqm_main) {
-    const doctypes = oreqm_main.get_doctypes()
-    const names = doctypes.keys()
-    const ex_list = oreqm_main.get_excluded_doctypes()
-    for (const doctype of names) {
-      const box = document.getElementById(`doctype_${doctype}`)
-      box.checked = ex_list.includes(doctype)
-    }
-    doctype_filter_change()
-  }
-}
-
-
-/**
- * Set all doctypes to excluded/included
- */
-function toggle_exclude () {
-  // istanbul ignore else
-  if (oreqm_main) {
-    const doctypes = oreqm_main.get_doctypes()
-    const names = doctypes.keys()
-    const ex_list = get_excluded_doctypes()
-    const new_state = ex_list.length === 0
-    for (const doctype of names) {
-      const box = document.getElementById(`doctype_${doctype}`)
-      // istanbul ignore else
-      if (new_state !== box.checked) {
-        box.checked = new_state
-      }
-    }
-    doctype_filter_change()
-  }
-}
-
 document.getElementById('invert_exclude').addEventListener('click', function () {
   invert_exclude()
 })
@@ -1237,100 +1120,9 @@ function invert_exclude () {
   }
 }
 
-function set_doctype_all_checkbox () {
-  // Set the checkbox to reflect overall status
-  const doctypes = oreqm_main.get_doctypes()
-  const names = doctypes.keys()
-  const ex_list = get_excluded_doctypes()
-  const dt_all = document.getElementById('doctype_all')
-  if (ex_list.length === 0) {
-    dt_all.indeterminate = false
-    dt_all.checked = false
-  } else if (ex_list.length === Array.from(names).length) {
-    dt_all.indeterminate = false
-    dt_all.checked = true
-  } else {
-    dt_all.indeterminate = true
-    dt_all.checked = true
-  }
-}
-
 document.getElementById('filter_graph').addEventListener('click', function () {
   filter_graph()
 })
-
-/**
- * Update diagram with current selection and exclusion parameters
- */
-function filter_graph () {
-  // console.log("filter_graph")
-  reset_selection()
-  clear_toast()
-  if (oreqm_main) {
-    spinner_show()
-    oreqm_main.set_no_rejects(no_rejects)
-    handle_pruning()
-    // Collect filter criteria and generate .dot data
-    set_search_pattern(get_search_regex_clean())
-    // console.log("filter_graph()", search_pattern)
-    if (search_pattern) {
-      switch (search_language) {
-        case 'ids':
-          id_search(search_pattern)
-          break
-        case  'reg':
-          txt_search(search_pattern)
-          break
-        case 'vql':
-          vql_search(search_pattern)
-          break
-      }
-      update_diagram(selected_format)
-    } else {
-      //rq: ->(rq_no_sel_show_all)
-      // no pattern specified
-      set_selected_specobjects(null)
-      const title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, '')
-      const graph = oreqm_main.create_graph(
-        select_all,
-        program_settings.top_doctypes,
-        title,
-        [],
-        program_settings.max_calc_nodes,
-        program_settings.show_coverage,
-        program_settings.color_status)
-      set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
-      set_issue_count()
-      update_diagram(selected_format)
-    }
-  }
-}
-
-/**
- * Take exclusion parameters (excluded doctypes and excluded <id>s) from UI and transfer to oreqm object
- */
-function handle_pruning () {
-  if (oreqm_main) {
-    let ex_id_list = []
-    const excluded_ids = document.getElementById('excluded_ids').value.trim()
-    if (excluded_ids.length) {
-      ex_id_list = excluded_ids.split(/[\n,]+/)
-    }
-    oreqm_main.set_excluded_ids(ex_id_list)
-    const ex_dt_list = get_excluded_doctypes()
-    oreqm_main.set_excluded_doctypes(ex_dt_list)
-  }
-}
-
-/**
- * Clear node selection list and visible combobox
- */
-function reset_selection () {
-  set_selected_nodes([])
-  set_selected_index(0)
-  const nodeSelectEntries = document.getElementById('nodeSelect')
-  nodeSelectEntries.innerHTML = ''
-}
 
 // Combobox handler
 document.getElementById('nodeSelect').addEventListener('change', function () {
@@ -1379,37 +1171,6 @@ document.getElementById('single_select').addEventListener('change', function () 
   }
   update_diagram(selected_format)
 })
-
-/**
- * Search all id strings for a match to regex and create selection list
- * @param {string} regex regular expression
- */
-function id_search (regex) { //rq: ->(rq_search_id_only)
-  set_selected_specobjects(oreqm_main.find_reqs_with_name(regex))
-  graph_results(selected_specobjects)
-}
-
-/**
- * Parse VQL string and generate dot graph
- * @param {string} vql_str search expression
- */
-function vql_search (vql_str) {
-  let result = vql_parse(vql_str)
-  if (result) {
-    set_selected_specobjects(Array.from(result))
-    graph_results(selected_specobjects)
-  }
-}
-
-/**
- * Search combined tagged string for a match to regex and create selection list `results`
- * Show digram with the matching nodes and reacable nodes.
- * @param {string} regex search criteria
- */
-function txt_search (regex) { //rq: ->(rq_sel_txt)
-  set_selected_specobjects(oreqm_main.find_reqs_with_text(regex))
-  graph_results(selected_specobjects)
-}
 
 document.getElementById('clear_ref_oreqm').addEventListener('click', function () {
   clear_reference_oreqm()
@@ -1512,113 +1273,6 @@ window.onclick = function (event) {
     settingsPopup.style.display = 'none'
   }
 }
-
-function escRegexMetaChars (str) {
-  return str.replaceAll('\\', '\\\\')
-            .replaceAll('^', '\\^')
-            .replaceAll('$', '\\$')
-//            .replaceAll('.', '\\.') // strictly speaking this should be included, but may confuse users not consciously using regex
-            .replaceAll('|', '\\|')
-            .replaceAll('?', '\\?')
-            .replaceAll('*', '\\*')
-            .replaceAll('+', '\\+')
-            .replaceAll('(', '\\(')
-            .replaceAll(')', '\\)')
-            .replaceAll('[', '\\[')
-            .replaceAll('{', '\\{')
-}
-
-// For duplicates remove the disambiguating id suffix of :\d and check if it is valid
-function remDupSuffix (str) {
-  const pureId = str.replace(/:\d+$/, '')
-  if (oreqm_main.duplicates.has(pureId)) {
-    str = pureId;
-  }
-  return str
-}
-
-// Selection/deselection of nodes by right-clicking the diagram
-document.getElementById('menu_select').addEventListener('click', function () {
-  // Add node to the selection criteria (if not already selected)
-  //rq: ->(rq_ctx_add_selection)
-  const node = selected_node
-  add_node_to_selection(node)
-})
-
-function add_node_to_selection (node) {
-  if (oreqm_main && oreqm_main.check_node_id(node)) {
-    let search_pattern = document.getElementById('search_regex').value.trim()
-
-    if (search_language === 'vql') {
-      // For VQL the '@' prefixed string allows () and [] in name
-      // Prefix with id: and end with '$'
-      let id_str = `@id:${remDupSuffix(node)}$`
-      if (!search_pattern.includes(id_str)) {
-        if (search_pattern.length) {
-          id_str = '\nor ' + id_str
-        }
-        search_pattern += id_str
-        document.getElementById('search_regex').value = search_pattern
-        filter_change()
-      }
-    } else {
-      let node_select_str = escRegexMetaChars(remDupSuffix(node))+'$'
-      if (!search_pattern.includes(node_select_str)) {
-        if (search_pattern.length) {
-          node_select_str = '\n|' + node_select_str
-        }
-        search_pattern += node_select_str
-        document.getElementById('search_regex').value = search_pattern
-        filter_change()
-      }
-    }
-  }
-}
-
-/** Context menu handler  */
-document.getElementById('menu_deselect').addEventListener('click', function () {
-  // Remove node to the selection criteria (if not already selected)
-  //rq: ->(rq_ctx_deselect)
-  if (oreqm_main && oreqm_main.check_node_id(selected_node)) {
-    let new_search_pattern
-    let search_pattern
-    const org_search_pattern = document.getElementById('search_regex').value.trim()
-    if (search_language === 'vql') {
-      let id_str = `@id:${remDupSuffix(selected_node)}$`
-      let id_str_or = '\nor ' + id_str
-      new_search_pattern = org_search_pattern
-      search_pattern = org_search_pattern
-      if (org_search_pattern.includes(id_str_or)) {
-        new_search_pattern = org_search_pattern.replace(id_str_or, '')
-      } else if (org_search_pattern.includes(id_str)) {
-        // Check if removing the 1st of several selected nodes, i.e. remove separating 'or'
-        let trailing_or = id_str + '\nor '
-        if (org_search_pattern.includes(trailing_or)) {
-          new_search_pattern = org_search_pattern.replace(trailing_or, '')
-        } else {
-          new_search_pattern = org_search_pattern.replace(id_str, '')
-        }
-      }
-    } else {
-      const node = escRegexMetaChars(escRegexMetaChars(remDupSuffix(selected_node)))
-      const node_select_str = new RegExp(`(^|\\|)${node}\\$`)
-      search_pattern = org_search_pattern.replace(/\n/g, '')
-      new_search_pattern = search_pattern.replace(node_select_str, '')
-      if (new_search_pattern[0] === '|') {
-        new_search_pattern = new_search_pattern.slice(1)
-      }
-      new_search_pattern = new_search_pattern.replace(/\|/g, '\n|')
-    }
-    if (new_search_pattern !== search_pattern) {
-      document.getElementById('search_regex').value = new_search_pattern
-      // console.log("deselect_node() - search ", node, search_pattern, new_search_pattern)
-      filter_change()
-    } else {
-      const alert_text = `'${selected_node}' is not a selected node\nPerhaps try 'Exclude'?`
-      alert(alert_text)
-    }
-  }
-})
 
 document.getElementById('menu_exclude').addEventListener('click', function () {
   // Add node to the exclusion list
@@ -1941,18 +1595,6 @@ function update_doctype_table () {
 }
 
 /**
- * Handle display (or not) of rejected specobjects
- */
-document.getElementById('no_rejects').addEventListener('change', function () {
-  no_rejects_click()
-})
-
-function no_rejects_click () {
-  no_rejects = document.getElementById('no_rejects').checked
-  filter_change()
-}
-
-/**
  * Compare two oreqm files, each represented as objects.
  * The main object will have visualization elements added and default diff related search terms are added.
  * @param {object} oreqm_main
@@ -1992,15 +1634,6 @@ function compare_oreqm (oreqm_main, oreqm_ref) {
     program_settings.color_status)
   set_issue_count()
   return graph
-}
-
-// some ways to select a subset of specobjects
-function select_all (_node_id, rec, _node_color) {
-  // Select all - no need to inspect input
-  if (no_rejects) {
-    return rec.status !== 'rejected'
-  }
-  return true
 }
 
 /* auto-update logic */

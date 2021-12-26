@@ -1,10 +1,12 @@
+import { showToast } from 'show-toast'
 import { oreqm_main, oreqm_ref, svg_result, convert_svg_to_png, dot_source,
          COLOR_UP, COLOR_DOWN, select_color, set_action_cb } from "./main_data"
 import { set_issue_count } from "./issues"
 import { update_graph } from "./main_data"
 import { check_cmd_line_steps } from './cmdline'
 import { program_settings } from "./settings"
-import { search_language, search_pattern } from "./search"
+import { search_language, search_pattern, set_search_pattern, get_search_regex_clean } from "./search"
+import { vql_parse } from './vql-search'
 
 /** parses generated svg from graphviz in preparation for display */
 const parser = new DOMParser()
@@ -24,6 +26,10 @@ export let selected_node = null
 export let panZoom = null
 /** Currently selected \<id> */
 export let selected_index = 0
+/** When true diagram is generated whenever selections or exclusions are updated */
+export let auto_update = true
+/** When true specobject in state 'rejected' are ignored */
+let no_rejects = true // shall specobjects with status===rejected be displayed?
 
 // Manage selection highlight in diagram (extra bright red outline around selected specobject)
 /** The svg id of the rectangle around a selected specobject in diagram */
@@ -32,6 +38,10 @@ let selected_polygon = null
 let selected_width = ''
 /** color of svg outline as #RRGGBB string */
 let selected_color = ''
+
+export function set_auto_update (val) {
+  auto_update = val
+}
 
 export function set_selected_index (idx) {
   selected_index = idx
@@ -422,7 +432,7 @@ export function prev_selected () {
 }
 
 /**
- * Greate dot diagram from list of selected nods
+ * Create dot diagram from list of selected nods
  * @param {string[]} results list of selected nodes
  * @param {boolean} update_selection update node navigation selection box
  */
@@ -606,6 +616,261 @@ set_action_cb(action_busy, action_done)
     selected_polygon.setAttribute('stroke-width', selected_width)
     selected_polygon.setAttribute('stroke', selected_color)
     selected_polygon = null
+  }
+}
+
+export function filter_change () {
+  if (auto_update) {
+    filter_graph()
+  }
+}
+
+/**
+ * Update diagram with current selection and exclusion parameters
+ */
+ export function filter_graph () {
+  // console.log("filter_graph")
+  reset_selection()
+  clear_toast()
+  if (oreqm_main) {
+    spinner_show()
+    oreqm_main.set_no_rejects(no_rejects)
+    handle_pruning()
+    // Collect filter criteria and generate .dot data
+    set_search_pattern(get_search_regex_clean())
+    // console.log("filter_graph()", search_pattern)
+    if (search_pattern) {
+      switch (search_language) {
+        case 'ids':
+          id_search(search_pattern)
+          break
+        case  'reg':
+          txt_search(search_pattern)
+          break
+        case 'vql':
+          vql_search(search_pattern)
+          break
+      }
+      update_diagram(selected_format)
+    } else {
+      //rq: ->(rq_no_sel_show_all)
+      // no pattern specified
+      set_selected_specobjects(null)
+      const title = oreqm_main.construct_graph_title(true, null, oreqm_ref, false, '')
+      const graph = oreqm_main.create_graph(
+        select_all,
+        program_settings.top_doctypes,
+        title,
+        [],
+        program_settings.max_calc_nodes,
+        program_settings.show_coverage,
+        program_settings.color_status)
+      set_doctype_count_shown(graph.doctype_dict, graph.selected_dict)
+      set_issue_count()
+      update_diagram(selected_format)
+    }
+  }
+}
+
+/** Avoid flickering of toast 'killer' */
+let toast_maybe_visible = false
+
+export function show_toast (message) {
+  toast_maybe_visible = true
+  showToast({
+    str: message,
+    time: 10000,
+    position: 'middle'
+  })
+}
+
+
+/**
+ * Show a toast when graph has been limited to max_nodes nodes
+ * @param {number} max_nodes The limit
+ */
+// istanbul ignore next
+export function report_limit_as_toast (max_nodes) {
+  toast_maybe_visible = true
+  showToast({
+    str: `More than ${max_nodes} specobjects.\nGraph is limited to 1st ${max_nodes} encountered.`,
+    time: 10000,
+    position: 'middle'
+  })
+}
+
+function clear_toast () {
+  // istanbul ignore next
+  if (toast_maybe_visible) {
+    showToast({
+      str: '',
+      time: 0,
+      position: 'middle'
+    })
+    toast_maybe_visible = false
+  }
+}
+
+/**
+ * Clear node selection list and visible combobox
+ */
+ function reset_selection () {
+  set_selected_nodes([])
+  set_selected_index(0)
+  const nodeSelectEntries = document.getElementById('nodeSelect')
+  nodeSelectEntries.innerHTML = ''
+}
+
+// some ways to select a subset of specobjects
+function select_all (_node_id, rec, _node_color) {
+  // Select all - no need to inspect input
+  if (no_rejects) {
+    return rec.status !== 'rejected'
+  }
+  return true
+}
+
+/**
+ * Handle display (or not) of rejected specobjects
+ */
+ document.getElementById('no_rejects').addEventListener('change', function () {
+  no_rejects_click()
+})
+
+function no_rejects_click () {
+  no_rejects = document.getElementById('no_rejects').checked
+  filter_change()
+}
+
+/**
+ * Take exclusion parameters (excluded doctypes and excluded <id>s) from UI and transfer to oreqm object
+ */
+ function handle_pruning () {
+  if (oreqm_main) {
+    let ex_id_list = []
+    const excluded_ids = document.getElementById('excluded_ids').value.trim()
+    if (excluded_ids.length) {
+      ex_id_list = excluded_ids.split(/[\n,]+/)
+    }
+    oreqm_main.set_excluded_ids(ex_id_list)
+    const ex_dt_list = get_excluded_doctypes()
+    oreqm_main.set_excluded_doctypes(ex_dt_list)
+  }
+}
+
+/**
+ * Search all id strings for a match to regex and create selection list
+ * @param {string} regex regular expression
+ */
+ function id_search (regex) { //rq: ->(rq_search_id_only)
+  set_selected_specobjects(oreqm_main.find_reqs_with_name(regex))
+  graph_results(selected_specobjects)
+}
+
+/**
+ * Parse VQL string and generate dot graph
+ * @param {string} vql_str search expression
+ */
+function vql_search (vql_str) {
+  let result = vql_parse(vql_str)
+  if (result) {
+    set_selected_specobjects(Array.from(result))
+    graph_results(selected_specobjects)
+  }
+}
+
+/**
+ * Search combined tagged string for a match to regex and create selection list `results`
+ * Show digram with the matching nodes and reacable nodes.
+ * @param {string} regex search criteria
+ */
+function txt_search (regex) { //rq: ->(rq_sel_txt)
+  set_selected_specobjects(oreqm_main.find_reqs_with_text(regex))
+  graph_results(selected_specobjects)
+}
+
+/**
+ * Get the list of doctypes with checked 'excluded' status from html
+ * @return {string[]} list of doctypes
+ */
+ export function get_excluded_doctypes () {
+  const excluded_list = []
+  if (oreqm_main) {
+    const doctypes = oreqm_main.get_doctypes()
+    const names = doctypes.keys()
+    for (const doctype of names) {
+      const cb_name = `doctype_${doctype}`
+      const status = document.getElementById(cb_name)
+      if (status && status.checked) {
+        excluded_list.push(doctype)
+      }
+      // console.log(doctype, status, status.checked)
+    }
+  }
+  return excluded_list
+}
+
+/**
+ * Set checkboxes according to excluded doctypes
+ */
+ export function set_excluded_doctype_checkboxes () {
+  // istanbul ignore else
+  if (oreqm_main) {
+    const doctypes = oreqm_main.get_doctypes()
+    const names = doctypes.keys()
+    const ex_list = oreqm_main.get_excluded_doctypes()
+    for (const doctype of names) {
+      const box = document.getElementById(`doctype_${doctype}`)
+      box.checked = ex_list.includes(doctype)
+    }
+    doctype_filter_change()
+  }
+}
+
+
+/**
+ * Set all doctypes to excluded/included
+ */
+export function toggle_exclude () {
+  // istanbul ignore else
+  if (oreqm_main) {
+    const doctypes = oreqm_main.get_doctypes()
+    const names = doctypes.keys()
+    const ex_list = get_excluded_doctypes()
+    const new_state = ex_list.length === 0
+    for (const doctype of names) {
+      const box = document.getElementById(`doctype_${doctype}`)
+      // istanbul ignore else
+      if (new_state !== box.checked) {
+        box.checked = new_state
+      }
+    }
+    doctype_filter_change()
+  }
+}
+
+/** doctype exclusion was toggled */
+export function doctype_filter_change () {
+  set_doctype_all_checkbox()
+  // console.log("doctype_filter_change (click)")
+  filter_change()
+}
+
+function set_doctype_all_checkbox () {
+  // Set the checkbox to reflect overall status
+  const doctypes = oreqm_main.get_doctypes()
+  const names = doctypes.keys()
+  const ex_list = get_excluded_doctypes()
+  const dt_all = document.getElementById('doctype_all')
+  if (ex_list.length === 0) {
+    dt_all.indeterminate = false
+    dt_all.checked = false
+  } else if (ex_list.length === Array.from(names).length) {
+    dt_all.indeterminate = false
+    dt_all.checked = true
+  } else {
+    dt_all.indeterminate = true
+    dt_all.checked = true
   }
 }
 
