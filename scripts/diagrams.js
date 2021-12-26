@@ -157,10 +157,10 @@ function status_cell (rec, show_coverage, color_status) {
 
 /**
  * Format links as HTML table rows
- * @param {object} rec 
+ * @param {object} rec
  * @returns {string} with HTML style rows of data (or empty string)
  */
-function format_links (rec) {
+export function format_links (rec) {
   let result = ''
   for (let l of rec.linksto) {
     let row = `        <TR><TD>${l.linksto}</TD><TD>${l.dstversion}</TD><TD>${l.linkerror}</TD></TR>\n`

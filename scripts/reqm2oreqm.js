@@ -3,7 +3,7 @@
 // eslint-disable-next-line no-redeclare
 /* global DOMParser, alert */
 import { cloneDeep } from "lodash"
-import { get_time_now, get_delta_time, log_time_spent } from './util.js'
+import { get_time_now, log_time_spent } from './util.js'
 /** placeholder for XMLSerializer instance */
 let serializer = null
 

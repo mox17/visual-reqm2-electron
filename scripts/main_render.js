@@ -18,8 +18,10 @@ import {
   COLOR_UP, COLOR_DOWN, convert_svg_to_png, clear_oreqm_ref, set_action_cb
 } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
-import { vql_parse, vql_validate } from './vql-search.js'
-import { get_time_now, get_delta_time, log_time_spent } from './util.js'
+import { vql_parse } from './vql-search.js'
+import { get_time_now, log_time_spent } from './util.js'
+import { search_language, set_search_language, search_regex_validate, set_search_language_hints,
+         set_search_language_buttons, get_search_regex_clean } from './search.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
@@ -28,8 +30,6 @@ const beforeUnloadMessage = null
 
 /** When true diagram is generated whenever selections or exclusions are updated */
 let auto_update = true
-/** When true only search ID field */
-let search_language = 'reg' // search language
 /** regex for matching requirements */
 let search_pattern = ''
 /** initial set of excluded doctypes */
@@ -359,13 +359,13 @@ function cmd_line_parameters (args) {
   // Override settings search language with cmd line options
   if (args.vql) {
     document.getElementById('vql_checkbox_input').checked = true
-    search_language = 'vql'
+    set_search_language('vql')
   } else if (args.regex) {
     document.getElementById('regex_checkbox_input').checked = true
-    search_language = 'reg'
+    set_search_language('reg')
   } else if (args.idOnly) {
     document.getElementById('id_checkbox_input').checked = true
-    search_language = 'ids'
+    set_search_language('ids')
   }
   document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
   if (args.exclIds !== undefined) {
@@ -1126,9 +1126,9 @@ function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
   // Handle version differences in file formats
   if (ctx.version === 1) {
-    search_language = document.getElementById('id_checkbox_input').checked ? 'ids' : 'reg'
+    set_search_language(document.getElementById('id_checkbox_input').checked ? 'ids' : 'reg')
   } else if (ctx.version === 2) {
-    search_language = ctx.search_language
+    set_search_language(ctx.search_language)
   }
   document.getElementById('search_regex').value = ctx.search_regex
   document.getElementById('excluded_ids').value = ctx.excluded_ids
@@ -1453,67 +1453,12 @@ document.getElementById('search_regex').addEventListener('focus', function () {
   search_regex_validate(this)
 })
 
-function search_validate(str) {
-  switch(search_language) {
-    case 'ids':
-    case 'reg':
-      try {
-        // eslint-disable-next-line no-unused-vars
-        let _regex_rule = new RegExp(str)
-      } catch (err) {
-        return err.message
-      }
-      return null
-
-    case 'vql':
-      return vql_validate(str)
-  }
-  return null
-}
-
 document.getElementById('search_regex').addEventListener('keyup', function(_ev) {
   search_regex_validate(this)
 })
 
-/**
- * Check if content of field is OK
- * @param {DOM object} field 
- * @returns true if field OK
- */
-function search_regex_validate(field) {
-  let text = field.value
-  let validation_error = search_validate(text)
-  if (text && validation_error) {
-    if (!field.errorbox) {
-      const rect = field.getBoundingClientRect();
-      const left = rect.left;
-      const top = rect.bottom;
-      const width = field.clientWidth
-      field.errorbox = document.createElement('div');
-      field.errorbox.innerHTML = validation_error
-      field.errorbox.classList.add('search_terms')
-      field.errorbox.setAttribute('style', `background: #f0a0a0;
-                                            padding: 6px;
-                                            position: absolute;
-                                            top: ${top}px;
-                                            left: ${left}px;
-                                            width: ${width}px;
-                                            border: 2px solid #ff0000;
-                                            font-family: 'Courier New', monospace;
-                                            `);
-      field.errorbox.style.fontSize = "75%"
-      field.parentNode.appendChild(field.errorbox);
-    } else {
-      field.errorbox.innerHTML = validation_error;
-      field.errorbox.style.display = 'block';
-    }
-  } else if (field.errorbox) {
-    field.errorbox.style.display = 'none';
-  }
-  return !(text && validation_error)
-}
-
 document.getElementById('search_regex').addEventListener('blur', function(_event) {
+  // Hide errorbox when focus leaves selection criteria box
   if (this.errorbox) {
     this.errorbox.style.display = 'none';
   }
@@ -1529,51 +1474,17 @@ function filter_change () {
   }
 }
 
-function set_search_language_hints(lang) {
-  let input = document.getElementById('search_regex')
-  switch (lang) {
-    case 'vql':
-      input.placeholder = "VQL search\nrem: or chg: or new: select changes\nAND, OR, NOT and ( ) operators\nand ao() co() selections supported"
-      break
-    case 'reg':
-    case 'ids':
-      input.placeholder = "Regex search\nnewlines are ignored\nrem:|chg:|new: select changes"
-      break
-  }
-  document.getElementById('search_tooltip').innerHTML = search_tooltip(lang)
-}
-
 /**
  * Handle UI selection of search language
  * @param {string} lang 'ids', 'req' or 'vql' selected in UI
  */
 function select_search_language (lang) {
   set_search_language_hints(lang)
-  search_language = lang
+  set_search_language(lang)
   program_settings.search_language = search_language
   save_program_settings()
   filter_change()
 }
-
-/**
- * Update radio-button for language selection as well as search_language variable
- * @param {string} lang 'ids', 'req' or 'vql' from cmd line, settings or context file
- */
-function set_search_language_buttons (lang) {
-  switch (lang) {
-    case 'ids':
-      document.getElementById('id_checkbox_input').checked = true
-      break
-    case 'reg':
-      document.getElementById('regex_checkbox_input').checked = true
-      break
-    case 'vql':
-      document.getElementById('vql_checkbox_input').checked = true
-      break
-    }
-    search_language = lang
-    set_search_language_hints(lang)
-  }
 
 /**
  * Set auto-update status
@@ -1854,21 +1765,6 @@ function set_doctype_all_checkbox () {
     dt_all.indeterminate = true
     dt_all.checked = true
   }
-}
-
-/**
- * Get the regular expression from "Selection criteria" box
- * @return {string} regular expression
- */
-function get_search_regex_clean () {
-  const raw_search = document.getElementById('search_regex').value
-  let clean_search
-  if (search_language === 'vql') {
-    clean_search = raw_search
-  } else {
-    clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
-  }
-  return clean_search
 }
 
 document.getElementById('filter_graph').addEventListener('click', function () {

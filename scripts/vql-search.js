@@ -1,8 +1,8 @@
 const nearley = require('nearley')
 const grammar = require('./vql-parser.js')
-import {search_tags, search_tag_order, search_tags_lookup} from './reqm2oreqm'
+import {search_tag_order, search_tags_lookup} from './reqm2oreqm'
 import {oreqm_main} from './main_data.js'
-import { get_time_now, get_delta_time, log_time_spent } from './util.js'
+import { get_time_now, log_time_spent } from './util.js'
 
 /**
  * Parse a VQL expression and evaluate it.
