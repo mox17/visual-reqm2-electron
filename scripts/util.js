@@ -2,6 +2,12 @@
 'use strict'
 import { performance } from 'perf_hooks'
 
+let log_timing = false
+
+export function enable_timing(val) {
+  log_timing = val
+}
+
 /**
  * Get current time
  * @returns {integer} current time in microseconds
@@ -26,6 +32,8 @@ export function get_delta_time(start_time) {
  * @returns integer time now
  */
 export function log_time_spent(start_time, legend="elapsed time") {
-    console.log(`Time in "${legend}": ${get_delta_time(start_time).toFixed(3)} millisec`)
+    if (log_timing) {
+      console.log(`Time in "${legend}": ${get_delta_time(start_time).toFixed(3)} millisec`)
+    }
     return performance.now()
 }

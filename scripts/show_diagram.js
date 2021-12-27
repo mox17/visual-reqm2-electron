@@ -773,7 +773,7 @@ function no_rejects_click () {
  * @param {string} vql_str search expression
  */
 function vql_search (vql_str) {
-  let result = vql_parse(vql_str)
+  let result = vql_parse(oreqm_main, vql_str)
   if (result) {
     set_selected_specobjects(Array.from(result))
     graph_results(selected_specobjects)
