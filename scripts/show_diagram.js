@@ -1,3 +1,4 @@
+'use strict'
 import { showToast } from 'show-toast'
 import { oreqm_main, oreqm_ref, svg_result, convert_svg_to_png, dot_source,
          COLOR_UP, COLOR_DOWN, select_color, set_action_cb } from "./main_data"

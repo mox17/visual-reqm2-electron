@@ -1,7 +1,9 @@
-import { oreqm_main } from "./main_data"
+'use strict'
+import { oreqm_main, convert_svg_to_png, svg_result } from "./main_data"
 import { search_language } from "./search"
 import { filter_change, selected_node } from "./show_diagram"
 import { clipboard } from "electron"
+import { base64StringToBlob } from 'blob-util'
 
 export function add_node_to_selection (node) {
   if (oreqm_main && oreqm_main.check_node_id(node)) {
@@ -114,5 +116,30 @@ export function menu_deselect () {
     txt = rec.id //rq: ->(rq_ctx_copy_id)
   }
   clipboard.writeText(txt)
+}
+
+export function copy_png () {
+  convert_svg_to_png(svg_result, png_callback)
+}
+
+/**
+ * Create binary blob of png and put on clipboard
+ * @param {null} ev event
+ * @param {string} png image as string
+ */
+function png_callback (ev, png) {
+  // istanbul ignore else
+  if (ev === null) {
+    const image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
+    // console.log(image_blob)
+    const item = new ClipboardItem({ 'image/png': image_blob })
+    // console.log(item)
+    navigator.clipboard.write([item]).then(function () {
+      // console.log("Copied to clipboard successfully!");
+    }, function (_error) {
+      // console.error("unable to write to clipboard. Error:");
+      // console.log(_error);
+    })
+  }
 }
 

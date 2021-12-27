@@ -1,3 +1,4 @@
+'use strict'
 import { vql_validate } from './vql-search.js'
 import { search_tooltip } from './reqm2oreqm.js'
 

@@ -1,3 +1,4 @@
+'use strict'
 import { oreqm_main } from "./main_data"
 
 /**

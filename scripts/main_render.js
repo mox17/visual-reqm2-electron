@@ -1,21 +1,15 @@
 'use strict'
-// eslint-disable-next-line no-redeclare
-/* global DOMParser, Event, Split, alert, svgPanZoom, Diff, ClipboardItem  */
 import { xml_escape, set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings, save_program_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
 import { ipcRenderer, remote, shell, clipboard } from 'electron'
-import { base64StringToBlob } from 'blob-util'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 import https from 'https'
-import {
-  settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
-  svg_result, create_oreqm_main, create_oreqm_ref,
-  convert_svg_to_png, clear_oreqm_ref
-} from './main_data.js'
+import { settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
+         create_oreqm_main, create_oreqm_ref, clear_oreqm_ref } from './main_data.js'
 import { search_tooltip } from './reqm2oreqm.js'
 import { get_time_now, log_time_spent } from './util'
 import { search_language, set_search_language, search_regex_validate, set_search_language_hints,
@@ -29,7 +23,7 @@ import { show_doctypes_safety, show_doctypes, selected_format, clear_html_table,
          report_limit_as_toast, show_toast, set_excluded_doctype_checkboxes, toggle_exclude,
          doctype_filter_change } from './show_diagram'
 import { set_issue_count } from './issues'
-import { copy_id_node, menu_deselect, add_node_to_selection } from './context-menu.js'
+import { copy_id_node, menu_deselect, add_node_to_selection, copy_png } from './context-menu.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
@@ -399,31 +393,6 @@ document.getElementById('menu_copy_ffb').addEventListener('click', function () {
 document.getElementById('menu_copy_png').addEventListener('click', function () {
   copy_png() //rq: ->(rq_ctx_copy_png)
 })
-
-function copy_png () {
-  convert_svg_to_png(svg_result, png_callback)
-}
-
-/**
- * Create binary blob of png and put on clipboard
- * @param {null} ev event
- * @param {string} png image as string
- */
-function png_callback (ev, png) {
-  // istanbul ignore else
-  if (ev === null) {
-    const image_blob = base64StringToBlob(png.src.slice(22), 'image/png')
-    // console.log(image_blob)
-    const item = new ClipboardItem({ 'image/png': image_blob })
-    // console.log(item)
-    navigator.clipboard.write([item]).then(function () {
-      // console.log("Copied to clipboard successfully!");
-    }, function (_error) {
-      // console.error("unable to write to clipboard. Error:");
-      // console.log(_error);
-    })
-  }
-}
 
 /** context menu handler - save diagram as */
 document.getElementById('menu_save_as').addEventListener('click', function () {

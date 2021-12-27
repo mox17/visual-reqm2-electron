@@ -1,3 +1,4 @@
+'use strict'
 const nearley = require('nearley')
 const grammar = require('./vql-parser.js')
 import {search_tag_order, search_tags_lookup} from './reqm2oreqm'
