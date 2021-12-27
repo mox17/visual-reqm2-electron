@@ -1,3 +1,4 @@
+'use strict'
 const Application = require('spectron').Application
 const fakeMenu = require('spectron-fake-menu')
 const fakeDialog = require('spectron-fake-dialog')
@@ -75,6 +76,37 @@ describe('command line processing', function () {
     remove_file('./tmp/cl-test-diagram.svg')
     remove_file('./tmp/cl-test-doctypes.svg')
     remove_file('./tmp/cl-test-safety.svg')
+  })
+
+  it('bad filenames', async function () {
+    console.log('Bad filenames on command line')
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--regex',
+        '--select', 'maze',
+        '--exclIds', '"some_id,some_other_id"',
+        '--exclDoctypes', '"foo,fie,fum"',
+        '--diagram',
+        '--hierarchy',
+        '--safety',
+        '--format', 'svg',
+        '--output', 'tmp/cl-test',
+        '--oreqm_main', './baddir/nosuchfile.oreqm',
+        '--oreqm_ref', './testdata/thisdoesntexist.oreqm',
+        '--quit'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    await app.start()
+  })
+
+  it('Exit after bad filenames', async function () {
+    if (app && await app.isRunning()) {
+      await app.stop()
+    }
   })
 
   it('launch the application', async function () {

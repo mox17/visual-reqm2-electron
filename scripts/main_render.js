@@ -252,8 +252,10 @@ ipcRenderer.on('argv', (event, parameters, args) => {
     if (main_stat && main_stat.isFile()) {
       main = true
     } else {
-      console.log('Not a file.', args.oreqm_main)
-      console.log('Cur dir:', process.cwd())
+      // Log to stderr as these are command line options
+      process.stderr.write(`Not a file: ${args.oreqm_main}\n`)
+      process.stderr.write(`Curr dir: ${process.cwd()}\n`)
+      //console.log(`Not a file: ${args.oreqm_main}`)
       ok = false
     }
   }
@@ -269,7 +271,8 @@ ipcRenderer.on('argv', (event, parameters, args) => {
       // console.log(args.oreqm_ref, ref_stat);
       ref = true
     } else {
-      console.log('Not a file.', args.oreqm_ref)
+      process.stderr.write(`Not a file: ${args.oreqm_ref}\n`)
+      //console.log('Not a file.', args.oreqm_ref)
       ok = false
     }
   }
