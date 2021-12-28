@@ -849,4 +849,37 @@ describe('Application launch', function () {
     })
 */
   })
+
+  describe('Select duplicate', function () {
+    it('load file and select', async function () {
+      const oreqm_main = './test/sample_oreqm/0007_dup-same-version.oreqm'
+      const search_regex = await app.client.$('#search_regex')
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_main] }])
+      await click_button(app, '#get_main_oreqm_file')
+      await wait_for_operation(app)
+      await click_button(app, '#clear_search_regex')
+      await search_regex.setValue('demo')
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
+      // Now select duplicate specobject TestDemoSpec.Object004:1
+      const svg_map = await get_svg_node_map(app)
+      await context_menu_click(app, svg_map, 'TestDemoSpec.Object004:1', '#menu_select')
+      await wait_for_operation(app)
+      let search = await search_regex.getValue()
+      //console.log("search:", search)
+      assert.strictEqual(search, 'demo\nor @id:TestDemoSpec.Object004$')
+    })
+
+    it('deselect', async function () {
+      const search_regex = await app.client.$('#search_regex')
+        // Deselect duplicate specobject TestDemoSpec.Object004:1
+        const svg_map = await get_svg_node_map(app)
+        await context_menu_click(app, svg_map, 'TestDemoSpec.Object004:1', '#menu_deselect')
+        await wait_for_operation(app)
+        let search = await search_regex.getValue()
+        //console.log("search:", search)
+        assert.strictEqual(search, 'demo')
+    })
+
+  })
 })
