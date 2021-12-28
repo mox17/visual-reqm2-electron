@@ -718,7 +718,8 @@ describe('Application launch', function () {
       await click_button(app, '#limit_depth_input')
       const oreqm_ref = './testdata/ffbtest_1.oreqm'
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_ref] }])
-      await click_button(app, '#get_ref_oreqm_file')
+      //await click_button(app, '#get_ref_oreqm_file')
+      await fakeMenu.clickMenu('File', 'Load reference oreqm file...')
       await wait_for_operation(app)
       const dot_filename = './tmp/ffb_diff.dot'
       const ref_file = './test/refdata/ffb_diff.dot'
@@ -855,7 +856,7 @@ describe('Application launch', function () {
       const oreqm_main = './test/sample_oreqm/0007_dup-same-version.oreqm'
       const search_regex = await app.client.$('#search_regex')
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_main] }])
-      await click_button(app, '#get_main_oreqm_file')
+      await fakeMenu.clickMenu('File', 'Load main oreqm file...')
       await wait_for_operation(app)
       await click_button(app, '#clear_search_regex')
       await search_regex.setValue('demo')
@@ -879,6 +880,14 @@ describe('Application launch', function () {
         let search = await search_regex.getValue()
         //console.log("search:", search)
         assert.strictEqual(search, 'demo')
+    })
+
+    it('save selection', async function () {
+      let csv_name = './tmp/selection_save.csv'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: csv_name }])
+      await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      await wait_for_operation(app)
+      await compare_files(csv_name, './test/refdata/selection_save.csv')
     })
 
   })
