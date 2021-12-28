@@ -56,6 +56,7 @@ export function vql_validate (sc) {
   // Check if there are any results
   if (ans.results.length) {
     //console.log(ans.results)
+    // istanbul ignore next
     if (ans.results.length > 1) {
       return 'Ambiguous result'
     }
@@ -104,9 +105,11 @@ function vql_eval (input_nodes, search_ast) {
       // return complementary set
       return new Set([...input_nodes].filter((x) => !s1.has(x)))
     }
-    default:
+    // istanbul ignore next
+    default: {
       //console.log(`vql_search op error ${search_ast}`)
       return new Set()
+    }
   }
 }
 

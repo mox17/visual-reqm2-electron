@@ -51,10 +51,12 @@ ipcRenderer.on('about', (_item, _window, _key_ev) => {
   show_about()
 })
 
+// istanbul ignore next
 ipcRenderer.on('readme', (_item, _window, _key_ev) => {
   show_readme()
 })
 
+// istanbul ignore next
 ipcRenderer.on('vql_help', (_item, _window, _key_ev) => {
   show_vql_help()
 })
@@ -854,6 +856,7 @@ function select_search_language (lang) {
  * Set auto-update status
  * @param {boolean} state true: do auto update, false: user has to trigger update
  */
+// istanbul ignore next
 // eslint-disable-next-line no-unused-vars
 function update_auto_update (state) {
   document.getElementById('auto_update').checked = state
@@ -1452,12 +1455,14 @@ const notification = document.getElementById('notification')
 const auto_update_message = document.getElementById('auto-update-message')
 const restartButton = document.getElementById('restart-button')
 
+// istanbul ignore next
 ipcRenderer.on('update_available', () => {
   ipcRenderer.removeAllListeners('update_available')
   auto_update_message.innerText = 'A new update is available. Downloading now...'
   notification.classList.remove('hidden')
 })
 
+// istanbul ignore next
 ipcRenderer.on('update_downloaded', () => {
   ipcRenderer.removeAllListeners('update_downloaded')
   auto_update_message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?'
@@ -1465,10 +1470,12 @@ ipcRenderer.on('update_downloaded', () => {
   notification.classList.remove('hidden')
 })
 
+// istanbul ignore next
 function closeNotification () {
   notification.classList.add('hidden')
 }
 
+// istanbul ignore next
 function restartApp () {
   ipcRenderer.send('restart_app')
 }
@@ -1490,6 +1497,7 @@ if (document.readyState !== 'complete') {
   prepareTags()
 }
 
+// istanbul ignore next
 function url_click_handler (e, url) {
   e.preventDefault()
   document.shell_openExternal(url)
@@ -1571,10 +1579,12 @@ window.addEventListener('unload', function(_event) {
   }
 })
 
+// istanbul ignore next
 function show_readme() {
   open('https://github.com/mox17/visual-reqm2-electron#readme')
 }
 
+// istanbul ignore next
 function show_vql_help() {
   open('https://github.com/mox17/visual-reqm2-electron/blob/master/doc/VQL.md')
 }

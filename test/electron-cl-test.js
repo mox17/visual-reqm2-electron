@@ -15,7 +15,7 @@ const chaiRoughly = require('chai-roughly')
 const describe = global.describe
 const it = global.it
 const before = global.before
-const after = global.after
+// const after = global.after
 // const beforeEach = global.beforeEach;
 // const afterEach = global.afterEach;
 

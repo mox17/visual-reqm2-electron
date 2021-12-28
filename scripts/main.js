@@ -185,10 +185,12 @@ function createWindow () {
       submenu: [
         {
           label: 'README.md',
+          // istanbul ignore next
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('readme') }
         },
         {
           label: 'VQL help',
+          // istanbul ignore next
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('vql_help') }
         },
         {
@@ -232,6 +234,7 @@ function createWindow () {
   })
 
   mainWindow.on('blur', (_event) => {
+    // istanbul ignore next
     globalShortcut.unregisterAll()
   })
 
@@ -362,6 +365,7 @@ app.on('activate', function () {
   }
 })
 
+// istanbul ignore next
 ipcMain.on('cmd_quit', (_evt, _arg) => {
   app.quit()
 })
