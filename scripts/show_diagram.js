@@ -351,7 +351,7 @@ function context_menu_event (event) {
 }
 
 document.querySelector('#format select').addEventListener('change', function () {
-  selected_format = document.querySelector('#format select').value
+  set_selected_format(document.querySelector('#format select').value)
   update_diagram(selected_format)
 })
 

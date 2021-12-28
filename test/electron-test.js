@@ -435,6 +435,18 @@ describe('Application launch', function () {
       await screenshot(app, 'png-format') //rq: ->(rq_show_png)
     })
 
+    it('show diagram as table', async function () {
+      const format_select = await app.client.$('#format_select')
+      await format_select.selectByAttribute('value', 'html-table')
+      await wait_for_operation(app)
+      await screenshot(app, 'table-format')
+      const doctype_totals = await app.client.$('#html_table')
+      const table = await doctype_totals.getAttribute('innerHTML')
+      const html_filename = './tmp/table-1.html'
+      fs.writeFileSync(html_filename, table)
+      await compare_files(html_filename, './test/refdata/table-1.html')
+    })
+
     it('show diagram as dot', async function () {
       const format_select = await app.client.$('#format_select')
       await format_select.selectByAttribute('value', 'dot-source')

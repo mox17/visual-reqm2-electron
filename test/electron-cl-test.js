@@ -79,7 +79,6 @@ describe('command line processing', function () {
   })
 
   it('bad filenames', async function () {
-    console.log('Bad filenames on command line')
     app = new Application({
       path: electronPath,
       args: [path.join(__dirname, '..'),
