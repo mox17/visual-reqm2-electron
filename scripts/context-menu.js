@@ -1,9 +1,21 @@
 'use strict'
-import { oreqm_main, convert_svg_to_png, svg_result } from "./main_data"
+import { oreqm_main, oreqm_ref, convert_svg_to_png, svg_result } from "./main_data"
 import { search_language } from "./search"
 import { filter_change, selected_node } from "./show_diagram"
 import { clipboard } from "electron"
 import { base64StringToBlob } from 'blob-util'
+import { xml_escape } from "./diagrams"
+
+// Setup for the raw node display dialog (raw text and diff (for changed reqs))
+export const nodeSource = document.getElementById('nodeSource')
+
+// Get the <span> element that closes the modal
+const nodeSourceClose = document.getElementById('nodeSourceClose')
+
+// When the user clicks on <span> (x), close the modal
+nodeSourceClose.onclick = function () {
+  nodeSource.style.display = 'none'
+}
 
 export function add_node_to_selection (node) {
   if (oreqm_main && oreqm_main.check_node_id(node)) {
@@ -103,6 +115,21 @@ export function menu_deselect () {
   }
 }
 
+export function exclude_id () {
+  // Add node to the exclusion list
+  //rq: ->(rq_ctx_excl)
+  if (oreqm_main && oreqm_main.check_node_id(selected_node)) {
+    let excluded_ids = document.getElementById('excluded_ids').value.trim()
+    if (excluded_ids.length) {
+      excluded_ids += '\n' + selected_node
+    } else {
+      excluded_ids = selected_node
+    }
+    document.getElementById('excluded_ids').value = excluded_ids
+    filter_change()
+  }
+}
+
 /**
  * Put id of selected specobject on clipboard in selected format
  * @param {boolean} ffb_format true: id:doctype:version ; false: id
@@ -143,3 +170,66 @@ function png_callback (ev, png) {
   }
 }
 
+/**
+ * Show selected node as XML in the source code modal (html)
+ */
+ export function show_source () {
+  if (selected_node.length) {
+    const ref = document.getElementById('req_src')
+    if (oreqm_ref && oreqm_main.updated_reqs.includes(selected_node)) {
+      //rq: ->(rq_ctx_show_diff)
+      // create a diff
+      const text_ref = xml_escape(oreqm_ref.get_xml_string(selected_node))
+      const text_main = xml_escape(oreqm_main.get_xml_string(selected_node))
+      let result = '<h2>XML format (changed specobject)</h2><pre>'
+      const diff = Diff.diffLines(text_ref, text_main, {ignoreWhitespace: true})
+      diff.forEach(function (part) {
+        // green for additions, red for deletions, black for common parts
+        const color = part.added ? 'green' : part.removed ? 'red' : 'grey'
+        let font = 'normal'
+        if (part.added || part.removed) {
+          font = 'bold'
+        }
+        result += `<span style="color: ${color}; font-weight: ${font};">${src_add_plus_minus(part)}</span>`
+      })
+      result += '</pre>'
+      ref.innerHTML = result
+    } else {
+      //rq: ->(rq_ctx_show_xml)
+      let header_main = '<h2>XML format</h2>'
+      if (oreqm_main.removed_reqs.includes(selected_node)) {
+        header_main = '<h2>XML format (removed specobject)</h2>'
+      } else if (oreqm_main.new_reqs.includes(selected_node)) {
+        header_main = '<h2>XML format (new specobject)</h2>'
+      }
+      ref.innerHTML = `${header_main}<pre>${xml_escape(oreqm_main.get_xml_string(selected_node))}</pre>`
+    }
+    nodeSource.style.display = 'block'
+  }
+}
+
+/**
+ * Add git style '+', '-' in front of changed lines.
+ * The part can be multi-line and is expected to end with a newline
+ * @param {object} part diff object
+ * @return {string} updated string
+ */
+ function src_add_plus_minus (part) {
+  const insert = part.added ? '+' : part.removed ? '-' : ' '
+  let txt = part.value
+  const last_char = txt.slice(-1)
+  txt = txt.slice(0, -1)
+  txt = insert + txt.split(/\n/gm).join('\n' + insert)
+  return txt + last_char
+}
+
+export function show_internal () {
+  // Show selected node as internal tagged string
+  if (selected_node.length) {
+    const ref = document.getElementById('req_src')
+    const header_main = "<h2>Internal tagged 'search' format</h2>"
+    const a_txt = oreqm_main.get_all_text(selected_node).replace(/\n/g, '\u21B5\n')
+    ref.innerHTML = `${header_main}<pre>${xml_escape(a_txt)}</pre>`
+    nodeSource.style.display = 'block'
+  }
+}

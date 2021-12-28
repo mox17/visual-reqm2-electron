@@ -1,5 +1,5 @@
 'use strict'
-import { xml_escape, set_limit_reporter } from './diagrams.js'
+import { set_limit_reporter } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings, save_program_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
@@ -22,8 +22,9 @@ import { show_doctypes_safety, show_doctypes, selected_format, clear_html_table,
          clear_selection_highlight, filter_change, filter_graph, auto_update, set_auto_update,
          report_limit_as_toast, show_toast, set_excluded_doctype_checkboxes, toggle_exclude,
          doctype_filter_change } from './show_diagram'
-import { set_issue_count } from './issues'
-import { copy_id_node, menu_deselect, add_node_to_selection, copy_png } from './context-menu.js'
+import { set_issue_count, show_problems, problemPopup, save_problems, clear_problems } from './issues'
+import { copy_id_node, menu_deselect, add_node_to_selection, exclude_id, copy_png, show_internal,
+         nodeSource, show_source } from './context-menu.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
@@ -352,46 +353,6 @@ document.getElementById('menu_copy_ffb').addEventListener('click', function () {
   copy_id_node(true)
 })
 
-/*
-  document.getElementById('menu_copy_svg').addEventListener("click", function() {
-    copy_svg2()
-  }); */
-
-/**
- * Copy svg image to clipboard as <img src="data:image/svg;base64,..." width="" height="" alt="diagram" />
- */
-/*
-  function copy_svg () {
-    let clip_txt = `<img src="data:image/svg;base64,${
-      btoa(svg_result)}" width="${
-      svg_element.getAttribute('width')}" height="${
-      svg_element.getAttribute('height')}" alt="diagram"/>`
-    const ta = document.createElement('textarea'); // 'img' ??
-    ta.value = clip_txt
-    ta.setAttribute('readonly', '');
-    ta.style = { position: 'absolute', left: '-9999px' };
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-  }
-  */
-
-/*
-  function copy_svg2 () {
-    var image_blob = arrayBufferToBlob(svg_result, 'image/svg+xml')
-    console.log(image_blob)
-    let item = new ClipboardItem({'image/svg+xml': image_blob})
-    console.log(item)
-    navigator.clipboard.write([item]).then(function() {
-      console.log("Copied to clipboard successfully!");
-    }, function(error) {
-      console.error("unable to write to clipboard. Error:");
-      console.log(error);
-    })
-  }
-  */
-
 /** context menu item handler. Copy diagram as png to clipboard */
 document.getElementById('menu_copy_png').addEventListener('click', function () {
   copy_png() //rq: ->(rq_ctx_copy_png)
@@ -648,30 +609,30 @@ function restoreContextAttributes (ctx) {
  */
 function update_settings_from_context (ctx) {
   for (const key in ctx.settings.compare_fields) {
-    if (program_settings.compare_fields[key] !== ctx.settings.compare_fields[key]) {
-      console.log(key, program_settings.compare_fields[key], ctx.settings.compare_fields[key])
-    }
+    // if (program_settings.compare_fields[key] !== ctx.settings.compare_fields[key]) {
+    //   console.log(key, program_settings.compare_fields[key], ctx.settings.compare_fields[key])
+    // }
     program_settings.compare_fields[key] = ctx.settings.compare_fields[key]
   }
 
-  if (program_settings.safety_link_rules != ctx.settings.safety_link_rules) {
-    //console.log("safety_link_rules", program_settings.safety_link_rules, ctx.settings.safety_link_rules)
-  }
+  // if (program_settings.safety_link_rules != ctx.settings.safety_link_rules) {
+  //   console.log("safety_link_rules", program_settings.safety_link_rules, ctx.settings.safety_link_rules)
+  // }
   program_settings.safety_link_rules = ctx.settings.safety_link_rules
 
-  if (program_settings.show_errors !== ctx.settings.show_errors) {
-    console.log("show_errors", program_settings.show_errors, ctx.settings.show_errors)
-  }
+  // if (program_settings.show_errors !== ctx.settings.show_errors) {
+  //   console.log("show_errors", program_settings.show_errors, ctx.settings.show_errors)
+  // }
   program_settings.show_errors = ctx.settings.show_errors
 
-  if (program_settings.show_coverage !== ctx.settings.show_coverage) {
-    console.log("show_coverage", program_settings.show_coverage, ctx.settings.show_coverage)
-  }
+  // if (program_settings.show_coverage !== ctx.settings.show_coverage) {
+  //   console.log("show_coverage", program_settings.show_coverage, ctx.settings.show_coverage)
+  // }
   program_settings.show_coverage = ctx.settings.show_coverage
 
-  if (program_settings.color_status !== ctx.settings.color_status) {
-    console.log("color_status", program_settings.color_status, ctx.settings.color_status)
-  }
+  // if (program_settings.color_status !== ctx.settings.color_status) {
+  //   console.log("color_status", program_settings.color_status, ctx.settings.color_status)
+  // }
   program_settings.color_status = ctx.settings.color_status
 }
 
@@ -1184,29 +1145,13 @@ aboutPaneClose.onclick = function () {
   aboutPane.style.display = 'none'
 }
 
-// Setup for the raw node display dialog (raw text and diff (for changed reqs))
-const nodeSource = document.getElementById('nodeSource')
-
-// Get the <span> element that closes the modal
-const nodeSourceClose = document.getElementById('nodeSourceClose')
-
-// When the user clicks on <span> (x), close the modal
-nodeSourceClose.onclick = function () {
-  nodeSource.style.display = 'none'
-}
-
 // When the user clicks anywhere outside of the modal, close it
 window.onbeforeunload = function () {
   // "Graph is going away..."
 }
 
-const problemPopup = document.getElementById('problemPopup')
-
-// Get the button that opens the modal
-const issuesButton = document.getElementById('issuesButton')
-
 // When the user clicks the button, open the modal
-issuesButton.onclick = function () {
+document.getElementById('issuesButton').onclick = function () {
   show_problems()
 }
 
@@ -1247,18 +1192,7 @@ window.onclick = function (event) {
 }
 
 document.getElementById('menu_exclude').addEventListener('click', function () {
-  // Add node to the exclusion list
-  //rq: ->(rq_ctx_excl)
-  if (oreqm_main && oreqm_main.check_node_id(selected_node)) {
-    let excluded_ids = document.getElementById('excluded_ids').value.trim()
-    if (excluded_ids.length) {
-      excluded_ids += '\n' + selected_node
-    } else {
-      excluded_ids = selected_node
-    }
-    document.getElementById('excluded_ids').value = excluded_ids
-    filter_change()
-  }
+  exclude_id()
 })
 
 document.getElementById('clear_search_regex').addEventListener('click', function () {
@@ -1439,62 +1373,9 @@ document.getElementById('show_doctypes_safety').addEventListener('click', functi
   show_doctypes_safety()
 })
 
-/**
- * Add git style '+', '-' in front of changed lines.
- * The part can be multi-line and is expected to end with a newline
- * @param {object} part diff object
- * @return {string} updated string
- */
-function src_add_plus_minus (part) {
-  const insert = part.added ? '+' : part.removed ? '-' : ' '
-  let txt = part.value
-  const last_char = txt.slice(-1)
-  txt = txt.slice(0, -1)
-  txt = insert + txt.split(/\n/gm).join('\n' + insert)
-  return txt + last_char
-}
-
 document.getElementById('menu_xml_txt').addEventListener('click', function () {
   show_source()
 })
-
-/**
- * Show selected node as XML in the source code modal (html)
- */
-function show_source () {
-  if (selected_node.length) {
-    const ref = document.getElementById('req_src')
-    if (oreqm_ref && oreqm_main.updated_reqs.includes(selected_node)) {
-      //rq: ->(rq_ctx_show_diff)
-      // create a diff
-      const text_ref = xml_escape(oreqm_ref.get_xml_string(selected_node))
-      const text_main = xml_escape(oreqm_main.get_xml_string(selected_node))
-      let result = '<h2>XML format (changed specobject)</h2><pre>'
-      const diff = Diff.diffLines(text_ref, text_main, {ignoreWhitespace: true})
-      diff.forEach(function (part) {
-        // green for additions, red for deletions, black for common parts
-        const color = part.added ? 'green' : part.removed ? 'red' : 'grey'
-        let font = 'normal'
-        if (part.added || part.removed) {
-          font = 'bold'
-        }
-        result += `<span style="color: ${color}; font-weight: ${font};">${src_add_plus_minus(part)}</span>`
-      })
-      result += '</pre>'
-      ref.innerHTML = result
-    } else {
-      //rq: ->(rq_ctx_show_xml)
-      let header_main = '<h2>XML format</h2>'
-      if (oreqm_main.removed_reqs.includes(selected_node)) {
-        header_main = '<h2>XML format (removed specobject)</h2>'
-      } else if (oreqm_main.new_reqs.includes(selected_node)) {
-        header_main = '<h2>XML format (new specobject)</h2>'
-      }
-      ref.innerHTML = `${header_main}<pre>${xml_escape(oreqm_main.get_xml_string(selected_node))}</pre>`
-    }
-    nodeSource.style.display = 'block'
-  }
-}
 
 /**
  * Context menu handler to show internal tagged search format
@@ -1503,56 +1384,13 @@ document.getElementById('menu_search_txt').addEventListener('click', function ()
   show_internal()
 })
 
-function show_internal () {
-  // Show selected node as internal tagged string
-  if (selected_node.length) {
-    const ref = document.getElementById('req_src')
-    const header_main = "<h2>Internal tagged 'search' format</h2>"
-    const a_txt = oreqm_main.get_all_text(selected_node).replace(/\n/g, '\u21B5\n')
-    ref.innerHTML = `${header_main}<pre>${xml_escape(a_txt)}</pre>`
-    nodeSource.style.display = 'block'
-  }
-}
-
-function show_problems () {
-  // Show problems colleced in oreqm_main
-  const ref = document.getElementById('problem_list')
-  const header_main = '\n<h2>Detected problems</h2>\n'
-  let problem_txt = 'Nothing to see here...'
-  if (oreqm_main) {
-    problem_txt = xml_escape(oreqm_main.get_problems())
-  }
-  ref.innerHTML = `${header_main}<pre id="raw_problems">${problem_txt}</pre>`
-  problemPopup.style.display = 'block'
-}
-
 document.getElementById('save_problems').addEventListener('click', function () {
   save_problems()
 })
 
-function save_problems () {
-  //rq: ->(rq_issues_file_export)
-  const problems = oreqm_main.get_problems()
-  const SavePath = remote.dialog.showSaveDialogSync(null, {
-    filters: [{ name: 'TXT files', extensions: ['txt'] }],
-    properties: ['openFile']
-  })
-  if (typeof (SavePath) !== 'undefined') {
-    fs.writeFileSync(SavePath, problems, 'utf8')
-  }
-}
-
 document.getElementById('clear_problems').addEventListener('click', function () {
   clear_problems()
 })
-
-function clear_problems () {
-  if (oreqm_main) {
-    oreqm_main.clear_problems()
-    document.getElementById('issueCount').innerHTML = 0
-    show_problems()
-  }
-}
 
 /**
  * Update doctype table. Colors associated with doctypes may have changed, therefore cached
