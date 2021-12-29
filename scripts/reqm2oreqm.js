@@ -418,10 +418,24 @@ for (let t of meta_tags) {
  * @returns string
  */
 export function search_tooltip (lang) {
-  let tooltip = lang !== 'vql' ? '&nbsp;<b>Use tags in this order:</b><br/>' : '&nbsp;<b>Available tags:</b><br/>'
-  for (let row of search_tags) {
-    let freetext = row.freetext ? '*' : ''
-    tooltip += `<b>&nbsp;${row.key}:</b>&nbsp;&lt;${row.field}&gt;${freetext}<br/>`
+  let tooltip = ''
+  if (lang === 'vql') {
+    tooltip = '&nbsp;<b>Available tags:</b><br/>'
+    // Sort tooltips according to field
+    let sorted_search_tags = [...search_tags]
+    sorted_search_tags.sort((a, b) => (a.field > b.field) ? 1 : -1)
+    console.log(sorted_search_tags)
+    for (let row of sorted_search_tags) {
+      let freetext = row.freetext ? '*' : ''
+    let tag = row.key.length > 2 ? `${row.key}:` : `${row.key}:&nbsp;`
+      tooltip += `<b>&nbsp;${tag}</b>&nbsp;&lt;${row.field}&gt;${freetext}<br/>`
+    }
+  } else {
+    tooltip = '&nbsp;<b>Use tags in this order:</b><br/>'
+    for (let row of search_tags) {
+      let freetext = row.freetext ? '*' : ''
+      tooltip += `<b>&nbsp;${row.key}:</b>&nbsp;&lt;${row.field}&gt;${freetext}<br/>`
+    }
   }
   tooltip += '<b>&nbsp;dup:</b>&nbsp;duplicate<br/>'
   tooltip += '<b>&nbsp;rem:</b>|<b>chg:</b>|<b>new:</b>&nbsp;diff'
