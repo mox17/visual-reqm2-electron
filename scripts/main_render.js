@@ -25,6 +25,7 @@ import { show_doctypes_safety, show_doctypes, selected_format, clear_html_table,
 import { set_issue_count, save_problems } from './issues'
 import { copy_id_node, menu_deselect, add_node_to_selection, exclude_id, copy_png, show_internal,
          nodeSource, show_source } from './context-menu.js'
+import { progressbar_start, progressbar_update, progressbar_stop } from './progressbar.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
@@ -921,16 +922,21 @@ function load_file_main_fs (file, ref_file) {
 
   // This is a work-around. When testing on Windows the async filereading hangs,
   // so use sync interface instead.
+  progressbar_start('Loading main file', path.basename(file))
   const now = get_time_now()
   let data = fs.readFileSync(file, 'UTF-8')
   log_time_spent(now, "Read main oreqm")
   // console.log("main file read", ref_file)
+  progressbar_update('Processing main file', path.basename(file))
   process_data_main(file, data, ref_file ? false : true)
   if (ref_file) {
+    progressbar_update('Loading reference file', path.basename(ref_file))
     load_file_ref_fs(ref_file)
   } else if (vr2x_handler) {
+    progressbar_update('Loading context file', '...')
     vr2x_handler()
   }
+  progressbar_stop()
 
   // read file asynchronously
   // fs.readFile(file, 'UTF-8', (err, data) => {
@@ -996,7 +1002,6 @@ function load_file_ref_fs (file) {
 
     // read file synchronously
     let data = fs.readFileSync(file, 'UTF-8')
-    console.log("load_file_ref_fs readfile done")
     process_data_ref(file, data)
     if (vr2x_handler) {
       vr2x_handler()

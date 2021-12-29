@@ -6,6 +6,7 @@ import { get_color } from './color.js'
 import { DoctypeRelations } from './doctypes.js'
 import { program_settings } from './settings.js'
 import { process_rule_set } from './settings_dialog.js'
+import { progressbar_start, progressbar_update, progressbar_update_value, progressbar_stop } from './progressbar'
 
 /**
  * Escape XML special characters
@@ -1237,6 +1238,9 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    */
   generate_html_table () {
     let req_list = this.get_id_list()
+    let req_count = req_list.length
+    let req_progress = 0
+    progressbar_start('Creating table view', `${req_count} entries`, req_count)
     req_list.sort()
     let table = '<div>\n'
     for (let req_id of req_list) {
@@ -1248,8 +1252,13 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         .replace(/COLOR="black"/, 'COLOR="black" width="100%"')
         .replace(/ BORDER="0"/, ' BORDER="1"')
       table += `<div id="${node_id}">${node}\n<hr>\n</div>`
+      req_progress += 1
+      if (req_progress % 100 === 0) {
+        progressbar_update_value(req_progress)
+      }
     }
     table += '</div>\n'
+    progressbar_stop()
     return table
   }
 

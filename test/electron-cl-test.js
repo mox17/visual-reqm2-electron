@@ -160,7 +160,8 @@ describe('command line processing', function () {
     chaiAsPromised.transferPromiseness = app.transferPromiseness
 
     const response = await app.client.getWindowHandles()
-    assert.strictEqual(response.length, 1)
+    // With progress bar window added, two windows may get reported
+    assert.isTrue(response.length >= 1)
 
     await app.browserWindow
     .getBounds()

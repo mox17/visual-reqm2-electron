@@ -16,6 +16,7 @@ const { autoUpdater } = require('electron-updater')
 const electron_settings = require('electron-settings')
 const { settings_configure } = require('./settings_helper.js')
 const { dialog } = require('electron')
+const ProgressBar = require('electron-progressbar')
 // const fs = require('fs');
 
 // Optional logging
@@ -31,6 +32,9 @@ let run_autoupdater = false
 let mainWindow
 let mainWindow_width = 1024
 let mainWindow_height = 768
+
+let progressBar = null
+let ready_called = false
 
 function calc_icon_path (argv0) {
   // Ugly hack to deal with path differences for nodejs and electron execution env.
@@ -335,6 +339,7 @@ app.on('ready', () => {
 
   mainWindow.webContents.on('did-finish-load', () => {
     // console.log("did-finish-load")
+    ready_called = true
   })
 
   mainWindow.webContents.once('dom-ready', () => {
@@ -398,6 +403,37 @@ ipcMain.on('file_updated', (_evt, title, path) => {
     if (choice === 1) {
       mainWindow.webContents.send('file_updated', title, path)
     }
+})
+
+// ProgressBar messages
+ipcMain.on('pbar_start', (_evt, detail, text, count) => {
+  if (ready_called) {
+    progressBar = new ProgressBar({
+      text: text,
+      detail: detail,
+      indeterminate: count === 0,
+      maxValue: count > 0 ? count-1 : 100
+    })
+  }
+})
+
+ipcMain.on('pbar_update', (_evt, detail, text) => {
+  if (progressBar && progressBar.isInProgress()) {
+    progressBar.detail = detail
+    progressBar.text = text
+  }
+})
+
+ipcMain.on('pbar_update_value', (_evt, count) => {
+  if (progressBar && progressBar.isInProgress()) {
+    progressBar.value = count
+  }
+})
+
+ipcMain.on('pbar_stop', (_evt) => {
+  if (progressBar && progressBar.isInProgress()) {
+    progressBar.setCompleted()
+  }
 })
 
 // Handle automatic updates
