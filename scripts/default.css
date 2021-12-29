@@ -465,6 +465,21 @@
   transition: opacity 0.3s;
 }
 
+.radio_style {
+  font-size: 12px;
+  outline: 1px solid grey;
+}
+
+.exclude_style {
+  font-size: 12px;
+}
+
+input.small_checkbox {
+  transform: scale(0.8);
+  /*width: 20px;
+  height: 20px;*/
+}
+
 /* auto update notification */
 #notification {
   position: fixed;
