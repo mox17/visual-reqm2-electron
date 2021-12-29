@@ -8,6 +8,7 @@ import { check_cmd_line_steps } from './cmdline'
 import { program_settings } from "./settings"
 import { search_language, search_pattern, set_search_pattern, get_search_regex_clean } from "./search"
 import { vql_parse } from './vql-search'
+import { xml_escape, xml_unescape } from './diagrams'
 
 /** parses generated svg from graphviz in preparation for display */
 const parser = new DOMParser()
@@ -318,7 +319,7 @@ function context_menu_event (event) {
   for (const sibling of event.target.parentElement.children) {
     // Check if they're the title
     if (sibling.nodeName !== 'title') continue
-    str = sibling.innerHTML
+    str = xml_unescape(sibling.innerHTML)
     break
   }
   selected_node = str
@@ -535,8 +536,11 @@ export function prev_selected () {
  function set_selection (selection) {
   set_selected_nodes(selection)
   set_selected_index(0)
-  const nodeSelectEntries = document.getElementById('nodeSelect')
-  nodeSelectEntries.innerHTML = '<option>' + selected_nodes.join('</option>\n<option>') + '</option>'
+  let html_str = ''
+  for (let sn of selected_nodes) {
+    html_str += `<option value="${sn}">${xml_escape(sn)}</option>\n`
+  }
+  document.getElementById('nodeSelect').innerHTML = html_str
 }
 
 /**

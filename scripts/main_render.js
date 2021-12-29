@@ -1,5 +1,5 @@
 'use strict'
-import { set_limit_reporter } from './diagrams.js'
+import { set_limit_reporter, xml_escape } from './diagrams.js'
 import { get_color, save_colors_fs, load_colors_fs } from './color.js'
 import { handle_settings, load_safety_rules_fs, open_settings, save_program_settings } from './settings_dialog.js'
 import { get_ignored_fields, program_settings } from './settings.js'
@@ -22,7 +22,7 @@ import { show_doctypes_safety, show_doctypes, selected_format, clear_html_table,
          clear_selection_highlight, filter_change, filter_graph, auto_update, set_auto_update,
          report_limit_as_toast, show_toast, set_excluded_doctype_checkboxes, toggle_exclude,
          doctype_filter_change } from './show_diagram'
-import { set_issue_count, show_problems, problemPopup, save_problems, clear_problems } from './issues'
+import { set_issue_count, save_problems } from './issues'
 import { copy_id_node, menu_deselect, add_node_to_selection, exclude_id, copy_png, show_internal,
          nodeSource, show_source } from './context-menu.js'
 const open = require('open')
@@ -1158,6 +1158,26 @@ document.getElementById('issuesButton').onclick = function () {
   show_problems()
 }
 
+function show_problems () {
+  // Show problems colleced in oreqm_main
+  const ref = document.getElementById('problem_list')
+  const header_main = '\n<h2>Detected problems</h2>\n'
+  let problem_txt = 'Nothing to see here...'
+  if (oreqm_main) {
+    problem_txt = xml_escape(oreqm_main.get_problems())
+  }
+  ref.innerHTML = `${header_main}<pre id="raw_problems">${problem_txt}</pre>`
+  problemPopup.style.display = 'block'
+}
+
+function clear_problems () {
+  if (oreqm_main) {
+    oreqm_main.clear_problems()
+    document.getElementById('issueCount').innerHTML = 0
+    show_problems()
+  }
+}
+
 // Setup for the raw node display dialog (raw text and diff (for changed reqs))
 // Get the <span> element that closes the modal
 const problemPopupClose = document.getElementById('problemPopupClose')
@@ -1180,6 +1200,8 @@ settingsPopupClose.onclick = function () {
 window.onbeforeunload = function () {
   // "Graph is going away..."
 }
+
+const problemPopup = document.getElementById('problemPopup')
 
 // When the user clicks anywhere outside one of the modal dialogs, close it
 window.onclick = function (event) {

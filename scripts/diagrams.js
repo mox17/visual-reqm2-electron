@@ -17,6 +17,10 @@ export function xml_escape (txt) {
   return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
 }
 
+export function xml_unescape (txt) {
+  return txt.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+}
+
 /**
  * Normalize indentation of multiline string, removing common indentation
  * @param {string} txt Multi-line string
@@ -314,7 +318,7 @@ function format_node (node_id, rec, ghost, oreqm, show_coverage, color_status) {
                                                                  status_cell(rec, show_coverage, color_status)}</TD></TR>\n` : ''
   node_table = `
       <TABLE BGCOLOR="${get_color(rec.doctype)}${ghost ? ':white' : ''}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="${ghost ? 'grey' : 'black'}" >
-        <TR><TD CELLSPACING="0" >${rec.id}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
+        <TR><TD CELLSPACING="0" >${xml_escape(rec.id)}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">${dot_format(rec.description)}</TD><TD>${format_needsobj(rec, show_coverage)}</TD></TR>\n${
           shortdesc}${rationale}${safetyrationale}${secur}${verifycrit}${
           ver_met_cond}${comment}${furtherinfo}${usecase}${source}${
@@ -1203,7 +1207,10 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
           .replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>')}</td></tr>\n`
       }
 
-      const excluded_ids = this.excluded_ids
+      let excluded_ids = []
+      for (let ei of this.excluded_ids) {
+        excluded_ids.push(xml_escape(ei))
+      }
       if (excluded_ids.length) {
         title += `      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">${excluded_ids.join(
           '<BR ALIGN="LEFT"/>'
