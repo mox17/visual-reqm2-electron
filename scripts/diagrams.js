@@ -6,6 +6,7 @@ import { get_color } from './color.js'
 import { DoctypeRelations } from './doctypes.js'
 import { program_settings } from './settings.js'
 import { process_rule_set } from './settings_dialog.js'
+import { progressbar_start, progressbar_update, progressbar_update_value, progressbar_stop } from './progressbar'
 
 /**
  * Escape XML special characters
@@ -15,6 +16,10 @@ import { process_rule_set } from './settings_dialog.js'
 export function xml_escape (txt) {
   // Escape string for use in XML
   return txt.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+}
+
+export function xml_unescape (txt) {
+  return txt.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'")
 }
 
 /**
@@ -153,6 +158,20 @@ function status_cell (rec, show_coverage, color_status) {
   const covstatus = show_coverage && rec.covstatus ? `<TR><TD ${cov_color}>${rec.covstatus}</TD></TR>` : ''
   const str = `<TABLE BORDER="0"><TR><TD ${status_color}>${rec.status}</TD></TR>${covstatus}</TABLE>`
   return str
+}
+
+/**
+ * Format links as HTML table rows
+ * @param {object} rec
+ * @returns {string} with HTML style rows of data (or empty string)
+ */
+export function format_links (rec) {
+  let result = ''
+  for (let l of rec.linksto) {
+    let row = `        <TR><TD>${l.linksto}</TD><TD>${l.dstversion}</TD><TD>${l.linkerror}</TD></TR>\n`
+    result += row
+  }
+  return result
 }
 
 /**
@@ -300,7 +319,7 @@ function format_node (node_id, rec, ghost, oreqm, show_coverage, color_status) {
                                                                  status_cell(rec, show_coverage, color_status)}</TD></TR>\n` : ''
   node_table = `
       <TABLE BGCOLOR="${get_color(rec.doctype)}${ghost ? ':white' : ''}" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="${ghost ? 'grey' : 'black'}" >
-        <TR><TD CELLSPACING="0" >${rec.id}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
+        <TR><TD CELLSPACING="0" >${xml_escape(rec.id)}</TD><TD>${rec.version}</TD><TD>${rec.doctype}</TD></TR>
         <TR><TD COLSPAN="2" ALIGN="LEFT">${dot_format(rec.description)}</TD><TD>${format_needsobj(rec, show_coverage)}</TD></TR>\n${
           shortdesc}${rationale}${safetyrationale}${secur}${verifycrit}${
           ver_met_cond}${comment}${furtherinfo}${usecase}${source}${
@@ -1189,7 +1208,10 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
           .replace(/([^\n]{60,500}? )/g, '$1<BR ALIGN="LEFT"/>')}</td></tr>\n`
       }
 
-      const excluded_ids = this.excluded_ids
+      let excluded_ids = []
+      for (let ei of this.excluded_ids) {
+        excluded_ids.push(xml_escape(ei))
+      }
       if (excluded_ids.length) {
         title += `      <tr><td>excluded &lt;id&gt;s</td><td colspan="2">${excluded_ids.join(
           '<BR ALIGN="LEFT"/>'
@@ -1216,6 +1238,9 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
    */
   generate_html_table () {
     let req_list = this.get_id_list()
+    let req_count = req_list.length
+    let req_progress = 0
+    progressbar_start('Creating table view', `${req_count} entries`, req_count)
     req_list.sort()
     let table = '<div>\n'
     for (let req_id of req_list) {
@@ -1227,8 +1252,13 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         .replace(/COLOR="black"/, 'COLOR="black" width="100%"')
         .replace(/ BORDER="0"/, ' BORDER="1"')
       table += `<div id="${node_id}">${node}\n<hr>\n</div>`
+      req_progress += 1
+      if (req_progress % 100 === 0) {
+        progressbar_update_value(req_progress)
+      }
     }
     table += '</div>\n'
+    progressbar_stop()
     return table
   }
 
@@ -1251,6 +1281,6 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
  * @param {Object} A mapping from <id> to
  * @param {string[]} req_list
  */
-export function filter_html_table (div_map, req_list) {
+export function filter_html_table (_div_map, _req_list) {
 
 }

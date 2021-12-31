@@ -1,3 +1,4 @@
+'use strict'
 const Application = require('spectron').Application
 const fakeMenu = require('spectron-fake-menu')
 const fakeDialog = require('spectron-fake-dialog')
@@ -14,7 +15,7 @@ const chaiRoughly = require('chai-roughly')
 const describe = global.describe
 const it = global.it
 const before = global.before
-const after = global.after
+// const after = global.after
 // const beforeEach = global.beforeEach;
 // const afterEach = global.afterEach;
 
@@ -77,6 +78,36 @@ describe('command line processing', function () {
     remove_file('./tmp/cl-test-safety.svg')
   })
 
+  it('bad filenames', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--regex',
+        '--select', 'maze',
+        '--exclIds', '"some_id,some_other_id"',
+        '--exclDoctypes', '"foo,fie,fum"',
+        '--diagram',
+        '--hierarchy',
+        '--safety',
+        '--format', 'svg',
+        '--output', 'tmp/cl-test',
+        '--oreqm_main', './baddir/nosuchfile.oreqm',
+        '--oreqm_ref', './testdata/thisdoesntexist.oreqm',
+        '--quit'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    await app.start()
+  })
+
+  it('Exit after bad filenames', async function () {
+    if (app && await app.isRunning()) {
+      await app.stop()
+    }
+  })
+
   it('launch the application', async function () {
     app = new Application({
       path: electronPath,
@@ -129,7 +160,8 @@ describe('command line processing', function () {
     chaiAsPromised.transferPromiseness = app.transferPromiseness
 
     const response = await app.client.getWindowHandles()
-    assert.strictEqual(response.length, 1)
+    // With progress bar window added, two windows may get reported
+    assert.isTrue(response.length >= 1)
 
     await app.browserWindow
     .getBounds()

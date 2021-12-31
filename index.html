@@ -44,7 +44,7 @@
                     wrap="off" placeholder="search regex&#13;&#10;newlines are ignored&#13;&#10;rem:|chg:|new: select changes"
                     spellcheck="false"></textarea>
           <br>
-          <div>
+          <div class="radio_style">
             <input type="radio" id="id_checkbox_input"    name="search_lang" title="Search &lt;id&gt; only">
             <label for="id_checkbox_input">Search &lt;id&gt;</label>
             <input type="radio" id="regex_checkbox_input" name="search_lang" title="Simple regex search">
@@ -52,10 +52,10 @@
             <input type="radio" id="vql_checkbox_input"   name="search_lang" title="Visual ReqM2 Query Language
 AND, OR, NOT operators
 CO(t, t) AO(t, t) hierarchy">
-            <label for="vql_checkbox_input">VQL</label>
+            <label for="vql_checkbox_input">VQL</label><br>
+            <input type="checkbox" class="small_checkbox" id="limit_depth_input" title="Only immediate neighbors are reachable">
+            <label for="limit_depth_input">depth=1</label>
           </div>
-          <input type="checkbox" id="limit_depth_input" title="Only immediate neighbors are reachable">
-          <label for="limit_depth_input">depth=1</label>
           <p/>
 
           <span class="tooltip" style="float:left;"><b>Excluded &lt;id&gt;s</b>
@@ -68,11 +68,14 @@ CO(t, t) AO(t, t) hierarchy">
           <button id="clear_excluded_ids" type="button" style="float:right;">clear</button>
           <textarea class="search_terms" id="excluded_ids" rows="3" cols="25" spellcheck="false"
           wrap="off" placeholder="excluded <id>s&#13;&#10;separate with ',' or newline" ></textarea>
-            <br>
-            <label><input type="checkbox" id="no_rejects" title="Exclude from diagram when &lt;status&gt; is 'rejected'" checked>exclude rejected</label>
+            <span class="exclude_style">
+            <label><input type="checkbox" id="no_rejects" class="small_checkbox" title="Exclude from diagram when &lt;status&gt; is 'rejected'" checked>exclude rejected</label>
+            </span>
             <hr>
             <button type="button" id="filter_graph" title="Do recalculation of graph">update graph</button>
-            <input type="checkbox" id="auto_update" title="enable graph update on any change of criteria">auto-update</button>
+            <span class="exclude_style">
+            <input type="checkbox" id="auto_update" class="small_checkbox" title="enable graph update on any change of criteria">auto-update</button>
+            </span>
           <p/>
           <hr>
           <b>Doctypes</b><br><p/>

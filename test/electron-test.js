@@ -435,6 +435,18 @@ describe('Application launch', function () {
       await screenshot(app, 'png-format') //rq: ->(rq_show_png)
     })
 
+    it('show diagram as table', async function () {
+      const format_select = await app.client.$('#format_select')
+      await format_select.selectByAttribute('value', 'html-table')
+      await wait_for_operation(app)
+      await screenshot(app, 'table-format')
+      const doctype_totals = await app.client.$('#html_table')
+      const table = await doctype_totals.getAttribute('innerHTML')
+      const html_filename = './tmp/table-1.html'
+      fs.writeFileSync(html_filename, table)
+      await compare_files(html_filename, './test/refdata/table-1.html')
+    })
+
     it('show diagram as dot', async function () {
       const format_select = await app.client.$('#format_select')
       await format_select.selectByAttribute('value', 'dot-source')
@@ -706,7 +718,8 @@ describe('Application launch', function () {
       await click_button(app, '#limit_depth_input')
       const oreqm_ref = './testdata/ffbtest_1.oreqm'
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_ref] }])
-      await click_button(app, '#get_ref_oreqm_file')
+      //await click_button(app, '#get_ref_oreqm_file')
+      await fakeMenu.clickMenu('File', 'Load reference oreqm file...')
       await wait_for_operation(app)
       const dot_filename = './tmp/ffb_diff.dot'
       const ref_file = './test/refdata/ffb_diff.dot'
@@ -821,7 +834,6 @@ describe('Application launch', function () {
       selected = await app.electron.clipboard.readText()
       assert.strictEqual(selected,
         'cc.game.location.maze.2\ncc.game.location.maze.5\ncc.game.location.maze.6\ncc.game.location.maze.8\ncc.game.location.maze.9\n')
-  
     })
 
     /*
@@ -837,5 +849,46 @@ describe('Application launch', function () {
       let selected = await app.electron.clipboard.readText()
     })
 */
+  })
+
+  describe('Select duplicate', function () {
+    it('load file and select', async function () {
+      const oreqm_main = './test/sample_oreqm/0007_dup-same-version.oreqm'
+      const search_regex = await app.client.$('#search_regex')
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqm_main] }])
+      await fakeMenu.clickMenu('File', 'Load main oreqm file...')
+      await wait_for_operation(app)
+      await click_button(app, '#clear_search_regex')
+      await search_regex.setValue('demo')
+      await click_button(app, '#filter_graph')
+      await wait_for_operation(app)
+      // Now select duplicate specobject TestDemoSpec.Object004:1
+      const svg_map = await get_svg_node_map(app)
+      await context_menu_click(app, svg_map, 'TestDemoSpec.Object004:1', '#menu_select')
+      await wait_for_operation(app)
+      let search = await search_regex.getValue()
+      //console.log("search:", search)
+      assert.strictEqual(search, 'demo\nor @id:TestDemoSpec.Object004$')
+    })
+
+    it('deselect', async function () {
+      const search_regex = await app.client.$('#search_regex')
+        // Deselect duplicate specobject TestDemoSpec.Object004:1
+        const svg_map = await get_svg_node_map(app)
+        await context_menu_click(app, svg_map, 'TestDemoSpec.Object004:1', '#menu_deselect')
+        await wait_for_operation(app)
+        let search = await search_regex.getValue()
+        //console.log("search:", search)
+        assert.strictEqual(search, 'demo')
+    })
+
+    it('save selection', async function () {
+      let csv_name = './tmp/selection_save.csv'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: csv_name }])
+      await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      await wait_for_operation(app)
+      await compare_files(csv_name, './test/refdata/selection_save.csv')
+    })
+
   })
 })

@@ -1,16 +1,22 @@
+'use strict'
 const nearley = require('nearley')
 const grammar = require('./vql-parser.js')
-import {search_tags, search_tag_order, search_tags_lookup} from './reqm2oreqm'
-import {oreqm_main} from './main_data.js'
-import { get_time_now, get_delta_time, log_time_spent } from './util.js'
+import {search_tag_order, search_tags_lookup} from './reqm2oreqm'
+import { get_time_now, log_time_spent } from './util.js'
+
+// Reference to current oreqm object. Only valid during vql_parse
+let oreqm = null
 
 /**
  * Parse a VQL expression and evaluate it.
+ * @param {Object} oreqm collection of specobjects
  * @param {String} sc Search criteria string (in VQL)
  * @returns {Object} AST of parsed VQL expression
  */
-export function vql_parse (sc) {
+export function vql_parse (oreqm_parameter, sc) {
   let ans
+  oreqm = oreqm_parameter
+  let result = null
   try {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
     ans = parser.feed(sc)
@@ -22,11 +28,13 @@ export function vql_parse (sc) {
   }
   // Check if there are any results
   if (ans.results.length) {
-    return vql_eval_root(ans.results[0])
+    result = vql_eval_root(oreqm, ans.results[0])
   } else {
     // This means the input is incomplete.
-    return null
+    result = null
   }
+  oreqm = null
+  return result
 }
 
 /**
@@ -40,14 +48,15 @@ export function vql_validate (sc) {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar))
     ans = parser.feed(sc)
   } catch (e) {
-    console.log(e)
+    //console.log(e)
     let msg = e.message.replace(/Instead.*/msg, '')
     msg = msg.replace(/\n/msg, '<br>').replace(/ /msg, '&nbsp;')
     return msg
   }
   // Check if there are any results
   if (ans.results.length) {
-    console.log(ans.results)
+    //console.log(ans.results)
+    // istanbul ignore next
     if (ans.results.length > 1) {
       return 'Ambiguous result'
     }
@@ -60,11 +69,12 @@ export function vql_validate (sc) {
 
 /**
  * Evaluate a VQL query against a oreqm object
+ * @param {Object} oreqm specobjects to search
  * @param {Object} search_ast a parse object from search expression
  * @returns {Set} Matching specobject ids
  */
-export function vql_eval_root (search_ast) {
-  let initial_set = oreqm_main.get_all_ids()
+export function vql_eval_root (oreqm, search_ast) {
+  let initial_set = oreqm.get_all_ids()
   const now = get_time_now()
   const res = vql_eval(initial_set, search_ast)
   log_time_spent(now, "vql_eval_root")
@@ -95,9 +105,11 @@ function vql_eval (input_nodes, search_ast) {
       // return complementary set
       return new Set([...input_nodes].filter((x) => !s1.has(x)))
     }
-    default:
-      console.log(`vql_search op error ${search_ast}`)
+    // istanbul ignore next
+    default: {
+      //console.log(`vql_search op error ${search_ast}`)
       return new Set()
+    }
   }
 }
 
@@ -109,7 +121,6 @@ function vql_eval (input_nodes, search_ast) {
  * @returns {Set} intersection between results from a1 and a2
  */
 function and_search (nodes, a1, a2) {
-  // const results = oreqm_main.find_reqs_from_set (ids, regex)
   let s1 = vql_eval(nodes, a1)
   if (s1.size) {
     // Only evaluate a2 if a1 returned non-empty set
@@ -142,7 +153,7 @@ function or_search (nodes, a1, a2) {
  */
 function co_search (nodes, t1, t2) {
   let parents = vql_eval(nodes, t1)
-  return vql_eval(oreqm_main.get_children(parents), t2)
+  return vql_eval(oreqm.get_children(parents), t2)
 }
 
 /**
@@ -154,7 +165,7 @@ function co_search (nodes, t1, t2) {
  */
 function ao_search (nodes, t1, t2) {
   let children = vql_eval(nodes, t1)
-  let ancestors = oreqm_main.get_ancestors_set(children)
+  let ancestors = oreqm.get_ancestors_set(children)
   return vql_eval(ancestors, t2)
 }
 
@@ -173,8 +184,8 @@ function d_search (nodes, ast) {
   } else {
     regex = tag_prefix_handling(ast.v)[0]
   }
-  console.log(`d_search ${regex}`)
-  return oreqm_main.find_reqs_from_set(nodes, regex)
+  //console.log(`d_search ${regex}`)
+  return oreqm.find_reqs_from_set(nodes, regex)
 }
 
 /**
@@ -184,16 +195,16 @@ function d_search (nodes, ast) {
  */
 function order_tags (tags) {
   let tagged_array = []
-  console.log(tags)
+  //console.log(tags)
   let new_tags = tag_prefix_handling(tags)
-  console.log(new_tags)
+  //console.log(new_tags)
   for (let t of new_tags) {
     let tag_match = t.match(/^:?([a-z]{2,3}):/)
     tagged_array.push({t: tag_match[1], v: t})
   }
-  console.log(search_tag_order)
+  //console.log(search_tag_order)
   tagged_array.sort((a, b) => (search_tag_order.get(a.t) > search_tag_order.get(b.t) ? 1 : -1))
-  console.log(tagged_array)
+  //console.log(tagged_array)
   let res = []
   for (let t of tagged_array) {
     res.push(t.v)
@@ -202,7 +213,7 @@ function order_tags (tags) {
 }
 
 /**
- * Handle profix pattern (or not) for tags with prefix marker '¤'
+ * Handle prefix pattern (or not) for tags with prefix marker '¤'
  * Insert '.*' between tag on reset based on these rules
  * if 1st char after tag is '*', insert '.*'
  * if first char after tag is '^' do NOT insert '.*'
@@ -232,7 +243,7 @@ function tag_prefix_handling (tags) {
         free_text = false
       }
       let new_tag = `${tag_match[1]}:${free_text?'.*':''}${rest_of_tag}`
-      console.log(new_tag)
+      //console.log(new_tag)
       result.push(new_tag)
     } else {
       result.push(tag)
