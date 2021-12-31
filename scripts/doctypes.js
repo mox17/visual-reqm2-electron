@@ -11,15 +11,15 @@ export class DoctypeRelations {
     this.needsobj = new Map() // doctype : [id]
     this.fulfilledby = new Map() // doctype : [id]
     this.linksto = new Map() // doctype : [id]
-    this.id_list = [] // [id]
+    this.idList = [] // [id]
   }
 
-  add_instance (id) {
+  addInstance (id) {
     this.count++
-    this.id_list.push(id)
+    this.idList.push(id)
   }
 
-  add_needsobj (doctype) {
+  addNeedsobj (doctype) {
     if (this.needsobj.has(doctype)) {
       const count = this.needsobj.get(doctype)
       this.needsobj.set(doctype, count + 1)
@@ -28,7 +28,7 @@ export class DoctypeRelations {
     }
   }
 
-  add_linksto (doctype, pair) {
+  addLinksto (doctype, pair) {
     if (this.linksto.has(doctype)) {
       this.linksto.get(doctype).push(pair)
     } else {
@@ -36,7 +36,7 @@ export class DoctypeRelations {
     }
   }
 
-  add_fulfilledby (doctype, pair) {
+  addFulfilledby (doctype, pair) {
     if (this.fulfilledby.has(doctype)) {
       this.fulfilledby.get(doctype).push(pair)
     } else {

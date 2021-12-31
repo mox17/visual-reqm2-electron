@@ -2,35 +2,35 @@
 import path from 'path'
 import fs from 'fs'
 import { ipcRenderer } from 'electron'
-import { set_search_language, set_search_pattern, set_excluded_doctypes } from "./search"
-import { save_diagram_file, oreqm_main } from './main_data'
-import { show_doctypes, show_doctypes_safety } from './show_diagram'
+import { setSearchLanguage, setSearchPattern, setExcludedDoctypes } from "./search"
+import { saveDiagramFile, oreqmMain } from './main_data'
+import { showDoctypes, showDoctypesSafety } from './show_diagram'
 
-export let diagram_format = 'svg'
-export let output_filename = 'diagram'
+export let diagramFormat = 'svg'
+export let outputFilename = 'diagram'
 /** @global {string[]} Queue of operations for command line operations */
-const cmd_queue = []
+const cmdQueue = []
 
 
 /**
  * Handle command line parameters related to 'batch' execution
  * @param {object} args the input argument object
  */
- export function cmd_line_parameters (args) {
+ export function cmdLineParameters (args) {
     if (args.select !== undefined) {
-      set_search_pattern(args.select)
+      setSearchPattern(args.select)
       document.getElementById('search_regex').value = args.select
     }
     // Override settings search language with cmd line options
     if (args.vql) {
       document.getElementById('vql_checkbox_input').checked = true
-      set_search_language('vql')
+      setSearchLanguage('vql')
     } else if (args.regex) {
       document.getElementById('regex_checkbox_input').checked = true
-      set_search_language('reg')
+      setSearchLanguage('reg')
     } else if (args.idOnly) {
       document.getElementById('id_checkbox_input').checked = true
-      set_search_language('ids')
+      setSearchLanguage('ids')
     }
     document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
     if (args.exclIds !== undefined) {
@@ -38,19 +38,19 @@ const cmd_queue = []
     }
     document.getElementById('no_rejects').checked = !args.inclRejected
     if (args.exclDoctypes !== undefined) {
-      set_excluded_doctypes(args.exclDoctypes.split(','))
+      setExcludedDoctypes(args.exclDoctypes.split(','))
     }
-    diagram_format = args.format
-    output_filename = 'diagram'
+    diagramFormat = args.format
+    outputFilename = 'diagram'
     if (args.output !== undefined) {
-      output_filename = args.output
+      outputFilename = args.output
     }
     // istanbul ignore next
-    if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && (args.output !== undefined) && !path.isAbsolute(output_filename)) {
+    if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME && (args.output !== undefined) && !path.isAbsolute(outputFilename)) {
       // Add PWD as start of relative path
       if (process.env.PWD) {
-        output_filename = path.join(process.env.PWD, output_filename)
-        console.log('Updated output path:', output_filename)
+        outputFilename = path.join(process.env.PWD, outputFilename)
+        console.log('Updated output path:', outputFilename)
       } else {
         alert('Define PWD in environment or specify absolute paths.')
       }
@@ -59,23 +59,23 @@ const cmd_queue = []
     // The asynchronous completion of diagrams will
     // trigger processing of the queue.
     if (args.diagram) {
-      cmd_queue.push('save-diagram') //rq: ->(rq_automatic_diagram)
+      cmdQueue.push('save-diagram') //rq: ->(rq_automatic_diagram)
     }
     if (args.hierarchy) {
-      cmd_queue.push('hierarchy')
-      cmd_queue.push('save-hierarchy')
+      cmdQueue.push('hierarchy')
+      cmdQueue.push('save-hierarchy')
     }
     if (args.safety) {
-      cmd_queue.push('safety')
-      cmd_queue.push('save-safety')
+      cmdQueue.push('safety')
+      cmdQueue.push('save-safety')
     }
     if (args.diagram||args.hierarchy||args.safety) {
-      cmd_queue.push('done')
-      // cmd_queue.push('quit')  // TODO: consider implied quit when diagram generation is specified
+      cmdQueue.push('done')
+      // cmdQueue.push('quit')  // TODO: consider implied quit when diagram generation is specified
     }
     if (args.quit) {
       // istanbul ignore next
-      cmd_queue.push('quit')
+      cmdQueue.push('quit')
     }
     // console.log("queue:", cmd_queue);
   }
@@ -85,43 +85,43 @@ const cmd_queue = []
  * This function is called on completion of a diagram.
  * The next step is triggered via the main process.
  */
-export function check_cmd_line_steps () {
+export function checkCmdLineSteps () {
   // console.log("Check queue:", cmd_queue);
-  if (cmd_queue.length) {
-    const next_operation = cmd_queue.shift()
+  if (cmdQueue.length) {
+    const nextOperation = cmdQueue.shift()
     // console.log(`Next operation '${next_operation}'`);
-    const filename = output_filename
-    let diagram_file = ''
+    const filename = outputFilename
+    let diagramFile = ''
     let problems = ''
-    switch (next_operation) {
+    switch (nextOperation) {
       case 'save-diagram':
-        diagram_file = `${filename}-diagram.${diagram_format}`
-        // console.log(diagram_file);
-        save_diagram_file(diagram_file)
+        diagramFile = `${filename}-diagram.${diagramFormat}`
+        // console.log(diagramFile);
+        saveDiagramFile(diagramFile)
         ipcRenderer.send('cmd_echo', 'next')
         break
 
       case 'hierarchy':
         // Trigger generation of doctype diagram
-        show_doctypes()
+        showDoctypes()
         break
 
       case 'save-hierarchy':
-        diagram_file = `${filename}-doctypes.${diagram_format}`
-        // console.log(diagram_file);
-        save_diagram_file(diagram_file)
+        diagramFile = `${filename}-doctypes.${diagramFormat}`
+        // console.log(diagramFile);
+        saveDiagramFile(diagramFile)
         ipcRenderer.send('cmd_echo', 'next')
         break
 
       case 'safety':
         // Trigger generation of safety diagram
-        show_doctypes_safety()
+        showDoctypesSafety()
         break
 
       case 'save-safety':
-        diagram_file = `${filename}-safety.${diagram_format}`
-        // console.log(diagram_file);
-        save_diagram_file(diagram_file)
+        diagramFile = `${filename}-safety.${diagramFormat}`
+        // console.log(diagramFile);
+        saveDiagramFile(diagramFile)
         ipcRenderer.send('cmd_echo', 'next')
         break
 
@@ -132,18 +132,18 @@ export function check_cmd_line_steps () {
 
       // istanbul ignore next
       case 'quit':
-        diagram_file = `${filename}-issues.txt`
-        problems = oreqm_main.get_problems()
-        fs.writeFileSync(diagram_file, problems, 'utf8')
+        diagramFile = `${filename}-issues.txt`
+        problems = oreqmMain.getProblems()
+        fs.writeFileSync(diagramFile, problems, 'utf8')
         ipcRenderer.send('cmd_quit')
         break
 
       // istanbul ignore next
       default:
         // istanbul ignore next
-        console.log(`Unknown operation '${next_operation}'`)
+        console.log(`Unknown operation '${nextOperation}'`)
     }
-    document.getElementById('vrm2_batch').innerHTML = next_operation
+    document.getElementById('vrm2_batch').innerHTML = nextOperation
   }
 }
 

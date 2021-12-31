@@ -2,19 +2,19 @@
 
 const { ipcRenderer } = require("electron")
 
-export function progressbar_start (text, detail, count=0) {
+export function progressbarStart (text, detail, count=0) {
   ipcRenderer.send('pbar_start', detail, text, count)
 }
 
-export function progressbar_update (text, detail) {
+export function progressbarUpdate (text, detail) {
   ipcRenderer.send('pbar_update', detail, text)
 }
 
-export function progressbar_update_value (count) {
+export function progressbarUpdateValue (count) {
   ipcRenderer.send('pbar_update_value', count)
 }
 
-export function progressbar_stop () {
+export function progressbarStop () {
   ipcRenderer.send('pbar_stop')
 }
 

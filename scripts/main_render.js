@@ -1,31 +1,31 @@
 'use strict'
-import { set_limit_reporter, xml_escape } from './diagrams.js'
-import { get_color, save_colors_fs, load_colors_fs } from './color.js'
-import { handle_settings, load_safety_rules_fs, open_settings, save_program_settings } from './settings_dialog.js'
-import { get_ignored_fields, program_settings } from './settings.js'
+import { setLimitReporter, xmlEscape } from './diagrams.js'
+import { getColor, saveColorsFs, loadColorsFs } from './color.js'
+import { handleSettings, loadSafetyRulesFs, openSettings, saveProgramSettings } from './settings_dialog.js'
+import { getIgnoredFields, programSettings } from './settings.js'
 import { ipcRenderer, remote, shell, clipboard } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 import https from 'https'
-import { settings_updated, oreqm_main, oreqm_ref, save_diagram_file, select_color,
-         create_oreqm_main, create_oreqm_ref, clear_oreqm_ref } from './main_data.js'
-import { search_tooltip } from './reqm2oreqm.js'
-import { get_time_now, log_time_spent } from './util'
-import { search_language, set_search_language, search_regex_validate, set_search_language_hints,
-         set_search_language_buttons, search_pattern, excluded_doctypes, set_excluded_doctypes } from './search'
-import { cmd_line_parameters, check_cmd_line_steps } from './cmdline'
-import { show_doctypes_safety, show_doctypes, selected_format, clear_html_table, update_diagram,
-         clear_diagram, spinner_show, selected_nodes,
-         selected_node, panZoom, next_selected, prev_selected, selected_index,
-         set_selected_index, graph_results, center_node, set_doctype_count_shown, clear_doctypes_table,
-         clear_selection_highlight, filter_change, filter_graph, auto_update, set_auto_update,
-         report_limit_as_toast, show_toast, set_excluded_doctype_checkboxes, toggle_exclude,
-         doctype_filter_change } from './show_diagram'
-import { set_issue_count, save_problems } from './issues'
-import { copy_id_node, menu_deselect, add_node_to_selection, exclude_id, copy_png, show_internal,
-         nodeSource, show_source } from './context-menu.js'
-import { progressbar_start, progressbar_update, progressbar_stop } from './progressbar.js'
+import { settingsUpdated, oreqmMain, oreqmRef, saveDiagramFile, selectColor,
+         createOreqmMain, createOreqmRef, clearOreqmRef } from './main_data.js'
+import { searchTooltip } from './reqm2oreqm.js'
+import { getTimeNow, logTimeSpent } from './util'
+import { searchLanguage, setSearchLanguage, searchRegexValidate, setSearchLanguageHints,
+         setSearchLanguageButtons, searchPattern, excludedDoctypes, setExcludedDoctypes } from './search'
+import { cmdLineParameters, checkCmdLineSteps } from './cmdline'
+import { showDoctypesSafety, showDoctypes, selectedFormat, clearHtmlTable, updateDiagram,
+         clearDiagram, spinnerShow, selectedNodes,
+         selectedNode, panZoom, nextSelected, prevSelected, selectedIndex,
+         setSelectedIndex, graphResults, centerNode, setDoctypeCountShown, clearDoctypesTable,
+         clearSelectionHighlight, filterChange, filterGraph, autoUpdate, setAutoUpdate,
+         reportLimitAsToast, myShowToast, setExcludedDoctypeCheckboxes, toggleExclude,
+         doctypeFilterChange } from './show_diagram'
+import { setIssueCount, saveProblems } from './issues'
+import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showInternal,
+         nodeSource, showSource } from './context-menu.js'
+import { progressbarStart, progressbarUpdate, progressbarStop } from './progressbar.js'
 const open = require('open')
 
 const mainWindow = remote.getCurrentWindow()
@@ -33,7 +33,7 @@ const mainWindow = remote.getCurrentWindow()
 const beforeUnloadMessage = null
 
 /** Version available on github.com */
-let latest_version = 'unknown'
+let latestVersion = 'unknown'
 
 /** @description Draggable border between diagram and selection logic to the left */
 const resizeEvent = new Event('paneresize')
@@ -49,65 +49,65 @@ Split(['#oreqm_div', '#graph'], {
 
 // Handlers for menu operations triggered via RPC
 ipcRenderer.on('about', (_item, _window, _key_ev) => {
-  show_about()
+  showAbout()
 })
 
 // istanbul ignore next
 ipcRenderer.on('readme', (_item, _window, _key_ev) => {
-  show_readme()
+  showReadme()
 })
 
 // istanbul ignore next
 ipcRenderer.on('vql_help', (_item, _window, _key_ev) => {
-  show_vql_help()
+  showVqlHelp()
 })
 
 ipcRenderer.on('load_main_oreqm', (_item, _window, _key_ev) => {
-  get_main_oreqm_file()
+  getMainOreqmFile()
 })
 
 ipcRenderer.on('load_ref_oreqm', (_item, _window, _key_ev) => {
-  get_ref_oreqm_file()
+  getRefOreqmFile()
 })
 
 ipcRenderer.on('save_colors', (_item, _window, _key_ev) => {
-  save_colors_fs()
+  saveColorsFs()
 })
 
 ipcRenderer.on('load_colors', (_item, _window, _key_ev) => {
-  load_colors_fs(update_doctype_table)
+  loadColorsFs(updateDoctypeTable)
 })
 
 ipcRenderer.on('load_safety', (_item, _window, _key_ev) => {
-  load_safety_rules_fs()
+  loadSafetyRulesFs()
 })
 
 ipcRenderer.on('save_diagram_as', (_item, _window, _key_ev) => {
-  menu_save_as()
+  menuSaveAs()
 })
 
 ipcRenderer.on('save_issues_as', (_item, _window, _key_ev) => {
-  save_problems()
+  saveProblems()
 })
 
 ipcRenderer.on('show_issues', (_item, _window, _key_ev) => {
-  show_problems()
+  showProblems()
 })
 
 ipcRenderer.on('open_settings', (_item, _window, _key_ev) => {
-  open_settings()
+  openSettings()
 })
 
 ipcRenderer.on('save_diagram_ctx', (_item, _window, _key_ev) => {
-  save_diagram_ctx()
+  saveDiagramCtx()
 })
 
 ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
-  load_diagram_ctx()
+  loadDiagramCtx()
 })
 
 ipcRenderer.on('save_diagram_sel', (_item, _window, _key_ev) => {
-  save_diagram_sel()
+  saveDiagramSel()
 })
 
 /** Keyboard accelerators for svg pan zoom */
@@ -171,7 +171,7 @@ ipcRenderer.on('svg_zoom_out', () => {
 ipcRenderer.on('selected_next', () => {
   // istanbul ignore next
   if (document.getElementById('svg_output')) {
-    next_selected()
+    nextSelected()
   }
 })
 
@@ -179,7 +179,7 @@ ipcRenderer.on('selected_next', () => {
 ipcRenderer.on('selected_prev', () => {
   // istanbul ignore next
   if (document.getElementById('svg_output')) {
-    prev_selected()
+    prevSelected()
   }
 })
 
@@ -187,7 +187,7 @@ ipcRenderer.on('selected_prev', () => {
 ipcRenderer.on('filter_graph', () => {
   // istanbul ignore next
   if (document.getElementById('svg_output')) {
-    filter_graph()
+    filterGraph()
   }
 })
 
@@ -200,8 +200,8 @@ ipcRenderer.on('filter_graph', () => {
  * @param {string} name
  * @return {string} name if it exist, empty string if not found
  */
-function find_file (name) {
-  let new_path = ''
+function findFile (name) {
+  let newPath = ''
   // istanbul ignore else
   if (fs.existsSync(name)) {
     return name
@@ -210,17 +210,17 @@ function find_file (name) {
   if (process.env.PORTABLE_EXECUTABLE_APP_FILENAME) {
     // File not found, we are running as portable, so try to find PWD
     if (process.env.PWD) {
-      const test_path = path.join(process.env.PWD, name)
-      if (fs.existsSync(test_path)) {
-        console.log(`Found file at ${test_path}`)
-        new_path = test_path
+      const testPath = path.join(process.env.PWD, name)
+      if (fs.existsSync(testPath)) {
+        console.log(`Found file at ${testPath}`)
+        newPath = testPath
       }
     } else {
       process.stderr.write(`File not found '${name}'\n${process.env.PORTABLE_EXECUTABLE_APP_FILENAME} is running as 'portable'. Add PWD to environment to allow relative paths for input files or specify absolute paths.`)
     }
   }
   // istanbul ignore next
-  return new_path
+  return newPath
 }
 
 /**
@@ -234,26 +234,26 @@ ipcRenderer.on('argv', (event, parameters, args) => {
 
   // console.log("ipcRenderer.on('argv'")
   // console.dir(args)
-  set_limit_reporter(report_limit_as_toast)
-  handle_settings(settings_updated, args)
-  set_search_language_buttons(program_settings.search_language)
+  setLimitReporter(reportLimitAsToast)
+  handleSettings(settingsUpdated, args)
+  setSearchLanguageButtons(programSettings.search_language)
 
-  document.getElementById('search_tooltip').innerHTML = search_tooltip(search_language)
+  document.getElementById('search_tooltip').innerHTML = searchTooltip(searchLanguage)
 
   // istanbul ignore else
-  if ((args.newVer !== false) && (args.newVer === true || program_settings.check_for_updates)) {
-    check_newer_release_available()
+  if ((args.newVer !== false) && (args.newVer === true || programSettings.check_for_updates)) {
+    checkNewerReleaseAvailable()
   }
-  cmd_line_parameters(args)
+  cmdLineParameters(args)
   if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
     //rq: ->(rq_one_oreqm_cmd_line)
-    const check_main = find_file(args.oreqm_main)
+    const checkMain = findFile(args.oreqm_main)
     // istanbul ignore else
-    if (check_main.length) {
-      args.oreqm_main = check_main
+    if (checkMain.length) {
+      args.oreqm_main = checkMain
     }
-    const main_stat = fs.existsSync(args.oreqm_main) ? fs.statSync(args.oreqm_main) : null
-    if (main_stat && main_stat.isFile()) {
+    const mainStat = fs.existsSync(args.oreqm_main) ? fs.statSync(args.oreqm_main) : null
+    if (mainStat && mainStat.isFile()) {
       main = true
     } else {
       // Log to stderr as these are command line options
@@ -265,14 +265,14 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   }
   if (args.oreqm_ref !== undefined && args.oreqm_ref.length > 0) {
     //rq: ->(rq_two_oreqm_cmd_line)
-    const check_ref = find_file(args.oreqm_ref)
+    const checkRef = findFile(args.oreqm_ref)
     // istanbul ignore else
-    if (check_ref.length) {
-      args.oreqm_ref = check_ref
+    if (checkRef.length) {
+      args.oreqm_ref = checkRef
     }
-    const ref_stat = fs.existsSync(args.oreqm_ref) ? fs.statSync(args.oreqm_ref) : null
-    if (ref_stat && ref_stat.isFile()) {
-      // console.log(args.oreqm_ref, ref_stat);
+    const refStat = fs.existsSync(args.oreqm_ref) ? fs.statSync(args.oreqm_ref) : null
+    if (refStat && refStat.isFile()) {
+      // console.log(args.oreqm_ref, refStat);
       ref = true
     } else {
       process.stderr.write(`Not a file: ${args.oreqm_ref}\n`)
@@ -282,18 +282,18 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   }
   if (ok && main) {
     // console.log("render files:", args.oreqm_main, args.oreqm_ref)
-    load_file_main_fs(args.oreqm_main, ref ? args.oreqm_ref : null)
+    loadFileMainFs(args.oreqm_main, ref ? args.oreqm_ref : null)
   } else if (args.context !== undefined && args.context.length > 0) {
     // Check for context file (exclusive with oreqm_main & oreqm_ref)
-    const check_context = find_file(args.context)
+    const checkContext = findFile(args.context)
     // console.log("render context:", args.context)
     // istanbul ignore else
-    if (check_context.length) {
-      args.context = check_context
+    if (checkContext.length) {
+      args.context = checkContext
     }
-    const ctx_stat = fs.existsSync(args.context) ? fs.statSync(args.context) : null
-    if (ctx_stat && ctx_stat.isFile()) {
-      load_diagram_context(args.context)
+    const ctxStat = fs.existsSync(args.context) ? fs.statSync(args.context) : null
+    if (ctxStat && ctxStat.isFile()) {
+      loadDiagramContext(args.context)
     }
   }
 })
@@ -307,7 +307,7 @@ ipcRenderer.on('cl_cmd', (_evt, arg) => {
   // console.log("cl_cmd", arg)
   // istanbul ignore else
   if (arg === 'next') {
-    check_cmd_line_steps()
+    checkCmdLineSteps()
   } else {
     console.log(`Unexpected cl_cmd ${arg}`)
   }
@@ -321,14 +321,14 @@ ipcRenderer.on('cl_cmd', (_evt, arg) => {
 ipcRenderer.on('file_updated', (_evt, title, path)  => {
   // console.log("ipcRenderer.on('file_updated", title, path)
   if (title.toLowerCase().includes('main')) {
-    load_file_main_fs(path, null)
+    loadFileMainFs(path, null)
   } else {
-    load_file_ref_fs(path)
+    loadFileRefFs(path)
   }
 })
 
 document.getElementById('prog_version').innerHTML = remote.app.getVersion()
-document.getElementById('auto_update').checked = auto_update
+document.getElementById('auto_update').checked = autoUpdate
 
 window.addEventListener('beforeunload', function () {
   return beforeUnloadMessage
@@ -338,36 +338,36 @@ window.addEventListener('beforeunload', function () {
 document.getElementById('menu_select').addEventListener('click', function () {
   // Add node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_add_selection)
-  add_node_to_selection(selected_node)
+  addNodeToSelection(selectedNode)
 })
 
 /** Context menu handler  */
 document.getElementById('menu_deselect').addEventListener('click', function () {
-  menu_deselect()
+  menuDeselect()
 })
 
 // Context menu handler
 document.getElementById('menu_copy_id').addEventListener('click', function () {
-  copy_id_node(false)
+  copyIdNode(false)
 })
 
 // Context menu handler
 document.getElementById('menu_copy_ffb').addEventListener('click', function () {
-  copy_id_node(true)
+  copyIdNode(true)
 })
 
 /** context menu item handler. Copy diagram as png to clipboard */
 document.getElementById('menu_copy_png').addEventListener('click', function () {
-  copy_png() //rq: ->(rq_ctx_copy_png)
+  copyPng() //rq: ->(rq_ctx_copy_png)
 })
 
 /** context menu handler - save diagram as */
 document.getElementById('menu_save_as').addEventListener('click', function () {
-  menu_save_as()
+  menuSaveAs()
 })
 
-function menu_save_as () {
-  const save_options = {
+function menuSaveAs () {
+  const saveOptions = {
     filters: [
       { name: 'SVG files', extensions: ['svg'] }, //rq: ->(rq_save_svg_file)
       { name: 'PNG files', extensions: ['png'] }, //rq: ->(rq_save_png_file)
@@ -375,10 +375,10 @@ function menu_save_as () {
     ],
     properties: ['openFile']
   }
-  const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
   // istanbul ignore else
   if (typeof (savePath) !== 'undefined') {
-    save_diagram_file(savePath)
+    saveDiagramFile(savePath)
   }
 }
 
@@ -390,17 +390,17 @@ function menu_save_as () {
  * Also save the settings in the json file.
  *
  */
-function save_diagram_ctx () {
+function saveDiagramCtx () {
   let defPath = ""
-  if (oreqm_main) {
-    if (path.isAbsolute(oreqm_main.filename)) {
-      defPath = path.dirname(oreqm_main.filename)
+  if (oreqmMain) {
+    if (path.isAbsolute(oreqmMain.filename)) {
+      defPath = path.dirname(oreqmMain.filename)
     } else {
-      defPath = path.join(process.cwd(), path.dirname(oreqm_main.filename))
+      defPath = path.join(process.cwd(), path.dirname(oreqmMain.filename))
     }
   }
 
-  const save_options = {
+  const saveOptions = {
     filters: [
       { name: 'ReqM2 context files', extensions: ['vr2x'] }
     ],
@@ -410,10 +410,10 @@ function save_diagram_ctx () {
 
   }
   // Suggest to save in same directory as oreqm_main
-  const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
   // istanbul ignore else
   if (typeof (savePath) !== 'undefined') {
-    save_diagram_context(savePath)
+    saveDiagramContext(savePath)
   }
 }
 
@@ -431,7 +431,7 @@ function save_diagram_ctx () {
  * revert to 'normal' settings, and how to explain this behavior.
  * For now we 'solve' this by ignoring the problem.
  */
-function load_diagram_ctx () {
+function loadDiagramCtx () {
   let LoadPath = remote.dialog.showOpenDialogSync(
     {
       filters: [{ name: 'ReqM2 context files', extensions: ['vr2x'] }],
@@ -440,7 +440,7 @@ function load_diagram_ctx () {
       title: "Load ReqM2 context file"
     })
   if (LoadPath) {
-    load_diagram_context(LoadPath[0])
+    loadDiagramContext(LoadPath[0])
   }
 }
 
@@ -465,46 +465,46 @@ function calcAbsPath (filename) {
  *
  * @param {string} ctxPath file path to store json context
  */
-function save_diagram_context (ctxPath) {
-  if (oreqm_main) {
-    let absPath_main = calcAbsPath(oreqm_main.filename)
+function saveDiagramContext (ctxPath) {
+  if (oreqmMain) {
+    let absPathMain = calcAbsPath(oreqmMain.filename)
     // Make context file relative paths portable between Linux and Windows
-    let relPath = path.relative(path.dirname(ctxPath), absPath_main).replaceAll('\\', '/')
+    let relPath = path.relative(path.dirname(ctxPath), absPathMain).replaceAll('\\', '/')
     if (relPath[0] !== '.') {
       relPath = './' + relPath
     }
-    let absPath_ref = ""
-    let relPath_ref = ""
-    if (oreqm_ref) {
-      absPath_ref = calcAbsPath(oreqm_ref.filename)
-      relPath_ref = path.relative(path.dirname(ctxPath), absPath_ref).replaceAll('\\', '/')
-      if (relPath_ref[0] !== '.') {
-        relPath_ref = './' + relPath_ref
+    let absPathRef = ""
+    let relPathRef = ""
+    if (oreqmRef) {
+      absPathRef = calcAbsPath(oreqmRef.filename)
+      relPathRef = path.relative(path.dirname(ctxPath), absPathRef).replaceAll('\\', '/')
+      if (relPathRef[0] !== '.') {
+        relPathRef = './' + relPathRef
       }
     }
 
     let diagCtx = {
       version: 2,
       main_oreqm_rel: relPath,
-      ref_oreqm_rel: relPath_ref,
+      ref_oreqm_rel: relPathRef,
       no_rejects: document.getElementById('no_rejects').checked,
-      search_language: search_language,
+      search_language: searchLanguage,
       search_regex: document.getElementById('search_regex').value,
       excluded_ids: document.getElementById('excluded_ids').value,
       limit_depth_input: document.getElementById('limit_depth_input').checked,
-      excluded_doctypes: oreqm_main.get_excluded_doctypes(),
+      excluded_doctypes: oreqmMain.getExcludedDoctypes(),
       // Settings here
       settings: {
-        compare_fields: program_settings.compare_fields,
-        safety_link_rules: program_settings.safety_link_rules,
-        show_errors: program_settings.show_errors,
-        show_coverage: program_settings.show_coverage,
-        color_status: program_settings.color_status
+        compare_fields: programSettings.compare_fields,
+        safety_link_rules: programSettings.safety_link_rules,
+        show_errors: programSettings.show_errors,
+        show_coverage: programSettings.show_coverage,
+        color_status: programSettings.color_status
       }
     }
-    let json_ctx = JSON.stringify(diagCtx, null, 2)
-    console.log(json_ctx)
-    fs.writeFileSync(ctxPath, json_ctx, 'utf8')
+    let jsonCtx = JSON.stringify(diagCtx, null, 2)
+    console.log(jsonCtx)
+    fs.writeFileSync(ctxPath, jsonCtx, 'utf8')
   }
 }
 
@@ -519,50 +519,50 @@ function save_diagram_context (ctxPath) {
  *
  * @param {string} ctxPath
  */
-function load_diagram_context (ctxPath) {
+function loadDiagramContext (ctxPath) {
   // suppress display updates while loading context
-  let save_auto = auto_update
-  set_auto_update(false)
+  let saveAuto = autoUpdate
+  setAutoUpdate(false)
   let diagCtx = JSON.parse(fs.readFileSync(ctxPath, { encoding: 'utf8', flag: 'r' }))
   let ctxDir = path.dirname(ctxPath)
-  let main_rel_path = path.join(ctxDir, diagCtx.main_oreqm_rel).replaceAll('\\', '/')
-  let ref_rel_path = null
+  let mainRelPath = path.join(ctxDir, diagCtx.main_oreqm_rel).replaceAll('\\', '/')
+  let refRelPath = null
 
-  let main_rel = fs.existsSync(main_rel_path)
-  let load_ref = diagCtx.ref_oreqm_rel !== ""
-  let ref_rel = false
+  let mainRel = fs.existsSync(mainRelPath)
+  let loadRef = diagCtx.ref_oreqm_rel !== ""
+  let refRel = false
   // Set up async handler for context load
-  vr2x_handler = vr2x_handler_func
+  vr2xHandler = vr2xHandlerFunc
   // Set up a handler to restore parameters when load of oreqm file(s) complete
-  vr2x_ctx = {
+  vr2xCtx = {
     diagCtx: diagCtx,
-    auto_update: save_auto
+    auto_update: saveAuto
   }
-  if (!path.isAbsolute(main_rel_path) && main_rel_path[0] !== '.') {
-    main_rel_path = './' + main_rel_path
+  if (!path.isAbsolute(mainRelPath) && mainRelPath[0] !== '.') {
+    mainRelPath = './' + mainRelPath
   }
-  if (load_ref) {
-    ref_rel_path = path.join(ctxDir, diagCtx.ref_oreqm_rel).replaceAll('\\', '/')
-    ref_rel = fs.existsSync(ref_rel_path)
-    if (ref_rel && !path.isAbsolute(ref_rel_path) && ref_rel_path[0] !== '.') {
-      ref_rel_path = './' + ref_rel_path
+  if (loadRef) {
+    refRelPath = path.join(ctxDir, diagCtx.ref_oreqm_rel).replaceAll('\\', '/')
+    refRel = fs.existsSync(refRelPath)
+    if (refRel && !path.isAbsolute(refRelPath) && refRelPath[0] !== '.') {
+      refRelPath = './' + refRelPath
     }
   }
-  if (main_rel && load_ref && ref_rel) {
+  if (mainRel && loadRef && refRel) {
     // both relative paths OK
-    load_file_main_fs(main_rel_path, ref_rel_path)
-  } else if (main_rel && !load_ref) {
+    loadFileMainFs(mainRelPath, refRelPath)
+  } else if (mainRel && !loadRef) {
     // main rel only
-    load_file_main_fs(main_rel_path, null)
+    loadFileMainFs(mainRelPath, null)
   } else {
-    set_auto_update(save_auto)
+    setAutoUpdate(saveAuto)
     // display error message
     let msg = "Could not open:\n"
-    if (load_ref) {
-      msg += main_rel ? "" : main_rel_path + '\n'
-      msg += ref_rel ? "" : ref_rel_path + '\n'
+    if (loadRef) {
+      msg += mainRel ? "" : mainRelPath + '\n'
+      msg += refRel ? "" : refRelPath + '\n'
     } else {
-      msg += main_rel_path + '\n'
+      msg += mainRelPath + '\n'
     }
     msg = msg.replace(/([^\n]{35,400}?(\/|\\))/g, '$1\n  ')
     ipcRenderer.send('cmd_show_error', "ReqM2 Context file", msg)
@@ -570,21 +570,21 @@ function load_diagram_context (ctxPath) {
   }
 }
 
-let vr2x_handler = null
-let vr2x_ctx = null
+let vr2xHandler = null
+let vr2xCtx = null
 
 /**
  * Async handler called after loading of oreqm file(s)
  * to set search parameters and settings
  */
-function vr2x_handler_func () {
-  update_settings_from_context(vr2x_ctx.diagCtx)
-  restoreContextAttributes(vr2x_ctx.diagCtx)
-  set_excluded_doctype_checkboxes()
-  set_auto_update(vr2x_ctx.auto_update)
-  filter_change()
+function vr2xHandlerFunc () {
+  updateSettingsFromContext(vr2xCtx.diagCtx)
+  restoreContextAttributes(vr2xCtx.diagCtx)
+  setExcludedDoctypeCheckboxes()
+  setAutoUpdate(vr2xCtx.auto_update)
+  filterChange()
   // Clear handler - it only applies to context loads
-  vr2x_handler = null
+  vr2xHandler = null
 }
 
 /**
@@ -595,48 +595,48 @@ function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
   // Handle version differences in file formats
   if (ctx.version === 1) {
-    set_search_language(document.getElementById('id_checkbox_input').checked ? 'ids' : 'reg')
+    setSearchLanguage(document.getElementById('id_checkbox_input').checked ? 'ids' : 'reg')
   } else if (ctx.version === 2) {
-    set_search_language(ctx.search_language)
+    setSearchLanguage(ctx.search_language)
   }
   document.getElementById('search_regex').value = ctx.search_regex
   document.getElementById('excluded_ids').value = ctx.excluded_ids
   document.getElementById('limit_depth_input').checked = ctx.limit_depth_input
-  oreqm_main.set_excluded_doctypes(ctx.excluded_doctypes)
-  set_search_language_buttons(search_language)
+  oreqmMain.setExcludedDoctypes(ctx.excluded_doctypes)
+  setSearchLanguageButtons(searchLanguage)
 }
 
 /**
  * Update settings found in context file (these are not ALL settings)
  * @param {object} ctx
  */
-function update_settings_from_context (ctx) {
+function updateSettingsFromContext (ctx) {
   for (const key in ctx.settings.compare_fields) {
-    // if (program_settings.compare_fields[key] !== ctx.settings.compare_fields[key]) {
-    //   console.log(key, program_settings.compare_fields[key], ctx.settings.compare_fields[key])
+    // if (programSettings.compare_fields[key] !== ctx.settings.compare_fields[key]) {
+    //   console.log(key, programSettings.compare_fields[key], ctx.settings.compare_fields[key])
     // }
-    program_settings.compare_fields[key] = ctx.settings.compare_fields[key]
+    programSettings.compare_fields[key] = ctx.settings.compare_fields[key]
   }
 
-  // if (program_settings.safety_link_rules != ctx.settings.safety_link_rules) {
-  //   console.log("safety_link_rules", program_settings.safety_link_rules, ctx.settings.safety_link_rules)
+  // if (programSettings.safety_link_rules != ctx.settings.safety_link_rules) {
+  //   console.log("safety_link_rules", programSettings.safety_link_rules, ctx.settings.safety_link_rules)
   // }
-  program_settings.safety_link_rules = ctx.settings.safety_link_rules
+  programSettings.safety_link_rules = ctx.settings.safety_link_rules
 
-  // if (program_settings.show_errors !== ctx.settings.show_errors) {
-  //   console.log("show_errors", program_settings.show_errors, ctx.settings.show_errors)
+  // if (programSettings.show_errors !== ctx.settings.show_errors) {
+  //   console.log("show_errors", programSettings.show_errors, ctx.settings.show_errors)
   // }
-  program_settings.show_errors = ctx.settings.show_errors
+  programSettings.show_errors = ctx.settings.show_errors
 
-  // if (program_settings.show_coverage !== ctx.settings.show_coverage) {
-  //   console.log("show_coverage", program_settings.show_coverage, ctx.settings.show_coverage)
+  // if (programSettings.show_coverage !== ctx.settings.show_coverage) {
+  //   console.log("show_coverage", programSettings.show_coverage, ctx.settings.show_coverage)
   // }
-  program_settings.show_coverage = ctx.settings.show_coverage
+  programSettings.show_coverage = ctx.settings.show_coverage
 
-  // if (program_settings.color_status !== ctx.settings.color_status) {
-  //   console.log("color_status", program_settings.color_status, ctx.settings.color_status)
+  // if (programSettings.color_status !== ctx.settings.color_status) {
+  //   console.log("color_status", programSettings.color_status, ctx.settings.color_status)
   // }
-  program_settings.color_status = ctx.settings.color_status
+  programSettings.color_status = ctx.settings.color_status
 }
 
 /**
@@ -644,19 +644,19 @@ function update_settings_from_context (ctx) {
  * the ids and doctypes of the selected nodes and the set of ancestors
  * (also id and doctype) from the current diagram.
  */
- function save_diagram_sel () {
+ function saveDiagramSel () {
   let defPath = ""
-  if (oreqm_main) {
-    if (path.isAbsolute(oreqm_main.filename)) {
-      defPath = path.dirname(oreqm_main.filename)
+  if (oreqmMain) {
+    if (path.isAbsolute(oreqmMain.filename)) {
+      defPath = path.dirname(oreqmMain.filename)
     } else {
-      defPath = path.join(process.cwd(), path.dirname(oreqm_main.filename))
+      defPath = path.join(process.cwd(), path.dirname(oreqmMain.filename))
     }
   } else {
     return
   }
 
-  const save_options = {
+  const saveOptions = {
     filters: [
       { name: 'ReqM2 select files (csv)', extensions: ['csv'] }
     ],
@@ -665,11 +665,11 @@ function update_settings_from_context (ctx) {
     title: "Save ReqM2 selection file"
   }
 
-  // Suggest to save in same directory as oreqm_main
-  const savePath = remote.dialog.showSaveDialogSync(null, save_options)
+  // Suggest to save in same directory as oreqmMain
+  const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
   // istanbul ignore else
   if (typeof (savePath) !== 'undefined') {
-    save_diagram_selection(savePath)
+    saveDiagramSelection(savePath)
   }
 }
 
@@ -677,41 +677,41 @@ function update_settings_from_context (ctx) {
  * Get the system list separator, which is needed for csv files (on this machine)
  * @returns separator, i.e. ';' for some european locales or ','
  */
-function get_list_separator () {
+function getListSeparator () {
   const list = ['a', 'b'];
   const s = list.toLocaleString();
   const sep = s[1];
   return sep
 }
 
-function save_diagram_selection (pathname) {
+function saveDiagramSelection (pathname) {
   // List of selected nodes
-  const comma = get_list_separator()
+  const comma = getListSeparator()
   let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"\n`
-  for (let s of oreqm_main.subset) {
-    let ancestors = oreqm_main.get_ancestors(s, new Set())
-    let rec = oreqm_main.requirements.get(s)
-    let sel_dt = rec.doctype
-    let err_set = new Set()
+  for (let s of oreqmMain.subset) {
+    let ancestors = oreqmMain.getAncestors(s, new Set())
+    let rec = oreqmMain.requirements.get(s)
+    let selDt = rec.doctype
+    let errSet = new Set()
     for (let m of rec.miscov) {
-      err_set.add(`Missing coverage from doctype ${m}`)
+      errSet.add(`Missing coverage from doctype ${m}`)
     }
     for (let e of rec.errors) {
-      err_set.add(`${e.trim()}`)
+      errSet.add(`${e.trim()}`)
     }
     for (let f of rec.ffberrors) {
-      err_set.add(`${f.trim()}`)
+      errSet.add(`${f.trim()}`)
     }
     for (let v of rec.violations) {
-      err_set.add(`${v.trim()}`)
+      errSet.add(`${v.trim()}`)
     }
-    for (let err of err_set) {
+    for (let err of errSet) {
       if (ancestors.size > 0) {
         for (let a of ancestors) {
-          output += `"${s}"${comma}"${sel_dt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"\n`
+          output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"\n`
         }
       } else {
-        output += `"${s}"${comma}"${sel_dt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}\n`
+        output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}\n`
       }
     }
   }
@@ -720,13 +720,13 @@ function save_diagram_selection (pathname) {
 
 /**
  * Create doctype table with counts and exclusion checkboxes
- * @param {Map<string,string[]>} doctype_dict
+ * @param {Map<string,string[]>} doctypeDict
  */
-function display_doctypes_with_count (doctype_dict) {
-  const doctype_names = Array.from(doctype_dict.keys())
-  doctype_names.sort()
-  const excluded = oreqm_main.get_excluded_doctypes() // so we can tick them again
-  // console.log(doctype_names)
+function displayDoctypesWithCount (doctypeDict) {
+  const doctypeNames = Array.from(doctypeDict.keys())
+  doctypeNames.sort()
+  const excluded = oreqmMain.getExcludedDoctypes() // so we can tick them again
+  // console.log(doctypeNames)
 
   const element = document.getElementById('dyn_doctype_table')
   if (element) {
@@ -747,29 +747,29 @@ function display_doctypes_with_count (doctype_dict) {
   cell.innerHTML = '<b>select</b>'
   cell = row.insertCell()
   cell.innerHTML = '<input type="checkbox" id="doctype_all" title="set all off or on"><b>exclude</b>'
-  cell.addEventListener('change', doctype_filter_all_change)
-  let doctype_totals = 0
-  for (const doctype_name of doctype_names) {
+  cell.addEventListener('change', doctypeFilterAllChange)
+  let doctypeTotals = 0
+  for (const doctypeName of doctypeNames) {
     row = table.insertRow()
-    row.style.backgroundColor = get_color(doctype_name)
+    row.style.backgroundColor = getColor(doctypeName)
     cell = row.insertCell()
-    cell.innerHTML = doctype_name
+    cell.innerHTML = doctypeName
 
     cell = row.insertCell()
-    cell.innerHTML = doctype_dict.get(doctype_name).length
-    doctype_totals += doctype_dict.get(doctype_name).length
+    cell.innerHTML = doctypeDict.get(doctypeName).length
+    doctypeTotals += doctypeDict.get(doctypeName).length
 
     cell = row.insertCell()
-    cell.innerHTML = `<div id="doctype_shown_${doctype_name}">0</div>`
+    cell.innerHTML = `<div id="doctype_shown_${doctypeName}">0</div>`
 
     cell = row.insertCell()
-    cell.innerHTML = `<div id="doctype_select_${doctype_name}">0</div>`
+    cell.innerHTML = `<div id="doctype_select_${doctypeName}">0</div>`
 
     cell = row.insertCell()
-    const checked = excluded.includes(doctype_name)
+    const checked = excluded.includes(doctypeName)
     // console.log("dt table", doctype_name, checked)
-    cell.innerHTML = `<div><input type="checkbox" id="doctype_${doctype_name}" ${checked ? 'checked' : ''}/></div>`
-    cell.addEventListener('change', doctype_filter_change)
+    cell.innerHTML = `<div><input type="checkbox" id="doctype_${doctypeName}" ${checked ? 'checked' : ''}/></div>`
+    cell.addEventListener('change', doctypeFilterChange)
     cell = null
   }
   // Totals row
@@ -778,7 +778,7 @@ function display_doctypes_with_count (doctype_dict) {
   cell.innerHTML = 'totals:'
 
   cell = row.insertCell()
-  cell.innerHTML = `<div id="doctype_totals">${doctype_totals}</div>` //rq: ->(rq_totals_stat)
+  cell.innerHTML = `<div id="doctype_totals">${doctypeTotals}</div>` //rq: ->(rq_totals_stat)
 
   cell = row.insertCell()
   cell.innerHTML = '<div id="doctype_shown_totals">0</div>'
@@ -790,44 +790,44 @@ function display_doctypes_with_count (doctype_dict) {
 }
 
 /** Invert all doctype exclusions and update */
-function doctype_filter_all_change () {
-  toggle_exclude()
+function doctypeFilterAllChange () {
+  toggleExclude()
 }
 
 document.getElementById('auto_update').addEventListener('click', function () {
   // console.log("auto_update_click")
-  set_auto_update(document.getElementById('auto_update').checked)
-  filter_change()
+  setAutoUpdate(document.getElementById('auto_update').checked)
+  filterChange()
 })
 
 document.getElementById('id_checkbox_input').addEventListener('change', function () {
-  select_search_language('ids')
+  selectSearchLanguage('ids')
 })
 
 document.getElementById('regex_checkbox_input').addEventListener('change', function () {
-  select_search_language('reg')
+  selectSearchLanguage('reg')
 })
 
 document.getElementById('vql_checkbox_input').addEventListener('change', function () {
-  select_search_language('vql')
+  selectSearchLanguage('vql')
 })
 
 document.getElementById('limit_depth_input').addEventListener('change', function () {
-  filter_change()
+  filterChange()
 })
 
 document.getElementById('search_regex').addEventListener('change', function () {
-  if (search_regex_validate(this)) {
-    filter_change()
+  if (searchRegexValidate(this)) {
+    filterChange()
   }
 })
 
 document.getElementById('search_regex').addEventListener('focus', function () {
-  search_regex_validate(this)
+  searchRegexValidate(this)
 })
 
 document.getElementById('search_regex').addEventListener('keyup', function(_ev) {
-  search_regex_validate(this)
+  searchRegexValidate(this)
 })
 
 document.getElementById('search_regex').addEventListener('blur', function(_event) {
@@ -838,19 +838,19 @@ document.getElementById('search_regex').addEventListener('blur', function(_event
 });
 
 document.getElementById('excluded_ids').addEventListener('change', function () {
-  filter_change()
+  filterChange()
 })
 
 /**
  * Handle UI selection of search language
  * @param {string} lang 'ids', 'req' or 'vql' selected in UI
  */
-function select_search_language (lang) {
-  set_search_language_hints(lang)
-  set_search_language(lang)
-  program_settings.search_language = search_language
-  save_program_settings()
-  filter_change()
+function selectSearchLanguage (lang) {
+  setSearchLanguageHints(lang)
+  setSearchLanguage(lang)
+  programSettings.search_language = searchLanguage
+  saveProgramSettings()
+  filterChange()
 }
 
 /**
@@ -859,9 +859,9 @@ function select_search_language (lang) {
  */
 // istanbul ignore next
 // eslint-disable-next-line no-unused-vars
-function update_auto_update (state) {
+function updateAutoUpdate (state) {
   document.getElementById('auto_update').checked = state
-  set_auto_update(state)
+  setAutoUpdate(state)
 }
 
 /**
@@ -870,40 +870,40 @@ function update_auto_update (state) {
  * @param {string} data xml data
  * @param {boolean} Update diagrame when loaded (not wanted if caller has load of a reference file pending.)
  */
-function process_data_main (name, data, update) {
-  // console.log("process_data_main")
-  create_oreqm_main(name, data)
-  document.getElementById('name').innerHTML = oreqm_main.filename
+function processDataMain (name, data, update) {
+  // console.log("processDataMain")
+  createOreqmMain(name, data)
+  document.getElementById('name').innerHTML = oreqmMain.filename
   document.getElementById('size').innerHTML = (Math.round(data.length / 1024)) + ' KiB'
-  document.getElementById('timestamp').innerHTML = oreqm_main.timestamp
-  if (excluded_doctypes.length) {
-    oreqm_main.set_excluded_doctypes(excluded_doctypes)
-    set_excluded_doctypes([])
+  document.getElementById('timestamp').innerHTML = oreqmMain.timestamp
+  if (excludedDoctypes.length) {
+    oreqmMain.setExcludedDoctypes(excludedDoctypes)
+    setExcludedDoctypes([])
   }
-  if (oreqm_ref) { // if we have a reference do a compare
-    const gr = compare_oreqm(oreqm_main, oreqm_ref)
-    set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
+  if (oreqmRef) { // if we have a reference do a compare
+    const gr = compareOreqm(oreqmMain, oreqmRef)
+    setDoctypeCountShown(gr.doctypeDict, gr.selectedDict)
   }
-  display_doctypes_with_count(oreqm_main.get_doctypes())
+  displayDoctypesWithCount(oreqmMain.getDoctypes())
   if (update) {
-    if (auto_update) {
-      filter_graph()
+    if (autoUpdate) {
+      filterGraph()
     } else {
-      oreqm_main.set_svg_guide()
-      update_diagram(selected_format)
+      oreqmMain.setSvgGuide()
+      updateDiagram(selectedFormat)
     }
   }
   document.getElementById('get_ref_oreqm_file').disabled = false
   document.getElementById('clear_ref_oreqm').disabled = false
   ipcRenderer.send('menu_load_ref', true)
-  set_window_title(name)
+  setWindowTitle(name)
 }
 
 /**
  * Update window title
  * @param {string} extra typically pathname of oreqm
  */
-function set_window_title (extra) {
+function setWindowTitle (extra) {
   const title = `Visual ReqM2 - ${extra}`
   mainWindow.setTitle(title)
 }
@@ -911,51 +911,51 @@ function set_window_title (extra) {
 /**
  * Load and process both main and reference oreqm files
  * @param {string} file
- * @param {string} ref_file
+ * @param {string} refFile
  */
-function load_file_main_fs (file, ref_file) {
-  // console.log("load_file_main_fs", file, ref_file);
-  clear_html_table()
-  clear_diagram()
-  clear_doctypes_table()
-  spinner_show()
+function loadFileMainFs (file, refFile) {
+  // console.log("loadFileMainFs", file, refFile);
+  clearHtmlTable()
+  clearDiagram()
+  clearDoctypesTable()
+  spinnerShow()
 
   // This is a work-around. When testing on Windows the async filereading hangs,
   // so use sync interface instead.
-  progressbar_start('Loading main file', path.basename(file))
-  const now = get_time_now()
+  progressbarStart('Loading main file', path.basename(file))
+  const now = getTimeNow()
   let data = fs.readFileSync(file, 'UTF-8')
-  log_time_spent(now, "Read main oreqm")
-  // console.log("main file read", ref_file)
-  progressbar_update('Processing main file', path.basename(file))
-  process_data_main(file, data, ref_file ? false : true)
-  if (ref_file) {
-    progressbar_update('Loading reference file', path.basename(ref_file))
-    load_file_ref_fs(ref_file)
-  } else if (vr2x_handler) {
-    progressbar_update('Loading context file', '...')
-    vr2x_handler()
+  logTimeSpent(now, "Read main oreqm")
+  // console.log("main file read", refFile)
+  progressbarUpdate('Processing main file', path.basename(file))
+  processDataMain(file, data, refFile ? false : true)
+  if (refFile) {
+    progressbarUpdate('Loading reference file', path.basename(refFile))
+    loadFileRefFs(refFile)
+  } else if (vr2xHandler) {
+    progressbarUpdate('Loading context file', '...')
+    vr2xHandler()
   }
-  progressbar_stop()
+  progressbarStop()
 
   // read file asynchronously
   // fs.readFile(file, 'UTF-8', (err, data) => {
   //   console.log("main file read")
-  //   process_data_main(file, data)
-  //   if (ref_file) {
-  //     load_file_ref_fs(ref_file)
-  //   } else if (vr2x_handler) {
-  //     vr2x_handler()
+  //   processDataMain(file, data)
+  //   if (refFile) {
+  //     loadFileRefFs(refFile)
+  //   } else if (vr2xHandler) {
+  //     vr2xHandler()
   //   }
   // })
 }
 
 /** Handle button click for interactive load of main oreqm via file selector */
 document.getElementById('get_main_oreqm_file').addEventListener('click', function () {
-  get_main_oreqm_file()
+  getMainOreqmFile()
 })
 
-function get_main_oreqm_file () {
+function getMainOreqmFile () {
   //rq: ->(rq_filesel_main_oreqm)
   const filePath = remote.dialog.showOpenDialogSync(
     {
@@ -964,7 +964,7 @@ function get_main_oreqm_file () {
     })
   // console.log(filePath);
   if (typeof (filePath) !== 'undefined' && (filePath.length === 1)) {
-    load_file_main_fs(filePath[0], null)
+    loadFileMainFs(filePath[0], null)
   }
 }
 
@@ -973,46 +973,46 @@ function get_main_oreqm_file () {
  * @param {string} name filename of reference oreqm file
  * @param {string} data XML content of oreqm file
  */
-function process_data_ref (name, data) {
+function processDataRef (name, data) {
   // Clean up data related to a previous ref file
-  oreqm_main.remove_ghost_requirements(true)  // possible ghost reqs were related to now disappearing ref file
-  update_doctype_table()  // This includes reqs of doctypes that might now be gone
+  oreqmMain.removeGhostRequirements(true)  // possible ghost reqs were related to now disappearing ref file
+  updateDoctypeTable()  // This includes reqs of doctypes that might now be gone
 
-  // console.log("process_data_ref")
+  // console.log("processDataRef")
   // load new reference
-  create_oreqm_ref(name, data)
+  createOreqmRef(name, data)
   document.getElementById('ref_name').innerHTML = name
   document.getElementById('ref_size').innerHTML = (Math.round(data.length / 1024)) + ' KiB'
-  document.getElementById('ref_timestamp').innerHTML = oreqm_ref.get_time()
-  const gr = compare_oreqm(oreqm_main, oreqm_ref)
-  set_doctype_count_shown(gr.doctype_dict, gr.selected_dict)
-  display_doctypes_with_count(oreqm_main.get_doctypes())
-  filter_change()
-  set_window_title(`${oreqm_main.filename} vs. ${oreqm_ref.filename}`)
+  document.getElementById('ref_timestamp').innerHTML = oreqmRef.getTime()
+  const gr = compareOreqm(oreqmMain, oreqmRef)
+  setDoctypeCountShown(gr.doctypeDict, gr.selectedDict)
+  displayDoctypesWithCount(oreqmMain.getDoctypes())
+  filterChange()
+  setWindowTitle(`${oreqmMain.filename} vs. ${oreqmRef.filename}`)
 }
 
 /**
  * Load reference oreqm file. Main oreqm file is expected to be present.
  * @param {string} file
  */
-function load_file_ref_fs (file) {
+function loadFileRefFs (file) {
   // Load reference file
-  if (oreqm_main) {
-    spinner_show()
+  if (oreqmMain) {
+    spinnerShow()
 
     // read file synchronously
     let data = fs.readFileSync(file, 'UTF-8')
-    process_data_ref(file, data)
-    if (vr2x_handler) {
-      vr2x_handler()
+    processDataRef(file, data)
+    if (vr2xHandler) {
+      vr2xHandler()
     }
 
     // read file asynchronously
     // fs.readFile(file, 'UTF-8', (err, data) => {
-    //   console.log("load_file_ref_fs readfile done")
-    //   process_data_ref(file, data)
-    //   if (vr2x_handler) {
-    //     vr2x_handler()
+    //   console.log("loadFileRefFs readfile done")
+    //   processDataRef(file, data)
+    //   if (vr2xHandler) {
+    //     vr2xHandler()
     //   }
     // })
   } else {
@@ -1021,13 +1021,13 @@ function load_file_ref_fs (file) {
 }
 
 document.getElementById('get_ref_oreqm_file').addEventListener('click', function () {
-  get_ref_oreqm_file()
+  getRefOreqmFile()
 })
 
 /**
  * Interactive selection of input file
  */
-function get_ref_oreqm_file () {
+function getRefOreqmFile () {
   //rq: ->(rq_filesel_ref_oreqm)
   const filePath = remote.dialog.showOpenDialogSync(
     {
@@ -1036,98 +1036,98 @@ function get_ref_oreqm_file () {
     })
   // console.log(filePath);
   if (typeof (filePath) !== 'undefined' && (filePath.length === 1)) {
-    load_file_ref_fs(filePath[0])
+    loadFileRefFs(filePath[0])
   }
 }
 
 document.getElementById('invert_exclude').addEventListener('click', function () {
-  invert_exclude()
+  invertExclude()
 })
 
 /**
  * Toggle each doctype exclusion individually
  */
-function invert_exclude () {
+function invertExclude () {
   // Invert the exclusion status of all doctypes
   // istanbul ignore else
-  if (oreqm_main) {
-    const doctypes = oreqm_main.get_doctypes()
+  if (oreqmMain) {
+    const doctypes = oreqmMain.getDoctypes()
     const names = doctypes.keys()
     for (const doctype of names) {
       const box = document.getElementById(`doctype_${doctype}`)
       box.checked = !box.checked
     }
-    doctype_filter_change()
+    doctypeFilterChange()
   }
 }
 
 document.getElementById('filter_graph').addEventListener('click', function () {
-  filter_graph()
+  filterGraph()
 })
 
 // Combobox handler
 document.getElementById('nodeSelect').addEventListener('change', function () {
   // Select node from drop-down
-  set_selected_index(document.getElementById('nodeSelect').selectedIndex)
+  setSelectedIndex(document.getElementById('nodeSelect').selectedIndex)
   if (document.getElementById('single_select').checked) {
     // Generate new diagram with *single* selected node
-    graph_results([selected_nodes[selected_index]], false)
-    update_diagram(selected_format)
+    graphResults([selectedNodes[selectedIndex]], false)
+    updateDiagram(selectedFormat)
   } else {
-    clear_selection_highlight()
-    center_node(selected_nodes[selected_index])
+    clearSelectionHighlight()
+    centerNode(selectedNodes[selectedIndex])
   }
 })
 
 document.getElementById('prev_selected').addEventListener('click', function () {
   //rq: ->(rq_navigate_sel)
-  prev_selected()
+  prevSelected()
 })
 
 document.getElementById('next_selected').addEventListener('click', function () {
   //rq: ->(rq_navigate_sel)
-  next_selected()
+  nextSelected()
 })
 
 document.getElementById('copy_selected').addEventListener('click', function () {
-  copy_selected()
+  copySelected()
 })
 
 /**
  * Put list of selected <id>s on clipboard as text
  */
-function copy_selected () {
+function copySelected () {
   let txt = ''
-  if (oreqm_main && selected_nodes.length) {
-    txt = selected_nodes.join('\n')+'\n'
+  if (oreqmMain && selectedNodes.length) {
+    txt = selectedNodes.join('\n')+'\n'
   }
   clipboard.writeText(txt)
 }
 
 document.getElementById('single_select').addEventListener('change', function () {
   if (document.getElementById('single_select').checked) {
-    graph_results([selected_nodes[selected_index]], false)
+    graphResults([selectedNodes[selectedIndex]], false)
   } else {
-    graph_results(selected_nodes, false)
+    graphResults(selectedNodes, false)
   }
-  update_diagram(selected_format)
+  updateDiagram(selectedFormat)
 })
 
 document.getElementById('clear_ref_oreqm').addEventListener('click', function () {
-  clear_reference_oreqm()
+  clearReferenceOreqm()
 })
 
-function clear_reference_oreqm () {
-  if (oreqm_ref) {
-    clear_oreqm_ref()
-    clear_html_table()
-    update_doctype_table()
+function clearReferenceOreqm () {
+  if (oreqmRef) {
+    clearOreqmRef()
+    clearHtmlTable()
+    updateDoctypeTable()
     document.getElementById('ref_name').innerHTML = ''
     document.getElementById('ref_size').innerHTML = ''
     document.getElementById('ref_timestamp').innerHTML = ''
-    filter_change()
+    filterChange()
   }
-  set_window_title(oreqm_main.filename)
+  setWindowTitle(oreqmMain.filename)
 }
 
 // Setup for the "about" dialog
@@ -1139,13 +1139,13 @@ const aboutButton = document.getElementById('aboutButton')
 // Get the <span> element that closes the modal
 const aboutPaneClose = document.getElementById('aboutPaneClose')
 
-function show_about () {
+function showAbout () {
   aboutPane.style.display = 'block'
 }
 
 // When the user clicks the button, open the modal
 aboutButton.onclick = function () {
-  show_about()
+  showAbout()
 }
 
 // When the user clicks on <span> (x), close the modal
@@ -1160,26 +1160,26 @@ window.onbeforeunload = function () {
 
 // When the user clicks the button, open the modal
 document.getElementById('issuesButton').onclick = function () {
-  show_problems()
+  showProblems()
 }
 
-function show_problems () {
-  // Show problems colleced in oreqm_main
+function showProblems () {
+  // Show problems colleced in oreqmMain
   const ref = document.getElementById('problem_list')
-  const header_main = '\n<h2>Detected problems</h2>\n'
-  let problem_txt = 'Nothing to see here...'
-  if (oreqm_main) {
-    problem_txt = xml_escape(oreqm_main.get_problems())
+  const headerMain = '\n<h2>Detected problems</h2>\n'
+  let problemTxt = 'Nothing to see here...'
+  if (oreqmMain) {
+    problemTxt = xmlEscape(oreqmMain.getProblems())
   }
-  ref.innerHTML = `${header_main}<pre id="raw_problems">${problem_txt}</pre>`
+  ref.innerHTML = `${headerMain}<pre id="raw_problems">${problemTxt}</pre>`
   problemPopup.style.display = 'block'
 }
 
-function clear_problems () {
-  if (oreqm_main) {
-    oreqm_main.clear_problems()
+function clearProblems () {
+  if (oreqmMain) {
+    oreqmMain.clearProblems()
     document.getElementById('issueCount').innerHTML = 0
-    show_problems()
+    showProblems()
   }
 }
 
@@ -1222,75 +1222,75 @@ window.onclick = function (event) {
 }
 
 document.getElementById('menu_exclude').addEventListener('click', function () {
-  exclude_id()
+  excludeId()
 })
 
 document.getElementById('clear_search_regex').addEventListener('click', function () {
-  clear_search_regex()
+  clearSearchRegex()
 })
 
-function clear_search_regex () {
+function clearSearchRegex () {
   document.getElementById('search_regex').value = ''
-  filter_change()
+  filterChange()
 }
 
 document.getElementById('clear_excluded_ids').addEventListener('click', function () {
-  clear_excluded_ids()
+  clearExcludedIds()
 })
 
-function clear_excluded_ids () {
+function clearExcludedIds () {
   document.getElementById('excluded_ids').value = ''
-  filter_change()
+  filterChange()
 }
 
 /** Drag and drop file handling main */
-const drop_area_main = document.getElementById('drop_area_main')
-const drop_area_output = document.getElementById('output')
+const dropAreaMain = document.getElementById('drop_area_main')
+const dropAreaOutput = document.getElementById('output')
 /** Drag and drop file handling reference */
-const drop_area_ref = document.getElementById('drop_area_ref');
+const dropAreaRef = document.getElementById('drop_area_ref');
 
 // Prevent default drag behaviors
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-  drop_area_main.addEventListener(eventName, preventDefaults, false)
-  drop_area_output.addEventListener(eventName, preventDefaults, false)
-  drop_area_ref.addEventListener(eventName, preventDefaults, false)
+  dropAreaMain.addEventListener(eventName, preventDefaults, false)
+  dropAreaOutput.addEventListener(eventName, preventDefaults, false)
+  dropAreaRef.addEventListener(eventName, preventDefaults, false)
   document.body.addEventListener(eventName, preventDefaults, false)
 })
 
 // Highlight drop area when item is dragged over it
 ;['dragenter', 'dragover'].forEach(eventName => {
-  drop_area_main.addEventListener(eventName, highlight_main, false)
-  drop_area_output.addEventListener(eventName, highlight_output, false)
-  drop_area_ref.addEventListener(eventName, highlight_ref, false)
+  dropAreaMain.addEventListener(eventName, highlightMain, false)
+  dropAreaOutput.addEventListener(eventName, highlightOutput, false)
+  dropAreaRef.addEventListener(eventName, highlightRef, false)
 })
 
 ;['dragleave', 'drop'].forEach(eventName => {
-  drop_area_main.addEventListener(eventName, unhighlight_main, false)
-  drop_area_output.addEventListener(eventName, unhighlight_output, false)
-  drop_area_ref.addEventListener(eventName, unhighlight_ref, false)
+  dropAreaMain.addEventListener(eventName, unhighlightMain, false)
+  dropAreaOutput.addEventListener(eventName, unhighlightOutput, false)
+  dropAreaRef.addEventListener(eventName, unhighlightRef, false)
 })
 
-drop_area_main.addEventListener('drop', (event) => {
+dropAreaMain.addEventListener('drop', (event) => {
   //rq: ->(rq_drop_main_oreqm)
   event.stopPropagation()
   event.preventDefault()
   // console.log(event.dataTransfer.files);
-  process_dropped_file(event, true)
+  processDroppedFile(event, true)
 })
 
-drop_area_output.addEventListener('drop', (event) => {
+dropAreaOutput.addEventListener('drop', (event) => {
   //rq: ->(rq_drop_main_oreqm)
   event.stopPropagation()
   event.preventDefault()
-  process_dropped_file(event, true)
+  processDroppedFile(event, true)
 })
 
-drop_area_ref.addEventListener('drop', (event) => {
+dropAreaRef.addEventListener('drop', (event) => {
   //rq: ->(rq_drop_ref_oreqm)
   event.stopPropagation()
   event.preventDefault()
   // console.log(event.dataTransfer.files);
-  process_dropped_file(event, false)
+  processDroppedFile(event, false)
 })
 
 function preventDefaults (e) {
@@ -1298,34 +1298,34 @@ function preventDefaults (e) {
   e.stopPropagation()
 }
 
-function highlight_main () {
-  drop_area_main.classList.add('highlight')
+function highlightMain () {
+  dropAreaMain.classList.add('highlight')
 }
 
-function highlight_output () {
-  drop_area_output.classList.add('highlight')
+function highlightOutput () {
+  dropAreaOutput.classList.add('highlight')
 }
 
-function highlight_ref () {
-  if (oreqm_main) {
-    drop_area_ref.classList.add('highlight')
+function highlightRef () {
+  if (oreqmMain) {
+    dropAreaRef.classList.add('highlight')
   }
 }
 
-function unhighlight_main () {
-  drop_area_main.classList.remove('highlight')
+function unhighlightMain () {
+  dropAreaMain.classList.remove('highlight')
 }
 
-function unhighlight_output () {
-  drop_area_output.classList.remove('highlight')
+function unhighlightOutput () {
+  dropAreaOutput.classList.remove('highlight')
 }
 
-function unhighlight_ref () {
-  drop_area_ref.classList.remove('highlight')
+function unhighlightRef () {
+  dropAreaRef.classList.remove('highlight')
 }
 
 // Main oreqm file
-drop_area_main.addEventListener('dragover', (event) => {
+dropAreaMain.addEventListener('dragover', (event) => {
   event.stopPropagation()
   event.preventDefault()
   // Style the drag-and-drop as a "copy file" operation.
@@ -1333,11 +1333,11 @@ drop_area_main.addEventListener('dragover', (event) => {
 })
 
 // Reference oreqm file
-drop_area_ref.addEventListener('dragover', (event) => {
+dropAreaRef.addEventListener('dragover', (event) => {
   event.stopPropagation()
   event.preventDefault()
   // Style the drag-and-drop as a "copy file" operation.
-  if (oreqm_main) {
+  if (oreqmMain) {
     event.dataTransfer.dropEffect = 'copy'
   } else {
     event.dataTransfer.dropEffect = 'none'
@@ -1353,10 +1353,10 @@ document.addEventListener('dragover', (event) => {
 /**
  * Process dropped file, if there is just one file
  * @param {object} ev
- * @param {boolean} main_file true: main file, false: reference file
+ * @param {boolean} mainFile true: main file, false: reference file
  */
-function process_dropped_file (ev, main_file) {
-  let dropped_file
+function processDroppedFile (ev, mainFile) {
+  let droppedFile
   let count = 0
   let i = 0
   if (ev.dataTransfer.items) {
@@ -1367,27 +1367,27 @@ function process_dropped_file (ev, main_file) {
         count++
         const file = ev.dataTransfer.items[i].getAsFile()
         // console.log('... file[' + i + '].name = ' + file.name);
-        dropped_file = file
+        droppedFile = file
       }
     }
   } else {
     // Use DataTransfer interface to access the file(s)
     for (i = 0; i < ev.dataTransfer.files.length; i++) {
       // console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
-      dropped_file = ev.dataTransfer.files[i]
+      droppedFile = ev.dataTransfer.files[i]
       count++
     }
   }
   // Check file. Only one, either .oreqm or .vrm2x
   if (count === 1) {
-    const filename = dropped_file.path.length ? dropped_file.path : dropped_file.name
+    const filename = droppedFile.path.length ? droppedFile.path : droppedFile.name
     if (filename.endsWith('.vr2x')) {
-      load_diagram_context(filename)
+      loadDiagramContext(filename)
     } else if (filename.endsWith('.oreqm')) {
-      if (main_file) {
-        load_file_main_fs(filename)
+      if (mainFile) {
+        loadFileMainFs(filename)
       } else {
-        load_file_ref_fs(filename)
+        loadFileRefFs(filename)
       }
     }
   }
@@ -1395,104 +1395,104 @@ function process_dropped_file (ev, main_file) {
 
 // Doctype hierarchy button handler
 document.getElementById('show_doctypes').addEventListener('click', function () {
-  show_doctypes()
+  showDoctypes()
 })
 
 // Safety button handler
 document.getElementById('show_doctypes_safety').addEventListener('click', function () {
-  show_doctypes_safety()
+  showDoctypesSafety()
 })
 
 document.getElementById('menu_xml_txt').addEventListener('click', function () {
-  show_source()
+  showSource()
 })
 
 /**
  * Context menu handler to show internal tagged search format
  */
 document.getElementById('menu_search_txt').addEventListener('click', function () {
-  show_internal()
+  showInternal()
 })
 
 document.getElementById('save_problems').addEventListener('click', function () {
-  save_problems()
+  saveProblems()
 })
 
 document.getElementById('clear_problems').addEventListener('click', function () {
-  clear_problems()
+  clearProblems()
 })
 
 /**
  * Update doctype table. Colors associated with doctypes may have changed, therefore cached
  * visualization data is cleared.
  */
-function update_doctype_table () {
-  if (oreqm_main) {
-    oreqm_main.clear_cache()
-    display_doctypes_with_count(oreqm_main.doctypes)
-    filter_change()
+function updateDoctypeTable () {
+  if (oreqmMain) {
+    oreqmMain.clearCache()
+    displayDoctypesWithCount(oreqmMain.doctypes)
+    filterChange()
   }
 }
 
 /**
  * Compare two oreqm files, each represented as objects.
  * The main object will have visualization elements added and default diff related search terms are added.
- * @param {object} oreqm_main
- * @param {object} oreqm_ref
+ * @param {object} oreqmMain
+ * @param {object} oreqmRef
  * @return {object} diff graph
  */
-function compare_oreqm (oreqm_main, oreqm_ref) {
+function compareOreqm (oreqmMain, oreqmRef) {
   // Both main and reference oreqm have been read.
   // Highlight new, changed and removed nodes in main oreqm (removed are added as 'ghosts')
   // eslint-disable-next-line no-unused-vars
-  const results = oreqm_main.compare_requirements(oreqm_ref, get_ignored_fields())
-  const new_search_array = []
-  let raw_search = document.getElementById('search_regex').value.trim()
+  const results = oreqmMain.compareRequirements(oreqmRef, getIgnoredFields())
+  const newSearchArray = []
+  let rawSearch = document.getElementById('search_regex').value.trim()
   // This is a hack, these prefixes are a hidden part of 'delta' reqs <id>, and a search term is constructed to find them
   // Also avoid adding them more than once.
-  if (!raw_search.includes('new:')) new_search_array.push('new:')
-  if (!raw_search.includes('chg:')) new_search_array.push('chg:')
-  if (!raw_search.includes('rem:')) new_search_array.push('rem:')
-  const new_search = new_search_array.join('|')
-  if (new_search_array.length && raw_search) {
-    if (search_language === 'vql') {
-      raw_search = raw_search + '\nor ' + new_search_array.join(' or ')
+  if (!rawSearch.includes('new:')) newSearchArray.push('new:')
+  if (!rawSearch.includes('chg:')) newSearchArray.push('chg:')
+  if (!rawSearch.includes('rem:')) newSearchArray.push('rem:')
+  const newSearch = newSearchArray.join('|')
+  if (newSearchArray.length && rawSearch) {
+    if (searchLanguage === 'vql') {
+      rawSearch = rawSearch + '\nor ' + newSearchArray.join(' or ')
     } else {
-      raw_search = new_search + '|\n' + raw_search
+      rawSearch = newSearch + '|\n' + rawSearch
     }
-  } else if (new_search.length) {
-    raw_search = search_language === 'vql' ? new_search_array.join(' or ') : new_search
+  } else if (newSearch.length) {
+    rawSearch = searchLanguage === 'vql' ? newSearchArray.join(' or ') : newSearch
   }
-  document.getElementById('search_regex').value = raw_search
+  document.getElementById('search_regex').value = rawSearch
   // console.log(results)
-  const graph = oreqm_main.create_graph(select_color,
-    program_settings.top_doctypes,
-    oreqm_main.construct_graph_title(true, null, oreqm_ref, search_language, search_pattern),
+  const graph = oreqmMain.createGraph(selectColor,
+    programSettings.top_doctypes,
+    oreqmMain.constructGraphTitle(true, null, oreqmRef, searchLanguage, searchPattern),
     [],
-    program_settings.max_calc_nodes,
-    program_settings.show_coverage,
-    program_settings.color_status)
-  set_issue_count()
+    programSettings.max_calc_nodes,
+    programSettings.show_coverage,
+    programSettings.color_status)
+  setIssueCount()
   return graph
 }
 
 /* auto-update logic */
 
 const notification = document.getElementById('notification')
-const auto_update_message = document.getElementById('auto-update-message')
+const autoUpdateMessage = document.getElementById('auto-update-message')
 const restartButton = document.getElementById('restart-button')
 
 // istanbul ignore next
 ipcRenderer.on('update_available', () => {
   ipcRenderer.removeAllListeners('update_available')
-  auto_update_message.innerText = 'A new update is available. Downloading now...'
+  autoUpdateMessage.innerText = 'A new update is available. Downloading now...'
   notification.classList.remove('hidden')
 })
 
 // istanbul ignore next
 ipcRenderer.on('update_downloaded', () => {
   ipcRenderer.removeAllListeners('update_downloaded')
-  auto_update_message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?'
+  autoUpdateMessage.innerText = 'Update Downloaded. It will be installed on restart. Restart now?'
   restartButton.classList.remove('hidden')
   notification.classList.remove('hidden')
 })
@@ -1525,22 +1525,22 @@ if (document.readyState !== 'complete') {
 }
 
 // istanbul ignore next
-function url_click_handler (e, url) {
+function urlClickHandler (e, url) {
   e.preventDefault()
-  document.shell_openExternal(url)
+  document.shellOpenExternal(url)
 }
 
 /**
  * Make URLs clickable
  */
 function prepareTags () {
-  document.url_click_handler = url_click_handler
-  document.shell_openExternal = shell.openExternal
+  document.urlClickHandler = urlClickHandler
+  document.shellOpenExternal = shell.openExternal
   const aTags = document.getElementsByTagName('a')
   for (let i = 0; i < aTags.length; i++) {
     // console.log(aTags[i])
     // aTags[i].setAttribute("onclick", "require('shell').openExternal('" + aTags[i].href + "')");
-    aTags[i].setAttribute('onclick', "document.url_click_handler(event, '" + aTags[i].href + "')")
+    aTags[i].setAttribute('onclick', "document.urlClickHandler(event, '" + aTags[i].href + "')")
     aTags[i].href = '#'
   }
   return false
@@ -1550,7 +1550,7 @@ function prepareTags () {
  * Get latest release tag from github and check against this version.
  * Update 'About' dialog with release version and set button green.
  */
-function check_newer_release_available () {
+function checkNewerReleaseAvailable () {
   //rq: ->(rq_check_github_release)
   const options = {
     hostname: 'api.github.com',
@@ -1570,16 +1570,16 @@ function check_newer_release_available () {
     })
 
     resp.on('end', () => {
-      const latest_rel = JSON.parse(data)
+      const latestRel = JSON.parse(data)
       // console.log(latest_rel.explanation);
-      latest_version = latest_rel.name
+      latestVersion = latestRel.name
       // console.log(latest_version);
-      if (latest_version !== remote.app.getVersion()) {
+      if (latestVersion !== remote.app.getVersion()) {
         aboutButton.style.background = '#00FF00'
       }
-      document.getElementById('latest_release').innerHTML = ` available for download is ${latest_version}`
-      if (latest_version > remote.app.getVersion()) {
-        show_toast(`A newer version ${latest_version} is available for download</br>Open <b>[About]</b> for more information`)
+      document.getElementById('latest_release').innerHTML = ` available for download is ${latestVersion}`
+      if (latestVersion > remote.app.getVersion()) {
+        myShowToast(`A newer version ${latestVersion} is available for download</br>Open <b>[About]</b> for more information`)
       }
     })
   }).on('error', (err) => {
@@ -1607,11 +1607,11 @@ window.addEventListener('unload', function(_event) {
 })
 
 // istanbul ignore next
-function show_readme() {
+function showReadme() {
   open('https://github.com/mox17/visual-reqm2-electron#readme')
 }
 
 // istanbul ignore next
-function show_vql_help() {
+function showVqlHelp() {
   open('https://github.com/mox17/visual-reqm2-electron/blob/master/doc/VQL.md')
 }

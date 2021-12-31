@@ -13,32 +13,32 @@ function _interopRequireDefault (obj) {
 describe('Settings tests', function () {
   it('New settings', function () {
     // Force settings to default
-    settings.check_and_upgrade_settings(settings.default_program_settings)
-    assert.strictEqual(settings.program_settings.max_calc_nodes, 1000)
+    settings.checkAndUpgradeSettings(settings.defaultProgramSettings)
+    assert.strictEqual(settings.programSettings.max_calc_nodes, 1000)
 
-    const ignored_fields = settings.get_ignored_fields()
-    // console.log(ignored_fields);
-    assert.ok(ignored_fields.includes('violations'))
+    const ignoredFields = settings.getIgnoredFields()
+    // console.log(ignoredFields);
+    assert.ok(ignoredFields.includes('violations'))
 
-    let new_settings = {}
-    new_settings = Object.assign(new_settings, settings.program_settings)
+    let newSettings = {}
+    newSettings = Object.assign(newSettings, settings.programSettings)
 
-    delete new_settings.max_calc_nodes
-    delete new_settings.show_coverage
-    delete new_settings.top_doctypes
-    delete new_settings.color_status
-    delete new_settings.show_errors
-    delete new_settings.check_for_updates
-    delete new_settings.safety_link_rules
+    delete newSettings.max_calc_nodes
+    delete newSettings.show_coverage
+    delete newSettings.top_doctypes
+    delete newSettings.color_status
+    delete newSettings.show_errors
+    delete newSettings.check_for_updates
+    delete newSettings.safety_link_rules
 
-    settings.check_and_upgrade_settings(new_settings)
-    assert.strictEqual(settings.program_settings.max_calc_nodes, 1000)
-    assert.strictEqual(settings.program_settings.show_coverage, true)
+    settings.checkAndUpgradeSettings(newSettings)
+    assert.strictEqual(settings.programSettings.max_calc_nodes, 1000)
+    assert.strictEqual(settings.programSettings.show_coverage, true)
 
-    // console.dir(new_settings.safety_link_rules);
-    // console.dir(JSON.stringify(new_settings.safety_link_rules, null, 2));
-    new_settings.color_status = 7
-    settings.check_and_upgrade_settings(new_settings)
-    assert.strictEqual(settings.program_settings.color_status, true)
+    // console.dir(newSettings.safety_link_rules);
+    // console.dir(JSON.stringify(newSettings.safety_link_rules, null, 2));
+    newSettings.color_status = 7
+    settings.checkAndUpgradeSettings(newSettings)
+    assert.strictEqual(settings.programSettings.color_status, true)
   })
 })

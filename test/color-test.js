@@ -9,43 +9,43 @@ const after = global.after
 const describe = global.describe
 const it = global.it
 
-const pal_file = 'tmp/test_palette.json'
+const palFile = 'tmp/test_palette.json'
 
 after(function () {
-  color.update_color_settings({ none: '#FFFFFF' }, null)
+  color.updateColorSettings({ none: '#FFFFFF' }, null)
 })
 
 describe('Color palette tests', function () {
   it('Set palette', function () {
     const mapping = { xyzzy: '#223344' }
 
-    color.update_color_settings(mapping, null)
-    const xyzzy = color.get_color('xyzzy')
+    color.updateColorSettings(mapping, null)
+    const xyzzy = color.getColor('xyzzy')
     assert.strictEqual('#223344', xyzzy)
   })
 
   it('Generate colors', function () {
     for (let count = 0; count < 100; count += 1) {
-      const rgb = color.get_color('foobar' + count.toString())
+      const rgb = color.getColor('foobar' + count.toString())
       assert.ok(rgb.length === 7)
       assert.ok(rgb[0] === '#')
     }
-    if (fs.existsSync(pal_file)) {
-      fs.unlinkSync(pal_file)
+    if (fs.existsSync(palFile)) {
+      fs.unlinkSync(palFile)
     }
-    color.save_colors_fs(pal_file)
-    assert.ok(fs.existsSync(pal_file))
-    const file_content = fs.readFileSync(pal_file, 'utf8')
-    // console.log(file_content);
-    assert.ok(file_content.includes('"foobar0"'), true) //rq: ->(rq_doctype_color_gen,rq_doctype_color_export)
+    color.saveColorsFs(palFile)
+    assert.ok(fs.existsSync(palFile))
+    const fileContent = fs.readFileSync(palFile, 'utf8')
+    // console.log(fileContent);
+    assert.ok(fileContent.includes('"foobar0"'), true) //rq: ->(rq_doctype_color_gen,rq_doctype_color_export)
   })
 
   it('Load palette', function () {
     const mapping = { xyzzy: '#123456' }
-    color.update_color_settings(mapping, null)
-    assert.strictEqual('#123456', color.get_color('xyzzy')) // Set different color
-    color.load_colors_fs(null, pal_file)
+    color.updateColorSettings(mapping, null)
+    assert.strictEqual('#123456', color.getColor('xyzzy')) // Set different color
+    color.loadColorsFs(null, palFile)
     // xyzzy definition overwritten by import
-    assert.notEqual('#123456', color.get_color('xyzzy')) //rq: ->(rq_doctype_color_import)
+    assert.notEqual('#123456', color.getColor('xyzzy')) //rq: ->(rq_doctype_color_import)
   })
 })

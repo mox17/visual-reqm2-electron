@@ -2,7 +2,7 @@
 
 @{%
 // Escape all regex meta-characters
-function esc_str (str) {
+function escStr (str) {
   return str.replaceAll('\\', '\\\\')
             .replaceAll('^', '\\^')
             //.replaceAll('$', '\\$') // we may want to use $ to mark end of COAT ids
@@ -19,7 +19,7 @@ function esc_str (str) {
 }
 
 // Filter out illegal search patterns
-function check_and_or (s) {
+function checkAndOr (s) {
   let t = s.toUpperCase()
   let reserved = ['AND', 'OR', 'NOT', '(', ')', ','].includes(t) ||
                  s.startsWith('ao(') ||
@@ -52,21 +52,21 @@ function qualifier  (str, find_substring) {
   }
 }
 
-function check_ao_co (s) {
+function checkAoCo (s) {
   if (s === 'ancestors_of') return 'ao'
   if (s === 'children_of') return 'co'
   return s
 }
 
 // return true if tags already defined in f and s tag not already present in f
-function check_dup_tag(f, s) {
+function checkDupTag(f, s) {
   return (! f.includes(s[0])) && f.length
 }
 
 // This is an optimization to enable combination of tagged terms into one regex
 // This requires that each tag only occurs once
-function check_and (f, s) {
-  if (f.q && f.q.length && s.q && s.q.length && check_dup_tag(f.q, s.q)) {
+function checkAnd (f, s) {
+  if (f.q && f.q.length && s.q && s.q.length && checkDupTag(f.q, s.q)) {
     return {op: 'd', q: f.q.concat(s.q), v: f.v.concat(s.v) }
   } else {
     return {op: "AND", arg1: f, arg2: s }
@@ -84,7 +84,7 @@ or_term -> and_term                                         {% id %}
 
 # the 'and' operator is optional
 and_term -> not_term                                        {% id %}
-          | and_term __ ( "AND"i __ ):? not_term            {% (d) => { return check_and(d[0], d[3]) } %}
+          | and_term __ ( "AND"i __ ):? not_term            {% (d) => { return checkAnd(d[0], d[3]) } %}
 
 not_term -> "NOT"i __ term                                  {% (d) => { return {op: "NOT", arg: d[2] } } %}
           | term                                            {% id %}
@@ -92,7 +92,7 @@ not_term -> "NOT"i __ term                                  {% (d) => { return {
 # Simple function concept ancestors_of and children_of to give a subset of nodes for second search term
 term -> ("ao"|"co"|"children_of"|"ancestors_of") _ "(" _ or_term _ "," _ or_term _ ")"
                                                             {%
-                                                              (d) => { return {op: `${check_ao_co(d[0].join(""))}`, arg1: d[4], arg2: d[8] } }
+                                                              (d) => { return {op: `${checkAoCo(d[0].join(""))}`, arg1: d[4], arg2: d[8] } }
                                                             %}
       | patt                                                {% (d) => {
                                                               let q_v = qualifier(d[0].v, d[0].t)
@@ -101,11 +101,11 @@ term -> ("ao"|"co"|"children_of"|"ancestors_of") _ "(" _ or_term _ "," _ or_term
       | "(" __ or_term __ ")"                               {% (d) => { return d[2] } %}
 
 # '@' prefixed strings escapes all regex metacharacters
-patt -> "@" [\S]:+                                          {% (d) => { return { v: esc_str(d[1].join("")), t: false } } %}
+patt -> "@" [\S]:+                                          {% (d) => { return { v: escStr(d[1].join("")), t: false } } %}
       # 'and' and 'or' are not valid patterns, prefix with '@' if really needed
 patt -> [^@\s] [\S]:*                                       {% (d, l, reject) => {
                                                               let str = d[0]+d[1].join("");
-                                                              if (check_and_or(str)) {
+                                                              if (checkAndOr(str)) {
                                                                 return reject
                                                               } else {
                                                                 return { v: str, t: true }

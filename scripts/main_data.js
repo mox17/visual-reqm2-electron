@@ -9,86 +9,86 @@ import { ipcRenderer } from 'electron'
 /**
  * Callback when updated settings are taken into use
  */
-export function settings_updated () {
-  if (oreqm_main) {
+export function settingsUpdated () {
+  if (oreqmMain) {
     // settings can affect the rendering, therefore cache must be flushed
-    oreqm_main.clear_cache()
+    oreqmMain.clearCache()
   }
 }
 
-let action_start = action_indicate_start
-let action_done = action_indicate_done
+let actionStart = actionIndicateStart
+let actionDone = actionIndicateDone
 
 // Empty functions as fallback
-function action_indicate_start () { }
-function action_indicate_done () { }
+function actionIndicateStart () { }
+function actionIndicateDone () { }
 
-export function set_action_cb (start, done) {
-  action_start = start
-  action_done = done
+export function setActionCb (start, done) {
+  actionStart = start
+  actionDone = done
 }
 
 /** worker thread running graphviz */
-let vizjs_worker
+let vizjsWorker
 /** svg output from graphviz */
-export var svg_result = ''
+export var svgResult = ''
 /** Object containing internal representation of main oreqm file */
-export var oreqm_main = null
+export var oreqmMain = null
 /** Object containing internal representation of reference oreqm file */
-export var oreqm_ref = null
+export var oreqmRef = null
 /** the generated 'dot' source submitted to graphviz */
-export var dot_source = ''
+export var dotSource = ''
 
 /**
  * Start graphviz in worker thread on processing new dot graph.
- * @param {string} selected_format 'svg'/'png-image-element'/'dot-cource'
- * @param {function} cb_spinner_run some_function(string) showing progress
- * @param {function} cb_spinner_stop some_function() remove spinner
- * @param {function} cb_success some_function(result)
- * @param {function} cb_error some_function(error)
+ * @param {string} selectedFormat 'svg'/'png-image-element'/'dot-cource'
+ * @param {function} cbSpinnerRun someFunction(string) showing progress
+ * @param {function} cbSpinnerStop someFunction() remove spinner
+ * @param {function} cbSuccess someFunction(result)
+ * @param {function} cbError someFunction(error)
  */
-export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, cb_success, cb_error) {
-  // console.log("update_graph")
-  action_start()
-  if (vizjs_worker) {
-    vizjs_worker.terminate()
-    vizjs_worker = null
+export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSuccess, cbError) {
+  // console.log("updateGraph")
+  actionStart()
+  if (vizjsWorker) {
+    vizjsWorker.terminate()
+    vizjsWorker = null
   }
-  vizjs_worker = new Worker('./lib/worker.js')
-  if (cb_spinner_run) {
-    cb_spinner_run('Processing dot')
+  vizjsWorker = new Worker('./lib/worker.js')
+  if (cbSpinnerRun) {
+    cbSpinnerRun('Processing dot')
   }
-  vizjs_worker.onmessage = function (e) {
-    // console.log("vizjs_worker.onmessage")
-    svg_result = e.data
-    if (cb_spinner_stop) {
-      cb_spinner_stop()
+  vizjsWorker.onmessage = function (e) {
+    // console.log("vizjsWorker.onmessage")
+    svgResult = e.data
+    if (cbSpinnerStop) {
+      cbSpinnerStop()
     }
-    if (cb_success) {
-      cb_success(e.data)
+    if (cbSuccess) {
+      cbSuccess(e.data)
     }
-    action_done()
+    actionDone()
   }
 
-  vizjs_worker.onerror = function (e) {
+  vizjsWorker.onerror = function (e) {
     // const message = e.message === undefined ? 'An error occurred while processing the graph input.' : e.message
     const message = 'The Graphviz library could not generate a graph from the input.\nLimit the number of shown specobjects.'
     console.error(e)
-    //console.log(dot_source)
+    //console.log(dotSource)
     e.preventDefault()
-    if (cb_error) {
-      cb_spinner_stop()
-      cb_error(message)
+    if (cbError) {
+      cbSpinnerStop()
+      cbError(message)
     }
-    action_done()
+    actionDone()
   }
 
-  dot_source = oreqm_main !== null ? oreqm_main.get_dot() : 'digraph foo {\nfoo -> bar\nfoo -> baz\n}\n'
+  dotSource = oreqmMain !== null ? oreqmMain.getDot() : 'digraph foo {\nfoo -> bar\nfoo -> baz\n}\n'
   const params = {
-    src: dot_source,
+    src: dotSource,
     options: {
       engine: 'dot', // document.querySelector("#engine select").value,
-      format: selected_format,
+      format: selectedFormat,
       totalMemory: 4 * 16 * 1024 * 1024
     }
   }
@@ -99,33 +99,33 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
     params.options.format = 'svg'
   }
 
-  switch (selected_format) {
+  switch (selectedFormat) {
     case 'dot-source':
-      if (cb_success) {
-        cb_success(dot_source)
+      if (cbSuccess) {
+        cbSuccess(dotSource)
       }
-      if (cb_spinner_stop) {
-        cb_spinner_stop()
+      if (cbSpinnerStop) {
+        cbSpinnerStop()
       }
-      action_done()
+      actionDone()
       break;
 
     case 'html-table':
-      if (cb_success) {
-        cb_success(null)
+      if (cbSuccess) {
+        cbSuccess(null)
       }
-      if (cb_spinner_stop) {
-        cb_spinner_stop()
+      if (cbSpinnerStop) {
+        cbSpinnerStop()
       }
-      action_done()
+      actionDone()
       break;
 
     case 'svg':
     case 'png-image-element':
     default:
-      vizjs_worker.postMessage(params)
-      if (cb_spinner_run) {
-        cb_spinner_run('Processing dot...')
+      vizjsWorker.postMessage(params)
+      if (cbSpinnerRun) {
+        cbSpinnerRun('Processing dot...')
       }
   }
 }
@@ -135,17 +135,17 @@ export function update_graph (selected_format, cb_spinner_run, cb_spinner_stop, 
  * @param {string} name filename
  * @param {*} data XML content of file
  */
-export function create_oreqm_main (name, data) {
+export function createOreqmMain (name, data) {
   // Stop watching any previous file
-  if (oreqm_main) {
-    fs.unwatchFile(oreqm_main.filename)
+  if (oreqmMain) {
+    fs.unwatchFile(oreqmMain.filename)
   }
-  oreqm_main = new ReqM2Oreqm(name, data, [], [])
+  oreqmMain = new ReqM2Oreqm(name, data, [], [])
   fs.watchFile(name, (_curr, _prev) => {
     // console.log("File updated: ", name)
     ipcRenderer.send('file_updated', 'Main .oreqm changed', name)
   })
-  return oreqm_main
+  return oreqmMain
 }
 
 /**
@@ -153,17 +153,17 @@ export function create_oreqm_main (name, data) {
  * @param {string} name filename
  * @param {*} data XML content of file
  */
-export function create_oreqm_ref (name, data) {
+export function createOreqmRef (name, data) {
   // Stop watching any previous file
-  if (oreqm_ref) {
-    fs.unwatchFile(oreqm_ref.filename)
+  if (oreqmRef) {
+    fs.unwatchFile(oreqmRef.filename)
   }
-  oreqm_ref = new ReqM2Oreqm(name, data, [], [])
+  oreqmRef = new ReqM2Oreqm(name, data, [], [])
   fs.watchFile(name, (_curr, _prev) => {
     // console.log("File updated: ", name)
     ipcRenderer.send('file_updated', 'Reference .oreqm changed', name)
   })
-  return oreqm_ref
+  return oreqmRef
 }
 
 /**
@@ -171,46 +171,46 @@ export function create_oreqm_ref (name, data) {
  * @param {string} svg diagram in string format
  * @return {object} png image
  */
-export function convert_svg_to_png (svg, cb_done = undefined) {
-  return Viz.svgXmlToPngImageElement(svg, 1, cb_done)
+export function convertSvgToPng (svg, cbDone = undefined) {
+  return Viz.svgXmlToPngImageElement(svg, 1, cbDone)
 }
 
 /**
  * Save svg or png file. Format is controlled with extension of filename
  * @param {string} savePath path whre to store diagram
  */
-export function save_diagram_file (savePath) {
-  action_start()
+export function saveDiagramFile (savePath) {
+  actionStart()
   if (savePath.endsWith('.svg') || savePath.endsWith('.SVG')) {
-    fs.writeFileSync(savePath, svg_result, 'utf8')
-    action_done()
+    fs.writeFileSync(savePath, svgResult, 'utf8')
+    actionDone()
   } else if (savePath.endsWith('.png') || savePath.endsWith('.PNG')) {
-    Viz.svgXmlToPngImageElement(svg_result, 1, (ev, png) => {
+    Viz.svgXmlToPngImageElement(svgResult, 1, (ev, png) => {
       if (ev === null) {
-        const data_b64 = png.src.slice(22)
-        const buf = new Buffer.from(data_b64, 'base64')
+        const dataB64 = png.src.slice(22)
+        const buf = new Buffer.from(dataB64, 'base64')
         fs.writeFileSync(savePath, buf, 'utf8')
       } else {
         console.log('error generating png:', ev)
       }
-      action_done()
+      actionDone()
     })
   } else if (savePath.endsWith('.dot') || savePath.endsWith('.DOT')) {
-    fs.writeFileSync(savePath, dot_source, 'utf8')
-    action_done()
+    fs.writeFileSync(savePath, dotSource, 'utf8')
+    actionDone()
   } else {
     alert('Unsupported file types in\n' + savePath)
-    action_done()
+    actionDone()
   }
 }
 
 /**
  * clean up reference oreqm object
  */
-export function clear_oreqm_ref () {
-  fs.unwatchFile(oreqm_ref.filename)
-  oreqm_ref = null
-  oreqm_main.remove_ghost_requirements(true)
+export function clearOreqmRef () {
+  fs.unwatchFile(oreqmRef.filename)
+  oreqmRef = null
+  oreqmMain.removeGhostRequirements(true)
 }
 
 /**
@@ -221,12 +221,12 @@ export const COLOR_DOWN = 2
 
 /**
  * Check if node is selected
- * @param {string} node_id key of node
+ * @param {string} nodeId key of node
  * @param {object} rec JS object for node
- * @param {Set} node_color color
+ * @param {Set} nodeColor color
  * @return {boolean} true if selected
  */
-export function select_color (node_id, rec, node_color) {
+export function selectColor (nodeId, rec, nodeColor) {
   // Select colored nodes
-  return node_color.has(COLOR_UP) || node_color.has(COLOR_DOWN)
+  return nodeColor.has(COLOR_UP) || nodeColor.has(COLOR_DOWN)
 }

@@ -1,40 +1,40 @@
 'use strict'
-import { vql_validate } from './vql-search.js'
-import { search_tooltip } from './reqm2oreqm.js'
+import { vqlValidate } from './vql-search.js'
+import { searchTooltip } from './reqm2oreqm.js'
 
 /** When true only search ID field */
-export let search_language = 'reg' // search language
+export let searchLanguage = 'reg' // search language
 /** regex for matching requirements */
-export let search_pattern = ''
+export let searchPattern = ''
 /** initial set of excluded doctypes */
-export let excluded_doctypes = []
+export let excludedDoctypes = []
 
-export function set_excluded_doctypes (ed) {
-  excluded_doctypes = ed
+export function setExcludedDoctypes (ed) {
+  excludedDoctypes = ed
 }
 
-export function set_search_pattern (patt) {
-  search_pattern = patt
+export function setSearchPattern (patt) {
+  searchPattern = patt
 }
 
-export function set_search_language (lang) {
-  search_language = lang
+export function setSearchLanguage (lang) {
+  searchLanguage = lang
 }
 
-function search_validate(str) {
-  switch(search_language) {
+function searchValidate(str) {
+  switch(searchLanguage) {
     case 'ids':
     case 'reg':
       try {
         // eslint-disable-next-line no-unused-vars
-        let _regex_rule = new RegExp(str)
+        let _regexRule = new RegExp(str)
       } catch (err) {
         return err.message
       }
       return null
 
     case 'vql':
-      return vql_validate(str)
+      return vqlValidate(str)
   }
   return null
 }
@@ -44,17 +44,17 @@ function search_validate(str) {
  * @param {DOM object} field
  * @returns true if field OK
  */
- export function search_regex_validate(field) {
+ export function searchRegexValidate(field) {
   let text = field.value
-  let validation_error = search_validate(text)
-  if (text && validation_error) {
+  let validationError = searchValidate(text)
+  if (text && validationError) {
     if (!field.errorbox) {
       const rect = field.getBoundingClientRect();
       const left = rect.left;
       const top = rect.bottom;
       const width = field.clientWidth
       field.errorbox = document.createElement('div');
-      field.errorbox.innerHTML = validation_error
+      field.errorbox.innerHTML = validationError
       field.errorbox.classList.add('search_terms')
       field.errorbox.setAttribute('style', `background: #f0a0a0;
                                             padding: 6px;
@@ -68,16 +68,16 @@ function search_validate(str) {
       field.errorbox.style.fontSize = "75%"
       field.parentNode.appendChild(field.errorbox);
     } else {
-      field.errorbox.innerHTML = validation_error;
+      field.errorbox.innerHTML = validationError;
       field.errorbox.style.display = 'block';
     }
   } else if (field.errorbox) {
     field.errorbox.style.display = 'none';
   }
-  return !(text && validation_error)
+  return !(text && validationError)
 }
 
-export function set_search_language_hints(lang) {
+export function setSearchLanguageHints(lang) {
   let input = document.getElementById('search_regex')
   switch (lang) {
     case 'vql':
@@ -88,14 +88,14 @@ export function set_search_language_hints(lang) {
       input.placeholder = "Regex search\nnewlines are ignored\nrem:|chg:|new: select changes"
       break
   }
-  document.getElementById('search_tooltip').innerHTML = search_tooltip(lang)
+  document.getElementById('search_tooltip').innerHTML = searchTooltip(lang)
 }
 
 /**
- * Update radio-button for language selection as well as search_language variable
+ * Update radio-button for language selection as well as searchLanguage variable
  * @param {string} lang 'ids', 'req' or 'vql' from cmd line, settings or context file
  */
- export function set_search_language_buttons (lang) {
+ export function setSearchLanguageButtons (lang) {
   switch (lang) {
     case 'ids':
       document.getElementById('id_checkbox_input').checked = true
@@ -107,22 +107,22 @@ export function set_search_language_hints(lang) {
       document.getElementById('vql_checkbox_input').checked = true
       break
     }
-    set_search_language(lang)
-    set_search_language_hints(lang)
+    setSearchLanguage(lang)
+    setSearchLanguageHints(lang)
   }
 
 /**
  * Get the regular expression from "Selection criteria" box
  * @return {string} regular expression
  */
- export function get_search_regex_clean () {
-  const raw_search = document.getElementById('search_regex').value
-  let clean_search
-  if (search_language === 'vql') {
-    clean_search = raw_search
+ export function getSearchRegexClean () {
+  const rawSearch = document.getElementById('search_regex').value
+  let cleanSearch
+  if (searchLanguage === 'vql') {
+    cleanSearch = rawSearch
   } else {
-    clean_search = raw_search.replace(/\n/g, '') // ignore all newlines in regex
+    cleanSearch = rawSearch.replace(/\n/g, '') // ignore all newlines in regex
   }
-  return clean_search
+  return cleanSearch
 }
 
