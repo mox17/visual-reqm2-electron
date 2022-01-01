@@ -102,19 +102,10 @@ function settingsDialogPrepare () {
   document.getElementById('sett_show_errors').checked = programSettings.show_errors
   document.getElementById('sett_check_for_updates').checked = programSettings.check_for_updates
   let box = document.getElementById('sett_max_calc_nodes')
-  if (box) {
-    //rq: ->(rq_config_node_limit)
-    // console.log(programSettings.max_calc_nodes)
-    if (!programSettings.max_calc_nodes) {
-      programSettings.max_calc_nodes = 1000
-    }
-    box.value = programSettings.max_calc_nodes.toString()
-  }
+  //rq: ->(rq_config_node_limit)
+  box.value = programSettings.max_calc_nodes.toString()
   box = document.getElementById('top_doctypes')
-  if (box) {
-    // console.log(programSettings.max_calc_nodes);
-    box.value = programSettings.top_doctypes.join(',')
-  }
+  box.value = programSettings.top_doctypes.join(',')
   document.getElementById('safety_rules').value = JSON.stringify(programSettings.safety_link_rules, null, 2)
 }
 
@@ -129,9 +120,7 @@ function settingsDialogResults () {
     const domId = `sett_ignore_${field}`
     const box = document.getElementById(domId)
     // console.log(field, dom_id, box, programSettings.compare_fields[field])
-    if (box) {
-      programSettings.compare_fields[field] = !box.checked
-    }
+    programSettings.compare_fields[field] = !box.checked
   }
   programSettings.show_coverage = document.getElementById('sett_show_coverage').checked
   programSettings.color_status = document.getElementById('sett_color_status').checked

@@ -1253,7 +1253,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         .replace(/ BORDER="0"/, ' BORDER="1"')
       table += `<div id="${nodeId}">${node}\n<hr>\n</div>`
       reqProgress += 1
-      if (reqProgress % 100 === 0) {
+      if (reqProgress % 20 === 0) {
         progressbarUpdateValue(reqProgress)
       }
     }

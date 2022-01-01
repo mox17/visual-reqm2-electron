@@ -206,16 +206,32 @@ describe('Application launch', function () {
       // This is the list of fields that can be compared. Keep coordinated with settings.js
       // Check that all are present in settings dialog.
       const fields = [
-        'id', 'comment', 'dependson', 'description', 'doctype', 'fulfilledby', 'furtherinfo',
+        'id', 'comment', 'covstatus', 'dependson', 'description', 'doctype', 'fulfilledby', 'furtherinfo',
         'linksto', 'needsobj', 'platform', 'rationale', 'safetyclass', 'safetyrationale',
-        'shortdesc', 'source', 'sourcefile', 'sourceline', 'status', 'tags', 'usecase',
-        'verifycrit', 'version', 'violations']
+        'shortdesc', 'source', 'sourcefile', 'sourceline', 'sourcerevision', 'creationdate', 'category',
+        'priority', 'securityclass', 'securityrationale', 'verifymethods', 'verifycond', 'testin', 'testexec',
+        'testout', 'testpasscrit', 'releases', 'conflicts', 'status', 'tags', 'usecase',
+        'verifycrit', 'version', 'violations', 'errors', 'ffberrors', 'miscov']
       for (const field of fields) {
         const checkbox = await app.client.$(`#sett_ignore_${field}`)
         // console.dir(checkbox)
         assert.notProperty(checkbox, 'error') //rq: ->(rq_tag_ignore_diff)
       }
       const settingsMenu = await app.client.$('#settingsPopup')
+      const style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('block'))
+    })
+
+    it('close settings with OK', async function () {
+      const settingsMenu = await app.client.$('#settingsPopup')
+      await clickButton(app, '#sett_ok')
+      let style = await settingsMenu.getAttribute('style')
+      assert.ok(!style.includes('block;'))
+    })
+
+    it('Reopen settings', async function () {
+      const settingsMenu = await app.client.$('#settingsPopup')
+      await fakeMenu.clickMenu('Edit', 'Settings...')
       const style = await settingsMenu.getAttribute('style')
       assert.ok(style.includes('block'))
     })
@@ -229,8 +245,58 @@ describe('Application launch', function () {
       await clickButton(app, '#sett_ok')
       let style = await settingsMenu.getAttribute('style')
       assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
-      await clickButton(app, '#sett_cancel')
+      await screenshot(app, 'bad_settings')
+    })
+
+    it('Semantic safety check errors', async function () {
+      const settingsMenu = await app.client.$('#settingsPopup')
+      const safetyRules = await app.client.$('#safety_rules')
+
+      const check1 = `[]`
+
+      await safetyRules.setValue(check1)
+      await clickButton(app, '#sett_ok')
+      let style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
+      await screenshot(app, 'bad_settings')
+
+      const check2 = `[ "^\\w+:\\w+:$" ]`
+
+      await safetyRules.setValue(check2)
+      await clickButton(app, '#sett_ok')
       style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
+      await screenshot(app, 'bad_settings')
+
+      const check3 = `[ 7 ]`
+
+      await safetyRules.setValue(check3)
+      await clickButton(app, '#sett_ok')
+      style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
+      await screenshot(app, 'bad_settings')
+
+      const check4 = `[ ")>" ]`
+
+      await safetyRules.setValue(check4)
+      await clickButton(app, '#sett_ok')
+      style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
+      await screenshot(app, 'bad_settings')
+
+      const check5 = `[ ")" ]`
+
+      await safetyRules.setValue(check5)
+      await clickButton(app, '#sett_ok')
+      style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
+      await screenshot(app, 'bad_settings')
+    })
+
+    it('cancel settings', async function () {
+      const settingsMenu = await app.client.$('#settingsPopup')
+      await clickButton(app, '#sett_cancel')
+      let style = await settingsMenu.getAttribute('style')
       assert.ok(!style.includes('block;'))
     })
   })
@@ -260,21 +326,23 @@ describe('Application launch', function () {
     })
   })
 
-  it('jump between selected nodes (no nodes present)', async function () {
-    await clickButton(app, '#next_selected')
-    await clickButton(app, '#next_selected')
-    await clickButton(app, '#next_selected')
-    await clickButton(app, '#next_selected')
-    await clickButton(app, '#next_selected')
-    await clickButton(app, '#prev_selected')
-    await clickButton(app, '#prev_selected')
-    await clickButton(app, '#prev_selected')
-    await clickButton(app, '#prev_selected')
-    await clickButton(app, '#prev_selected')
-  })
+  describe('Navigate UI', function () {
+    it('jump between selected nodes (no nodes present)', async function () {
+      await clickButton(app, '#next_selected')
+      await clickButton(app, '#next_selected')
+      await clickButton(app, '#next_selected')
+      await clickButton(app, '#next_selected')
+      await clickButton(app, '#next_selected')
+      await clickButton(app, '#prev_selected')
+      await clickButton(app, '#prev_selected')
+      await clickButton(app, '#prev_selected')
+      await clickButton(app, '#prev_selected')
+      await clickButton(app, '#prev_selected')
+    })
 
-  it('autoupdate off', async function () {
-    await clickButton(app, '#auto_update')
+    it('autoupdate off', async function () {
+      await clickButton(app, '#auto_update')
+    })
   })
 
   describe('Load files', function () {
@@ -515,6 +583,19 @@ describe('Application launch', function () {
       const aboutpane = await app.client.$('#aboutPane')
       await clickButton(app, '#aboutPaneClose')
       expect(aboutpane.getAttribute('style')).to.eventually.not.include('block')
+      await waitForOperation(app)
+    })
+
+    it('Load too many safety rules', async function () {
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: ['abc', 'xyz'] }])
+      await fakeMenu.clickMenu('File', 'Load coverage rules...')
+      await waitForOperation(app)
+    })
+
+    it('Load bad safety rules', async function () {
+      const safetyRulesFilename = './testdata/sample_safety_rules-broken.json.json'
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safetyRulesFilename] }])
+      await fakeMenu.clickMenu('File', 'Load coverage rules...')
       await waitForOperation(app)
     })
 
