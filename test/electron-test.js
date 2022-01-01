@@ -382,6 +382,19 @@ describe('Application launch', function () {
       assert.strictEqual(await doctypeTotals.getAttribute('innerHTML'), '26') //rq: ->(rq_totals_stat)
     })
 
+    it('HTML table', async function () {
+      const formatSelect = await app.client.$('#format_select')
+      await formatSelect.selectByAttribute('value', 'html-table')
+      await waitForOperation(app)
+      await screenshot(app, 'table-format')
+    })
+
+    it('Back to SVG', async function () {
+      const formatSelect = await app.client.$('#format_select')
+      await formatSelect.selectByAttribute('value', 'svg')
+      await waitForOperation(app)
+    })
+
     it('save main as dot', async function () {
       const dotFilename = './tmp/main_1.dot'
       await removeFile(dotFilename)
@@ -555,15 +568,15 @@ describe('Application launch', function () {
     //   await clickButton(app, '#filter_graph')
     // })
 
-    // it('Toggle doctypes', async function () {
-    //   await clickButton(app, '#invert_exclude')
-    //   await waitForOperation(app)
-    // })
+    it('Toggle doctypes', async function () {
+      await clickButton(app, '#invert_exclude')
+      await waitForOperation(app)
+    })
 
-    // it('Toggle doctypes 2', async function () {
-    //   await clickButton(app, '#doctype_all')
-    //   await waitForOperation(app)
-    // })
+    it('Toggle doctypes 2', async function () {
+      await clickButton(app, '#doctype_all')
+      await waitForOperation(app)
+    })
 
     it('Redraw', async function () {
       await clickButton(app, '#filter_graph')
@@ -646,6 +659,64 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/safety_1.dot') //rq: ->(rq_doctype_aggr_safety)
+    })
+  })
+
+  describe('ID search', function () {
+    it('select ID search', async function () {
+      let searchRegex = await app.client.$('#search_regex')
+      await clickButton(app, '#clear_search_regex')
+      await clickButton(app, '#clear_excluded_ids')
+      await clickButton(app, '#id_checkbox_input')
+      // Find nodes with 'maze' in id
+      await searchRegex.setValue('maze')
+      await clickButton(app, '#filter_graph')
+      await waitForOperation(app)
+      await clickButton(app, '#copy_selected')
+      let selected = await app.electron.clipboard.readText()
+      assert.ok(selected.includes('cc.game.location.maze.9\n'))
+      assert.ok(selected.includes('cc.game.location.maze\n'))
+      let excludeIds = await app.client.$('#excluded_ids')
+      await excludeIds.setValue('cc.game.location.maze.9')
+      await clickButton(app, '#filter_graph')
+      await waitForOperation(app)
+      await clickButton(app, '#copy_selected')
+      selected = await app.electron.clipboard.readText()
+      assert.ok(!selected.includes('cc.game.location.maze.9\n'))
+      await clickButton(app, '#clear_excluded_ids')
+    })
+
+    it('Back to regex filter', async function () {
+      await clickButton(app, '#regex_checkbox_input')
+      //let searchRegex = await app.client.$('#search_regex')
+      await clickButton(app, '#filter_graph')
+      await waitForOperation(app)
+    })
+  })
+
+  describe('Keyboard navigation', function () {
+    it('Set focus and move with keys', async function () {
+      let pane = await app.client.$('#graph')
+      //console.log(pane)
+      await clickButton(app, '#graph')
+      await pane.keys(['a'])
+      // TODO: check screen coordinate changes
+      await screenshot(app, 'key-a')
+      await pane.keys(['d'])
+      await screenshot(app, 'key-d')
+      await pane.keys(['s'])
+      await screenshot(app, 'key-s')
+      await pane.keys(['w'])
+      await screenshot(app, 'key-w')
+      await pane.keys(['n'])
+      await pane.keys(['p'])
+      await pane.keys([' '])
+      await pane.keys(['+'])
+      await pane.keys(['+'])
+      await pane.keys(['-'])
+      await pane.keys(['-'])
+      await pane.keys(['?'])
+      await pane.keys(['æ'])
     })
   })
 

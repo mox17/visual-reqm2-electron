@@ -20,7 +20,9 @@ let actionStart = actionIndicateStart
 let actionDone = actionIndicateDone
 
 // Empty functions as fallback
+// istanbul ignore next
 function actionIndicateStart () { }
+// istanbul ignore next
 function actionIndicateDone () { }
 
 export function setActionCb (start, done) {

@@ -976,6 +976,7 @@ function getMainOreqmFile () {
 function processDataRef (name, data) {
   // Clean up data related to a previous ref file
   oreqmMain.removeGhostRequirements(true)  // possible ghost reqs were related to now disappearing ref file
+  clearHtmlTable()
   updateDoctypeTable()  // This includes reqs of doctypes that might now be gone
 
   // console.log("processDataRef")
