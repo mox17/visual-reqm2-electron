@@ -1271,6 +1271,7 @@ const dropAreaRef = document.getElementById('drop_area_ref');
   dropAreaRef.addEventListener(eventName, unhighlightRef, false)
 })
 
+// istanbul ignore next
 dropAreaMain.addEventListener('drop', (event) => {
   //rq: ->(rq_drop_main_oreqm)
   event.stopPropagation()
@@ -1279,6 +1280,7 @@ dropAreaMain.addEventListener('drop', (event) => {
   processDroppedFile(event, true)
 })
 
+// istanbul ignore next
 dropAreaOutput.addEventListener('drop', (event) => {
   //rq: ->(rq_drop_main_oreqm)
   event.stopPropagation()
@@ -1286,6 +1288,7 @@ dropAreaOutput.addEventListener('drop', (event) => {
   processDroppedFile(event, true)
 })
 
+// istanbul ignore next
 dropAreaRef.addEventListener('drop', (event) => {
   //rq: ->(rq_drop_ref_oreqm)
   event.stopPropagation()
@@ -1294,37 +1297,45 @@ dropAreaRef.addEventListener('drop', (event) => {
   processDroppedFile(event, false)
 })
 
+// istanbul ignore next
 function preventDefaults (e) {
   e.preventDefault()
   e.stopPropagation()
 }
 
+// istanbul ignore next
 function highlightMain () {
   dropAreaMain.classList.add('highlight')
 }
 
+// istanbul ignore next
 function highlightOutput () {
   dropAreaOutput.classList.add('highlight')
 }
 
+// istanbul ignore next
 function highlightRef () {
   if (oreqmMain) {
     dropAreaRef.classList.add('highlight')
   }
 }
 
+// istanbul ignore next
 function unhighlightMain () {
   dropAreaMain.classList.remove('highlight')
 }
 
+// istanbul ignore next
 function unhighlightOutput () {
   dropAreaOutput.classList.remove('highlight')
 }
 
+// istanbul ignore next
 function unhighlightRef () {
   dropAreaRef.classList.remove('highlight')
 }
 
+// istanbul ignore next
 // Main oreqm file
 dropAreaMain.addEventListener('dragover', (event) => {
   event.stopPropagation()
@@ -1333,6 +1344,7 @@ dropAreaMain.addEventListener('dragover', (event) => {
   event.dataTransfer.dropEffect = 'copy'
 })
 
+// istanbul ignore next
 // Reference oreqm file
 dropAreaRef.addEventListener('dragover', (event) => {
   event.stopPropagation()
@@ -1345,12 +1357,14 @@ dropAreaRef.addEventListener('dragover', (event) => {
   }
 })
 
+// istanbul ignore next
 document.addEventListener('dragover', (event) => {
   event.stopPropagation()
   event.preventDefault()
   event.dataTransfer.dropEffect = 'none'
 })
 
+// istanbul ignore next
 /**
  * Process dropped file, if there is just one file
  * @param {object} ev
@@ -1508,10 +1522,12 @@ function restartApp () {
   ipcRenderer.send('restart_app')
 }
 
+// istanbul ignore next
 document.getElementById('close-button').addEventListener('click', function () {
   closeNotification()
 })
 
+// istanbul ignore next
 document.getElementById('restart-button').addEventListener('click', function () {
   restartApp()
 })
@@ -1522,6 +1538,7 @@ if (document.readyState !== 'complete') {
     prepareTags()
   }, false)
 } else {
+  // istanbul ignore next
   prepareTags()
 }
 
