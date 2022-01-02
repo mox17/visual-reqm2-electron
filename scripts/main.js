@@ -413,7 +413,7 @@ ipcMain.on('pbar_start', (_evt, detail, text, count) => {
       detail: detail,
       indeterminate: count === 0,
       maxValue: count > 0 ? count-1 : 100
-    })
+    }, app)
   }
 })
 
