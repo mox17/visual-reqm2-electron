@@ -1,0 +1,104 @@
+digraph "" {
+  rankdir="RL"
+  node [shape=plaintext fontname="Arial" fontsize=16]
+  edge [color="blue",dir="forward",arrowhead="normal",arrowtail="normal"];
+
+  "cc.game.overview" [id="cc.game.overview" label=<
+      <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.overview</TD><TD>1</TD><TD>fea</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall be a text adventure.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>fea</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: Safety cannot be guaranteed in adventure games.<BR ALIGN="LEFT"/>Proceed at own risk.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+subgraph "cluster_cc.game.characters" { id="sel_cc.game.characters" color=maroon3 penwidth=3 label="" style="rounded"
+subgraph "cluster_cc.game.characters_changed" { color=orange3 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"
+  "cc.game.characters" [id="cc.game.characters" label=<
+      <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.characters</TD><TD>1</TD><TD>fea</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">The following characters shall roam the caves:<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Troll<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Dragon<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Bird<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Snake<BR ALIGN="LEFT"/>  &nbsp;&nbsp;* Pirate<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>swrs</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+}
+}
+
+  "cc.game.character.troll" [id="cc.game.character.troll" label=<
+      <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.character.troll</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Trolls are close relatives with the rocks and have skin as tough as<BR ALIGN="LEFT"/>that of a rhinoceros.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "cc.game.character.dragon" [id="cc.game.character.dragon" label=<
+      <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.character.dragon</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">A huge green fierce dragon bars the way!<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The dragon is sprawled out on a Persian rug!!<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "cc.game.character.bird" [id="cc.game.character.bird" label=<
+      <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.character.bird</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">The bird eyes you suspiciously and flutters away.  A moment later you<BR ALIGN="LEFT"/>feel something wet land on your head, but upon looking up you can see<BR ALIGN="LEFT"/>no sign of the culprit.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The bird is not hungry (it's merely pinin' for the fjords).  Besides, you<BR ALIGN="LEFT"/>have no bird seed.!<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "cc.game.character.snake" [id="cc.game.character.snake" label=<
+      <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.character.snake</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">A huge green fierce snake bars the way!<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The snake is hissing venomously.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "cc.game.character.pirate" [id="cc.game.character.pirate" label=<
+      <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.character.pirate</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Out from the shadows behind you pounces a bearded pirate!  &quot;Har, har,&quot;<BR ALIGN="LEFT"/>he chortles, &quot;I'll just take all this booty and hide it away with me<BR ALIGN="LEFT"/>chest deep in the maze!&quot;  He snatches your treasure and vanishes into<BR ALIGN="LEFT"/>the gloom.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: &quot;Shiver me timbers!&quot; he cries, &quot;I've been spotted!&quot;<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "/home/foo/bar/baz/fie/impl/pirate.hpp_15" [id="/home/foo/bar/baz/fie/impl/pirate.hpp_15" label=<
+      <TABLE BGCOLOR="#E7B1FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >/home/foo/bar/baz/fie/impl/pirate.hpp_15</TD><TD>1</TD><TD>impl</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT"></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: /home/foo/bar/baz/fie/impl/pirate.hpp:15<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD></TD><TD><TABLE BORDER="0"><TR><TD >approved</TD></TR><TR><TD >covered</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+subgraph "cluster_cc.game.character.ogre_removed" { color=red penwidth=2 label="removed" fontname="Arial" labelloc="t" style="rounded"
+  "cc.game.character.ogre" [id="cc.game.character.ogre" label=<
+      <TABLE BGCOLOR="#B1E6FD:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >cc.game.character.ogre</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">A formidable ogre bars the northern exit.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="red">swdd</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: The ogre is apparently the strong, silent type.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD BGCOLOR="yellow">proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+}
+
+
+  # Edges
+  "cc.game.characters" -> "cc.game.overview" [style=bold fontname="Arial" label=""];
+  "cc.game.character.troll" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.dragon" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.bird" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.snake" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "cc.game.character.pirate" -> "cc.game.characters" [style=bold fontname="Arial" label=""];
+  "/home/foo/bar/baz/fie/impl/pirate.hpp_15" -> "cc.game.character.pirate" [style=bold fontname="Arial" label=""];
+  "cc.game.character.ogre" -> "cc.game.characters" [style=bold color="#C00000" style=dashed fontname="Arial" label="removed: "];
+
+  label=<
+    <table border="0" cellspacing="0" cellborder="1">
+      <tr><td cellspacing="0" >File</td><td>./testdata/oreqm_testdata_no_ogre.oreqm</td><td>Tue Feb 11 15:46:12 2020</td></tr>
+      <tr><td>Ref. file</td><td>./testdata/oreqm_testdata_del_movement.oreqm</td><td>Tue Feb 11 15:46:12 2020</td></tr>
+      <tr><td>Search text</td><td colspan="2">new:|chg:|rem:<BR ALIGN="LEFT"/></td></tr>
+    </table>>
+  labelloc=b
+  fontsize=18
+  fontcolor=black
+  fontname="Arial"
+
+}

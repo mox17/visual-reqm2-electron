@@ -2,38 +2,38 @@
 'use strict'
 import { performance } from 'perf_hooks'
 
-let log_timing = false
+let logTiming = false
 
-export function enable_timing(val) {
-  log_timing = val
+export function enableTiming(val) {
+  logTiming = val
 }
 
 /**
  * Get current time
  * @returns {integer} current time in microseconds
  */
-export function get_time_now() {
+export function getTimeNow() {
     return performance.now()
 }
 
 /**
  * Get delta time
- * @param {integer} start_time in microseconds
+ * @param {integer} startTime in microseconds
  * @returns {integer} elapsed time in microseconds
  */
-export function get_delta_time(start_time) {
-    return performance.now() - start_time
+export function getDeltaTime(startTime) {
+    return performance.now() - startTime
 }
 
 /**
- * Log elapsed time since start_time
- * @param {integer} start_time in milliseconds
+ * Log elapsed time since startTime
+ * @param {integer} startTime in milliseconds
  * @param {string} legend headline for measurement
  * @returns integer time now
  */
-export function log_time_spent(start_time, legend="elapsed time") {
-    if (log_timing) {
-      console.log(`Time in "${legend}": ${get_delta_time(start_time).toFixed(3)} millisec`)
+export function logTimeSpent(startTime, legend="elapsed time") {
+    if (logTiming) {
+      console.log(`Time in "${legend}": ${getDeltaTime(startTime).toFixed(3)} millisec`)
     }
     return performance.now()
 }

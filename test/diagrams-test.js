@@ -33,7 +33,7 @@ const before = global.before
 const beforeEach = global.beforeEach
 // const afterEach = global.afterEach;
 
-function select_all (_node_id, rec, _node_color) {
+function selectAll (_nodeId, rec, _nodeColor) {
   // Select all - no need to inspect input
   return rec.status !== 'rejected'
 }
@@ -43,33 +43,33 @@ before(function () {
 })
 
 beforeEach(function () {
-  color.load_colors_fs(null, './test/refdata/test_suite_palette.json')
+  color.loadColorsFs(null, './test/refdata/test_suite_palette.json')
 })
 
 describe('ReqM2Oreqm tests', function () {
   // force default settings
-  settings.check_and_upgrade_settings(settings.default_program_settings)
+  settings.checkAndUpgradeSettings(settings.defaultProgramSettings)
 
-  const test_oreqm_file_name = './testdata/oreqm_testdata_del_movement.oreqm'
-  const oreqm_txt = fs.readFileSync(test_oreqm_file_name) //rq: ->(rq_read_oreqm)
+  const testOreqmFileName = './testdata/oreqm_testdata_del_movement.oreqm'
+  const oreqmTxt = fs.readFileSync(testOreqmFileName) //rq: ->(rq_read_oreqm)
   const oreqm = new ReqM2Oreqm.ReqM2Oreqm(
-    test_oreqm_file_name,
-    oreqm_txt,
+    testOreqmFileName,
+    oreqmTxt,
     [],
     []
   )
 
   it('Verify no doctypes blocked', function () {
-    // console.log(oreqm.excluded_doctypes);
-    assert.strictEqual(oreqm.filename, test_oreqm_file_name)
+    // console.log(oreqm.excludedDoctypes);
+    assert.strictEqual(oreqm.filename, testOreqmFileName)
   })
 
   it('Create instance', function () {
-    assert.ok(oreqm.get_excluded_doctypes().length === 0)
+    assert.ok(oreqm.getExcludedDoctypes().length === 0)
   })
 
   it('Finds reqs', function () {
-    const matches = oreqm.find_reqs_with_text('maze')
+    const matches = oreqm.findReqsWithText('maze')
     // console.log(matches)
     //rq: ->(rq_sel_txt)
     assert.ok(matches.includes('cc.game.location.maze.1'))
@@ -83,8 +83,8 @@ describe('ReqM2Oreqm tests', function () {
   })
 
   it('Create dot graph', function () {
-    const graph = oreqm.create_graph(
-      select_all,
+    const graph = oreqm.createGraph(
+      selectAll,
       [],
       'A test title',
       [],
@@ -94,32 +94,32 @@ describe('ReqM2Oreqm tests', function () {
     )
     // console.log(graph);
     assert.ok(
-      graph.doctype_dict.get('swrs').includes('cc.game.location.westlands')
+      graph.doctypeDict.get('swrs').includes('cc.game.location.westlands')
     )
-    assert.strictEqual(graph.node_count, 26)
-    assert.strictEqual(graph.edge_count, 25)
+    assert.strictEqual(graph.nodeCount, 26)
+    assert.strictEqual(graph.edgeCount, 25)
   })
 
   it('Check generated dot string', function () {
-    const dot_str = eol.auto(oreqm.get_dot())
-    fs.writeFileSync('tmp/dot_file_1_test.dot', dot_str, {
+    const dotStr = eol.auto(oreqm.getDot())
+    fs.writeFileSync('tmp/dot_file_1_test.dot', dotStr, {
       encoding: 'utf8',
       flag: 'w'
     })
-    // console.dir(expect(dot_str))
-    const dot_ref = eol.auto(
+    // console.dir(expect(dotStr))
+    const dotRef = eol.auto(
       fs.readFileSync('./test/refdata/dot_file_1_test.dot', 'utf8')
     )
-    expect(dot_str).to.equal(dot_ref) //rq: ->(rq_dot,rq_no_sel_show_all,rq_show_dot)
+    expect(dotStr).to.equal(dotRef) //rq: ->(rq_dot,rq_no_sel_show_all,rq_show_dot)
   })
 
   it('check pseudo needsobj for fulfilledby', function () {
-    const dot_str = eol.auto(oreqm.get_dot())
-    assert.ok(dot_str.includes('vaporware*')) //rq: ->(rq_ffb_needsobj)
+    const dotStr = eol.auto(oreqm.getDot())
+    assert.ok(dotStr.includes('vaporware*')) //rq: ->(rq_ffb_needsobj)
   })
 
   it('doctype filtering', function () {
-    const matches = oreqm.find_reqs_with_text('PLACEHOLDER')
+    const matches = oreqm.findReqsWithText('PLACEHOLDER')
     assert.ok(matches.includes('zork.game.location.frobozz'))
     //rq: ->(rq_ffb_placeholder)
     assert.strictEqual(
@@ -127,41 +127,41 @@ describe('ReqM2Oreqm tests', function () {
       'vaporware'
     )
     // Now exclude this doctype
-    oreqm.set_excluded_doctypes(['vaporware'])
-    oreqm.create_graph(select_all, [], 'A test title', [], 1000, true, true)
+    oreqm.setExcludedDoctypes(['vaporware'])
+    oreqm.createGraph(selectAll, [], 'A test title', [], 1000, true, true)
     //rq: ->(rq_sel_doctype)
     assert.strictEqual(
-      oreqm.get_dot().indexOf('zork.game.location.frobozz'),
+      oreqm.getDot().indexOf('zork.game.location.frobozz'),
       -1
     ) // node id absent from file
-    oreqm.set_excluded_doctypes([])
+    oreqm.setExcludedDoctypes([])
   })
 
   it('Create hierarchy diagram', function () {
-    const hierarchy = eol.auto(oreqm.scan_doctypes(false))
+    const hierarchy = eol.auto(oreqm.scanDoctypes(false))
     assert.ok(hierarchy.includes('digraph'))
 
     fs.writeFileSync('tmp/dot_file_hierarchy_test.dot', hierarchy, {
       encoding: 'utf8',
       flag: 'w'
     })
-    const dot_ref = eol.auto(
+    const dotRef = eol.auto(
       fs.readFileSync('./test/refdata/dot_file_hierarchy_test.dot', 'utf8')
     )
-    expect(hierarchy).to.equal(dot_ref)
+    expect(hierarchy).to.equal(dotRef)
   })
 
   it('Create safety diagram', function () {
-    const safety = eol.auto(oreqm.scan_doctypes(true))
+    const safety = eol.auto(oreqm.scanDoctypes(true))
     assert.ok(safety.includes('digraph'))
 
     fs.writeFileSync('tmp/dot_file_safety_test.dot', safety, {
       encoding: 'utf8',
       flag: 'w'
     })
-    const dot_ref = eol.auto(
+    const dotRef = eol.auto(
       fs.readFileSync('./test/refdata/dot_file_safety_test.dot', 'utf8')
     )
-    expect(safety).to.equal(dot_ref)
+    expect(safety).to.equal(dotRef)
   })
 })

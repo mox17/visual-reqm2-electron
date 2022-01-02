@@ -11,39 +11,39 @@ import fs from 'fs'
  * @param  {number} value
  * @return {Array<number>} [r, g, b] values from 0 to 255
  */
-function _hsv_to_rgb (hue, saturation, value) {
+function _hsvToRgb (hue, saturation, value) {
   let red, green, blue
-  const hue_int = Math.floor(hue * 6)
-  const f = hue * 6 - hue_int
+  const hueInt = Math.floor(hue * 6)
+  const f = hue * 6 - hueInt
   const p = value * (1 - saturation)
   const q = value * (1 - f * saturation)
   const t = value * (1 - (1 - f) * saturation)
-  if (hue_int === 0) {
+  if (hueInt === 0) {
     red = value
     green = t
     blue = p
   }
-  if (hue_int === 1) {
+  if (hueInt === 1) {
     red = q
     green = value
     blue = p
   }
-  if (hue_int === 2) {
+  if (hueInt === 2) {
     red = p
     green = value
     blue = t
   }
-  if (hue_int === 3) {
+  if (hueInt === 3) {
     red = p
     green = q
     blue = value
   }
-  if (hue_int === 4) {
+  if (hueInt === 4) {
     red = t
     green = p
     blue = value
   }
-  if (hue_int === 5) {
+  if (hueInt === 5) {
     red = value
     green = p
     blue = q
@@ -60,13 +60,13 @@ let HUE = HUE_START
  * Calculate next pseudo random color
  * @return {Array<number>} RGB colors
  */
-function _get_random_color () {
+function _getRandomColor () {
   HUE += GOLDEN_RATIO_CONJUGATE
   HUE %= 1
-  return _hsv_to_rgb(HUE, 0.3, 0.99)
+  return _hsvToRgb(HUE, 0.3, 0.99)
 }
 
-function _color_random_reset () {
+function _colorRandomReset () {
   HUE = HUE_START
 }
 
@@ -85,9 +85,9 @@ function _decimalToHex (d, padding) {
   return hex
 }
 
-function _get_color_string () {
+function _getColorString () {
   // Return color as #RRGGBB string"""
-  const color = _get_random_color()
+  const color = _getRandomColor()
   return `#${_decimalToHex(color[0], 2)}${_decimalToHex(color[1], 2)}${_decimalToHex(color[2], 2)}`
 }
 
@@ -97,26 +97,26 @@ function _get_color_string () {
  * @param  {string} doctype
  * @return {string} html friendly color string
  */
-function _add_color (palette, doctype) {
+function _addColor (palette, doctype) {
   const doctypes = Object.keys(palette)
-  let new_color
-  let same_color
+  let newColor
+  let sameColor
   do {
-    new_color = _get_color_string()
-    same_color = false
+    newColor = _getColorString()
+    sameColor = false
     for (const dt of doctypes) {
-      if (new_color === palette[dt]) {
-        same_color = true
+      if (newColor === palette[dt]) {
+        sameColor = true
         break
       }
     }
-  } while (same_color === true)
-  palette[doctype] = new_color
-  return new_color
+  } while (sameColor === true)
+  palette[doctype] = newColor
+  return newColor
 }
 
 // Storage of the color mapping
-let _my_palette =
+let _myPalette =
 {
   none: '#FFFFFF'
 }
@@ -126,13 +126,13 @@ let _my_palette =
  * @param  {string} key (doctype)
  * @return {string} html color
  */
-export function get_color (key) {
+export function getColor (key) {
   //rq: ->(rq_doctype_color_gen)
   let color
-  if (key in _my_palette) {
-    color = _my_palette[key]
+  if (key in _myPalette) {
+    color = _myPalette[key]
   } else {
-    color = _add_color(_my_palette, key)
+    color = _addColor(_myPalette, key)
   }
   return color
 }
@@ -140,7 +140,7 @@ export function get_color (key) {
 /**
  * Prompt user for save location and save color palette as external file.
  */
-export function save_colors_fs (path = null) {
+export function saveColorsFs (path = null) {
   //rq: ->(rq_doctype_color_export)
   let SavePath
   if (path === null) {
@@ -154,17 +154,17 @@ export function save_colors_fs (path = null) {
   }
   // istanbul ignore else
   if (typeof (SavePath) !== 'undefined') {
-    fs.writeFileSync(SavePath, JSON.stringify(_my_palette, null, 2), 'utf8')
-    _store_colors(_my_palette)
+    fs.writeFileSync(SavePath, JSON.stringify(_myPalette, null, 2), 'utf8')
+    _storeColors(_myPalette)
   }
 }
 
 /**
  * Prompt user for load location and load external file as color palette.
- * @param {function} update_function some_function()
+ * @param {function} updateFunction someFunction()
  * @param {string|null} path  path to color scheme json file
  */
-export function load_colors_fs (update_function, path = null) {
+export function loadColorsFs (updateFunction, path = null) {
   //rq: ->(rq_doctype_color_import)
   let LoadPath = null
   if (path === null) {
@@ -179,67 +179,59 @@ export function load_colors_fs (update_function, path = null) {
   // istanbul ignore else
   if (typeof (LoadPath) !== 'undefined' && (LoadPath.length === 1)) {
     const colors = JSON.parse(fs.readFileSync(LoadPath[0], { encoding: 'utf8', flag: 'r' }))
-    _store_colors(colors)
-    _my_palette = colors
-    _color_random_reset()
-    if (update_function) {
-      update_function()
+    _storeColors(colors)
+    _myPalette = colors
+    _colorRandomReset()
+    if (updateFunction) {
+      updateFunction()
     }
   }
 }
 
 /** @global {string} Name of (legacy) browser storage for color palettes */
-const color_storage_name = 'Visual_ReqM2_color_palette'
+const colorStorageName = 'Visual_ReqM2_color_palette'
 
-function _store_colors (colors) {
+function _storeColors (colors) {
   //rq: ->(rq_doctype_color_sett)
-  if (color_settings_updater !== null) {
-    color_settings_updater(colors)
+  if (colorSettingsUpdater !== null) {
+    colorSettingsUpdater(colors)
   }
-  /*
-  if (typeof(Storage) !== "undefined") {
-    const color_string = JSON.stringify(colors)
-    localStorage.setItem(color_storage_name, color_string);
-  } else {
-    console.log('Storage is undefined')
-  }
-  */
 }
 
 /** @global {function} callback function to update settings with updated color mapping */
-let color_settings_updater = null
+let colorSettingsUpdater = null
 
 /**
  * This is called just after settings have been read. Use defined colors (if available)
  * otherwise update settings with colors found in localStorage.
- * @param {dict} color_settings settings (or null) from saved json settings
- * @param {function} update_function function to update settings with new color mappings
+ * @param {dict} colorSettings settings (or null) from saved json settings
+ * @param {function} updateFunction function to update settings with new color mappings
  */
-export function update_color_settings (color_settings, update_function) {
-  color_settings_updater = update_function
-  if (color_settings) {
+export function updateColorSettings (colorSettings, updateFunction) {
+  colorSettingsUpdater = updateFunction
+  if (colorSettings) {
     // Settings have preference
-    _my_palette = color_settings
+    _myPalette = colorSettings
   } else {
     // No colors in settings, but settings read from localStorage => migrate data to settings file
-    if (colors_loaded_from_localStorage && color_settings_updater !== null) {
-      color_settings_updater(_my_palette)
+    if (colorsLoadedFromLocalStorage && colorSettingsUpdater !== null) {
+      colorSettingsUpdater(_myPalette)
     }
   }
 }
 
 // When migrating colors to settings file, indicate if doctype colors were read
-let colors_loaded_from_localStorage = false
+let colorsLoadedFromLocalStorage = false
 
 // Load color palette when page loads
 if (typeof (Storage) !== 'undefined') {
   // Code for localStorage/sessionStorage.
-  const color_string = localStorage.getItem(color_storage_name)
+  const colorString = localStorage.getItem(colorStorageName)
   // console.log("storage:", color_string, typeof(color_string))
-  if (typeof (color_string) === 'string') {
-    const colors = JSON.parse(color_string)
-    _my_palette = colors
-    colors_loaded_from_localStorage = true
+  if (typeof (colorString) === 'string') {
+    const colors = JSON.parse(colorString)
+    _myPalette = colors
+    colorsLoadedFromLocalStorage = true
   }
 } else {
   // console.log('Storage is undefined')

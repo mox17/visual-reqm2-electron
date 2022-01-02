@@ -13,8 +13,8 @@ const { hideBin } = require('yargs/helpers')
 // const { version } = require('./package.json');
 const log = require('electron-log')
 const { autoUpdater } = require('electron-updater')
-const electron_settings = require('electron-settings')
-const { settings_configure } = require('./settings_helper.js')
+const electronSettings = require('electron-settings')
+const { settingsConfigure } = require('./settings_helper.js')
 const { dialog } = require('electron')
 const ProgressBar = require('electron-progressbar')
 // const fs = require('fs');
@@ -25,18 +25,18 @@ autoUpdater.logger.transports.file.level = 'info'
 // end optional logging
 
 let debug = /--debug/.test(process.argv[2])
-let run_autoupdater = false
+let runAutoupdater = false
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
-let mainWindow_width = 1024
-let mainWindow_height = 768
+let mainWindowWidth = 1024
+let mainWindowHeight = 768
 
 let progressBar = null
-let ready_called = false
+let readyCalled = false
 
-function calc_icon_path (argv0) {
+function calcIconPath (argv0) {
   // Ugly hack to deal with path differences for nodejs and electron execution env.
   // istanbul ignore else
   if (path.basename(argv0.toLowerCase()).startsWith('electron')) {
@@ -46,24 +46,24 @@ function calc_icon_path (argv0) {
   }
 }
 
-let icon_path
+let iconPath
 function createWindow () {
   // istanbul ignore next
   if (process.platform === 'linux') {
     // istanbul ignore next
-    icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
+    iconPath = path.join(calcIconPath(process.argv[0]), './build/icons/Icon-512x512.png')
   } else if (process.platform === 'win32') {
     // istanbul ignore next
-    icon_path = path.join(calc_icon_path(process.argv[0]), './build/icons/Icon-512x512.png')
+    iconPath = path.join(calcIconPath(process.argv[0]), './build/icons/Icon-512x512.png')
   } else {
     // istanbul ignore next
-    icon_path = path.join(__dirname, './src/icons/mac/icon.icns')
+    iconPath = path.join(__dirname, './src/icons/mac/icon.icns')
   }
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: mainWindow_width,
-    height: mainWindow_height,
-    icon: icon_path,
+    width: mainWindowWidth,
+    height: mainWindowHeight,
+    icon: iconPath,
     show: false,
     webPreferences: {
       nodeIntegrationInWorker: true,
@@ -210,7 +210,7 @@ function createWindow () {
     mainWindow.show()
     // log.info("run_autoupdater:", run_autoupdater)
     // istanbul ignore next
-    if (run_autoupdater) {
+    if (runAutoupdater) {
       //rq: ->(rq_autoupdate_win)
       // istanbul ignore next
       autoUpdater.checkForUpdatesAndNotify()
@@ -228,13 +228,13 @@ function createWindow () {
   })
 
   mainWindow.on('close', (_event) => {
-    [mainWindow_width, mainWindow_height] = mainWindow.getSize()
-    electron_settings.setSync('mainWindow_width', mainWindow_width)
-    electron_settings.setSync('mainWindow_height', mainWindow_height)
+    [mainWindowWidth, mainWindowHeight] = mainWindow.getSize()
+    electronSettings.setSync('mainWindow_width', mainWindowWidth)
+    electronSettings.setSync('mainWindow_height', mainWindowHeight)
   })
 
   mainWindow.on('focus', (_event) => {
-    accelerators_setup()
+    acceleratorsSetup()
   })
 
   mainWindow.on('blur', (_event) => {
@@ -244,7 +244,7 @@ function createWindow () {
 
 }
 
-function accelerators_setup () {
+function acceleratorsSetup () {
   /* istanbul ignore next */
   globalShortcut.register('Alt+Home', () => { mainWindow.webContents.send('svg_reset_zoom') })
   /* istanbul ignore next */
@@ -311,7 +311,7 @@ app.on('ready', () => {
     .usage('$0 options [main_oreqm [ref_oreqm]]')
     .argv
   // console.dir(args);
-  settings_configure(electron_settings, args.settDir, args.settFile)
+  settingsConfigure(electronSettings, args.settDir, args.settFile)
   // Allow 1 or 2 positional parameters
   // yargs lets other arguments sneak in, which happens in test scenarios.
   // Therefore positional parameters have to end with '.oreqm' or '.vr2x' to be accepted.
@@ -331,15 +331,15 @@ app.on('ready', () => {
   }
   // console.dir(args);
   debug = args.debug
-  run_autoupdater = args.update
+  runAutoupdater = args.update
 
-  mainWindow_width = 1920 // electron_settings.getSync('mainWindow_width', 1024);
-  mainWindow_height = 1080 // electron_settings.getSync('mainWindow_height', 768);
+  mainWindowWidth = 1920 // electronSettings.getSync('mainWindow_width', 1024);
+  mainWindowHeight = 1080 // electronSettings.getSync('mainWindow_height', 768);
   createWindow()
 
   mainWindow.webContents.on('did-finish-load', () => {
     // console.log("did-finish-load")
-    ready_called = true
+    readyCalled = true
   })
 
   mainWindow.webContents.once('dom-ready', () => {
@@ -407,13 +407,13 @@ ipcMain.on('file_updated', (_evt, title, path) => {
 
 // ProgressBar messages
 ipcMain.on('pbar_start', (_evt, detail, text, count) => {
-  if (ready_called) {
+  if (readyCalled) {
     progressBar = new ProgressBar({
       text: text,
       detail: detail,
       indeterminate: count === 0,
       maxValue: count > 0 ? count-1 : 100
-    })
+    }, app)
   }
 })
 
@@ -464,10 +464,10 @@ autoUpdater.on('error', (_err) => {
 
 // istanbul ignore next
 autoUpdater.on('download-progress', (progressObj) => {
-  let log_message = 'Download speed: ' + progressObj.bytesPerSecond
-  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%'
-  log_message = log_message + ' (' + progressObj.transferred + '/' + progressObj.total + ')'
-  log.info(log_message)
+  let logMessage = 'Download speed: ' + progressObj.bytesPerSecond
+  logMessage = logMessage + ' - Downloaded ' + progressObj.percent + '%'
+  logMessage = logMessage + ' (' + progressObj.transferred + '/' + progressObj.total + ')'
+  log.info(logMessage)
 })
 
 // istanbul ignore next

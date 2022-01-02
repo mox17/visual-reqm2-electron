@@ -11,12 +11,12 @@ function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }
 }
 
-function simple_alert (msg) {
+function simpleAlert (msg) {
   console.log(msg)
 }
 
 // Override popup alert
-global.alert = simple_alert
+global.alert = simpleAlert
 
 // eslint-disable-next-line no-unused-vars
 function sleep (ms) {
@@ -25,18 +25,18 @@ function sleep (ms) {
 
 describe('util tests', function () {
   it('enable timing', function () {
-    util.enable_timing(true)
+    util.enableTiming(true)
   })
 
   it('util log time', async function () {
-    let now = util.get_time_now()
+    let now = util.getTimeNow()
     await sleep(50)
-    let then = util.log_time_spent(now)
+    let then = util.logTimeSpent(now)
     assert(then > now)
     assert((then-now) >= 50)
   })
 
   it('disable timing', function () {
-    util.enable_timing(false)
+    util.enableTiming(false)
   })
 })

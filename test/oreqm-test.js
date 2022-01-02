@@ -16,29 +16,29 @@ function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }
 }
 
-function simple_alert (msg) {
+function simpleAlert (msg) {
   console.log(msg)
 }
 
 // Override popup alert
-global.alert = simple_alert
+global.alert = simpleAlert
 
 describe('ReqM2Specobjects tests', function () {
-  const test_oreqm_file_name = './testdata/oreqm_testdata_del_movement.oreqm'
-  const oreqm_txt = fs.readFileSync(test_oreqm_file_name)
+  const testOreqmFileName = './testdata/oreqm_testdata_del_movement.oreqm'
+  const oreqmTxt = fs.readFileSync(testOreqmFileName)
   const oreqm = new ReqM2Specobjects.ReqM2Specobjects(
-    test_oreqm_file_name,
-    oreqm_txt,
+    testOreqmFileName,
+    oreqmTxt,
     [],
     []
   )
 
   it('Create instance', function () {
-    assert.strictEqual(oreqm.filename, test_oreqm_file_name)
+    assert.strictEqual(oreqm.filename, testOreqmFileName)
   })
 
   it('Finds reqs', function () {
-    const matches = oreqm.find_reqs_with_text('maze')
+    const matches = oreqm.findReqsWithText('maze')
     // console.log(matches)
     assert.ok(matches.includes('cc.game.location.maze.1'))
     assert.ok(matches.includes('cc.game.location.maze.2'))

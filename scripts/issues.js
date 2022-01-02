@@ -1,5 +1,5 @@
 'use strict'
-import { oreqm_main } from "./main_data"
+import { oreqmMain } from "./main_data"
 import { remote } from "electron"
 import { fs } from "fs"
 
@@ -7,17 +7,17 @@ import { fs } from "fs"
 /**
  * Update count in 'issues' button
  */
-export function set_issue_count () {
+export function setIssueCount () {
     let count = 0
-    if (oreqm_main) {
-      count = oreqm_main.get_problem_count()
+    if (oreqmMain) {
+      count = oreqmMain.getProblemCount()
     }
     document.getElementById('issueCount').innerHTML = count
   }
 
-  export function save_problems () {
+  export function saveProblems () {
     //rq: ->(rq_issues_file_export)
-    const problems = oreqm_main.get_problems()
+    const problems = oreqmMain.getProblems()
     const SavePath = remote.dialog.showSaveDialogSync(null, {
       filters: [{ name: 'TXT files', extensions: ['txt'] }],
       properties: ['openFile']

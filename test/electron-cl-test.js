@@ -22,7 +22,7 @@ const before = global.before
 // const file = chaiFiles.file
 // const dir = chaiFiles.dir
 
-function remove_file (path) {
+function removeFile (path) {
   if (fs.existsSync(path)) {
     fs.unlinkSync(path)
   }
@@ -46,17 +46,17 @@ function holdBeforeFileExists (filePath, timeout) {
   })
 }
 
-function copy_file (filename_from, filename_to) {
-  const main_txt = fs.readFileSync(filename_from, 'utf8')
-  fs.writeFileSync(filename_to, main_txt)
+function copyFile (filenameFrom, filenameTo) {
+  const mainTxt = fs.readFileSync(filenameFrom, 'utf8')
+  fs.writeFileSync(filenameTo, mainTxt)
 }
 
-async function compare_files (main_file, ref_file) {
-  holdBeforeFileExists(main_file, 10000)
-  const main_txt = eol.auto(fs.readFileSync(main_file, 'utf8'))
-  const ref_txt = eol.auto(fs.readFileSync(ref_file, 'utf8'))
-  assert.strictEqual(main_txt, ref_txt)
-  return main_txt
+async function compareFiles (mainFile, refFile) {
+  holdBeforeFileExists(mainFile, 10000)
+  const mainTxt = eol.auto(fs.readFileSync(mainFile, 'utf8'))
+  const refTxt = eol.auto(fs.readFileSync(refFile, 'utf8'))
+  assert.strictEqual(mainTxt, refTxt)
+  return mainTxt
 }
 
 describe('command line processing', function () {
@@ -71,11 +71,11 @@ describe('command line processing', function () {
 
   before(function () {
     mkdirp.sync('./tmp')
-    remove_file('./tmp/settings.json')
-    copy_file('./test/refdata/settings.json', './tmp/cl-settings.json')
-    remove_file('./tmp/cl-test-diagram.svg')
-    remove_file('./tmp/cl-test-doctypes.svg')
-    remove_file('./tmp/cl-test-safety.svg')
+    removeFile('./tmp/settings.json')
+    copyFile('./test/refdata/settings.json', './tmp/cl-settings.json')
+    removeFile('./tmp/cl-test-diagram.svg')
+    removeFile('./tmp/cl-test-doctypes.svg')
+    removeFile('./tmp/cl-test-safety.svg')
   })
 
   it('bad filenames', async function () {
@@ -100,12 +100,20 @@ describe('command line processing', function () {
       chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
     })
     await app.start()
-  })
-
-  it('Exit after bad filenames', async function () {
-    if (app && await app.isRunning()) {
-      await app.stop()
-    }
+    // Check pameters read
+    let exclid_field = await app.client.$('#excluded_ids')
+    let exclids = await exclid_field.getValue()
+    assert.ok(exclids.includes('some_id'))
+    assert.ok(exclids.includes('some_other_id'))
+    // Check empty main file (file not found)
+    let main_file = await app.client.$('#name')
+    let mf_content = await main_file.getHTML()
+    assert.ok(mf_content.includes('></td>'))
+    // Check empty ref file (file not found)
+    let ref_file = await app.client.$('#ref_name')
+    let ref_content = await ref_file.getHTML()
+    assert.ok(ref_content.includes('></td>'))
+    await app.stop()
   })
 
   it('launch the application', async function () {
@@ -133,26 +141,98 @@ describe('command line processing', function () {
 
     await app.start().then(appSuccess, appFailure)
     await app.client.waitUntilTextExists('#vrm2_batch', 'done', {timeout: 20010})
-    // console.log("render logs", await app.client.getRenderProcessLogs())
-    // console.log("main logs", await app.client.getMainProcessLogs())
-  })
-
-  it('Check program exit', async function () {
-    if (app && await app.isRunning()) {
-      await app.stop()
-    }
+    // Check main file
+    let main_file = await app.client.$('#name')
+    let mf_content = await main_file.getHTML()
+    assert.ok(mf_content.includes('oreqm_testdata_del_movement.oreqm'))
+    // Check ref file
+    let ref_file = await app.client.$('#ref_name')
+    let ref_content = await ref_file.getHTML()
+    assert.ok(ref_content.includes('oreqm_testdata_no_ogre.oreqm'))
+    await app.stop()
   })
 
   it('Check specobject diagram', async function () {
-    await compare_files('./tmp/cl-test-diagram.svg', './test/refdata/cl-test-diagram.svg') //rq: ->(rq_automatic_diagram)
+    await compareFiles('./tmp/cl-test-diagram.svg', './test/refdata/cl-test-diagram.svg') //rq: ->(rq_automatic_diagram)
   })
 
   it('Check hierarchy diagram', async function () {
-    await compare_files('./tmp/cl-test-doctypes.svg', './test/refdata/cl-test-doctypes.svg')
+    await compareFiles('./tmp/cl-test-doctypes.svg', './test/refdata/cl-test-doctypes.svg')
   })
 
   it('Check safetyclass diagram', async function () {
-    await compare_files('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
+    await compareFiles('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
+  })
+
+  it('Open vr2x file from cmd line', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--diagram',
+        '--format', 'svg',
+        '--output', 'tmp/cl-context',
+        '--context', './testdata/test_context.vr2x'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    fakeMenu.apply(app)
+    fakeDialog.apply(app)
+
+    await app.start().then(appSuccess, appFailure)
+    await app.client.waitUntilTextExists('#vrm2_batch', 'done', {timeout: 20010})
+    // Check main file
+    let main_file = await app.client.$('#name')
+    let mf_content = await main_file.getHTML()
+    assert.ok(mf_content.includes('oreqm_testdata_no_ogre.oreqm'))
+    // Check ref file
+    let ref_file = await app.client.$('#ref_name')
+    let ref_content = await ref_file.getHTML()
+    assert.ok(ref_content.includes('oreqm_testdata_del_movement.oreqm'))
+    await app.stop()
+  })
+
+  it('Select vql from cmd line', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--vql',
+        '--format', 'svg'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    fakeMenu.apply(app)
+    fakeDialog.apply(app)
+
+    await app.start().then(appSuccess, appFailure)
+    let vql_radio = await app.client.$('#vql_radio_input')
+    let vql_value = await vql_radio.isSelected()
+    assert.ok(vql_value)
+    await app.stop()
+  })
+
+  it('Select idOnly from cmd line', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--idOnly',
+        '--format', 'svg'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    fakeMenu.apply(app)
+    fakeDialog.apply(app)
+
+    await app.start().then(appSuccess, appFailure)
+    let id_radio = await app.client.$('#id_radio_input')
+    let id_value = await id_radio.isSelected()
+    assert.ok(id_value)
+    await app.stop()
   })
 
   async function appSuccess () {

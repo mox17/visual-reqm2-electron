@@ -17,25 +17,25 @@ describe('DoctypeRelations tests', function () {
   })
 
   it('Add instances', function () {
-    inst.add_instance('fie')
-    inst.add_instance('fum')
+    inst.addInstance('fie')
+    inst.addInstance('fum')
     assert.strictEqual(inst.count, 2)
-    assert.strictEqual(inst.id_list[0], 'fie')
-    assert.strictEqual(inst.id_list[1], 'fum')
+    assert.strictEqual(inst.idList[0], 'fie')
+    assert.strictEqual(inst.idList[1], 'fum')
   })
 
   it('Add needsobj', function () {
-    inst.add_needsobj('bar')
-    inst.add_needsobj('bar')
-    inst.add_needsobj('baz')
+    inst.addNeedsobj('bar')
+    inst.addNeedsobj('bar')
+    inst.addNeedsobj('baz')
     assert.strictEqual(inst.needsobj.get('bar'), 2)
     assert.strictEqual(inst.needsobj.get('baz'), 1)
   })
 
   it('Add linksto', function () {
-    inst.add_linksto('swad', [1, 2])
-    inst.add_linksto('swad', [3, 4])
-    inst.add_linksto('swdd', [5, 6])
+    inst.addLinksto('swad', [1, 2])
+    inst.addLinksto('swad', [3, 4])
+    inst.addLinksto('swdd', [5, 6])
     assert.strictEqual(inst.linksto.get('swad').length, 2)
     assert.strictEqual(inst.linksto.get('swdd').length, 1)
     const a = inst.linksto.get('swdd')[0]
@@ -45,9 +45,9 @@ describe('DoctypeRelations tests', function () {
   })
 
   it('Add fulfilledby', function () {
-    inst.add_fulfilledby('swad', [1, 2])
-    inst.add_fulfilledby('swad', [3, 4])
-    inst.add_fulfilledby('swdd', [5, 6])
+    inst.addFulfilledby('swad', [1, 2])
+    inst.addFulfilledby('swad', [3, 4])
+    inst.addFulfilledby('swdd', [5, 6])
     assert.strictEqual(inst.fulfilledby.get('swad').length, 2)
     assert.strictEqual(inst.fulfilledby.get('swdd').length, 1)
     const a = inst.fulfilledby.get('swdd')[0]
