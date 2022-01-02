@@ -23,13 +23,13 @@ const cmdQueue = []
     }
     // Override settings search language with cmd line options
     if (args.vql) {
-      document.getElementById('vql_checkbox_input').checked = true
+      document.getElementById('vql_radio_input').checked = true
       setSearchLanguage('vql')
     } else if (args.regex) {
-      document.getElementById('regex_checkbox_input').checked = true
+      document.getElementById('regex_radio_input').checked = true
       setSearchLanguage('reg')
     } else if (args.idOnly) {
-      document.getElementById('id_checkbox_input').checked = true
+      document.getElementById('id_radio_input').checked = true
       setSearchLanguage('ids')
     }
     document.getElementById('limit_depth_input').checked = args.limitDepth //rq: ->(rq_limited_walk_cl)
@@ -78,6 +78,10 @@ const cmdQueue = []
       cmdQueue.push('quit')
     }
     // console.log("queue:", cmd_queue);
+    if (!cmdQueue.length) {
+      // Nothing to do - helps test scripts
+      document.getElementById('vrm2_batch').innerHTML = 'done'
+    }
   }
 
   /**

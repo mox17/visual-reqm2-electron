@@ -98,13 +98,13 @@ export function setSearchLanguageHints(lang) {
  export function setSearchLanguageButtons (lang) {
   switch (lang) {
     case 'ids':
-      document.getElementById('id_checkbox_input').checked = true
+      document.getElementById('id_radio_input').checked = true
       break
     case 'reg':
-      document.getElementById('regex_checkbox_input').checked = true
+      document.getElementById('regex_radio_input').checked = true
       break
     case 'vql':
-      document.getElementById('vql_checkbox_input').checked = true
+      document.getElementById('vql_radio_input').checked = true
       break
     }
     setSearchLanguage(lang)

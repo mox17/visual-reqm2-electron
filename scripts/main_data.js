@@ -72,6 +72,7 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
     actionDone()
   }
 
+  // istanbul ignore next
   vizjsWorker.onerror = function (e) {
     // const message = e.message === undefined ? 'An error occurred while processing the graph input.' : e.message
     const message = 'The Graphviz library could not generate a graph from the input.\nLimit the number of shown specobjects.'

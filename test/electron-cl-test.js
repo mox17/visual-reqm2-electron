@@ -164,6 +164,77 @@ describe('command line processing', function () {
     await compareFiles('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
   })
 
+  it('Open vr2x file from cmd line', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--diagram',
+        '--format', 'svg',
+        '--output', 'tmp/cl-context',
+        '--context', './testdata/test_context.vr2x'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    fakeMenu.apply(app)
+    fakeDialog.apply(app)
+
+    await app.start().then(appSuccess, appFailure)
+    await app.client.waitUntilTextExists('#vrm2_batch', 'done', {timeout: 20010})
+    // Check main file
+    let main_file = await app.client.$('#name')
+    let mf_content = await main_file.getHTML()
+    assert.ok(mf_content.includes('oreqm_testdata_no_ogre.oreqm'))
+    // Check ref file
+    let ref_file = await app.client.$('#ref_name')
+    let ref_content = await ref_file.getHTML()
+    assert.ok(ref_content.includes('oreqm_testdata_del_movement.oreqm'))
+    await app.stop()
+  })
+
+  it('Select vql from cmd line', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--vql',
+        '--format', 'svg'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    fakeMenu.apply(app)
+    fakeDialog.apply(app)
+
+    await app.start().then(appSuccess, appFailure)
+    let vql_radio = await app.client.$('#vql_radio_input')
+    let vql_value = await vql_radio.isSelected()
+    assert.ok(vql_value)
+    await app.stop()
+  })
+
+  it('Select idOnly from cmd line', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--idOnly',
+        '--format', 'svg'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    fakeMenu.apply(app)
+    fakeDialog.apply(app)
+
+    await app.start().then(appSuccess, appFailure)
+    let id_radio = await app.client.$('#id_radio_input')
+    let id_value = await id_radio.isSelected()
+    assert.ok(id_value)
+    await app.stop()
+  })
+
   async function appSuccess () {
     assert.strictEqual(app.isRunning(), true)
     chaiAsPromised.transferPromiseness = app.transferPromiseness

@@ -174,6 +174,7 @@ function pngCallback (ev, png) {
  * Show selected node as XML in the source code modal (html)
  */
  export function showSource () {
+  // istanbul ignore else
   if (selectedNode.length) {
     const ref = document.getElementById('req_src')
     if (oreqmRef && oreqmMain.updatedReqs.includes(selectedNode)) {
@@ -225,6 +226,7 @@ function pngCallback (ev, png) {
 
 export function showInternal () {
   // Show selected node as internal tagged string
+  // istanbul ignore else
   if (selectedNode.length) {
     const ref = document.getElementById('req_src')
     const headerMain = "<h2>Internal tagged 'search' format</h2>"

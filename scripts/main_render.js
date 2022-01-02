@@ -595,7 +595,7 @@ function restoreContextAttributes (ctx) {
   document.getElementById('no_rejects').checked = ctx.no_rejects
   // Handle version differences in file formats
   if (ctx.version === 1) {
-    setSearchLanguage(document.getElementById('id_checkbox_input').checked ? 'ids' : 'reg')
+    setSearchLanguage(document.getElementById('id_radio_input').checked ? 'ids' : 'reg')
   } else if (ctx.version === 2) {
     setSearchLanguage(ctx.search_language)
   }
@@ -800,15 +800,15 @@ document.getElementById('auto_update').addEventListener('click', function () {
   filterChange()
 })
 
-document.getElementById('id_checkbox_input').addEventListener('change', function () {
+document.getElementById('id_radio_input').addEventListener('change', function () {
   selectSearchLanguage('ids')
 })
 
-document.getElementById('regex_checkbox_input').addEventListener('change', function () {
+document.getElementById('regex_radio_input').addEventListener('change', function () {
   selectSearchLanguage('reg')
 })
 
-document.getElementById('vql_checkbox_input').addEventListener('change', function () {
+document.getElementById('vql_radio_input').addEventListener('change', function () {
   selectSearchLanguage('vql')
 })
 

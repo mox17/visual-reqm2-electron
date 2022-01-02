@@ -496,16 +496,48 @@ describe('Application launch', function () {
       await compareFiles(svgFilename, './test/refdata/main_ref_1.svg') //rq: ->(rq_save_svg_file)
     })
 
-    it('show xml', async function () {
+    it('show xml changed', async function () {
       const svgMap = await getSvgNodeMap(app)
       await contextMenuClick(app, svgMap, 'cc.game.characters', '#menu_xml_txt')
+      let req_src = await app.client.$('#req_src')
+      let req_src_html = await req_src.getHTML()
+      assert.ok(req_src_html.includes('<h2>XML format (changed specobject)</h2>'))
       await clickButton(app, '#nodeSourceClose') //rq: ->(rq_ctx_show_diff)
-      // TODO: Extract text from popup, save as file and compare to reference
+    })
+
+    it('show xml removed', async function () {
+      const svgMap = await getSvgNodeMap(app)
+      await contextMenuClick(app, svgMap, 'cc.game.character.ogre', '#menu_xml_txt')
+      let req_src = await app.client.$('#req_src')
+      let req_src_html = await req_src.getHTML()
+      assert.ok(req_src_html.includes('<h2>XML format (removed specobject)</h2>'))
+      await clickButton(app, '#nodeSourceClose')
+    })
+
+    it('show xml new', async function () {
+      const svgMap = await getSvgNodeMap(app)
+      await contextMenuClick(app, svgMap, 'cc.game.movement', '#menu_xml_txt')
+      let req_src = await app.client.$('#req_src')
+      let req_src_html = await req_src.getHTML()
+      assert.ok(req_src_html.includes('<h2>XML format (new specobject)</h2>'))
+      await clickButton(app, '#nodeSourceClose')
+    })
+
+    it('show xml normal', async function () {
+      const svgMap = await getSvgNodeMap(app)
+      await contextMenuClick(app, svgMap, 'cc.game.overview', '#menu_xml_txt')
+      let req_src = await app.client.$('#req_src')
+      let req_src_html = await req_src.getHTML()
+      assert.ok(req_src_html.includes('<h2>XML format</h2>'))
+      await clickButton(app, '#nodeSourceClose')
     })
 
     it('show tagged search text', async function () {
       const svgMap = await getSvgNodeMap(app)
       await contextMenuClick(app, svgMap, 'cc.game.characters', '#menu_search_txt')
+      let req_src = await app.client.$('#req_src')
+      let req_src_html = await req_src.getHTML()
+      assert.ok(req_src_html.includes('<h2>Internal tagged \'search\' format</h2>'))
       await clickButton(app, '#nodeSourceClose')
     })
 
@@ -667,7 +699,7 @@ describe('Application launch', function () {
       let searchRegex = await app.client.$('#search_regex')
       await clickButton(app, '#clear_search_regex')
       await clickButton(app, '#clear_excluded_ids')
-      await clickButton(app, '#id_checkbox_input')
+      await clickButton(app, '#id_radio_input')
       // Find nodes with 'maze' in id
       await searchRegex.setValue('maze')
       await clickButton(app, '#filter_graph')
@@ -687,7 +719,7 @@ describe('Application launch', function () {
     })
 
     it('Back to regex filter', async function () {
-      await clickButton(app, '#regex_checkbox_input')
+      await clickButton(app, '#regex_radio_input')
       //let searchRegex = await app.client.$('#search_regex')
       await clickButton(app, '#filter_graph')
       await waitForOperation(app)
@@ -830,7 +862,7 @@ describe('Application launch', function () {
   })
 
   describe('Export doctype colors', function () {
-    it('color palette', async function () {
+    it('color palette export', async function () {
       const colorsFilename = './tmp/test_suite_palette.json'
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: colorsFilename }])
       await fakeMenu.clickMenu('File', 'Save color scheme as...')
@@ -937,7 +969,7 @@ describe('Application launch', function () {
      */
     it('Click VQL', async function () {
       const searchRegex = await app.client.$('#search_regex')
-      await clickButton(app, '#vql_checkbox_input')
+      await clickButton(app, '#vql_radio_input')
       await clickButton(app, '#clear_search_regex')
       await searchRegex.setValue('ao( twisty little or passage, . )')
       await clickButton(app, '#filter_graph')
