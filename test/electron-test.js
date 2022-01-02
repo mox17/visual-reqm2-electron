@@ -593,6 +593,35 @@ describe('Application launch', function () {
       await app.client.waitUntilTextExists('#vrm2_working', 'centered')
     })
 
+    it('nodeSelect 1', async function () {
+      const nodeSelect = await app.client.$('#nodeSelect')
+      // console.log('selectedValue:', await nodeSelect.getValue())
+      await nodeSelect.selectByIndex(1)
+      // console.log('selectedValue:', await nodeSelect.getValue())
+    })
+
+    it('nodeSelect 2', async function () {
+      await clickButton(app, '#single_select')
+      await waitForOperation(app)
+
+      const dotFilename = './tmp/single_select_1.dot'
+      await removeFile(dotFilename)
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
+      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await waitForOperation(app)
+      await compareFiles(dotFilename, './test/refdata/single_select_1.dot')
+
+      const nodeSelect = await app.client.$('#nodeSelect')
+      // console.log(await nodeSelect.getValue())
+      await nodeSelect.selectByIndex(2)
+      // console.log('selectedValue:', await nodeSelect.getValue())
+    })
+
+    it('single off', async function () {
+      await clickButton(app, '#single_select')
+      await waitForOperation(app)
+    })
+
     // it('Cancel context menu', async function () {
     //   // Open and cancel context menu
     //   const svgMap = await getSvgNodeMap(app)
