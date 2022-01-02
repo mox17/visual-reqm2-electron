@@ -100,12 +100,20 @@ describe('command line processing', function () {
       chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
     })
     await app.start()
-  })
-
-  it('Exit after bad filenames', async function () {
-    if (app && await app.isRunning()) {
-      await app.stop()
-    }
+    // Check pameters read
+    let exclid_field = await app.client.$('#excluded_ids')
+    let exclids = await exclid_field.getValue()
+    assert.ok(exclids.includes('some_id'))
+    assert.ok(exclids.includes('some_other_id'))
+    // Check empty main file (file not found)
+    let main_file = await app.client.$('#name')
+    let mf_content = await main_file.getHTML()
+    assert.ok(mf_content.includes('></td>'))
+    // Check empty ref file (file not found)
+    let ref_file = await app.client.$('#ref_name')
+    let ref_content = await ref_file.getHTML()
+    assert.ok(ref_content.includes('></td>'))
+    await app.stop()
   })
 
   it('launch the application', async function () {
@@ -133,14 +141,15 @@ describe('command line processing', function () {
 
     await app.start().then(appSuccess, appFailure)
     await app.client.waitUntilTextExists('#vrm2_batch', 'done', {timeout: 20010})
-    // console.log("render logs", await app.client.getRenderProcessLogs())
-    // console.log("main logs", await app.client.getMainProcessLogs())
-  })
-
-  it('Check program exit', async function () {
-    if (app && await app.isRunning()) {
-      await app.stop()
-    }
+    // Check main file
+    let main_file = await app.client.$('#name')
+    let mf_content = await main_file.getHTML()
+    assert.ok(mf_content.includes('oreqm_testdata_del_movement.oreqm'))
+    // Check ref file
+    let ref_file = await app.client.$('#ref_name')
+    let ref_content = await ref_file.getHTML()
+    assert.ok(ref_content.includes('oreqm_testdata_no_ogre.oreqm'))
+    await app.stop()
   })
 
   it('Check specobject diagram', async function () {
