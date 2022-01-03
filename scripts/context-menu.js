@@ -18,6 +18,7 @@ nodeSourceClose.onclick = function () {
 }
 
 export function addNodeToSelection (node) {
+  // istanbul ignore else
   if (oreqmMain && oreqmMain.checkNodeId(node)) {
     let searchPattern = document.getElementById('search_regex').value.trim()
 

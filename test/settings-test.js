@@ -30,10 +30,12 @@ describe('Settings tests', function () {
     delete newSettings.show_errors
     delete newSettings.check_for_updates
     delete newSettings.safety_link_rules
+    delete newSettings.compare_fields
 
     settings.checkAndUpgradeSettings(newSettings)
     assert.strictEqual(settings.programSettings.max_calc_nodes, 1000)
     assert.strictEqual(settings.programSettings.show_coverage, true)
+    assert.strictEqual(settings.programSettings.compare_fields.id, true)
 
     // console.dir(newSettings.safety_link_rules);
     // console.dir(JSON.stringify(newSettings.safety_link_rules, null, 2));

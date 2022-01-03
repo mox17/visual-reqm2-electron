@@ -75,14 +75,8 @@ function _colorRandomReset () {
  * @param  {number} padding amount leading zeroes
  * @return {string} hexadecimal string
  */
-function _decimalToHex (d, padding) {
-  let hex = Number(d).toString(16).toUpperCase()
-  padding = typeof (padding) === 'undefined' || padding === null ? padding = 2 : padding
-
-  while (hex.length < padding) {
-    hex = '0' + hex
-  }
-  return hex
+function _decimalToHex(d, padding) {
+  return  ("00000000"+(Number(d).toString(16))).slice(-padding).toUpperCase()
 }
 
 function _getColorString () {
@@ -214,6 +208,7 @@ export function updateColorSettings (colorSettings, updateFunction) {
     _myPalette = colorSettings
   } else {
     // No colors in settings, but settings read from localStorage => migrate data to settings file
+    // istanbul ignore next
     if (colorsLoadedFromLocalStorage && colorSettingsUpdater !== null) {
       colorSettingsUpdater(_myPalette)
     }
@@ -228,6 +223,7 @@ if (typeof (Storage) !== 'undefined') {
   // Code for localStorage/sessionStorage.
   const colorString = localStorage.getItem(colorStorageName)
   // console.log("storage:", color_string, typeof(color_string))
+  // istanbul ignore next
   if (typeof (colorString) === 'string') {
     const colors = JSON.parse(colorString)
     _myPalette = colors

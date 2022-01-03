@@ -15,6 +15,12 @@ after(function () {
   color.updateColorSettings({ none: '#FFFFFF' }, null)
 })
 
+let colorCallback = false
+// dummy callback
+function colorSettingsUpdate (_palette) {
+  colorCallback = true
+}
+
 describe('Color palette tests', function () {
   it('Set palette', function () {
     const mapping = { xyzzy: '#223344' }
@@ -42,10 +48,11 @@ describe('Color palette tests', function () {
 
   it('Load palette', function () {
     const mapping = { xyzzy: '#123456' }
-    color.updateColorSettings(mapping, null)
+    color.updateColorSettings(mapping, colorSettingsUpdate)
     assert.strictEqual('#123456', color.getColor('xyzzy')) // Set different color
     color.loadColorsFs(null, palFile)
     // xyzzy definition overwritten by import
     assert.notEqual('#123456', color.getColor('xyzzy')) //rq: ->(rq_doctype_color_import)
+    assert.ok(colorCallback)
   })
 })

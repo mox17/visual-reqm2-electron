@@ -102,7 +102,8 @@ async function getSvgNodeMap (app, domClass = 'node') {
  * @param {string} node Name of specobject
  * @param {string} item Name of context menu item
  */
-async function contextMenuClick (app, map, node, item) {
+async function contextMenuClick (app, node, item) {
+  const map = await getSvgNodeMap(app)
   await map.get(node).click({ button: 2 })
   const menuCopyId = await app.client.$(item)
   await menuCopyId.click()
@@ -359,15 +360,13 @@ describe('Application launch', function () {
       const panZoom = await app.client.$('.svg-pan-zoom_viewport #graph0')
       assert.ok(panZoom !== undefined) //rq: ->(rq_svg_pan_zoom)
 
-      const svgMap = await getSvgNodeMap(app)
-
-      await contextMenuClick(app, svgMap, 'cc.game.overview', '#menu_copy_id')
+      await contextMenuClick(app, 'cc.game.overview', '#menu_copy_id')
       assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview') //rq: ->(rq_ctx_copy_id,rq_svg_context_menu,rq_show_svg,rq_filesel_main_oreqm)
 
-      await contextMenuClick(app, svgMap, 'cc.game.overview', '#menu_copy_ffb')
+      await contextMenuClick(app, 'cc.game.overview', '#menu_copy_ffb')
       assert.strictEqual(await app.electron.clipboard.readText(), 'cc.game.overview:fea:1') //rq: ->(rq_ctx_copy_id_dt_ver)
 
-      await contextMenuClick(app, svgMap, 'cc.game.overview', '#menu_copy_png')
+      await contextMenuClick(app, 'cc.game.overview', '#menu_copy_png')
       await waitForOperation(app)
       const png = await app.electron.clipboard.readImage()
       assert.property(png, 'toPNG') //rq: ->(rq_ctx_copy_png)
@@ -409,9 +408,16 @@ describe('Application launch', function () {
       const dotFilename = './tmp/main_select_1.dot'
       await removeFile(dotFilename)
       // console.dir(await app.client.getRenderProcessLogs())
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'cc.game.locations', '#menu_select') //rq: ->(rq_ctx_add_selection)
+      await contextMenuClick(app, 'cc.game.locations', '#menu_select') //rq: ->(rq_ctx_add_selection)
       await waitForOperation(app)
+      const searchRegex = await app.client.$('#search_regex')
+      const val1 = await searchRegex.getValue()
+      // Check that selecting same node again is handled (i.e. ignored)
+      await contextMenuClick(app, 'cc.game.locations', '#menu_select')
+      await waitForOperation(app)
+      const val2 = await searchRegex.getValue()
+      // console.log(val1, val2)
+      assert.ok(val1 === val2)
       await screenshot(app, 'select_game_locations')
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
       await fakeMenu.clickMenu('File', 'Save diagram as...')
@@ -422,8 +428,7 @@ describe('Application launch', function () {
 
     it('exclude node', async function () {
       const dotFilename = './tmp/main_exclude_1.dot'
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'zork.game.location.frobozz', '#menu_exclude') //rq: ->(rq_ctx_excl)
+      await contextMenuClick(app, 'zork.game.location.frobozz', '#menu_exclude') //rq: ->(rq_ctx_excl)
       await waitForOperation(app)
       await screenshot(app, 'exclude_frobozz')
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
@@ -434,8 +439,7 @@ describe('Application launch', function () {
 
     it('deselect node', async function () {
       const dotFilename = './tmp/main_deselect_1.dot'
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'cc.game.locations', '#menu_deselect') //rq: ->(rq_ctx_deselect)
+      await contextMenuClick(app, 'cc.game.locations', '#menu_deselect') //rq: ->(rq_ctx_deselect)
       await waitForOperation(app)
       await screenshot(app, 'deselect_locations')
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
@@ -444,6 +448,18 @@ describe('Application launch', function () {
       await compareFiles(dotFilename, './test/refdata/main_deselect_1.dot')
       await clickButton(app, '#clear_excluded_ids')
       await clickButton(app, '#clear_search_regex')
+      await waitForOperation(app)
+    })
+
+    it('select two nodes', async function () {
+      await contextMenuClick(app, 'cc.game.locations', '#menu_select')
+      await waitForOperation(app)
+      await contextMenuClick(app, 'cc.game.location.witt', '#menu_select')
+      await waitForOperation(app)
+      const searchRegex = await app.client.$('#search_regex')
+      let val1 = await searchRegex.getValue()
+      // console.log(val1)
+      assert.ok(val1 === 'cc.game.locations$\n|cc.game.location.witt$')
     })
 
     it('ref oreqm', async function () {
@@ -488,17 +504,15 @@ describe('Application launch', function () {
 
     it('save comparison as svg', async function () {
       const svgFilename = './tmp/main_ref_1.svg'
-      const svgMap = await getSvgNodeMap(app)
       await removeFile(svgFilename)
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: svgFilename }])
-      await contextMenuClick(app, svgMap, 'cc.game.characters', '#menu_save_as')
+      await contextMenuClick(app, 'cc.game.characters', '#menu_save_as')
       await waitForOperation(app)
       await compareFiles(svgFilename, './test/refdata/main_ref_1.svg') //rq: ->(rq_save_svg_file)
     })
 
     it('show xml changed', async function () {
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'cc.game.characters', '#menu_xml_txt')
+      await contextMenuClick(app, 'cc.game.characters', '#menu_xml_txt')
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (changed specobject)</h2>'))
@@ -506,8 +520,7 @@ describe('Application launch', function () {
     })
 
     it('show xml removed', async function () {
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'cc.game.character.ogre', '#menu_xml_txt')
+      await contextMenuClick(app, 'cc.game.character.ogre', '#menu_xml_txt')
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (removed specobject)</h2>'))
@@ -515,8 +528,7 @@ describe('Application launch', function () {
     })
 
     it('show xml new', async function () {
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'cc.game.movement', '#menu_xml_txt')
+      await contextMenuClick(app, 'cc.game.movement', '#menu_xml_txt')
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (new specobject)</h2>'))
@@ -524,8 +536,7 @@ describe('Application launch', function () {
     })
 
     it('show xml normal', async function () {
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'cc.game.overview', '#menu_xml_txt')
+      await contextMenuClick(app, 'cc.game.overview', '#menu_xml_txt')
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format</h2>'))
@@ -533,8 +544,7 @@ describe('Application launch', function () {
     })
 
     it('show tagged search text', async function () {
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'cc.game.characters', '#menu_search_txt')
+      await contextMenuClick(app, 'cc.game.characters', '#menu_search_txt')
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>Internal tagged \'search\' format</h2>'))
@@ -1071,24 +1081,34 @@ describe('Application launch', function () {
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmMain] }])
       await fakeMenu.clickMenu('File', 'Load main oreqm file...')
       await waitForOperation(app)
+
+      await clickButton(app, '#clear_search_regex')
+      await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_select')
+      await waitForOperation(app)
+      let search = await searchRegex.getValue()
+      assert.ok(search === '@id:TestDemoSpec.Object004$')
+
       await clickButton(app, '#clear_search_regex')
       await searchRegex.setValue('demo')
       await clickButton(app, '#filter_graph')
       await waitForOperation(app)
       // Now select duplicate specobject TestDemoSpec.Object004:1
-      const svgMap = await getSvgNodeMap(app)
-      await contextMenuClick(app, svgMap, 'TestDemoSpec.Object004:1', '#menu_select')
+      await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_select')
       await waitForOperation(app)
-      let search = await searchRegex.getValue()
+      // twice - no double entry
+      await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_select')
+      await waitForOperation(app)
+      search = await searchRegex.getValue()
       //console.log("search:", search)
       assert.strictEqual(search, 'demo\nor @id:TestDemoSpec.Object004$')
+      await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_select')
+      await waitForOperation(app)
     })
 
     it('deselect', async function () {
       const searchRegex = await app.client.$('#search_regex')
         // Deselect duplicate specobject TestDemoSpec.Object004:1
-        const svgMap = await getSvgNodeMap(app)
-        await contextMenuClick(app, svgMap, 'TestDemoSpec.Object004:1', '#menu_deselect')
+        await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_deselect')
         await waitForOperation(app)
         let search = await searchRegex.getValue()
         //console.log("search:", search)
