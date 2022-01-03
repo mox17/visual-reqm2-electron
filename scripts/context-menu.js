@@ -75,6 +75,7 @@ function escRegexMetaChars (str) {
 export function menuDeselect () {
   // Remove node to the selection criteria (if not already selected)
   //rq: ->(rq_ctx_deselect)
+  // istanbul ignore else
   if (oreqmMain && oreqmMain.checkNodeId(selectedNode)) {
     let newSearchPattern
     let searchPattern
@@ -119,6 +120,7 @@ export function menuDeselect () {
 export function excludeId () {
   // Add node to the exclusion list
   //rq: ->(rq_ctx_excl)
+  // istanbul ignore else
   if (oreqmMain && oreqmMain.checkNodeId(selectedNode)) {
     let excludedIds = document.getElementById('excluded_ids').value.trim()
     if (excludedIds.length) {
