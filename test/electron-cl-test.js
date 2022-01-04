@@ -199,6 +199,7 @@ describe('command line processing', function () {
       args: [path.join(__dirname, '..'),
         '--settDir', './tmp',
         '--settFile', 'cl-settings.json',
+        '--oreqm_main', './testdata/oreqm_testdata_del_movement.oreqm',
         '--vql',
         '--format', 'svg'
       ],

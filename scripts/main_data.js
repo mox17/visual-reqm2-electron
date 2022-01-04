@@ -104,9 +104,11 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
 
   switch (selectedFormat) {
     case 'dot-source':
+      // istanbul ignore else
       if (cbSuccess) {
         cbSuccess(dotSource)
       }
+      // istanbul ignore else
       if (cbSpinnerStop) {
         cbSpinnerStop()
       }
@@ -114,9 +116,11 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
       break;
 
     case 'html-table':
+      // istanbul ignore else
       if (cbSuccess) {
         cbSuccess(null)
       }
+      // istanbul ignore else
       if (cbSpinnerStop) {
         cbSpinnerStop()
       }
@@ -127,6 +131,7 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
     case 'png-image-element':
     default:
       vizjsWorker.postMessage(params)
+      // istanbul ignore else
       if (cbSpinnerRun) {
         cbSpinnerRun('Processing dot...')
       }
@@ -189,6 +194,7 @@ export function saveDiagramFile (savePath) {
     actionDone()
   } else if (savePath.endsWith('.png') || savePath.endsWith('.PNG')) {
     Viz.svgXmlToPngImageElement(svgResult, 1, (ev, png) => {
+      // istanbul ignore else
       if (ev === null) {
         const dataB64 = png.src.slice(22)
         const buf = new Buffer.from(dataB64, 'base64')
@@ -201,7 +207,9 @@ export function saveDiagramFile (savePath) {
   } else if (savePath.endsWith('.dot') || savePath.endsWith('.DOT')) {
     fs.writeFileSync(savePath, dotSource, 'utf8')
     actionDone()
-  } else {
+  } else
+  // istanbul ignore next
+  {
     alert('Unsupported file types in\n' + savePath)
     actionDone()
   }

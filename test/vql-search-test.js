@@ -91,4 +91,9 @@ describe('vql-search tests', function () {
     assert(nodes.size === 0)
   })
 
+  it('VQL parse expr 7', function () {
+    let nodes = vqlSearch.vqlParse(oreqm, '(   dt:xyzzy   )')
+    assert(nodes.size === 0)
+  })
+
 })

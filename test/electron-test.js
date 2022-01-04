@@ -339,15 +339,15 @@ describe('Application launch', function () {
   describe('Navigate UI', function () {
     it('jump between selected nodes (no nodes present)', async function () {
       await clickButton(app, '#next_selected')
-      await clickButton(app, '#next_selected')
-      await clickButton(app, '#next_selected')
-      await clickButton(app, '#next_selected')
-      await clickButton(app, '#next_selected')
       await clickButton(app, '#prev_selected')
-      await clickButton(app, '#prev_selected')
-      await clickButton(app, '#prev_selected')
-      await clickButton(app, '#prev_selected')
-      await clickButton(app, '#prev_selected')
+    })
+
+    it('easter egg diagram', async function () {
+      const formatSelect = await app.client.$('#format_select')
+      await formatSelect.selectByAttribute('value', 'dot-source')
+      await formatSelect.selectByAttribute('value', 'svg')
+      await waitForOperation(app)
+      screenshot(app, 'foobarbaz')
     })
 
     it('autoupdate off', async function () {
@@ -481,14 +481,32 @@ describe('Application launch', function () {
     })
   })
 
-  // describe('Update files on disk', function () {
-  //   it('Touch main file', async function () {
-  //     touchFile('./testdata/oreqm_testdata_del_movement.oreqm')
-  //     await sleep(5000)
-  //     let alert = await app.client.$("//input[@name='alert']")
-  //     console.log(alert)
-  //   })
-  // })
+  describe('Update files on disk', function () {
+    it('Touch main file - ignore', async function () {
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
+      touchFile('./testdata/oreqm_testdata_no_ogre.oreqm')
+    })
+
+    it('Touch ref file - ignore', async function () {
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
+      touchFile('./testdata/oreqm_testdata_del_movement.oreqm')
+    })
+
+    it('Touch main file - reload', async function () {
+      await sleep(2000)
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 1 }])
+      touchFile('./testdata/oreqm_testdata_no_ogre.oreqm')
+      await sleep(1000)
+      await waitForOperation(app)
+    })
+
+    it('Touch ref file - reload', async function () {
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 1 }])
+      touchFile('./testdata/oreqm_testdata_del_movement.oreqm')
+      await sleep(1000)
+      await waitForOperation(app)
+    })
+  })
 
   describe('Save files', function () {
     it('save comparison as dot', async function () {
@@ -706,6 +724,11 @@ describe('Application launch', function () {
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safetyRulesFilename] }])
       await fakeMenu.clickMenu('File', 'Load coverage rules...')
       await waitForOperation(app)
+    })
+
+    it('Save issues file - cancel', async function () {
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: undefined }])
+      await fakeMenu.clickMenu('File', 'Save issues as...')
     })
 
     it('Save issues file', async function () {
