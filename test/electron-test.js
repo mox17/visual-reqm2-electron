@@ -50,6 +50,15 @@ function removeFile (path) {
   }
 }
 
+function touchFile (path) {
+  const time = new Date()
+  try {
+    fs.utimesSync(path, time, time)
+  } catch (err) {
+    fs.closeSync(fs.openSync(path, 'w'))
+  }
+}
+
 function holdBeforeFileExists (filePath, timeout) {
   timeout = timeout < 1000 ? 1000 : timeout
   return new Promise((resolve) => {
@@ -471,6 +480,15 @@ describe('Application launch', function () {
       await screenshot(app, 'ref-oreqm')
     })
   })
+
+  // describe('Update files on disk', function () {
+  //   it('Touch main file', async function () {
+  //     touchFile('./testdata/oreqm_testdata_del_movement.oreqm')
+  //     await sleep(5000)
+  //     let alert = await app.client.$("//input[@name='alert']")
+  //     console.log(alert)
+  //   })
+  // })
 
   describe('Save files', function () {
     it('save comparison as dot', async function () {
