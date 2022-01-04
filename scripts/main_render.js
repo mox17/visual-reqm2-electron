@@ -466,10 +466,12 @@ function calcAbsPath (filename) {
  * @param {string} ctxPath file path to store json context
  */
 function saveDiagramContext (ctxPath) {
+  // istanbul ignore else
   if (oreqmMain) {
     let absPathMain = calcAbsPath(oreqmMain.filename)
     // Make context file relative paths portable between Linux and Windows
     let relPath = path.relative(path.dirname(ctxPath), absPathMain).replaceAll('\\', '/')
+    // istanbul ignore next
     if (relPath[0] !== '.') {
       relPath = './' + relPath
     }
@@ -478,6 +480,7 @@ function saveDiagramContext (ctxPath) {
     if (oreqmRef) {
       absPathRef = calcAbsPath(oreqmRef.filename)
       relPathRef = path.relative(path.dirname(ctxPath), absPathRef).replaceAll('\\', '/')
+      // istanbul ignore next
       if (relPathRef[0] !== '.') {
         relPathRef = './' + relPathRef
       }

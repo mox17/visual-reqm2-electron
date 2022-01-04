@@ -193,6 +193,32 @@ describe('command line processing', function () {
     await app.stop()
   })
 
+  it('Open non-existing vr2x file from cmd line', async function () {
+    app = new Application({
+      path: electronPath,
+      args: [path.join(__dirname, '..'),
+        '--settDir', './tmp',
+        '--settFile', 'cl-settings.json',
+        '--context', './testdata/thisdoesnotexist.vr2x'
+      ],
+      chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
+    })
+    fakeMenu.apply(app)
+    fakeDialog.apply(app)
+
+    await app.start().then(appSuccess, appFailure)
+    await app.client.waitUntilTextExists('#vrm2_batch', 'done', {timeout: 20010})
+    // Check main file
+    let main_file = await app.client.$('#name')
+    let mf_content = await main_file.getHTML()
+    assert.ok(mf_content.includes('><'))
+    // Check ref file
+    let ref_file = await app.client.$('#ref_name')
+    let ref_content = await ref_file.getHTML()
+    assert.ok(ref_content.includes('><'))
+    await app.stop()
+  })
+
   it('Select vql from cmd line', async function () {
     app = new Application({
       path: electronPath,
