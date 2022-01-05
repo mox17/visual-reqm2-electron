@@ -1,7 +1,7 @@
 'use strict'
 import { oreqmMain } from "./main_data"
 import { remote } from "electron"
-import { fs } from "fs"
+import fs from 'fs'
 
 
 /**
