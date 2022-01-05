@@ -832,6 +832,20 @@ describe('Application launch', function () {
     })
   })
 
+  describe('Context diagram save main only',  () => {
+    it('save diagram context without reference file', async () => {
+      const contextFilename = './tmp/main_ref_2.vr2x'
+      await removeFile(contextFilename)
+      await clickButton(app, '#clear_ref_oreqm')
+      await waitForOperation(app)
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: contextFilename }])
+      await fakeMenu.clickMenu('File', 'Save diagram context...')
+      await waitForOperation(app)
+      assert.ok(fs.existsSync(contextFilename))
+      await compareFiles(contextFilename, './test/refdata/main_ref_2.vr2x')
+    })
+  })
+
   describe('Handling of duplicate specobjects', function () {
     it('Duplicates with unique versions', async function () {
       await clickButton(app, '#clear_search_regex')

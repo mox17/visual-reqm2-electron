@@ -392,28 +392,29 @@ function menuSaveAs () {
  */
 function saveDiagramCtx () {
   let defPath = ""
+  // istanbul ignore else
   if (oreqmMain) {
     if (path.isAbsolute(oreqmMain.filename)) {
       defPath = path.dirname(oreqmMain.filename)
     } else {
       defPath = path.join(process.cwd(), path.dirname(oreqmMain.filename))
     }
-  }
 
-  const saveOptions = {
-    filters: [
-      { name: 'ReqM2 context files', extensions: ['vr2x'] }
-    ],
-    properties: ['openFile'],
-    defaultPath: defPath,
-    title: "Save ReqM2 context file"
+    const saveOptions = {
+      filters: [
+        { name: 'ReqM2 context files', extensions: ['vr2x'] }
+      ],
+      properties: ['openFile'],
+      defaultPath: defPath,
+      title: "Save ReqM2 context file"
 
-  }
-  // Suggest to save in same directory as oreqm_main
-  const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
-  // istanbul ignore else
-  if (typeof (savePath) !== 'undefined') {
-    saveDiagramContext(savePath)
+    }
+    // Suggest to save in same directory as oreqm_main
+    const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
+    // istanbul ignore else
+    if (typeof (savePath) !== 'undefined') {
+      saveDiagramContext(savePath)
+    }
   }
 }
 
@@ -439,6 +440,7 @@ function loadDiagramCtx () {
       defaultPath: process.cwd(),
       title: "Load ReqM2 context file"
     })
+  // istanbul ignore elsen
   if (LoadPath) {
     loadDiagramContext(LoadPath[0])
   }
@@ -599,7 +601,9 @@ function restoreContextAttributes (ctx) {
   // Handle version differences in file formats
   if (ctx.version === 1) {
     setSearchLanguage(document.getElementById('id_radio_input').checked ? 'ids' : 'reg')
-  } else if (ctx.version === 2) {
+  } else
+  // istanbul ignore else
+  if (ctx.version === 2) {
     setSearchLanguage(ctx.search_language)
   }
   document.getElementById('search_regex').value = ctx.search_regex
@@ -649,30 +653,29 @@ function updateSettingsFromContext (ctx) {
  */
  function saveDiagramSel () {
   let defPath = ""
+  // istanbul ignore else
   if (oreqmMain) {
     if (path.isAbsolute(oreqmMain.filename)) {
       defPath = path.dirname(oreqmMain.filename)
     } else {
       defPath = path.join(process.cwd(), path.dirname(oreqmMain.filename))
     }
-  } else {
-    return
-  }
 
-  const saveOptions = {
-    filters: [
-      { name: 'ReqM2 select files (csv)', extensions: ['csv'] }
-    ],
-    properties: ['openFile'],
-    defaultPath: defPath,
-    title: "Save ReqM2 selection file"
-  }
+    const saveOptions = {
+      filters: [
+        { name: 'ReqM2 select files (csv)', extensions: ['csv'] }
+      ],
+      properties: ['openFile'],
+      defaultPath: defPath,
+      title: "Save ReqM2 selection file"
+    }
 
-  // Suggest to save in same directory as oreqmMain
-  const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
-  // istanbul ignore else
-  if (typeof (savePath) !== 'undefined') {
-    saveDiagramSelection(savePath)
+    // Suggest to save in same directory as oreqmMain
+    const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
+    // istanbul ignore else
+    if (typeof (savePath) !== 'undefined') {
+      saveDiagramSelection(savePath)
+    }
   }
 }
 
@@ -1001,6 +1004,7 @@ function processDataRef (name, data) {
  */
 function loadFileRefFs (file) {
   // Load reference file
+  // istanbul ignore else
   if (oreqmMain) {
     spinnerShow()
 
@@ -1019,8 +1023,6 @@ function loadFileRefFs (file) {
     //     vr2xHandler()
     //   }
     // })
-  } else {
-    alert('No main file selected')
   }
 }
 
@@ -1158,6 +1160,7 @@ aboutPaneClose.onclick = function () {
 }
 
 // When the user clicks anywhere outside of the modal, close it
+// istanbul ignore else
 window.onbeforeunload = function () {
   // "Graph is going away..."
 }
@@ -1180,6 +1183,7 @@ function showProblems () {
 }
 
 function clearProblems () {
+  // istanbul ignore else
   if (oreqmMain) {
     oreqmMain.clearProblems()
     document.getElementById('issueCount').innerHTML = 0
@@ -1612,11 +1616,14 @@ function checkNewerReleaseAvailable () {
  * Helper function to save coverage data for unit tests
  */
 window.addEventListener('unload', function(_event) {
+  // istanbul ignore else
   if (window.__coverage__) {
     let name = '.nyc_output/coverage.json'
     //fs.writeFileSync('xyz.json', process.env.NYC_CONFIG);
+    // istanbul ignore else
     if (process.env.NYC_CONFIG) {
       let cfg = JSON.parse(process.env.NYC_CONFIG)
+      // istanbul ignore else
       if (cfg.tempDir !== undefined) {
         // Use uuid as name to allow for several runs to coexist in same coverage report
         name = `${cfg.tempDir}/${uuidv4()}.json`

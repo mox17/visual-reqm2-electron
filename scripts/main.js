@@ -176,7 +176,7 @@ function createWindow () {
         {
           label: 'Toggle Developer Tools',
           // istanbul ignore next
-          accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          accelerator: process.platform === 'Ctrl+Shift+I',
           // istanbul ignore next
           click (item, focusedWindow) {
             if (focusedWindow) focusedWindow.webContents.toggleDevTools()
@@ -407,6 +407,7 @@ ipcMain.on('file_updated', (_evt, title, path) => {
 
 // ProgressBar messages
 ipcMain.on('pbar_start', (_evt, detail, text, count) => {
+  // istanbul ignore else
   if (readyCalled) {
     progressBar = new ProgressBar({
       text: text,
@@ -418,6 +419,7 @@ ipcMain.on('pbar_start', (_evt, detail, text, count) => {
 })
 
 ipcMain.on('pbar_update', (_evt, detail, text) => {
+  // istanbul ignore else
   if (progressBar && progressBar.isInProgress()) {
     progressBar.detail = detail
     progressBar.text = text
@@ -425,12 +427,14 @@ ipcMain.on('pbar_update', (_evt, detail, text) => {
 })
 
 ipcMain.on('pbar_update_value', (_evt, count) => {
+  // istanbul ignore else
   if (progressBar && progressBar.isInProgress()) {
     progressBar.value = count
   }
 })
 
 ipcMain.on('pbar_stop', (_evt) => {
+  // istanbul ignore else
   if (progressBar && progressBar.isInProgress()) {
     progressBar.setCompleted()
   }
