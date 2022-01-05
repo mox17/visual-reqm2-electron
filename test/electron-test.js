@@ -352,6 +352,7 @@ describe('Application launch', function () {
 
     it('autoupdate off', async function () {
       await clickButton(app, '#auto_update')
+      await waitForOperation(app)
     })
   })
 
@@ -553,6 +554,7 @@ describe('Application launch', function () {
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (changed specobject)</h2>'))
       await clickButton(app, '#nodeSourceClose') //rq: ->(rq_ctx_show_diff)
+      await waitForOperation(app)
     })
 
     it('show xml removed', async function () {
@@ -561,6 +563,7 @@ describe('Application launch', function () {
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (removed specobject)</h2>'))
       await clickButton(app, '#nodeSourceClose')
+      await waitForOperation(app)
     })
 
     it('show xml new', async function () {
@@ -577,6 +580,7 @@ describe('Application launch', function () {
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format</h2>'))
       await clickButton(app, '#nodeSourceClose')
+      await waitForOperation(app)
     })
 
     it('show tagged search text', async function () {
@@ -585,6 +589,7 @@ describe('Application launch', function () {
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>Internal tagged \'search\' format</h2>'))
       await clickButton(app, '#nodeSourceClose')
+      await waitForOperation(app)
     })
 
     it('show diagram as png', async function () {
@@ -661,6 +666,7 @@ describe('Application launch', function () {
       // console.log(await nodeSelect.getValue())
       await nodeSelect.selectByIndex(2)
       // console.log('selectedValue:', await nodeSelect.getValue())
+      await waitForOperation(app)
     })
 
     it('single off', async function () {
@@ -697,6 +703,7 @@ describe('Application launch', function () {
       const aboutpane = await app.client.$('#aboutPane')
       await fakeMenu.clickMenu('Help', 'About')
       expect(aboutpane.getAttribute('style')).to.eventually.include('block')
+      await waitForOperation(app)
     })
 
     it('close about once more', async function () {
@@ -729,14 +736,15 @@ describe('Application launch', function () {
     it('Save issues file - cancel', async function () {
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: undefined }])
       await fakeMenu.clickMenu('File', 'Save issues as...')
+      await waitForOperation(app)
     })
 
     it('Save issues file', async function () {
       const issuesFilename = './tmp/my_issues.txt'
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: issuesFilename }])
       await fakeMenu.clickMenu('File', 'Save issues as...')
-      await holdBeforeFileExists(issuesFilename, 1000)
-      //await waitForOperation(app)
+      //await holdBeforeFileExists(issuesFilename, 6000)
+      await waitForOperation(app)
       await compareFiles(issuesFilename, './test/refdata/my_issues.txt') //rq: ->(rq_issues_file_export)
     })
   })
@@ -1176,6 +1184,7 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram selection...')
       await waitForOperation(app)
       await compareFiles(csvName, './test/refdata/selection_save.csv')
+      // console.log(await app.client.getRenderProcessLogs())
     })
 
   })

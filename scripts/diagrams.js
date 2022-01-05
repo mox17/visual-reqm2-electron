@@ -1234,6 +1234,31 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
   }
 
   /**
+   * Generate ffb and coverage rows
+   */
+  generateLinkRows (reqId) {
+    const rec = this.requirements.get(reqId)
+    let ffbrows = ''
+    for (const ffb of rec.fulfilledby) {
+      const row = `<tr><td width="15%">${ffb.doctype}</td><td width="60%">${ffb.id}, Version ${ffb.version}</td><td width="25%">${ffb.ffblinkerror}</td></tr>`
+      ffbrows += row
+    }
+    let covrows = ''
+    for (const lt of rec.linksto) {
+      const ltDoctype = this.requirements.has(lt.linksto) ? this.requirements.get(lt.linksto).doctype : ''
+      const row = `<tr><td width="15%">${ltDoctype}</td><td width="60%">${lt.linksto}, Version ${lt.dstversion}</td><td width="25%">${lt.linkerror}</td></tr>`
+      covrows += row
+    }
+    if (ffbrows.length) {
+      ffbrows = `<tr><td>Fulfilledby</td><td><table BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%">${ffbrows}</table></td></tr>`
+    }
+    if (covrows.length) {
+      covrows = `<tr><td>Provides</td><td><table BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%">${covrows}</table></td></tr>`
+    }
+    return ffbrows+covrows
+  }
+
+  /**
    * Create a HTML div with all specobjects
    */
   generateHtmlTable () {
@@ -1246,11 +1271,13 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     for (let reqId of reqList) {
       const ghost = this.removedReqs.includes(reqId) || this.requirements.get(reqId).ffbPlaceholder === true
       const nodeId = `spec_${reqId}`
+      const linkRows = this.generateLinkRows(reqId)
       let node = this.getFormatNode(reqId, ghost, true, true)
         .replace(/.*label=</, '')
         .replace(/>\];/, '')
         .replace(/COLOR="black"/, 'COLOR="black" width="100%"')
         .replace(/ BORDER="0"/, ' BORDER="1"')
+        .replace(/ <\/TABLE>/, `   ${linkRows}\n      </TABLE>`)
       table += `<div id="${nodeId}">${node}\n<hr>\n</div>`
       reqProgress += 1
       if (reqProgress % 20 === 0) {
