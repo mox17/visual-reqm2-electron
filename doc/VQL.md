@@ -25,16 +25,17 @@ There are 3 mutually exclusive choices \<id>, RegEx and VQL.
 ### Technology behind VQL
 
 VQL is a small language with a formal grammar, a generated parser and an interpreter executing
-searches based on the resulting abstract syntax tree.
+searches based on the abstract syntax tree of the entered search term.
 
 ## Simple selection
 
 A simple selection is to enter the `<id>` of the specobject in the **Selection criteria**
+Notice that just one (1) node is selected. This is shown in the doctype table.
 
 ![image](selection-criteria-id-1.png)
 
 It is also possible to select by simply entering words that occur in the relevant specobjects.
-In below example the word `Meadow` occurs in one speobject, so `meadow` can be used as a search term.
+In below example the word `Meadow` occurs in two speobjects.
 
 ![image](selection-criteria-word-1.png)
 
@@ -77,12 +78,12 @@ this is because the `and` operation is implied between terms.
 
 Notice the RED outline (indicating what is selected) is only for the `swrs` object, not the `fea` object.
 
-The `not` operator inverts the selection of `dt:fea` meaning **doctype** equal to `fea`
+The `not` operator inverts the selection of `dt:fea` meaning **doctype** should be interpreted as any doctype BUT `fea`.
 
 ![image](selection-criteria-grate-not-dt-fea.png)
 
 
-# VQL concept
+# VQL free search term order
 
 VQL allows free ordering of search terms. For example to look for **approved** **swad** requirements
 mentioning **calibration** or **adjustment**.
@@ -91,13 +92,13 @@ You could write this in several different ways
 
 | expression                                                 | comment |
 |:-----------------------------------------------------------|:--------|
-| `dt:swad AND st:approved AND calibration\|adjustment`      | Regex expressions are still supported inside VQL terms |
+| `dt:swad AND st:approved AND calibration\|adjustment`      | Regex expressions are still supported **inside** VQL terms |
 |`dt:swad AND st:approved AND ( calibration OR adjustment )` | Brackets/parentheses `(` `)` can be used to group terms, but remember to put spaces around them |
 |`dt:swad st:approved ( calibration OR adjustment )`         | The `AND` operator is optional |
 |`calibration\|adjustment st:approved dt:swad`               | Omitted `AND` and compact regex |
 |`st:approved ( calibration or adjustment ) dt:swad`         | Order of terms is not important |
 
-Notice that order does not matter
+Notice that order does not matter.
 
 
 # VQL operators
@@ -106,7 +107,7 @@ VQL support `AND` `OR` `NOT` operators and grouping with `(` `)`
 
 Spaces are needed around the operators.
 
-Additionally the hierarchical searches `children_of()` aka `co()` and `ancestors_of()` aka `ao()`
+Additionally the hierarchical searches `children_of()` aka. `co()` and `ancestors_of()` aka. `ao()`
 are available and have their own section below.
 
 The operator hierarchy in descending order is: `NOT`, `AND`, `OR`. This is the same as in most
@@ -116,12 +117,13 @@ The `NOT` operator gives the complementary set. I.e. the nodes not matching the 
 `NOT` can also be used in from of a bracketed search term like:
 
 ```
-id:maze not ( id:6 or id:8 )
+id:*maze not ( id:*6 or id:*8 )
 ```
-
 
 The above would match specobjects with `maze` substring in the `<id>` and no occurences of
 digits `6` or `8` in the `<id>`.
+
+![image](selection-maze-not-6-8.png)
 
 # Search terms
 
@@ -144,6 +146,11 @@ For fields with fixed content we typically want to anchor the match to the begin
 Visual ReqM2 has a configured default for which fields have free-format text. In the tooltips
 these are indicated with a trailing `*`.
 
+This means that for free text fields, any text may occur **before** the search term.
+
+## End marker `$`
+If no end marker `$` is specified, then any text may also occur **after** the search term.
+
 It is possible to override this default, which will be described below. 
 
 ![image](selection-criteria-tooltip-vql.png)
@@ -151,10 +158,10 @@ It is possible to override this default, which will be described below.
 
 | Search term           | Comment |
 |:----------------------|:--------|
-| id:cc.game.locations  | In the tooltips there is no '*' after `id: <id>`, this means that the \<id> must start exactly as specified |
+| id:cc.game.locations  | In the tooltips there is no '*' after `id: <id>`, this means that the \<id> must **start** exactly as specified, but there may be additional characters following the match |
 | id:cc.game.locations$ | In this example the end of the match is forced with the '$', which means end-of-line |
-| id:\*game.locations$  | Here the '*' immediately after the `id:` tag indicates that anything (possibly nothing) may precede the `game.locations` pattern |
-| de:dragon             | The `de:` \<description> field has a trailing '*'. This means that by default we will try to match `dragon` anywhere in the text |
+| id:\*game.locations$  | Here the '*' immediately after the `id:` tag indicates that anything (possibly nothing) can precede the `game.locations` pattern |
+| de:dragon             | The `de:` \<description> field has a trailing '*'. This means that by default we will try to match the string `dragon` anywhere in the text |
 | de:^dragon            | Here the '^' immediately after the `de:` tag indicated that the pattern is anchored, i.e. the field must start precisely with the specified text |
 
 #### Summary of search anchor mechanism
@@ -169,14 +176,25 @@ normal JS RegEx syntax applies.
 
 ## REGEX still exist
 
-This is an advanced topic that is optional.
+This is an **optional** advanced topic.
 
-It is possible to be more advanced and search for an \<id> (or any other field) containing multiple possibilities
-`id:name-(foo|bar)` this will match `id:name-foo` or `id:name-bar`. To avoid matching a longer
-id, which begins in the same way, the search term would be `id:name-(foo|bar)$`
-Here `$` is a regex metacharacter indicating end-of-line, which would prevent matching of any longer strings.
+It is possible to be more advanced search for an \<id> (or any other field) containing multiple possibilities,
+such as 
+```
+id:name-(foo|bar)
+```
 
-You don't have to use regular expressions, the above could also be written as:
+This will match `id:name-foo` or `id:name-bar`.
+
+To avoid matching a longer \<id>, which begins in the same way, the search can be terminated like this
+
+```
+id:name-(foo|bar)$
+```
+
+Here `$` is a regex metacharacter indicating end-of-line, which will prevent matching of any longer strings.
+
+To avoid use of regular expressions, the `id:name-(foo|bar)` term could also be written as:
 
 ```
 id:name-foo or id:name-bar
@@ -228,7 +246,7 @@ possible to use `$` to ensure match of a full name, like this:
 
 The author hopes that specobjects will not start to use `$` as part of the \<id>.
 
-If for some reason the 1st character need to a `@`, like `@foo`, then write it as `@@foo` .
+If for some reason the 1st character need to be a `@`, like `@foo`, then write it as `@@foo` .
 
 **Note**: When you right-click and 'select' a node, it is added to the selection criteria using the `@id:<id>$` format.
 
@@ -244,7 +262,7 @@ To support this, VQL include the `children_of( term1, term2 )` (can be abbreviat
 
 This effective limits the search to a sub-tree within the full trace.
 
-Notice that `term1` can select one or more specobjects, so having groups of trees is possible.
+Notice that `term1` can select one or more specobjects, so having groups of specobject trees is possible.
 
 A similar search can be done with `ancestors_of( term1, term2 )` (can be abbreviated to `ao( term1, term2 )`).
 This finds related specobjects by following the 'uplinks'.
