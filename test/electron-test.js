@@ -599,7 +599,6 @@ describe('Application launch', function () {
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>Internal tagged \'search\' format</h2>'))
       await clickButton(app, '#nodeSourceClose')
-      await waitForOperation(app)
     })
 
     it('show diagram as png', async function () {
