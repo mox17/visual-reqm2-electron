@@ -166,7 +166,17 @@ describe('Application launch', function () {
     })
   })
 
-  after(function () {
+  function filterLog (proc, logArr) {
+    for (let lm of logArr) {
+      if (lm && !lm.message.includes("Function definition doesn't match use") &&
+          !lm.message.includes("(Insecure Content-Security-Policy)")) {
+        console.log(`${proc} ${lm.level}: `, lm.message)
+      }
+    }
+  }
+
+  after(async function () {
+    filterLog('Render', await app.client.getRenderProcessLogs())
     if (app && app.isRunning()) {
       return app.stop()
     }
@@ -720,8 +730,9 @@ describe('Application launch', function () {
     })
 
     it('Load bad safety rules', async function () {
-      const safetyRulesFilename = './testdata/sample_safety_rules-broken.json.json'
+      const safetyRulesFilename = './testdata/sample_safety_rules-broken.json'
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safetyRulesFilename] }])
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
       await fakeMenu.clickMenu('File', 'Load coverage rules...')
       await waitForOperation(app)
     })

@@ -1,6 +1,5 @@
 'use strict'
 // eslint-disable-next-line no-redeclare
-/* global alert */
 import { remote } from 'electron'
 import { definedSpecobjectFields, programSettings, checkAndUpgradeSettings } from './settings.js'
 import { updateColorSettings } from './color.js'
@@ -153,6 +152,17 @@ function settingsDialogResults () {
   return false
 }
 
+export function showAlert(msg, title="Error") {
+  remote.dialog.showMessageBoxSync(
+    {
+      type: 'error',
+      buttons: ['Dismiss'],
+      defaultId: 0,
+      title: title,
+      message: msg
+    })
+}
+
 /**
  * Save settings in file
  */
@@ -173,7 +183,7 @@ export function loadSafetyRulesFs () {
     const newRules = JSON.parse(fs.readFileSync(LoadPath[0], { encoding: 'utf8', flag: 'r' }))
     const result = processRuleSet(newRules)
     if (!result.pass) {
-      alert(result.error)
+      showAlert(result.error)
     }
   }
 }
