@@ -63,6 +63,7 @@ export function setSelectedFormat (format) {
 
 export function showDoctypesSafety () {
   // Show the graph of doctype relationships
+  // istanbul ignore else
   if (oreqmMain) {
     oreqmMain.scanDoctypes(true)
     setIssueCount()
@@ -72,6 +73,7 @@ export function showDoctypesSafety () {
 
 export function showDoctypes () {
   // Show the graph of doctype relationships
+  // istanbul ignore else
   if (oreqmMain) {
     oreqmMain.scanDoctypes(false)
     setIssueCount()

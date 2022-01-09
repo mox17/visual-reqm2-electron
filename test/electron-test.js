@@ -338,6 +338,13 @@ describe('Application launch', function () {
     })
   })
 
+  describe('Diagram w. no data', function () {
+    it('Diagram, no oreqm', async function () {
+      await clickButton(app, '#filter_graph')
+
+    })
+  })
+
   describe('Import doctype colors', function () {
     it('color palette', async function () {
       const colorsFilename = './test/refdata/test_suite_palette.json'

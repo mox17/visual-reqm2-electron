@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tracingresults>
+  <environment>
+    <toolname>ReqM2</toolname>
+    <toolversion>1.17.1 (stable)</toolversion>
+    <toolcopyright>Copyright 2010 - 2018 Elektrobit Automotive GmbH</toolcopyright>
+    <libxmlversion>2.0014</libxmlversion>
+    <libxml2compileversion>2.9.0</libxml2compileversion>
+    <libxml2runtimeversion>20900</libxml2runtimeversion>
+    <perlversion>v5.14.4</perlversion>
+    <perlptrsize>64</perlptrsize>
+    <commandline>-t -q -o - 004_untracedLink.reqm</commandline>
+    <timestamp>Mon Jul 27 18:50:50 2020</timestamp>
+  </environment>
+  <cmdline>
+    <cmdparam>
+      <name>o</name>
+      <values>
+        <value>-</value>
+      </values>
+    </cmdparam>
+    <cmdparam>
+      <name>q</name>
+    </cmdparam>
+    <cmdparam>
+      <name>t</name>
+    </cmdparam>
+  </cmdline>
+  <inputfiles>
+    <inputfile>004_untracedLink.reqm</inputfile>
+  </inputfiles>
+  <configuration>
+    <settings>
+      <defaultfolders>
+        <!-- <reqm2output>.reqm2</reqm2output> -->
+      <!-- <exporteroutput>result</exporteroutput> -->
+        <doctypefolders>
+          <doctypefolder doctype="requirement">
+            <folder>req</folder>
+            <folder>reqs</folder>
+            <folder>reqdef</folder>
+            <folder>reqdefs</folder>
+            <folder>requirement</folder>
+            <folder>requirements</folder>
+            <folder>Requirements</folder>
+          </doctypefolder>
+          <doctypefolder doctype="testcase">
+            <folder>test</folder>
+            <folder>tests</folder>
+            <folder>Tests</folder>
+            <folder>testspec</folder>
+            <folder>testcase</folder>
+            <folder>testcases</folder>
+            <folder>TestSpecifications</folder>
+            <folder>TestCases</folder>
+          </doctypefolder>
+          <doctypefolder doctype="design">
+            <folder>design</folder>
+            <folder>SoftwareDesign</folder>
+          </doctypefolder>
+          <doctypefolder doctype="sourcecode">
+            <folder>src</folder>
+            <folder>source</folder>
+            <folder>SourceCode</folder>
+            <folder>sourcecode</folder>
+          </doctypefolder>
+        </doctypefolders>
+      </defaultfolders>
+    </settings>
+    <doctypes>
+      <regexs>
+        <regex>feature</regex>
+        <regex>requirement</regex>
+        <regex>customerreq</regex>
+        <regex>systemreq</regex>
+        <regex>subsystemreq</regex>
+        <regex>internalreq</regex>
+        <regex>functionalreq</regex>
+        <regex>nonfunctionreq</regex>
+        <regex>safetyreq</regex>
+        <regex>testcase</regex>
+        <regex>design</regex>
+        <regex>sourcecode</regex>
+        <regex>testcode</regex>
+        <regex>testresult</regex>
+        <regex>userdoc</regex>
+      </regexs>
+    </doctypes>
+  </configuration>
+  <specdocument>
+    <specobjects doctype="requirement">
+      <specobject>
+        <id>Object001</id>
+        <status>approved</status>
+        <version>0</version>
+        <untracedLinks>
+          <untracedLink>
+            <target>Object002</target>
+            <targetVersion>1</targetVersion>
+            <linkstatus>linked</linkstatus>
+            <internalId>1</internalId>
+          </untracedLink>
+          <untracedLink>
+            <target>Object003</target>
+            <targetVersion>2</targetVersion>
+            <comment>used the wrong version here....</comment>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>destination version 1 does not match required version 2.</linkerror>
+            <internalId>2</internalId>
+          </untracedLink>
+          <untracedLink>
+            <target>Object027</target>
+            <targetVersion>2</targetVersion>
+            <comment>used non-existing spec object id here....</comment>
+            <linkstatus>linkerror</linkstatus>
+            <linkerror>referenced object does not exist.</linkerror>
+          </untracedLink>
+        </untracedLinks>
+        <violations/>
+        <oreqmViolations/>
+        <covstatus>covered</covstatus>
+        <internalId>0</internalId>
+      </specobject>
+      <specobject>
+        <id>Object002</id>
+        <status>approved</status>
+        <version>1</version>
+        <untracedLinks>
+          <untracedLink>
+            <target>Object003</target>
+            <linkstatus>linked</linkstatus>
+            <internalId>2</internalId>
+          </untracedLink>
+        </untracedLinks>
+        <inlinks>
+          <inlink>
+            <fromId>Object001</fromId>
+            <fromDoctype>requirement</fromDoctype>
+            <fromVersion>0</fromVersion>
+            <internalId>0</internalId>
+          </inlink>
+        </inlinks>
+        <violations/>
+        <oreqmViolations/>
+        <covstatus>covered</covstatus>
+        <internalId>1</internalId>
+      </specobject>
+      <specobject>
+        <id>Object003</id>
+        <status>approved</status>
+        <version>1</version>
+        <inlinks>
+          <inlink>
+            <fromId>Object001</fromId>
+            <fromDoctype>requirement</fromDoctype>
+            <fromVersion>0</fromVersion>
+            <internalId>0</internalId>
+            <srcstatus>destination version 1 does not match required version 2.</srcstatus>
+          </inlink>
+          <inlink>
+            <fromId>Object002</fromId>
+            <fromDoctype>requirement</fromDoctype>
+            <fromVersion>1</fromVersion>
+            <internalId>1</internalId>
+          </inlink>
+        </inlinks>
+        <violations/>
+        <oreqmViolations/>
+        <covstatus>covered</covstatus>
+        <internalId>2</internalId>
+      </specobject>
+    </specobjects>
+  </specdocument>
+  <violations/>
+  <oreqmViolations/>
+</tracingresults>
