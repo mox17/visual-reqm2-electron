@@ -31,7 +31,7 @@ function searchValidate(str) {
       } catch (err) {
         return err.message
       }
-      return null
+      break
 
     case 'vql':
       return vqlValidate(str)

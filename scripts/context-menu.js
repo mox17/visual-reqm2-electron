@@ -167,7 +167,9 @@ function pngCallback (ev, png) {
     // console.log(item)
     navigator.clipboard.write([item]).then(function () {
       // console.log("Copied to clipboard successfully!");
-    }, function (_error) {
+    },
+    // istanbul ignore next
+    function (_error) {
       // console.error("unable to write to clipboard. Error:");
       // console.log(_error);
     })

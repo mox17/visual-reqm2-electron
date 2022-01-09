@@ -1180,12 +1180,12 @@ describe('Application launch', function () {
 
     it('deselect', async function () {
       const searchRegex = await app.client.$('#search_regex')
-        // Deselect duplicate specobject TestDemoSpec.Object004:1
-        await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_deselect')
-        await waitForOperation(app)
-        let search = await searchRegex.getValue()
-        //console.log("search:", search)
-        assert.strictEqual(search, 'demo')
+      // Deselect duplicate specobject TestDemoSpec.Object004:1
+      await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_deselect')
+      await waitForOperation(app)
+      let search = await searchRegex.getValue()
+      //console.log("search:", search)
+      assert.strictEqual(search, 'demo')
     })
 
     it('save selection', async function () {
@@ -1197,5 +1197,68 @@ describe('Application launch', function () {
       // console.log(await app.client.getRenderProcessLogs())
     })
 
+    it('De-select unspecific', async function () {
+      const searchRegex = await app.client.$('#search_regex')
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
+      await contextMenuClick(app, 'DemoSpec.Object001', '#menu_deselect')
+      await waitForOperation(app)
+      let search = await searchRegex.getValue()
+      //console.log("search:", search)
+      assert.strictEqual(search, 'demo')
+    })
+
+    it('De-select two specobject - VQL syntax', async function () {
+      const searchRegex = await app.client.$('#search_regex')
+      await clickButton(app, '#clear_search_regex')
+      await waitForOperation(app)
+      await contextMenuClick(app, 'TestDemoSpec.Object004', '#menu_select')
+      await waitForOperation(app)
+      await contextMenuClick(app, 'DemoSpec.Object001a', '#menu_select')
+      await waitForOperation(app)
+      let search = await searchRegex.getValue()
+      assert.strictEqual(search, '@id:TestDemoSpec.Object004$\nor @id:DemoSpec.Object001a$')
+
+      await contextMenuClick(app, 'TestDemoSpec.Object004', '#menu_deselect')
+      await waitForOperation(app)
+      search = await searchRegex.getValue()
+      assert.strictEqual(search, '@id:DemoSpec.Object001a$')
+
+      // remove last entry
+      await contextMenuClick(app, 'DemoSpec.Object001a', '#menu_deselect')
+      await waitForOperation(app)
+      search = await searchRegex.getValue()
+      assert.strictEqual(search, '')
+    })
+
+    it('De-select two specobject - regex syntax', async function () {
+      const searchRegex = await app.client.$('#search_regex')
+      await clickButton(app, '#clear_search_regex')
+      await waitForOperation(app)
+      await clickButton(app, '#regex_radio_input')
+      await waitForOperation(app)
+      await contextMenuClick(app, 'TestDemoSpec.Object004', '#menu_select')
+      await waitForOperation(app)
+      await contextMenuClick(app, 'DemoSpec.Object001a', '#menu_select')
+      await waitForOperation(app)
+      let search = await searchRegex.getValue()
+      assert.strictEqual(search, 'TestDemoSpec.Object004$\n|DemoSpec.Object001a$')
+
+      await contextMenuClick(app, 'TestDemoSpec.Object004', '#menu_deselect')
+      await waitForOperation(app)
+      search = await searchRegex.getValue()
+      assert.strictEqual(search, 'DemoSpec.Object001a$')
+    })
+
+    it('Exclude two specobjects', async function () {
+      await clickButton(app, '#clear_search_regex')
+      await waitForOperation(app)
+      const exclIds = await app.client.$('#excluded_ids')
+      await contextMenuClick(app, 'TestDemoSpec.Object002', '#menu_exclude')
+      await waitForOperation(app)
+      await contextMenuClick(app, 'TestDemoSpec.Object003', '#menu_exclude')
+      await waitForOperation(app)
+      let excl = await exclIds.getValue()
+      assert.strictEqual(excl, 'TestDemoSpec.Object002\nTestDemoSpec.Object003')
+    })
   })
 })
