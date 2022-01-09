@@ -401,6 +401,18 @@ describe('Application launch', function () {
       assert.strictEqual(await doctypeTotals.getAttribute('innerHTML'), '26') //rq: ->(rq_totals_stat)
     })
 
+    it('Cancel context menu', async function () {
+      let edgeMap = await getSvgNodeMap(app, 'edge')
+      let nodeMap = await getSvgNodeMap(app, 'node')
+      // A non-node named item to right-click on is needed, conveniently edges also have names
+      await edgeMap.get('edge3').click({ button: 2 })
+      screenshot(app, 'context-menu')
+      const overviewNode = nodeMap.get('cc.game.overview')
+      await overviewNode.click()
+      screenshot(app, 'context-menu')
+      // TODO: add assert
+    })
+
     it('HTML table', async function () {
       const formatSelect = await app.client.$('#format_select')
       await formatSelect.selectByAttribute('value', 'html-table')

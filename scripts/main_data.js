@@ -58,18 +58,12 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
     vizjsWorker = null
   }
   vizjsWorker = new Worker('./lib/worker.js')
-  if (cbSpinnerRun) {
-    cbSpinnerRun('Processing dot')
-  }
+  cbSpinnerRun('Processing dot')
   vizjsWorker.onmessage = function (e) {
     // console.log("vizjsWorker.onmessage")
     svgResult = e.data
-    if (cbSpinnerStop) {
-      cbSpinnerStop()
-    }
-    if (cbSuccess) {
-      cbSuccess(e.data)
-    }
+    cbSpinnerStop()
+    cbSuccess(e.data)
     actionDone()
   }
 
@@ -80,10 +74,8 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
     console.error(e)
     //console.log(dotSource)
     e.preventDefault()
-    if (cbError) {
-      cbSpinnerStop()
-      cbError(message)
-    }
+    cbSpinnerStop()
+    cbError(message)
     actionDone()
   }
 
@@ -105,26 +97,14 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
 
   switch (selectedFormat) {
     case 'dot-source':
-      // istanbul ignore else
-      if (cbSuccess) {
-        cbSuccess(dotSource)
-      }
-      // istanbul ignore else
-      if (cbSpinnerStop) {
-        cbSpinnerStop()
-      }
+      cbSuccess(dotSource)
+      cbSpinnerStop()
       actionDone()
       break;
 
     case 'html-table':
-      // istanbul ignore else
-      if (cbSuccess) {
-        cbSuccess(null)
-      }
-      // istanbul ignore else
-      if (cbSpinnerStop) {
-        cbSpinnerStop()
-      }
+      cbSuccess(null)
+      cbSpinnerStop()
       actionDone()
       break;
 
@@ -132,10 +112,7 @@ export function updateGraph (selectedFormat, cbSpinnerRun, cbSpinnerStop, cbSucc
     case 'png-image-element':
     default:
       vizjsWorker.postMessage(params)
-      // istanbul ignore else
-      if (cbSpinnerRun) {
-        cbSpinnerRun('Processing dot...')
-      }
+      cbSpinnerRun('Processing dot...')
   }
 }
 
