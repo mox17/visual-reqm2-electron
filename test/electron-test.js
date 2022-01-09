@@ -1053,6 +1053,17 @@ describe('Application launch', function () {
   })
 
   describe('Load context', function () {
+    it('Load diagram context w. id', async function () {
+      const contextFilename = './testdata/bird-id-context.vr2x'
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [contextFilename] }])
+      await fakeMenu.clickMenu('File', 'Load diagram context...')
+      await waitForOperation(app)
+
+      // This context file is using <id> search - check status
+      let id_radio = await app.client.$('#id_radio_input')
+      assert.ok(await id_radio.isSelected())
+    })
+
     /**
      * Load previous saved context and check the save diagram is created
      * by saving a new .dot
