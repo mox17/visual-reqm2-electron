@@ -3,12 +3,18 @@
 // eslint-disable-next-line no-redeclare
 /* global DOMParser, alert */
 import { cloneDeep } from "lodash"
-import { getTimeNow, logTimeSpent } from './util.js'
+import { getTimeNow, logTimeSpent, showAlert } from './util.js'
 /** placeholder for XMLSerializer instance */
 let serializer = null
 
 /** depth at this level and above is infinite (does not count down) */
 const INFINITE_DEPTH = 100
+
+let localAlert = showAlert
+
+export function setAlert(alert) {
+  localAlert = alert
+}
 
 /**
  * Process xml input text and display possible errors detected
@@ -475,9 +481,9 @@ export class ReqM2Specobjects {
 
     // Initialization logic
     this.clearProblems()
-    const success = this.processOreqmContent(content) //rq: ->(rq_read_oreqm)
-    // istanbul ignore else
-    if (success) {
+    this.parseError = ''
+    this.success = this.processOreqmContent(content) //rq: ->(rq_read_oreqm)
+    if (this.success) {
       const now = getTimeNow()
       this.readReqm2Rules()
       this.readReqDescriptions()
@@ -490,6 +496,14 @@ export class ReqM2Specobjects {
       // }
       logTimeSpent(now, 'Analyzing oreqm XML')
     }
+  }
+
+  getErrorStatusOK () {
+    return this.success
+  }
+
+  getErrorMsg () {
+    return this.parseError
   }
 
   /**
@@ -545,10 +559,11 @@ export class ReqM2Specobjects {
       const now = getTimeNow()
       this.root = tryParseXML(content)
       logTimeSpent(now, 'tryParseXML')
-    } catch (err) // istanbul ignore next
+    } catch (err)
     {
-      console.log(err)
-      alert(err)
+      // console.log(err)
+      localAlert(err.toString())
+      this.parseError = err.toString()
       return false
     }
     return true
@@ -1398,7 +1413,7 @@ export class ReqM2Specobjects {
     } catch (err) {
       const msg = `Selection criteria error:\n${err.message}`
       console.log(msg)
-      alert(msg)
+      localAlert(msg)
     }
     return matches
   }
@@ -1430,7 +1445,7 @@ export class ReqM2Specobjects {
     } catch (err) {
       const msg = `Selection criteria error:\n${err.message}`
       console.log(msg)
-      alert(msg)
+      localAlert(msg)
     }
     return matches
   }

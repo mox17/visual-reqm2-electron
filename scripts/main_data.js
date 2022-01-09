@@ -5,6 +5,7 @@ import { ReqM2Oreqm } from './diagrams.js'
 import Viz from 'viz.js'
 import fs from 'fs'
 import { ipcRenderer } from 'electron'
+import { showAlert } from './util.js'
 
 /**
  * Callback when updated settings are taken into use
@@ -210,7 +211,7 @@ export function saveDiagramFile (savePath) {
   } else
   // istanbul ignore next
   {
-    alert('Unsupported file types in\n' + savePath)
+    showAlert('Unsupported file types in\n' + savePath)
     actionDone()
   }
 }

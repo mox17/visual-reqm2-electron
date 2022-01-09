@@ -5,6 +5,7 @@ import { ipcRenderer } from 'electron'
 import { setSearchLanguage, setSearchPattern, setExcludedDoctypes } from "./search"
 import { saveDiagramFile, oreqmMain } from './main_data'
 import { showDoctypes, showDoctypesSafety } from './show_diagram'
+import { showAlert } from './util'
 
 export let diagramFormat = 'svg'
 export let outputFilename = 'diagram'
@@ -52,7 +53,7 @@ const cmdQueue = []
         outputFilename = path.join(process.env.PWD, outputFilename)
         console.log('Updated output path:', outputFilename)
       } else {
-        alert('Define PWD in environment or specify absolute paths.')
+        showAlert('Define PWD in environment or specify absolute paths.')
       }
     }
     // The pending commands are pushed on a queue.

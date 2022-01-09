@@ -5,6 +5,7 @@ import { definedSpecobjectFields, programSettings, checkAndUpgradeSettings } fro
 import { updateColorSettings } from './color.js'
 import fs from 'fs'
 import { settingsConfigure } from './settings_helper.js'
+import { showAlert } from './util.js'
 const electronSettings = require('electron-settings')
 
 /**
@@ -131,11 +132,9 @@ function settingsDialogResults () {
   try {
     //rq: ->(rq_safety_rules_config)
     const newRules = document.getElementById('safety_rules').value
-    // alert(newRules)
     const newSafetyRules = JSON.parse(newRules)
     const result = processRuleSet(newSafetyRules)
     if (result.pass) {
-      // alert(JSON.stringify(newSafetyRules) );
       programSettings.safety_link_rules = newSafetyRules
       electronSettings.setSync('program_settings', programSettings)
       return true
@@ -150,17 +149,6 @@ function settingsDialogResults () {
   remote.getCurrentWindow().focus()
   // document.getElementById('safety_rules').readOnly = "false"
   return false
-}
-
-export function showAlert(msg, title="Error") {
-  remote.dialog.showMessageBoxSync(
-    {
-      type: 'error',
-      buttons: ['Dismiss'],
-      defaultId: 0,
-      title: title,
-      message: msg
-    })
 }
 
 /**

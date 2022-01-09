@@ -5,6 +5,7 @@ import { filterChange, selectedNode } from "./show_diagram"
 import { clipboard } from "electron"
 import { base64StringToBlob } from 'blob-util'
 import { xmlEscape } from "./diagrams"
+import { showAlert } from "./util"
 
 // Setup for the raw node display dialog (raw text and diff (for changed reqs))
 export const nodeSource = document.getElementById('nodeSource')
@@ -112,7 +113,7 @@ export function menuDeselect () {
       filterChange()
     } else {
       const alertText = `'${selectedNode}' is not a selected node\nPerhaps try 'Exclude'?`
-      alert(alertText)
+      showAlert(alertText)
     }
   }
 }

@@ -1,6 +1,7 @@
 
 'use strict'
 import { performance } from 'perf_hooks'
+import { remote } from 'electron'
 
 let logTiming = false
 
@@ -36,4 +37,20 @@ export function logTimeSpent(startTime, legend="elapsed time") {
       console.log(`Time in "${legend}": ${getDeltaTime(startTime).toFixed(3)} millisec`)
     }
     return performance.now()
+}
+
+/**
+ * Show alert message
+ * @param {string} msg Details of the alert
+ * @param {string} title Optional title
+ */
+export function showAlert(msg, title="Error") {
+  remote.dialog.showMessageBoxSync(
+    {
+      type: 'error',
+      buttons: ['Dismiss'],
+      defaultId: 0,
+      title: title,
+      message: msg
+    })
 }

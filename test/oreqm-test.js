@@ -16,8 +16,10 @@ function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }
 }
 
+let alertMsg = ''
 function simpleAlert (msg) {
-  console.log(msg)
+  //console.log('simpleAlert:', msg, '\nend simpleAlert')
+  alertMsg = msg.toString()
 }
 
 // Override popup alert
@@ -45,5 +47,23 @@ describe('ReqM2Specobjects tests', function () {
     assert.ok(matches.includes('cc.game.location.maze.3'))
     assert.ok(matches.includes('cc.game.location.maze.4'))
     assert.ok(matches.includes('cc.game.location.maze.5'))
+  })
+})
+
+describe('Bad oreqm file', function () {
+  it('Load bad oreqm file', async function () {
+    alertMsg = ''
+    ReqM2Specobjects.setAlert(simpleAlert)
+    const filename = './testdata/bad_file.oreqm'
+    const oreqmTxt = fs.readFileSync(filename)
+    const oreqm = new ReqM2Specobjects.ReqM2Specobjects(
+      filename,
+      oreqmTxt,
+      [],
+      []
+    )
+    assert.ok(!oreqm.getErrorStatusOK())
+    assert.ok(oreqm.getErrorMsg().length > 0)
+    //console.log("error message:", oreqm.getErrorMsg())
   })
 })
