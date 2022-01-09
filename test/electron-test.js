@@ -870,6 +870,17 @@ describe('Application launch', function () {
   })
 
   describe('Context diagram save main only',  () => {
+    it('Load main oreqm with absolute path', async function () {
+      let oPath = path.join(process.cwd(), './testdata/oreqm_testdata_no_ogre.oreqm')
+      await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oPath] }])
+      await clickButton(app, '#get_main_oreqm_file')
+      await waitForOperation(app)
+      let searchRegex = await app.client.$('#search_regex')
+      await searchRegex.setValue('maze')
+      await clickButton(app, '#filter_graph')
+      await waitForOperation(app)
+    })
+
     it('save diagram context without reference file', async () => {
       const contextFilename = './tmp/main_ref_2.vr2x'
       await removeFile(contextFilename)
@@ -952,46 +963,6 @@ describe('Application launch', function () {
     })
   })
 
-  describe('Load and verify a directory of oreqm files', function () {
-    it('main oreqm', async function () {
-      await app.client.waitUntilWindowLoaded()
-      await clickButton(app, '#clear_search_regex')
-      await clickButton(app, '#clear_ref_oreqm')
-      const sampleDir = './test/sample_oreqm'
-      if (fs.existsSync(sampleDir)) {
-        const oreqmList = fs.readdirSync(sampleDir)
-        // console.dir(oreqmList);
-        for (const filename of oreqmList) {
-          if (filename.endsWith('.oreqm')) {
-            const oreqmName = `${sampleDir}/${filename}`
-            // console.log('        loading:', oreqmName)
-            await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmName] }])
-            await clickButton(app, '#get_main_oreqm_file')
-            await waitForOperation(app)
-            // await clickButton(app, '#filter_graph');
-            // await waitForOperation(app);
-            const basename = path.basename(filename, '.oreqm')
-            const dotFilename = `./tmp/${basename}.dot`
-            const refFile = `./test/refdata/${basename}.dot`
-            // console.log(basename, dotFilename);
-            await screenshot(app, basename)
-            await removeFile(dotFilename)
-            await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-            await fakeMenu.clickMenu('File', 'Save diagram as...')
-            await waitForOperation(app)
-            // console.log('        saving: ', dotFilename)
-            await expect(file(dotFilename)).to.exist
-            if (fs.existsSync(refFile)) {
-              // console.log(`        Checking: ${refFile}`)
-              await waitForOperation(app)
-              await compareFiles(dotFilename, refFile)
-            }
-          }
-        }
-      }
-    })
-  })
-
   describe('Export doctype colors', function () {
     it('color palette export', async function () {
       const colorsFilename = './tmp/test_suite_palette.json'
@@ -1001,6 +972,14 @@ describe('Application launch', function () {
       assert.ok(fs.existsSync(colorsFilename)) //rq: ->(rq_doctype_color_export)
     })
   })
+
+  // describe('Import doctype colors again', function () {
+  //   it('color palette', async function () {
+  //     const colorsFilename = './tmp/test_suite_palette.json'
+  //     await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [colorsFilename] }])
+  //     await fakeMenu.clickMenu('File', 'Load color scheme...') //rq: ->(rq_doctype_color_import)
+  //   })
+  // })
 
   describe('ffb diff display', function () {
     it('Clear old data', async function () {
@@ -1068,6 +1047,46 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await waitForOperation(app)
       await compareFiles(dotFilename, refFile)
+    })
+  })
+
+  describe('Load and verify a directory of oreqm files', function () {
+    it('main oreqm', async function () {
+      await app.client.waitUntilWindowLoaded()
+      await clickButton(app, '#clear_search_regex')
+      await clickButton(app, '#clear_ref_oreqm')
+      const sampleDir = './test/sample_oreqm'
+      if (fs.existsSync(sampleDir)) {
+        const oreqmList = fs.readdirSync(sampleDir)
+        // console.dir(oreqmList);
+        for (const filename of oreqmList) {
+          if (filename.endsWith('.oreqm')) {
+            const oreqmName = `${sampleDir}/${filename}`
+            // console.log('        loading:', oreqmName)
+            await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmName] }])
+            await clickButton(app, '#get_main_oreqm_file')
+            await waitForOperation(app)
+            // await clickButton(app, '#filter_graph');
+            // await waitForOperation(app);
+            const basename = path.basename(filename, '.oreqm')
+            const dotFilename = `./tmp/${basename}.dot`
+            const refFile = `./test/refdata/${basename}.dot`
+            // console.log(basename, dotFilename);
+            await screenshot(app, basename)
+            await removeFile(dotFilename)
+            await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
+            await fakeMenu.clickMenu('File', 'Save diagram as...')
+            await waitForOperation(app)
+            // console.log('        saving: ', dotFilename)
+            await expect(file(dotFilename)).to.exist
+            if (fs.existsSync(refFile)) {
+              // console.log(`        Checking: ${refFile}`)
+              await waitForOperation(app)
+              await compareFiles(dotFilename, refFile)
+            }
+          }
+        }
+      }
     })
   })
 

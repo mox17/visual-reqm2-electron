@@ -163,14 +163,14 @@ export function convertSvgToPng (svg, cbDone = undefined) {
 
 /**
  * Save svg or png file. Format is controlled with extension of filename
- * @param {string} savePath path whre to store diagram
+ * @param {string} savePath path where to store diagram
  */
 export function saveDiagramFile (savePath) {
   actionStart()
-  if (savePath.endsWith('.svg') || savePath.endsWith('.SVG')) {
+  if (savePath.endsWith('.svg')) {
     fs.writeFileSync(savePath, svgResult, 'utf8')
     actionDone()
-  } else if (savePath.endsWith('.png') || savePath.endsWith('.PNG')) {
+  } else if (savePath.endsWith('.png')) {
     Viz.svgXmlToPngImageElement(svgResult, 1, (ev, png) => {
       // istanbul ignore else
       if (ev === null) {
@@ -182,7 +182,7 @@ export function saveDiagramFile (savePath) {
       }
       actionDone()
     })
-  } else if (savePath.endsWith('.dot') || savePath.endsWith('.DOT')) {
+  } else if (savePath.endsWith('.dot')) {
     fs.writeFileSync(savePath, dotSource, 'utf8')
     actionDone()
   } else
