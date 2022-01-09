@@ -161,26 +161,13 @@ function statusCell (rec, showCoverage, colorStatus) {
 }
 
 /**
- * Format links as HTML table rows
- * @param {object} rec
- * @returns {string} with HTML style rows of data (or empty string)
- */
-export function formatLinks (rec) {
-  let result = ''
-  for (let l of rec.linksto) {
-    let row = `        <TR><TD>${l.linksto}</TD><TD>${l.dstversion}</TD><TD>${l.linkerror}</TD></TR>\n`
-    result += row
-  }
-  return result
-}
-
-/**
  * Generate a string of possible missing referenced objects
  * @param {specobject} rec
  * @return {string} dot table row
  */
 function formatNonexistentLinks (rec) {
   let result = ''
+  // istanbul ignore else
   if (programSettings.show_errors) {
     const missing = []
     for (const lt of rec.linksto) {
