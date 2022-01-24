@@ -1,5 +1,5 @@
 'use strict'
-import { showToast } from 'show-toast'
+import showToast from 'show-toast'
 import { oreqmMain, oreqmRef, svgResult, convertSvgToPng, dotSource,
          COLOR_UP, COLOR_DOWN, selectColor, setActionCb } from "./main_data"
 import { setIssueCount } from "./issues"

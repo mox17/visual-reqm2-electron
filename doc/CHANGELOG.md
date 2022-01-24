@@ -1,5 +1,8 @@
 ### Changelog
 
+## 2.5.1
+* Fix bug in showToast import that could leave an active progress-bar window running.
+
 ## 2.5.0
 * VQL query language for easier search. This is a major new feature. See [VQL.md](VQL.md) about details
   of the new and hopefully easier search syntax.
