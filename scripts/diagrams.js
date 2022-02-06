@@ -96,6 +96,7 @@ export function dotFormat (txt) {
     // txt = txt.replace(/\\u([0-9a-f]{4})/g, function (whole, group1) {return String.fromCharCode(parseInt(group1, 16));})
     // neuter unknown, unepanded xml elements
     txt2 = txt.split(/&(?!lt;|gt;|quot;|amp;|nbsp;)/gm)
+    // istanbul ignore next: The xml loading does not permit this kind of data
     if (txt2.length > 1) {
       txt = txt2.join('&amp;')
     }

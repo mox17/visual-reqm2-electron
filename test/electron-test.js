@@ -1021,6 +1021,61 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await waitForOperation(app)
       await compareFiles(dotFilename, refFile)
+    })
+  })
+
+  describe('Coverage settings', function () {
+    it('Clear options - ', async function () {
+      const settingsMenu = await app.client.$('#settingsPopup')
+      await fakeMenu.clickMenu('Edit', 'Settings...')
+      const style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('block'))
+
+      await clickButton(app, '#sett_show_coverage')
+      await clickButton(app, '#sett_color_status')
+      await clickButton(app, '#sett_show_errors')
+
+      let sett_show_coverage = await app.client.$('#sett_show_coverage')
+      assert.ok(! await sett_show_coverage.isSelected())
+      let sett_color_status = await app.client.$('#sett_color_status')
+      assert.ok(! await sett_color_status.isSelected())
+      let sett_show_errors = await app.client.$('#sett_show_errors')
+      assert.ok(! await sett_show_errors.isSelected())
+
+      await clickButton(app, '#sett_ok')
+      await waitForOperation(app)
+      await clickButton(app, '#filter_graph')
+      await waitForOperation(app)
+
+      const dotFilename = './tmp/ffb_diff_2.dot'
+      const refFile = './test/refdata/ffb_diff_2.dot'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
+      await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await waitForOperation(app)
+      await compareFiles(dotFilename, refFile)
+    })
+
+    it('Set options - ', async function () {
+      const settingsMenu = await app.client.$('#settingsPopup')
+      await fakeMenu.clickMenu('Edit', 'Settings...')
+      const style = await settingsMenu.getAttribute('style')
+      assert.ok(style.includes('block'))
+
+      await clickButton(app, '#sett_show_coverage')
+      await clickButton(app, '#sett_color_status')
+      await clickButton(app, '#sett_show_errors')
+
+      let sett_show_coverage = await app.client.$('#sett_show_coverage')
+      assert.ok(await sett_show_coverage.isSelected())
+      let sett_color_status = await app.client.$('#sett_color_status')
+      assert.ok(await sett_color_status.isSelected())
+      let sett_show_errors = await app.client.$('#sett_show_errors')
+      assert.ok(await sett_show_errors.isSelected())
+
+      await clickButton(app, '#sett_ok')
+      await waitForOperation(app)
+      await clickButton(app, '#filter_graph')
+      await waitForOperation(app)
       await clickButton(app, '#clear_ref_oreqm')
       await waitForOperation(app)
     })

@@ -1,0 +1,120 @@
+digraph "" {
+  rankdir="RL"
+  node [shape=plaintext fontname="Arial" fontsize=16]
+  edge [color="blue",dir="forward",arrowhead="normal",arrowtail="normal"];
+
+  "cc.game.overview" [id="cc.game.overview" label=<
+      <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.overview</TD><TD>1</TD><TD>fea</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall be a text adventure.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>fea</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">safetyrationale: Safety cannot be guaranteed in adventure games.<BR ALIGN="LEFT"/>Proceed at own risk.<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:26<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+  "cc.game.locations" [id="cc.game.locations" label=<
+      <TABLE BGCOLOR="#FDB1D0" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.locations</TD><TD>1</TD><TD>fea</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Colossal cave shall have the following locations:<BR ALIGN="LEFT"/>&lt;itemizedlist&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;House&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Meadow&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Grate&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Maze&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Witt's End&lt;/listitem&gt;<BR ALIGN="LEFT"/>  &lt;listitem&gt;Westlands&lt;/listitem&gt;<BR ALIGN="LEFT"/>&lt;/itemizedlist&gt;<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>swrs</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">comment: The locations are connected<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:43<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+subgraph "cluster_cc.game.location.westlands" { id="sel_cc.game.location.westlands" color=maroon3 penwidth=3 label="" style="rounded"
+subgraph "cluster_cc.game.location.westlands_changed" { color=orange3 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"
+  "cc.game.location.westlands" [id="cc.game.location.westlands" label=<
+      <TABLE BGCOLOR="#B1E6FD" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >cc.game.location.westlands</TD><TD>1</TD><TD>swrs</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Frobozz, an ancient province in the northern part of the Westlands,<BR ALIGN="LEFT"/>is the site of many historic settlements such as Galepath, Mareilon,<BR ALIGN="LEFT"/>and the Castle Largoneth.<BR ALIGN="LEFT"/>This province of Frobozz corresponds roughly to the<BR ALIGN="LEFT"/>Kingdom of Quendor during the reign of Entharion.<BR ALIGN="LEFT"/></TD><TD><TABLE BORDER="0"><TR><TD>vaporware*</TD></TR></TABLE></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">shortdesc: Northern Westlands<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">furtherinfo: Frobozz is not actually part of Colossal Cave, but features<BR ALIGN="LEFT"/>in the related series of Zork adventures<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:250<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+}
+}
+
+subgraph "cluster_zork.game.location.floodcontroldam" { id="sel_zork.game.location.floodcontroldam" color=maroon3 penwidth=3 label="" style="rounded"
+subgraph "cluster_zork.game.location.floodcontroldam_changed" { color=orange3 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"
+  "zork.game.location.floodcontroldam" [id="zork.game.location.floodcontroldam" label=<
+      <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >zork.game.location.floodcontroldam</TD><TD>2</TD><TD>vaporware</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Flood Control Dam #3 is a staggering engineering feat that must be seen to be believed.<BR ALIGN="LEFT"/>It was constructed in year 783 GUE of the Great Underground Empire to harness the mighty Frigid River.<BR ALIGN="LEFT"/>This work was supported by a grant of 37 million zorkmids from the local omnipotent tyrant of the era,<BR ALIGN="LEFT"/>Lord Dimwit Flathead the Excessive, leaving a big footprint in the Empire's economy.<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:647<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+}
+}
+
+  "zork.game.location.portfoozle" [id="zork.game.location.portfoozle" label=<
+      <TABLE BGCOLOR="#B1FDD1" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="black" >
+        <TR><TD CELLSPACING="0" >zork.game.location.portfoozle</TD><TD>2</TD><TD>vaporware</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">Port Foozle is the primary seaport of the Frigid River Valley, the busiest seaport in the Eastlands<BR ALIGN="LEFT"/>and a common departure point for ships to Antharia.<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: oreqm_testdata_no_ogre_maze_ffb2.oreqm.needscov:660<BR ALIGN="LEFT"/></TD></TR>
+        <TR><TD></TD><TD>QM</TD><TD><TABLE BORDER="0"><TR><TD >proposed</TD></TR></TABLE></TD></TR>
+      </TABLE>>];
+
+subgraph "cluster_zork.game.location.borphee" { id="sel_zork.game.location.borphee" color=maroon3 penwidth=3 label="" style="rounded"
+subgraph "cluster_zork.game.location.borphee_new" { color=limegreen penwidth=2 label="new" fontname="Arial" labelloc="t" style="rounded"
+  "zork.game.location.borphee" [id="zork.game.location.borphee" label=<
+      <TABLE BGCOLOR="#B1FDD1:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >zork.game.location.borphee</TD><TD>1</TD><TD>vaporware</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+}
+}
+
+subgraph "cluster_zork.game.location.frobozz" { id="sel_zork.game.location.frobozz" color=maroon3 penwidth=3 label="" style="rounded"
+subgraph "cluster_zork.game.location.frobozz_changed" { color=orange3 penwidth=2 label="changed" fontname="Arial" labelloc="t" style="rounded"
+  "zork.game.location.frobozz" [id="zork.game.location.frobozz" label=<
+      <TABLE BGCOLOR="#B1FDD1:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >zork.game.location.frobozz</TD><TD>2</TD><TD>vaporware</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+}
+}
+
+subgraph "cluster_zork.game.location.quilbozzabeach" { id="sel_zork.game.location.quilbozzabeach" color=maroon3 penwidth=3 label="" style="rounded"
+subgraph "cluster_zork.game.location.quilbozzabeach_new" { color=limegreen penwidth=2 label="new" fontname="Arial" labelloc="t" style="rounded"
+  "zork.game.location.quilbozzabeach" [id="zork.game.location.quilbozzabeach" label=<
+      <TABLE BGCOLOR="#B1FDD1:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >zork.game.location.quilbozzabeach</TD><TD>1</TD><TD>vaporware</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+}
+}
+
+subgraph "cluster_zork.game.location.flatheadia" { id="sel_zork.game.location.flatheadia" color=maroon3 penwidth=3 label="" style="rounded"
+subgraph "cluster_zork.game.location.flatheadia_removed" { color=red penwidth=2 label="removed" fontname="Arial" labelloc="t" style="rounded"
+  "zork.game.location.flatheadia" [id="zork.game.location.flatheadia" label=<
+      <TABLE BGCOLOR="#B1FDD1:white" BORDER="0" CELLSPACING="0" CELLBORDER="1" COLOR="grey" >
+        <TR><TD CELLSPACING="0" >zork.game.location.flatheadia</TD><TD>1</TD><TD>vaporware</TD></TR>
+        <TR><TD COLSPAN="2" ALIGN="LEFT">*FULFILLEDBY PLACEHOLDER*<BR ALIGN="LEFT"/></TD><TD></TD></TR>
+      </TABLE>>];
+}
+}
+
+
+  # Edges
+  "cc.game.locations" -> "cc.game.overview" [style=bold fontname="Arial" label=""];
+  "cc.game.location.westlands" -> "cc.game.locations" [style=bold fontname="Arial" label=""];
+  "zork.game.location.floodcontroldam" -> "cc.game.location.westlands" [style=bold color=purple dir=back fontname="Arial" label="ffb"];
+  "zork.game.location.portfoozle" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontname="Arial" label="ffb (new)"];
+  "zork.game.location.borphee" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontname="Arial" label="ffb (new)"];
+  "zork.game.location.frobozz" -> "cc.game.location.westlands" [style=bold color=orange3 dir=back fontname="Arial" label="ffb (chg)"];
+  "zork.game.location.quilbozzabeach" -> "cc.game.location.westlands" [style=bold color=green3 dir=back fontname="Arial" label="ffb (new)"];
+  "zork.game.location.flatheadia" -> "cc.game.location.westlands" [style=bold color="#C00000" style=dashed dir=back fontname="Arial" label="ffb (removed)"];
+
+  label=<
+    <table border="0" cellspacing="0" cellborder="1">
+      <tr><td cellspacing="0" >File</td><td>./testdata/ffbtest_2.oreqm</td><td>Sat Mar 13 17:13:03 2021</td></tr>
+      <tr><td>Ref. file</td><td>./testdata/ffbtest_1.oreqm</td><td>Sat Mar 13 18:01:10 2021</td></tr>
+      <tr><td>Search text</td><td colspan="2">new:|chg:|rem:<BR ALIGN="LEFT"/></td></tr>
+    </table>>
+  labelloc=b
+  fontsize=18
+  fontcolor=black
+  fontname="Arial"
+
+}
