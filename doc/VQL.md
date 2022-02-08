@@ -82,6 +82,16 @@ The `not` operator inverts the selection of `dt:fea` meaning **doctype** should 
 
 ![image](selection-criteria-grate-not-dt-fea.png)
 
+## Looking for space?
+
+If searching for a string that includes one or more spaces, use `\s` or `\s+` to match those.
+
+For example: match "two spaces here" with `two\sspaces\shere`
+
+or match "separated by &nbsp;&nbsp;&nbsp;&nbsp;many spaces" with `separated\sby\s+many\sspaces`
+
+In VQL the actual space character is a separator between different search terms.
+The fact that search terms not starting with `@` are interpreted as regular expressions, is used here. 
 
 # VQL free search term order
 
