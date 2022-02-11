@@ -693,7 +693,7 @@ function getListSeparator () {
 function saveDiagramSelection (pathname) {
   // List of selected nodes
   const comma = getListSeparator()
-  let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"\n`
+  let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"${comma}"sel_sourcefile"\n`
   for (let s of oreqmMain.subset) {
     let ancestors = oreqmMain.getAncestors(s, new Set())
     let rec = oreqmMain.requirements.get(s)
@@ -714,10 +714,10 @@ function saveDiagramSelection (pathname) {
     for (let err of errSet) {
       if (ancestors.size > 0) {
         for (let a of ancestors) {
-          output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"\n`
+          output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"${comma}"${rec.sourcefile}"\n`
         }
       } else {
-        output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}\n`
+        output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}${comma}${comma}${rec.sourcefile}\n`
       }
     }
   }
