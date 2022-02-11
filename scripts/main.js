@@ -138,6 +138,10 @@ function createWindow () {
           label: 'Save diagram selection...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_sel') }
         },
+        {
+          label: 'Save selection wo. ancestors...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_sel_woa') }
+        },
         { type: 'separator' },
         { role: 'quit' }
       ]

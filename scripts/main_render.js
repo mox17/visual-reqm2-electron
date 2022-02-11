@@ -107,7 +107,11 @@ ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
 })
 
 ipcRenderer.on('save_diagram_sel', (_item, _window, _key_ev) => {
-  saveDiagramSel()
+  saveDiagramSel(true)
+})
+
+ipcRenderer.on('save_diagram_sel_woa', (_item, _window, _key_ev) => {
+  saveDiagramSel(false)
 })
 
 /** Keyboard accelerators for svg pan zoom */
@@ -651,7 +655,7 @@ function updateSettingsFromContext (ctx) {
  * the ids and doctypes of the selected nodes and the set of ancestors
  * (also id and doctype) from the current diagram.
  */
- function saveDiagramSel () {
+ function saveDiagramSel (showAncestors) {
   let defPath = ""
   // istanbul ignore else
   if (oreqmMain) {
@@ -667,14 +671,14 @@ function updateSettingsFromContext (ctx) {
       ],
       properties: ['openFile'],
       defaultPath: defPath,
-      title: "Save ReqM2 selection file"
+      title: showAncestors ? "Save ReqM2 selection file" : "Save ReqM2 selection file wo. ancestors"
     }
 
     // Suggest to save in same directory as oreqmMain
     const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
     // istanbul ignore else
     if (typeof (savePath) !== 'undefined') {
-      saveDiagramSelection(savePath)
+      saveDiagramSelection(savePath, showAncestors)
     }
   }
 }
@@ -690,12 +694,15 @@ function getListSeparator () {
   return sep
 }
 
-function saveDiagramSelection (pathname) {
+function saveDiagramSelection (pathname, showAncestors=true) {
   // List of selected nodes
   const comma = getListSeparator()
-  let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"${comma}"sel_sourcefile"\n`
+  let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"${comma}"sel_sourcefile"${comma}"sel_source"\n`
   for (let s of oreqmMain.subset) {
-    let ancestors = oreqmMain.getAncestors(s, new Set())
+    let ancestors = new Set()
+    if (showAncestors) {
+      ancestors = oreqmMain.getAncestors(s, new Set())
+    }
     let rec = oreqmMain.requirements.get(s)
     let selDt = rec.doctype
     let errSet = new Set()
@@ -714,10 +721,10 @@ function saveDiagramSelection (pathname) {
     for (let err of errSet) {
       if (ancestors.size > 0) {
         for (let a of ancestors) {
-          output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"${comma}"${rec.sourcefile}"\n`
+          output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"${comma}"${rec.sourcefile}"${comma}"${rec.source}"\n`
         }
       } else {
-        output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}${comma}${comma}${rec.sourcefile}\n`
+        output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}${comma}${comma}"${rec.sourcefile}"${comma}"${rec.source}"\n`
       }
     }
   }
