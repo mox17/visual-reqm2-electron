@@ -1,5 +1,9 @@
 ### Changelog
 
+## 2.5.2
+* Add support quoted search terms in VQL. Enclose whole term in either pairs of `"` or `'` characters.
+  This permits spaces in search terms, without rewriting spaces as `\s`.
+
 ## 2.5.1
 * Fix bug in showToast import that could leave an active progress-bar window running.
 
