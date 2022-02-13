@@ -102,8 +102,10 @@ term -> ("ao"|"co"|"children_of"|"ancestors_of") _ "(" _ or_term _ "," _ or_term
 
 # '@' prefixed strings escapes all regex metacharacters
 patt -> "@" [\S]:+                                          {% (d) => { return { v: escStr(d[1].join("")), t: false } } %}
+patt -> "\"" [^"]:+ "\""                                    {% (d) => { return { v: d[1].join(""), t: true } }  %}
+patt -> "'" [^']:+ "'"                                      {% (d) => { return { v: d[1].join(""), t: true } }  %}
       # 'and' and 'or' are not valid patterns, prefix with '@' if really needed
-patt -> [^@\s] [\S]:*                                       {% (d, l, reject) => {
+patt -> [^@"'\s] [\S]:*                                     {% (d, l, reject) => {
                                                               let str = d[0]+d[1].join("");
                                                               if (checkAndOr(str)) {
                                                                 return reject

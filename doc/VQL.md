@@ -84,14 +84,36 @@ The `not` operator inverts the selection of `dt:fea` meaning **doctype** should 
 
 ## Looking for space?
 
-If searching for a string that includes one or more spaces, use `\s` or `\s+` to match those.
+VQL search terms can be put inside single `'` or double `"` quotes. This allow spaces in the search
+term itself.
 
-For example: match "two spaces here" with `two\sspaces\shere`
+Example:
+```
+"de:search with VQL's space support"
+```
+or
+
+```
+'de:search for "quoted" spaces " " '
+```
+
+But if a search string contains both `'`, `"` and space, then use regex syntax.
+
+
+
+For example: match `"two quotes '" and spaces"` with
+
+```
+two\squotes\s'"\sand\sspaces
+```
 
 or match "separated by &nbsp;&nbsp;&nbsp;&nbsp;many spaces" with `separated\sby\s+many\sspaces`
 
+Notice that an unquoted search term, i.e. not starting with either `'` or `"` can have any number
+and combinations of `'` and `"` inside (but no literal spaces).
+
 In VQL the actual space character is a separator between different search terms.
-The fact that search terms not starting with `@` are interpreted as regular expressions, is used here. 
+The fact that search terms not starting with `@` are interpreted as regular expressions, is used here.
 
 # VQL free search term order
 
@@ -161,7 +183,7 @@ This means that for free text fields, any text may occur **before** the search t
 ## End marker `$`
 If no end marker `$` is specified, then any text may also occur **after** the search term.
 
-It is possible to override this default, which will be described below. 
+It is possible to override this default, which will be described below.
 
 ![image](selection-criteria-tooltip-vql.png)
 
@@ -189,7 +211,7 @@ normal JS RegEx syntax applies.
 This is an **optional** advanced topic.
 
 It is possible to be more advanced search for an \<id> (or any other field) containing multiple possibilities,
-such as 
+such as
 ```
 id:name-(foo|bar)
 ```
@@ -210,7 +232,7 @@ To avoid use of regular expressions, the `id:name-(foo|bar)` term could also be 
 id:name-foo or id:name-bar
 ```
 
-or 
+or
 
 ```
 id:name-foo$ or id:name-bar$
@@ -286,3 +308,7 @@ terms, as well as grouping with `(` and `)`.
 
 
 Back to [README.md](../README.md)
+
+# VQL grammar
+
+![image](vql-railroad.png)

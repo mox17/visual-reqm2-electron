@@ -96,4 +96,17 @@ describe('vql-search tests', function () {
     assert(nodes.size === 0)
   })
 
+  it('VQL parse expr 8', function () {
+    let nodes = vqlSearch.vqlParse(oreqm, '"de:Witt\'s end"')
+    assert(nodes.has('cc.game.location.witt'))
+    assert(nodes.has('cc.game.locations'))
+    assert(nodes.size === 2)
+  })
+
+  it('VQL parse expr 9', function () {
+    let nodes = vqlSearch.vqlParse(oreqm, '\'Proceed at own risk\'')
+    assert(nodes.has('cc.game.overview'))
+    assert(nodes.size === 1)
+  })
+
 })
