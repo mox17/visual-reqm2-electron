@@ -128,6 +128,7 @@ export function createOreqmMain (name, data) {
   }
   oreqmMain = new ReqM2Oreqm(name, data, [], [])
   fs.watchFile(name, (_curr, _prev) => {
+    //rq: ->(rq_watch_files)
     // console.log("File updated: ", name)
     ipcRenderer.send('file_updated', 'Main .oreqm changed', name)
   })
@@ -146,6 +147,7 @@ export function createOreqmRef (name, data) {
   }
   oreqmRef = new ReqM2Oreqm(name, data, [], [])
   fs.watchFile(name, (_curr, _prev) => {
+    //rq: ->(rq_watch_files)
     // console.log("File updated: ", name)
     ipcRenderer.send('file_updated', 'Reference .oreqm changed', name)
   })

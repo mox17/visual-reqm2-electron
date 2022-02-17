@@ -14,6 +14,7 @@ let oreqm = null
  * @returns {Object} AST of parsed VQL expression
  */
 export function vqlParse (oreqmParameter, sc) {
+  //rq: ->(rq_query_language)
   let ans
   oreqm = oreqmParameter
   let result = null

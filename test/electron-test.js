@@ -512,6 +512,7 @@ describe('Application launch', function () {
   })
 
   describe('Update files on disk', function () {
+    //rq: ->(rq_watch_files)
     it('Touch main file - ignore', async function () {
       await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
       touchFile('./testdata/oreqm_testdata_no_ogre.oreqm')
@@ -578,7 +579,8 @@ describe('Application launch', function () {
     })
 
     it('show xml changed', async function () {
-      await contextMenuClick(app, 'cc.game.characters', '#menu_xml_txt')
+    //rq: ->(rq_ctx_show_xml)
+    await contextMenuClick(app, 'cc.game.characters', '#menu_xml_txt')
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (changed specobject)</h2>'))
@@ -637,6 +639,7 @@ describe('Application launch', function () {
       const htmlFilename = './tmp/table-1.html'
       fs.writeFileSync(htmlFilename, table)
       await compareFiles(htmlFilename, './test/refdata/table-1.html')
+      //rq: ->(rq_table_view)
     })
 
     it('show diagram as dot', async function () {
@@ -688,6 +691,7 @@ describe('Application launch', function () {
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await waitForOperation(app)
+      //rq: ->(rq_diagram_legend)
       await compareFiles(dotFilename, './test/refdata/single_select_1.dot')
 
       const nodeSelect = await app.client.$('#nodeSelect')
@@ -760,6 +764,8 @@ describe('Application launch', function () {
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safetyRulesFilename] }])
       await fakeMenu.clickMenu('File', 'Load coverage rules...')
       await waitForOperation(app)
+      //rq: ->(rq_safety_rules_import)
+      // TODO: add asserts
     })
 
     it('Save issues file - cancel', async function () {
@@ -813,6 +819,7 @@ describe('Application launch', function () {
 
   describe('ID search', function () {
     it('select ID search', async function () {
+      //rq: ->(rq_search_id_only)
       let searchRegex = await app.client.$('#search_regex')
       await clickButton(app, '#clear_search_regex')
       await clickButton(app, '#clear_excluded_ids')
@@ -823,6 +830,7 @@ describe('Application launch', function () {
       await waitForOperation(app)
       await clickButton(app, '#copy_selected')
       let selected = await app.electron.clipboard.readText()
+      //rq: ->(rq_selected_clipboard)
       assert.ok(selected.includes('cc.game.location.maze.9\n'))
       assert.ok(selected.includes('cc.game.location.maze\n'))
       let excludeIds = await app.client.$('#excluded_ids')
@@ -1002,6 +1010,7 @@ describe('Application launch', function () {
       await fakeMenu.clickMenu('File', 'Save diagram as...')
       await waitForOperation(app)
       await compareFiles(dotFilename, refFile)
+      //rq: ->(rq_limited_walk)
     })
 
     it ('Load ffb test 2', async function () {
@@ -1026,6 +1035,7 @@ describe('Application launch', function () {
 
   describe('Coverage settings', function () {
     it('Clear options - ', async function () {
+      //rq: ->(rq_status_color,rq_cov_color)
       const settingsMenu = await app.client.$('#settingsPopup')
       await fakeMenu.clickMenu('Edit', 'Settings...')
       const style = await settingsMenu.getAttribute('style')

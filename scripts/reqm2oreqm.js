@@ -705,6 +705,7 @@ export class ReqM2Specobjects {
         this.duplicates.set(req.id, [{ id: firstReq.id, version: firstReq.version }])
       }
       // Add duplicate
+      //rq: ->(rq_dup_req_search)
       this.duplicates.get(req.id).push({ id: key, version: req.version })
     }
     // Add new doctype list if unknown

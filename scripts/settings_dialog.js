@@ -13,7 +13,7 @@ const electronSettings = require('electron-settings')
  * @param {function} settingsUpdatedCallback callback to put new settings into effect
  */
 export function handleSettings (settingsUpdatedCallback, args) {
-  //rq: ->(rq_settings_file)
+  //rq: ->(rq_settings_file,rq_cl_settings_file)
   // console.log("Settings default file:", electron_settings.file())
   settingsConfigure(electronSettings, args.settDir, args.settFile)
   const settingsFile = electronSettings.file()

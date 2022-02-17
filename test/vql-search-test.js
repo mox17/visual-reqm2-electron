@@ -30,6 +30,7 @@ global.alert = simpleAlert
  */
 
 describe('vql-search tests', function () {
+  //rq: ->(rq_query_language)
   const testOreqmFileName = './testdata/oreqm_testdata_del_movement.oreqm'
   const oreqmTxt = fs.readFileSync(testOreqmFileName)
   const oreqm = new ReqM2Specobjects.ReqM2Specobjects(

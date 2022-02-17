@@ -958,16 +958,16 @@ function loadFileMainFs (file, refFile) {
 
 /** Handle button click for interactive load of main oreqm via file selector */
 document.getElementById('get_main_oreqm_file').addEventListener('click', function () {
-  getMainOreqmFile()
+  getMainOreqmFile() //rq: ->(rq_filesel_main_oreqm)
 })
 
 function getMainOreqmFile () {
-  //rq: ->(rq_filesel_main_oreqm)
   const filePath = remote.dialog.showOpenDialogSync(
     {
       filters: [{ name: 'OREQM files', extensions: ['oreqm'] }],
       properties: ['openFile']
     })
+  //rq: ->(rq_filesel_main_oreqm)
   // console.log(filePath);
   if (typeof (filePath) !== 'undefined' && (filePath.length === 1)) {
     loadFileMainFs(filePath[0], null)
@@ -1076,6 +1076,7 @@ document.getElementById('nodeSelect').addEventListener('change', function () {
   // Select node from drop-down
   setSelectedIndex(document.getElementById('nodeSelect').selectedIndex)
   if (document.getElementById('single_select').checked) {
+    //rq: ->(rg_single_view)
     // Generate new diagram with *single* selected node
     graphResults([selectedNodes[selectedIndex]], false)
     updateDiagram(selectedFormat)
@@ -1103,6 +1104,7 @@ document.getElementById('copy_selected').addEventListener('click', function () {
  * Put list of selected <id>s on clipboard as text
  */
 function copySelected () {
+  //rq: ->(rq_selected_clipboard)
   let txt = ''
   if (oreqmMain && selectedNodes.length) {
     txt = selectedNodes.join('\n')+'\n'
@@ -1426,6 +1428,7 @@ document.getElementById('show_doctypes_safety').addEventListener('click', functi
 })
 
 document.getElementById('menu_xml_txt').addEventListener('click', function () {
+  //rq: ->(rq_ctx_show_xml)
   showSource()
 })
 

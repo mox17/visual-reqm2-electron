@@ -79,6 +79,7 @@ describe('command line processing', function () {
   })
 
   it('bad filenames', async function () {
+    //rq: ->(rq_cl_settings_file)
     app = new Application({
       path: electronPath,
       args: [path.join(__dirname, '..'),
