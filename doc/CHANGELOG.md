@@ -1,5 +1,8 @@
 ### Changelog
 
+## 2.6.0
+* Use SheetJS to export selected specobjects as xlsx files
+
 ## 2.5.2
 * Add support quoted search terms in VQL. Enclose whole term in either pairs of `"` or `'` characters.
   This permits spaces in search terms, without rewriting spaces as `\s`.

@@ -27,6 +27,7 @@ import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showI
          nodeSource, showSource } from './context-menu.js'
 import { progressbarStart, progressbarUpdate, progressbarStop } from './progressbar.js'
 const open = require('open')
+const XLSX = require('xlsx');
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -663,18 +664,23 @@ function updateSettingsFromContext (ctx) {
 
     const saveOptions = {
       filters: [
-        { name: 'ReqM2 select files (csv)', extensions: ['csv'] }
+        { name: 'Spreadsheet (xlsx)', extensions: ['xlsx'] },
+        { name: 'Text file (csv)', extensions: ['csv'] }
       ],
       properties: ['openFile'],
       defaultPath: defPath,
-      title: "Save ReqM2 selection file"
+      title: "Save ReqM2 selection as file"
     }
 
     // Suggest to save in same directory as oreqmMain
     const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
     // istanbul ignore else
     if (typeof (savePath) !== 'undefined') {
-      saveDiagramSelection(savePath)
+      if (savePath.endsWith('.xlsx')) {
+        saveDiagramSelectionAsSpreadsheet(savePath)
+      } else {
+        saveDiagramSelection(savePath)
+      }
     }
   }
 }
@@ -723,6 +729,46 @@ function saveDiagramSelection (pathname) {
   }
   fs.writeFileSync(pathname, output, 'utf8')
 }
+
+function saveDiagramSelectionAsSpreadsheet (pathname) {
+  let sheetArray = [["sel_id", "sel_dt", "sel_status", "errors", "ancestor_id", "ancestor_dt", "ancestor_status"]]
+  // List of selected nodes
+  for (let s of oreqmMain.subset) {
+    let ancestors = oreqmMain.getAncestors(s, new Set())
+    let rec = oreqmMain.requirements.get(s)
+    let selDt = rec.doctype
+    let errSet = new Set()
+    let row = []
+    for (let m of rec.miscov) {
+      errSet.add(`Missing coverage from doctype ${m}`)
+    }
+    for (let e of rec.errors) {
+      errSet.add(`${e.trim()}`)
+    }
+    for (let f of rec.ffberrors) {
+      errSet.add(`${f.trim()}`)
+    }
+    for (let v of rec.violations) {
+      errSet.add(`${v.trim()}`)
+    }
+    for (let err of errSet) {
+      if (ancestors.size > 0) {
+        for (let a of ancestors) {
+          row = [s, selDt, rec.status, err, a.id, a.doctype, a.status]
+        }
+      } else {
+        row = [s, selDt, rec.status, err, '', '']
+      }
+      sheetArray.push(row)
+    }
+  }
+  let workSheet = XLSX.utils.aoa_to_sheet(sheetArray)
+  let workBook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workBook, workSheet, 'Specobjects')
+  console.log(workBook)
+  XLSX.writeFile(workBook, pathname)
+}
+
 
 /**
  * Create doctype table with counts and exclusion checkboxes
