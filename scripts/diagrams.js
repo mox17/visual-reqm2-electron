@@ -542,7 +542,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         highlights,
         selectedNodes
       )
-      if (subset.length > maxNodes) {
+      if (maxNodes && subset.length > maxNodes) {
         limited = true
         limitReporter(maxNodes) //rq: ->(rq_config_node_limit)
         break // hard limit on node count
@@ -1238,10 +1238,10 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       covrows += row
     }
     if (ffbrows.length) {
-      ffbrows = `<tr><td>Fulfilledby</td><td><table BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%">${ffbrows}</table></td></tr>`
+      ffbrows = `<tr><td>Fulfilledby</td><td colspan="2"><table BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%">${ffbrows}</table></td></tr>`
     }
     if (covrows.length) {
-      covrows = `<tr><td>Provides</td><td><table BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%">${covrows}</table></td></tr>`
+      covrows = `<tr><td>Provides</td><td colspan="2"><table BORDER="1" CELLSPACING="0" CELLBORDER="1" COLOR="black" width="100%">${covrows}</table></td></tr>`
     }
     return ffbrows+covrows
   }

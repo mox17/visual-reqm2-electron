@@ -757,18 +757,67 @@ function saveDiagramSelectionAsSpreadsheet (pathname) {
           row = [s, selDt, rec.status, err, a.id, a.doctype, a.status]
         }
       } else {
-        row = [s, selDt, rec.status, err, '', '']
+        row = [s, selDt, rec.status, err, '', '', '']
       }
       sheetArray.push(row)
     }
   }
-  let workSheet = XLSX.utils.aoa_to_sheet(sheetArray)
   let workBook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workBook, workSheet, 'Specobjects')
+  let titleArray = [['Export from Visual ReqM2', remote.app.getVersion()],
+                    [],
+                    ['Input oreqm file', oreqmMain.filename],
+                    ['timestamp', oreqmMain.timestamp], // A4
+                    [],
+                    ['Search language', searchLanguage],
+                    ['Search term', searchPattern]
+                  ]
+  let titleSheet = XLSX.utils.aoa_to_sheet(titleArray)
+  let titleSheetCols = calcAutoWidth(titleArray)
+  titleSheet["!cols"] = titleSheetCols
+  XLSX.utils.book_append_sheet(workBook, titleSheet, 'Input')
+
+  let workSheet = XLSX.utils.aoa_to_sheet(sheetArray)
+
+  // Auto width
+  let worksheetCols = calcAutoWidth(sheetArray)
+  workSheet["!cols"] = worksheetCols
+
+  XLSX.utils.book_append_sheet(workBook, workSheet, 'specobjects')
+  // Data filter
+  let maxCol = String.fromCharCode(64+sheetArray[0].length)
+  let maxRow = sheetArray.length
+  workSheet['!autofilter'] = { ref:`A1:${maxCol}${maxRow}`}
+
   console.log(workBook)
   XLSX.writeFile(workBook, pathname)
 }
 
+/**
+ * Calculate max column width for array-of_array data
+ * @param {array} sheetArray
+ * @returns witdth[]
+ */
+function calcAutoWidth(sheetArray) {
+  let objectMaxLength = new Array(sheetArray[0].length).fill(0)
+  sheetArray.forEach(arr => {
+    arr.forEach((value, key) => {
+      let len = 0
+      switch (typeof value) {
+        case "number": len = 10; break
+        case "string": len = value.length; break
+        case "object": if (value instanceof Date)
+          len = 10; break
+      }
+      objectMaxLength[key] = Math.max(objectMaxLength[key], len)
+    })
+  })
+  let worksheetCols = objectMaxLength.map(width => {
+    return {
+      width
+    }
+  })
+  return worksheetCols
+}
 
 /**
  * Create doctype table with counts and exclusion checkboxes
