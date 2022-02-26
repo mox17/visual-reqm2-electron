@@ -1266,6 +1266,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
         .replace(/COLOR="black"/, 'COLOR="black" width="100%"')
         .replace(/ BORDER="0"/, ' BORDER="1"')
         .replace(/ <\/TABLE>/, `   ${linkRows}\n      </TABLE>`)
+        .replace(/:white" BORDER=/, '" width="100%" BORDER=')
       table += `<div id="${nodeId}">${node}\n<hr>\n</div>`
       reqProgress += 1
       if (reqProgress % 20 === 0) {

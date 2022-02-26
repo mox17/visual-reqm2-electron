@@ -751,14 +751,20 @@ function saveDiagramSelectionAsSpreadsheet (pathname) {
     for (let v of rec.violations) {
       errSet.add(`${v.trim()}`)
     }
-    for (let err of errSet) {
-      if (ancestors.size > 0) {
-        for (let a of ancestors) {
-          row = [s, selDt, rec.status, err, a.id, a.doctype, a.status]
+    if (errSet.size) {
+      for (let err of errSet) {
+        if (ancestors.size > 0) {
+          for (let a of ancestors) {
+            row = [s, selDt, rec.status, err, a.id, a.doctype, a.status]
+          }
+        } else {
+          row = [s, selDt, rec.status, err, '', '', '']
         }
-      } else {
-        row = [s, selDt, rec.status, err, '', '', '']
+        sheetArray.push(row)
       }
+    } else {
+      // selected specobjects without errors
+      row = [s, selDt, rec.status, '', '', '', '']
       sheetArray.push(row)
     }
   }
