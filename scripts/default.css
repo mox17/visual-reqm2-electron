@@ -262,7 +262,7 @@
     width: 50%;
   }
 
-  /* Create two equal columns that floats next to each other */
+  /* Create three equal columns that floats next to each other */
   .column3 {
     float: left;
     width: 33%;

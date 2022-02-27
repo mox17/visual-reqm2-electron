@@ -2,7 +2,7 @@
 import { setLimitReporter, xmlEscape } from './diagrams.js'
 import { getColor, saveColorsFs, loadColorsFs } from './color.js'
 import { handleSettings, loadSafetyRulesFs, openSettings, saveProgramSettings } from './settings_dialog.js'
-import { getIgnoredFields, programSettings } from './settings.js'
+import { getIgnoredFields, programSettings, isFieldAList } from './settings.js'
 import { ipcRenderer, remote, shell, clipboard } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -26,6 +26,7 @@ import { setIssueCount, saveProblems } from './issues'
 import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showInternal,
          nodeSource, showSource } from './context-menu.js'
 import { progressbarStart, progressbarUpdate, progressbarStop } from './progressbar.js'
+import { round } from 'lodash'
 const open = require('open')
 const XLSX = require('xlsx');
 
@@ -731,40 +732,98 @@ function saveDiagramSelection (pathname) {
 }
 
 function saveDiagramSelectionAsSpreadsheet (pathname) {
-  let sheetArray = [["sel_id", "sel_dt", "sel_status", "errors", "ancestor_id", "ancestor_dt", "ancestor_status"]]
+  // Determine what fields are exported
+  let headLine = []
+  let errors = false
+  let errCol = 0
+  let ancCol = 0
+  for (const field in programSettings.export_fields) {
+    if (programSettings.export_fields[field]) {
+      if (['violations', 'errors', 'ffberrors', 'miscov'].indexOf(field) >= 0) {
+        if (!errors) {
+          errCol = headLine.length // remember column index for errors
+          headLine.push('errors')
+        }
+        errors = true
+      } else {
+        headLine.push(field)
+      }
+    }
+  }
+  if (programSettings.export_ancestors) {
+    ancCol = headLine.length
+    headLine.push("ancestor_id")
+    headLine.push("ancestor_dt")
+    headLine.push("ancestor_status")
+  }
+  let sheetArray = [] // array-of-arrays for worksheet export
+  sheetArray.push(headLine)
   // List of selected nodes
   for (let s of oreqmMain.subset) {
     let ancestors = oreqmMain.getAncestors(s, new Set())
     let rec = oreqmMain.requirements.get(s)
-    let selDt = rec.doctype
     let errSet = new Set()
     let row = []
-    for (let m of rec.miscov) {
-      errSet.add(`Missing coverage from doctype ${m}`)
+    if (programSettings.export_fields.miscov) {
+      for (let m of rec.miscov) {
+        errSet.add(`Missing coverage from doctype ${m}`)
+      }
     }
-    for (let e of rec.errors) {
-      errSet.add(`${e.trim()}`)
+    if (programSettings.export_fields.errors) {
+      for (let e of rec.errors) {
+        errSet.add(`${e.trim()}`)
+      }
     }
-    for (let f of rec.ffberrors) {
-      errSet.add(`${f.trim()}`)
+    if (programSettings.export_fields.ffberrors) {
+      for (let f of rec.ffberrors) {
+        errSet.add(`${f.trim()}`)
+      }
     }
-    for (let v of rec.violations) {
-      errSet.add(`${v.trim()}`)
+    if (programSettings.export_fields.violations) {
+      for (let v of rec.violations) {
+        errSet.add(`${v.trim()}`)
+      }
     }
-    if (errSet.size) {
-      for (let err of errSet) {
-        if (ancestors.size > 0) {
-          for (let a of ancestors) {
-            row = [s, selDt, rec.status, err, a.id, a.doctype, a.status]
-          }
+    // Fill row with specobject data
+    for (const field of headLine) {
+      if (field == 'errors') {
+        row.push('')
+      } else {
+        if (isFieldAList[field]) {
+          row.push(rec[field].join('\n'))
         } else {
-          row = [s, selDt, rec.status, err, '', '', '']
+          row.push(rec[field])
         }
+      }
+    }
+    if (ancCol) {
+      row.push('')
+      row.push('')
+      row.push('')
+    }
+    if (programSettings.export_multi) {
+      if (errSet.size) {
+        for (let err of errSet) {
+          row[errCol] = err
+          if (ancestors.size > 0) {
+            for (let a of ancestors) {
+              row[ancCol+0] = a.id
+              row[ancCol+1] = a.doctype
+              row[ancCol+2] = a.status
+              sheetArray.push(row)
+            }
+          } else {
+            sheetArray.push(row)
+          }
+        }
+      } else {
+        // selected specobjects without errors
         sheetArray.push(row)
       }
     } else {
-      // selected specobjects without errors
-      row = [s, selDt, rec.status, '', '', '', '']
+      // Single row for all errors/ancestors
+      let errList = Array.from(errSet).join('\n')
+      row[errCol] = errList
       sheetArray.push(row)
     }
   }

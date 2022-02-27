@@ -271,6 +271,31 @@ prev and next">
       </div>
     </div>
 
+    <!-- Spreadsheet export dialog -->
+    <div id="sheetExportPopup" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content row">
+        <span id="sheetExportPopupClose" class="close">&times;</span>
+        <hr>
+        <div class="row">
+          <h2>Spreadsheet Export Parameters</h2>
+          <div class="column" id="sheet_export_list" style="overflow-y: auto; height:600px; ">
+              <h4>Fields to export to spreadsheet</h4><br/>
+              <div id="export_fields"></div>
+          </div>
+          <div class="column">
+            <h4>Export rows per specobject</h4><br/>
+            <input type="checkbox" id="sheet_export_ancestors" title="Coverage status shown as extra&#13;colored cell on specobjects"> Show coverage</button><br/>
+            <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Separate error rows</button><br/>
+            <p/>
+          </div>
+        </div>
+        <p/>
+        <button type="button" id="sheet_export_ok" >OK</button>
+        <button type="button" id="sheet_export_cancel" >Cancel</button>
+      </div>
+    </div>
+
     <!-- ---- pop-up menu ---- -->
     <ul class='custom-menu' id="node-menu">
       <li id="menu_select"   >Select</li>

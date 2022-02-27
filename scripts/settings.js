@@ -11,7 +11,7 @@ export const defaultProgramSettings = {
     dependson: true, // list
     description: true,
     doctype: true,
-    fulfilledby: true,
+    fulfilledby: true, // list
     furtherinfo: true,
     linksto: true, // list
     needsobj: true, // list
@@ -47,7 +47,52 @@ export const defaultProgramSettings = {
     ffberrors: false, // list
     miscov: false // list
   },
-  max_calc_nodes: 1000,
+  export_fields: {
+    id: true,
+    comment: false,
+    covstatus: false, // generated
+    dependson: false, // list
+    description: false,
+    doctype: true,
+    fulfilledby: false, // list
+    furtherinfo: false,
+    linksto: false, // list
+    needsobj: false, // list
+    platform: false, // list
+    rationale: false,
+    safetyclass: false,
+    safetyrationale: false,
+    shortdesc: false,
+    source: false,
+    sourcefile: false,
+    sourceline: false,
+    sourcerevision: false,
+    creationdate: false,
+    category: false,
+    priority: false,
+    securityclass: false,
+    securityrationale: false,
+    verifymethods: false, // list
+    verifycond: false,
+    testin: false,
+    testexec: false,
+    testout: false,
+    testpasscrit: false,
+    releases: false, // list
+    conflicts: false, // list
+    status: true,
+    tags: false, // list
+    usecase: false,
+    verifycrit: false,
+    version: true,
+    violations: true, // list
+    errors: true, // list
+    ffberrors: true, // list
+    miscov: true // list
+  },
+  export_ancestors: false,
+  export_multi: false,
+  max_calc_nodes: 0,
   show_coverage: true,
   top_doctypes: [],
   color_status: true,
@@ -82,6 +127,18 @@ export function checkAndUpgradeSettings (settData) {
     // New options are added here with default values when reading settings from previous version
     if (!('compare_fields' in programSettings)) {
       programSettings.compare_fields = defaultProgramSettings.compare_fields
+      modified = true
+    }
+    if (!('export_fields' in programSettings)) {
+      programSettings.export_fields = defaultProgramSettings.export_fields
+      modified = true
+    }
+    if (!('export_ancestors' in programSettings)) {
+      programSettings.export_ancestors = defaultProgramSettings.export_ancestors
+      modified = true
+    }
+    if (!('export_multi' in programSettings)) {
+      programSettings.export_multi = defaultProgramSettings.export_multi
       modified = true
     }
     if (!('max_calc_nodes' in programSettings)) {
