@@ -2,6 +2,7 @@
 
 ## 2.6.0
 * Use SheetJS to export selected specobjects as xlsx files
+* Added dialog with drag-and-drop to configure fields exported to xlsx files
 
 ## 2.5.2
 * Add support quoted search terms in VQL. Enclose whole term in either pairs of `"` or `'` characters.

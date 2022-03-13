@@ -3,6 +3,50 @@
 /** This is the settings object. Update or initialize with checkAndUpgradeSettings() */
 export let programSettings = null
 
+export const isFieldAList = {
+  id: false,
+  comment: false,
+  covstatus: false,
+  dependson: true, // list
+  description: false,
+  doctype: false,
+  fulfilledby: true, // list
+  furtherinfo: false,
+  linksto: true, // list
+  needsobj: true, // list
+  platform: true, // list
+  rationale: false,
+  safetyclass: false,
+  safetyrationale: false,
+  shortdesc: false,
+  source: false,
+  sourcefile: false,
+  sourceline: false,
+  sourcerevision: false,
+  creationdate: false,
+  category: false,
+  priority: false,
+  securityclass: false,
+  securityrationale: false,
+  verifymethods: true, // list
+  verifycond: false,
+  testin: false,
+  testexec: false,
+  testout: false,
+  testpasscrit: false,
+  releases: true, // list
+  conflicts: true, // list
+  status: false,
+  tags: true, // list
+  usecase: false,
+  verifycrit: false,
+  version: false,
+  violations: true, // list
+  errors: true, // list
+  ffberrors: true, // list
+  miscov: true // list
+}
+
 export const defaultProgramSettings = {
   compare_fields: {
     id: true,
@@ -47,49 +91,16 @@ export const defaultProgramSettings = {
     ffberrors: false, // list
     miscov: false // list
   },
-  export_fields: {
-    id: true,
-    comment: false,
-    covstatus: false, // generated
-    dependson: false, // list
-    description: false,
-    doctype: true,
-    fulfilledby: false, // list
-    furtherinfo: false,
-    linksto: false, // list
-    needsobj: false, // list
-    platform: false, // list
-    rationale: false,
-    safetyclass: false,
-    safetyrationale: false,
-    shortdesc: false,
-    source: false,
-    sourcefile: false,
-    sourceline: false,
-    sourcerevision: false,
-    creationdate: false,
-    category: false,
-    priority: false,
-    securityclass: false,
-    securityrationale: false,
-    verifymethods: false, // list
-    verifycond: false,
-    testin: false,
-    testexec: false,
-    testout: false,
-    testpasscrit: false,
-    releases: false, // list
-    conflicts: false, // list
-    status: true,
-    tags: false, // list
-    usecase: false,
-    verifycrit: false,
-    version: true,
-    violations: true, // list
-    errors: true, // list
-    ffberrors: true, // list
-    miscov: true // list
-  },
+  export_fields: [
+    "id",
+    "doctype",
+    "status",
+    "version",
+    "violations",
+    "errors",
+    "ffberrors",
+    "miscov"
+  ],
   export_ancestors: false,
   export_multi: false,
   max_calc_nodes: 0,
@@ -129,7 +140,8 @@ export function checkAndUpgradeSettings (settData) {
       programSettings.compare_fields = defaultProgramSettings.compare_fields
       modified = true
     }
-    if (!('export_fields' in programSettings)) {
+    // second rule changes overrides the obsolete dict format with array of fields (in output order)
+    if (!('export_fields' in programSettings) || (programSettings.export_fields.constructor == Object)) {
       programSettings.export_fields = defaultProgramSettings.export_fields
       modified = true
     }

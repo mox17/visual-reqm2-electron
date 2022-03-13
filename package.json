@@ -69,6 +69,7 @@
     "open": "^8.4.0",
     "shell": "^0.8.4",
     "show-toast": "^1.1.4",
+    "sortablejs": "^1.14.0",
     "split.js": "^1.6.2",
     "svg-pan-zoom": "^3.6.0",
     "uuid": "^3.4.0",

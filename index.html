@@ -279,19 +279,23 @@ prev and next">
         <hr>
         <div class="row">
           <h2>Spreadsheet Export Parameters</h2>
-          <div class="column" id="sheet_export_list" style="overflow-y: auto; height:600px; ">
-              <h4>Fields to export to spreadsheet</h4><br/>
-              <div id="export_fields"></div>
+          <div class="column3" id="sheet_not_exported" style="overflow-y: auto; height:600px; ">
+            <h4>Available fields for export</h4>
+            <div id="export_fields_available"></div>
           </div>
-          <div class="column">
+          <div class="column3" id="sheet_export_list" style="overflow-y: auto; height:600px; ">
+            <h4>Exported Fields</h4>
+            <div id="export_fields_selected"></div>
+        </div>
+        <div class="column3">
             <h4>Export rows per specobject</h4><br/>
-            <input type="checkbox" id="sheet_export_ancestors" title="Coverage status shown as extra&#13;colored cell on specobjects"> Show coverage</button><br/>
+            <input type="checkbox" id="sheet_export_ancestors" title="Export ancestors of selected specobjects"> Export ancestors</button><br/>
             <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Separate error rows</button><br/>
             <p/>
           </div>
         </div>
         <p/>
-        <button type="button" id="sheet_export_ok" >OK</button>
+        <button type="button" id="sheet_export_ok" >Export...</button>
         <button type="button" id="sheet_export_cancel" >Cancel</button>
       </div>
     </div>

@@ -27,6 +27,7 @@ import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showI
          nodeSource, showSource } from './context-menu.js'
 import { progressbarStart, progressbarUpdate, progressbarStop } from './progressbar.js'
 import { round } from 'lodash'
+import Sortable from 'sortablejs'
 const open = require('open')
 const XLSX = require('xlsx');
 
@@ -109,7 +110,7 @@ ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
 })
 
 ipcRenderer.on('save_diagram_sel', (_item, _window, _key_ev) => {
-  saveDiagramSel()
+  openSheetExportDialog()
 })
 
 /** Keyboard accelerators for svg pan zoom */
@@ -730,6 +731,73 @@ function saveDiagramSelection (pathname) {
   }
   fs.writeFileSync(pathname, output, 'utf8')
 }
+
+/**
+ * Populate the sheetExportPopup dialog with the fields selected for export and other related settings
+ */
+function prepareSheetExportDialog () {
+  const exportFieldsAvailable = document.getElementById('export_fields_available')
+  const exportFieldsSelected = document.getElementById('export_fields_selected')
+
+  // Create ul of selected fields
+  let ulExported = '<ul id="sheet_ul_exported" class="export-field-list col">\n'
+  programSettings.export_fields.forEach(function (field) {
+    ulExported += ` <li class="export-field">${field}</li>\n`
+  })
+  ulExported += '</ul>\n'
+  exportFieldsSelected.innerHTML = ulExported
+
+  // Create ul of not selected fields. compare_fields have all the needed names
+  let ulNotExported = '<ul id="sheet_ul_not_exported" class="export-field-list col">\n'
+  for (const field in programSettings.compare_fields) {
+    if (programSettings.export_fields.indexOf(field) < 0) {
+      // Not an exported field, add to this list
+      ulNotExported += `  <li class="export-field">${field}</li>\n`
+    }
+  }
+  ulNotExported += '</ul>\n'
+  exportFieldsAvailable.innerHTML = ulNotExported
+
+  new Sortable(document.getElementById('sheet_ul_exported'), {
+    group: 'export_tags',
+    animation: 150,
+    ghostClass: "placeholder"
+  })
+
+  new Sortable(document.getElementById('sheet_ul_not_exported'), {
+    group: 'export_tags',
+    animation: 150,
+    ghostClass: "placeholder"
+  })
+}
+
+function saveSheetExportDialogChoices () {
+  // extract list of fields and save
+  let exList = document.getElementById('sheet_ul_exported')
+  let exportList = exList.getElementsByTagName('li')
+  programSettings.export_fields = Array.from(exportList).map(r => r.innerHTML)
+  //console.log(programSettings.export_fields)
+  saveProgramSettings()
+}
+
+function openSheetExportDialog () {
+  prepareSheetExportDialog()
+  document.getElementById('sheetExportPopup').style.display = 'block'
+}
+
+document.getElementById('sheet_export_ok').addEventListener('click', function () {
+  saveSheetExportDialogChoices()
+  document.getElementById('sheetExportPopup').style.display = 'none'
+  saveDiagramSel()
+})
+
+document.getElementById('sheet_export_cancel').addEventListener('click', function () {
+  document.getElementById('sheetExportPopup').style.display = 'none'
+})
+
+document.getElementById('sheetExportPopupClose').addEventListener('click', function () {
+  document.getElementById('sheetExportPopup').style.display = 'none'
+})
 
 function saveDiagramSelectionAsSpreadsheet (pathname) {
   // Determine what fields are exported
