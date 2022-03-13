@@ -26,7 +26,7 @@ import { setIssueCount, saveProblems } from './issues'
 import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showInternal,
          nodeSource, showSource } from './context-menu.js'
 import { progressbarStart, progressbarUpdate, progressbarStop } from './progressbar.js'
-import { round } from 'lodash'
+import { round, set } from 'lodash'
 import Sortable from 'sortablejs'
 const open = require('open')
 const XLSX = require('xlsx');
@@ -739,6 +739,8 @@ function prepareSheetExportDialog () {
   const exportFieldsAvailable = document.getElementById('export_fields_available')
   const exportFieldsSelected = document.getElementById('export_fields_selected')
 
+  document.getElementById('sheet_export_multi').checked = programSettings.export_multi
+
   // Create ul of selected fields
   let ulExported = '<ul id="sheet_ul_exported" class="export-field-list col">\n'
   programSettings.export_fields.forEach(function (field) {
@@ -748,8 +750,12 @@ function prepareSheetExportDialog () {
   exportFieldsSelected.innerHTML = ulExported
 
   // Create ul of not selected fields. compare_fields have all the needed names
+  let fieldList = Object.keys(programSettings.compare_fields)
+  fieldList.push("ancestor_id")
+  fieldList.push("ancestor_dt")
+  fieldList.push("ancestor_status")
   let ulNotExported = '<ul id="sheet_ul_not_exported" class="export-field-list col">\n'
-  for (const field in programSettings.compare_fields) {
+  for (const field of fieldList) {
     if (programSettings.export_fields.indexOf(field) < 0) {
       // Not an exported field, add to this list
       ulNotExported += `  <li class="export-field">${field}</li>\n`
@@ -776,6 +782,7 @@ function saveSheetExportDialogChoices () {
   let exList = document.getElementById('sheet_ul_exported')
   let exportList = exList.getElementsByTagName('li')
   programSettings.export_fields = Array.from(exportList).map(r => r.innerHTML)
+  programSettings.export_multi = document.getElementById('sheet_export_multi').checked
   //console.log(programSettings.export_fields)
   saveProgramSettings()
 }
@@ -799,100 +806,127 @@ document.getElementById('sheetExportPopupClose').addEventListener('click', funct
   document.getElementById('sheetExportPopup').style.display = 'none'
 })
 
-function saveDiagramSelectionAsSpreadsheet (pathname) {
-  // Determine what fields are exported
+/**
+ * Calculate the 1st row headline.
+ * Notice that different categories of errors are all merged into the 'errors' column
+ * @returns string[] 1st row labels
+ */
+function calcHeadLine() {
+  let errCol = ''
   let headLine = []
-  let errors = false
-  let errCol = 0
-  let ancCol = 0
-  for (const field in programSettings.export_fields) {
-    if (programSettings.export_fields[field]) {
-      if (['violations', 'errors', 'ffberrors', 'miscov'].indexOf(field) >= 0) {
-        if (!errors) {
-          errCol = headLine.length // remember column index for errors
-          headLine.push('errors')
+  for (let f of programSettings.export_fields) {
+    switch (f) {
+      // Merge all errors into one column
+      case 'miscov':
+      case 'errors':
+      case 'ffberrors':
+      case 'violations':
+        if (!errCol.length) {
+          errCol = 'errors'
+          headLine.push(errCol)
         }
-        errors = true
-      } else {
-        headLine.push(field)
-      }
+        break;
+      default:
+        headLine.push(f)
     }
   }
-  if (programSettings.export_ancestors) {
-    ancCol = headLine.length
-    headLine.push("ancestor_id")
-    headLine.push("ancestor_dt")
-    headLine.push("ancestor_status")
-  }
+  return headLine
+}
+
+function saveDiagramSelectionAsSpreadsheet (pathname) {
+  // Determine what fields are exported
+  const headLine = calcHeadLine()
+  const errCol = headLine.indexOf('errors')
+  const ancIdCol = headLine.indexOf('ancestor_id')
+  const ancDtCol = headLine.indexOf('ancestor_dt')
+  const ancStCol = headLine.indexOf('ancestor_status')
+  const listAncestors = ancIdCol >= 0 || ancDtCol >= 0 || ancStCol >= 0
   let sheetArray = [] // array-of-arrays for worksheet export
   sheetArray.push(headLine)
   // List of selected nodes
   for (let s of oreqmMain.subset) {
-    let ancestors = oreqmMain.getAncestors(s, new Set())
-    let rec = oreqmMain.requirements.get(s)
+    const ancestors = listAncestors ? oreqmMain.getAncestors(s, new Set()) : new Set()
+    const rec = oreqmMain.requirements.get(s)
     let errSet = new Set()
     let row = []
-    if (programSettings.export_fields.miscov) {
-      for (let m of rec.miscov) {
+    if (programSettings.export_fields.indexOf('miscov') >= 0) {
+      for (const m of rec.miscov) {
         errSet.add(`Missing coverage from doctype ${m}`)
       }
     }
-    if (programSettings.export_fields.errors) {
-      for (let e of rec.errors) {
+    if (programSettings.export_fields.indexOf('errors') >= 0) {
+      for (const e of rec.errors) {
         errSet.add(`${e.trim()}`)
       }
     }
-    if (programSettings.export_fields.ffberrors) {
-      for (let f of rec.ffberrors) {
+    if (programSettings.export_fields.indexOf('ffberrors') >= 0) {
+      for (const f of rec.ffberrors) {
         errSet.add(`${f.trim()}`)
       }
     }
-    if (programSettings.export_fields.violations) {
-      for (let v of rec.violations) {
+    if (programSettings.export_fields.indexOf('violations') >= 0) {
+      for (const v of rec.violations) {
         errSet.add(`${v.trim()}`)
       }
     }
     // Fill row with specobject data
     for (const field of headLine) {
-      if (field == 'errors') {
-        row.push('')
-      } else {
-        if (isFieldAList[field]) {
-          row.push(rec[field].join('\n'))
-        } else {
-          row.push(rec[field])
+      switch (field) {
+        case 'errors':
+        case 'ancestor_id':
+        case 'ancestor_dt':
+        case 'ancestor_status':
+          row.push('')
+          break;
+        default:
+          if (isFieldAList[field]) {
+            row.push(rec[field].join('\n'))
+          } else {
+            row.push(rec[field])
+          }
         }
-      }
-    }
-    if (ancCol) {
-      row.push('')
-      row.push('')
-      row.push('')
     }
     if (programSettings.export_multi) {
       if (errSet.size) {
-        for (let err of errSet) {
+        for (const err of errSet) {
           row[errCol] = err
           if (ancestors.size > 0) {
-            for (let a of ancestors) {
-              row[ancCol+0] = a.id
-              row[ancCol+1] = a.doctype
-              row[ancCol+2] = a.status
-              sheetArray.push(row)
+            for (const a of ancestors) {
+              if (ancIdCol >= 0) {
+                row[ancIdCol] = a.id
+              }
+              if (ancDtCol >= 0) {
+                row[ancDtCol] = a.doctype
+              }
+              if (ancStCol >= 0) {
+                row[ancStCol] = a.status
+              }
+              sheetArray.push(row.slice())
             }
           } else {
-            sheetArray.push(row)
+            sheetArray.push(row.slice())
           }
         }
       } else {
         // selected specobjects without errors
-        sheetArray.push(row)
+        sheetArray.push(row.slice())
       }
     } else {
       // Single row for all errors/ancestors
-      let errList = Array.from(errSet).join('\n')
-      row[errCol] = errList
-      sheetArray.push(row)
+      if (errCol >= 0) {
+        row[errCol] = Array.from(errSet).join('\n')
+      }
+      const ancArr = Array.from(ancestors)
+      if (ancIdCol >= 0) {
+        row[ancIdCol] = ancArr.map(a => a.id).join('\n')
+      }
+      if (ancDtCol >= 0) {
+        row[ancDtCol] = ancArr.map(a => a.doctype).join('\n')
+      }
+      if (ancStCol >= 0) {
+        row[ancStCol] = ancArr.map(a => a.status).join('\n')
+      }
+      sheetArray.push(row.slice())
     }
   }
   let workBook = XLSX.utils.book_new()
