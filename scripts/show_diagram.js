@@ -30,8 +30,6 @@ export let panZoom = null
 export let selectedIndex = 0
 /** When true diagram is generated whenever selections or exclusions are updated */
 export let autoUpdate = true
-/** When true specobject in state 'rejected' are ignored */
-let noRejects = true // shall specobjects with status===rejected be displayed?
 
 // Manage selection highlight in diagram (extra bright red outline around selected specobject)
 /** The svg id of the rectangle around a selected specobject in diagram */
@@ -642,7 +640,7 @@ export function filterChange () {
   clearToast()
   if (oreqmMain) {
     spinnerShow()
-    oreqmMain.setNoRejects(noRejects)
+    oreqmMain.setNoRejects(programSettings.no_rejects)
     handlePruning()
     // Collect filter criteria and generate .dot data
     setSearchPattern(getSearchRegexClean())
@@ -732,7 +730,7 @@ function clearToast () {
 // some ways to select a subset of specobjects
 function selectAll (_nodeId, rec, _nodeColor) {
   // Select all - no need to inspect input
-  if (noRejects) {
+  if (programSettings.no_rejects) {
     return rec.status !== 'rejected'
   }
   return true
@@ -746,7 +744,7 @@ function selectAll (_nodeId, rec, _nodeColor) {
 })
 
 function noRejectsClick () {
-  noRejects = document.getElementById('no_rejects').checked
+  programSettings.no_rejects = document.getElementById('no_rejects').checked
   filterChange()
 }
 

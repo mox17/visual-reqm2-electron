@@ -242,6 +242,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   setSearchLanguageButtons(programSettings.search_language)
 
   document.getElementById('search_tooltip').innerHTML = searchTooltip(searchLanguage)
+  document.getElementById('no_rejects').checked = programSettings.no_rejects
 
   // istanbul ignore else
   if ((args.newVer !== false) && (args.newVer === true || programSettings.check_for_updates)) {

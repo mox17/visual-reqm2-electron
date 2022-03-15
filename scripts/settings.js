@@ -120,7 +120,8 @@ export const defaultProgramSettings = {
     '^swintts.*>.*$', // swintts can cover anything (maybe?)
     '^swuts.*>.*$' // swuts can cover anything (maybe?)
   ],
-  search_language: 'vql'
+  search_language: 'vql',
+  no_rejects: true
 }
 
 /** These are data fields used from the specobject, plus a pseudo field (see below) */
@@ -183,6 +184,10 @@ export function checkAndUpgradeSettings (settData) {
     }
     if (!('search_language' in programSettings)) {
       programSettings.search_language = defaultProgramSettings.search_language
+      modified = true
+    }
+    if (!('no_rejects' in programSettings)) {
+      programSettings.no_rejects = defaultProgramSettings.no_rejects
       modified = true
     }
   } else {
