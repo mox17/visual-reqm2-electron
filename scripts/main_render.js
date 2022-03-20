@@ -2,7 +2,7 @@
 import { setLimitReporter, xmlEscape } from './diagrams.js'
 import { getColor, saveColorsFs, loadColorsFs } from './color.js'
 import { handleSettings, loadSafetyRulesFs, openSettings, saveProgramSettings } from './settings_dialog.js'
-import { getIgnoredFields, programSettings } from './settings.js'
+import { getIgnoredFields, programSettings, isFieldAList } from './settings.js'
 import { ipcRenderer, remote, shell, clipboard } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
@@ -26,7 +26,10 @@ import { setIssueCount, saveProblems } from './issues'
 import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showInternal,
          nodeSource, showSource } from './context-menu.js'
 import { progressbarStart, progressbarUpdate, progressbarStop } from './progressbar.js'
+import { round, set } from 'lodash'
+import Sortable from 'sortablejs'
 const open = require('open')
+const XLSX = require('xlsx');
 
 const mainWindow = remote.getCurrentWindow()
 
@@ -107,7 +110,7 @@ ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
 })
 
 ipcRenderer.on('save_diagram_sel', (_item, _window, _key_ev) => {
-  saveDiagramSel()
+  openSheetExportDialog()
 })
 
 /** Keyboard accelerators for svg pan zoom */
@@ -239,6 +242,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   setSearchLanguageButtons(programSettings.search_language)
 
   document.getElementById('search_tooltip').innerHTML = searchTooltip(searchLanguage)
+  document.getElementById('no_rejects').checked = programSettings.no_rejects
 
   // istanbul ignore else
   if ((args.newVer !== false) && (args.newVer === true || programSettings.check_for_updates)) {
@@ -663,65 +667,281 @@ function updateSettingsFromContext (ctx) {
 
     const saveOptions = {
       filters: [
-        { name: 'ReqM2 select files (csv)', extensions: ['csv'] }
+        { name: 'Spreadsheet (xlsx)', extensions: ['xlsx'] }
       ],
       properties: ['openFile'],
       defaultPath: defPath,
-      title: "Save ReqM2 selection file"
+      title: "Save ReqM2 selection as file"
     }
 
     // Suggest to save in same directory as oreqmMain
     const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
     // istanbul ignore else
     if (typeof (savePath) !== 'undefined') {
-      saveDiagramSelection(savePath)
+      saveDiagramSelectionAsSpreadsheet(savePath)
     }
   }
 }
 
 /**
- * Get the system list separator, which is needed for csv files (on this machine)
- * @returns separator, i.e. ';' for some european locales or ','
+ * Populate the sheetExportPopup dialog with the fields selected for export and other related settings
  */
-function getListSeparator () {
-  const list = ['a', 'b'];
-  const s = list.toLocaleString();
-  const sep = s[1];
-  return sep
-}
+function prepareSheetExportDialog () {
+  const exportFieldsAvailable = document.getElementById('export_fields_available')
+  const exportFieldsSelected = document.getElementById('export_fields_selected')
 
-function saveDiagramSelection (pathname) {
-  // List of selected nodes
-  const comma = getListSeparator()
-  let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"\n`
-  for (let s of oreqmMain.subset) {
-    let ancestors = oreqmMain.getAncestors(s, new Set())
-    let rec = oreqmMain.requirements.get(s)
-    let selDt = rec.doctype
-    let errSet = new Set()
-    for (let m of rec.miscov) {
-      errSet.add(`Missing coverage from doctype ${m}`)
-    }
-    for (let e of rec.errors) {
-      errSet.add(`${e.trim()}`)
-    }
-    for (let f of rec.ffberrors) {
-      errSet.add(`${f.trim()}`)
-    }
-    for (let v of rec.violations) {
-      errSet.add(`${v.trim()}`)
-    }
-    for (let err of errSet) {
-      if (ancestors.size > 0) {
-        for (let a of ancestors) {
-          output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"\n`
-        }
-      } else {
-        output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}\n`
-      }
+  document.getElementById('sheet_export_multi').checked = programSettings.export_multi
+
+  // Create ul of selected fields
+  let ulExported = '<ul id="sheet_ul_exported" class="export-field-list col">\n'
+  programSettings.export_fields.forEach(function (field) {
+    ulExported += ` <li class="export-field">${field}</li>\n`
+  })
+  ulExported += '</ul>\n'
+  exportFieldsSelected.innerHTML = ulExported
+
+  // Create ul of not selected fields. compare_fields have all the needed names
+  let fieldList = Object.keys(programSettings.compare_fields)
+  fieldList.push("ancestor_id")
+  fieldList.push("ancestor_dt")
+  fieldList.push("ancestor_status")
+  let ulNotExported = '<ul id="sheet_ul_not_exported" class="export-field-list col">\n'
+  for (const field of fieldList) {
+    if (programSettings.export_fields.indexOf(field) < 0) {
+      // Not an exported field, add to this list
+      ulNotExported += `  <li class="export-field">${field}</li>\n`
     }
   }
-  fs.writeFileSync(pathname, output, 'utf8')
+  ulNotExported += '</ul>\n'
+  exportFieldsAvailable.innerHTML = ulNotExported
+
+  new Sortable(document.getElementById('sheet_ul_exported'), {
+    group: 'export_tags',
+    animation: 150,
+    ghostClass: "placeholder"
+  })
+
+  new Sortable(document.getElementById('sheet_ul_not_exported'), {
+    group: 'export_tags',
+    animation: 150,
+    ghostClass: "placeholder"
+  })
+}
+
+function saveSheetExportDialogChoices () {
+  // extract list of fields and save
+  let exList = document.getElementById('sheet_ul_exported')
+  let exportList = exList.getElementsByTagName('li')
+  programSettings.export_fields = Array.from(exportList).map(r => r.innerHTML)
+  programSettings.export_multi = document.getElementById('sheet_export_multi').checked
+  //console.log(programSettings.export_fields)
+  saveProgramSettings()
+}
+
+function openSheetExportDialog () {
+  prepareSheetExportDialog()
+  document.getElementById('sheetExportPopup').style.display = 'block'
+}
+
+document.getElementById('sheet_export_ok').addEventListener('click', function () {
+  saveSheetExportDialogChoices()
+  document.getElementById('sheetExportPopup').style.display = 'none'
+  saveDiagramSel()
+})
+
+document.getElementById('sheet_export_cancel').addEventListener('click', function () {
+  document.getElementById('sheetExportPopup').style.display = 'none'
+})
+
+document.getElementById('sheetExportPopupClose').addEventListener('click', function () {
+  document.getElementById('sheetExportPopup').style.display = 'none'
+})
+
+/**
+ * Calculate the 1st row headline.
+ * Notice that different categories of errors are all merged into the 'errors' column
+ * @returns string[] 1st row labels
+ */
+function calcHeadLine () {
+  let errCol = ''
+  let headLine = []
+  for (let f of programSettings.export_fields) {
+    switch (f) {
+      // Merge all errors into one column
+      case 'miscov':
+      case 'errors':
+      case 'ffberrors':
+      case 'violations':
+        if (!errCol.length) {
+          errCol = 'errors'
+          headLine.push(errCol)
+        }
+        break;
+      default:
+        headLine.push(f)
+    }
+  }
+  return headLine
+}
+
+/**
+ * Save selected specobjects as xlsx file, with the fields specified in export dialog
+ * @param {String} pathname
+ */
+function saveDiagramSelectionAsSpreadsheet (pathname) {
+  // Determine what fields are exported
+  const headLine = calcHeadLine()
+  const errCol = headLine.indexOf('errors')
+  const ancIdCol = headLine.indexOf('ancestor_id')
+  const ancDtCol = headLine.indexOf('ancestor_dt')
+  const ancStCol = headLine.indexOf('ancestor_status')
+  const listAncestors = ancIdCol >= 0 || ancDtCol >= 0 || ancStCol >= 0
+  let sheetArray = [] // array-of-arrays for worksheet export
+  sheetArray.push(headLine)
+  // List of selected nodes
+  for (let s of oreqmMain.subset) {
+    const ancestors = listAncestors ? oreqmMain.getAncestors(s, new Set()) : new Set()
+    const rec = oreqmMain.requirements.get(s)
+    let errSet = new Set()
+    let row = []
+    if (programSettings.export_fields.indexOf('miscov') >= 0) {
+      for (const m of rec.miscov) {
+        errSet.add(`Missing coverage from doctype ${m}`)
+      }
+    }
+    if (programSettings.export_fields.indexOf('errors') >= 0) {
+      for (const e of rec.errors) {
+        errSet.add(`${e.trim()}`)
+      }
+    }
+    if (programSettings.export_fields.indexOf('ffberrors') >= 0) {
+      for (const f of rec.ffberrors) {
+        errSet.add(`${f.trim()}`)
+      }
+    }
+    if (programSettings.export_fields.indexOf('violations') >= 0) {
+      for (const v of rec.violations) {
+        errSet.add(`${v.trim()}`)
+      }
+    }
+    // Fill row with specobject data
+    for (const field of headLine) {
+      switch (field) {
+        // These fields will be looped over - put placeholder for now
+        case 'errors':
+        case 'ancestor_id':
+        case 'ancestor_dt':
+        case 'ancestor_status':
+          row.push('')
+          break;
+
+        default:
+          if (isFieldAList[field]) {
+            row.push(rec[field].join('\n'))
+          } else {
+            row.push(rec[field])
+          }
+        }
+    }
+    if (programSettings.export_multi) {
+      // Each error and ancestor combo gets a separate row
+      if (errSet.size) {
+        for (const err of errSet) {
+          row[errCol] = err
+          if (ancestors.size > 0) {
+            for (const a of ancestors) {
+              if (ancIdCol >= 0) {
+                row[ancIdCol] = a.id
+              }
+              if (ancDtCol >= 0) {
+                row[ancDtCol] = a.doctype
+              }
+              if (ancStCol >= 0) {
+                row[ancStCol] = a.status
+              }
+              sheetArray.push(row.slice())
+            }
+          } else {
+            sheetArray.push(row.slice())
+          }
+        }
+      } else {
+        // selected specobjects without errors
+        sheetArray.push(row.slice())
+      }
+    } else {
+      // Single row for all errors/ancestors
+      if (errCol >= 0) {
+        row[errCol] = Array.from(errSet).join('\n')
+      }
+      const ancArr = Array.from(ancestors)
+      if (ancIdCol >= 0) {
+        row[ancIdCol] = ancArr.map(a => a.id).join('\n')
+      }
+      if (ancDtCol >= 0) {
+        row[ancDtCol] = ancArr.map(a => a.doctype).join('\n')
+      }
+      if (ancStCol >= 0) {
+        row[ancStCol] = ancArr.map(a => a.status).join('\n')
+      }
+      sheetArray.push(row.slice())
+    }
+  }
+  let workBook = XLSX.utils.book_new()
+  let titleArray = [['Export from Visual ReqM2', remote.app.getVersion()],
+                    [],
+                    ['Input oreqm file', oreqmMain.filename],
+                    ['timestamp', oreqmMain.timestamp], // A4
+                    [],
+                    ['Search language', searchLanguage],
+                    ['Search term', searchPattern]
+                  ]
+  let titleSheet = XLSX.utils.aoa_to_sheet(titleArray)
+  let titleSheetCols = calcAutoWidth(titleArray)
+  titleSheet["!cols"] = titleSheetCols
+  XLSX.utils.book_append_sheet(workBook, titleSheet, 'Input')
+
+  let workSheet = XLSX.utils.aoa_to_sheet(sheetArray)
+
+  // Auto width
+  let worksheetCols = calcAutoWidth(sheetArray)
+  workSheet["!cols"] = worksheetCols
+
+  XLSX.utils.book_append_sheet(workBook, workSheet, 'specobjects')
+  // Data filter
+  let maxCol = String.fromCharCode(64+sheetArray[0].length)
+  let maxRow = sheetArray.length
+  workSheet['!autofilter'] = { ref:`A1:${maxCol}${maxRow}`}
+
+  console.log(workBook)
+  XLSX.writeFile(workBook, pathname)
+}
+
+/**
+ * Calculate max column width for array-of_array data
+ * @param {array} sheetArray
+ * @returns witdth[]
+ */
+function calcAutoWidth (sheetArray) {
+  let objectMaxLength = new Array(sheetArray[0].length).fill(0)
+  sheetArray.forEach(arr => {
+    arr.forEach((value, key) => {
+      let len = 0
+      switch (typeof value) {
+        case "number": len = 10; break
+        case "string": len = value.length; break
+        case "object": if (value instanceof Date)
+          len = 10; break
+      }
+      objectMaxLength[key] = Math.max(objectMaxLength[key], len)
+    })
+  })
+  let worksheetCols = objectMaxLength.map(width => {
+    return {
+      width
+    }
+  })
+  return worksheetCols
 }
 
 /**
@@ -1638,11 +1858,11 @@ window.addEventListener('unload', function(_event) {
 })
 
 // istanbul ignore next
-function showReadme() {
+function showReadme () {
   open('https://github.com/mox17/visual-reqm2-electron#readme')
 }
 
 // istanbul ignore next
-function showVqlHelp() {
+function showVqlHelp () {
   open('https://github.com/mox17/visual-reqm2-electron/blob/master/doc/VQL.md')
 }

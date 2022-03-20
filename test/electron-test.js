@@ -13,6 +13,7 @@ const expect = chai.expect // Using Expect style
 const chaiAsPromised = require('chai-as-promised')
 const chaiRoughly = require('chai-roughly')
 const chaiFiles = require('chai-files')
+const crypto = require('crypto');
 const describe = global.describe
 const it = global.it
 const before = global.before
@@ -83,6 +84,12 @@ async function compareFiles (mainFile, refFile) {
   const refTxt = eol.auto(fs.readFileSync(refFile, 'utf8'))
   assert.strictEqual(mainTxt, refTxt)
   return mainTxt
+}
+
+async function compareBinary (mainFile, refFile) {
+  var mainHash = crypto.createHash('sha1').update(fs.readFileSync(mainFile)).digest('hex');
+  var refHash = crypto.createHash('sha1').update(fs.readFileSync(refFile)).digest('hex');
+  assert.strictEqual(mainHash, refHash)
 }
 
 /**
@@ -579,8 +586,10 @@ describe('Application launch', function () {
     })
 
     it('show xml changed', async function () {
-    //rq: ->(rq_ctx_show_xml)
-    await contextMenuClick(app, 'cc.game.characters', '#menu_xml_txt')
+      //rq: ->(rq_ctx_show_xml)
+      await contextMenuClick(app, 'cc.game.characters', '#menu_xml_txt')
+      const nodeSource = await app.client.$('#nodeSource')
+      await nodeSource.waitForDisplayed(5000, false, "Souce not shown", 100)
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (changed specobject)</h2>'))
@@ -590,6 +599,8 @@ describe('Application launch', function () {
 
     it('show xml removed', async function () {
       await contextMenuClick(app, 'cc.game.character.ogre', '#menu_xml_txt')
+      const nodeSource = await app.client.$('#nodeSource')
+      await nodeSource.waitForDisplayed(5000, false, "Souce not shown", 100)
       let req_src = await app.client.$('#req_src')
       let req_src_html = await req_src.getHTML()
       assert.ok(req_src_html.includes('<h2>XML format (removed specobject)</h2>'))
@@ -1302,13 +1313,40 @@ describe('Application launch', function () {
       assert.strictEqual(search, 'demo')
     })
 
-    it('save selection', async function () {
-      let csvName = './tmp/selection_save.csv'
-      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: csvName }])
+    it('save selection xlsx multi', async function () {
+      let xlsxName = './tmp/selection_save_multi.xlsx'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: xlsxName }])
       await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      // Select multi export
+      let sheetExportMulti = await app.client.$('#sheet_export_multi')
+      let multi = await sheetExportMulti.isSelected()
+      if (!multi) {
+        await clickButton(app, '#sheet_export_multi')
+      }
+      await clickButton(app, '#sheet_export_ok')
       await waitForOperation(app)
-      await compareFiles(csvName, './test/refdata/selection_save.csv')
-      // console.log(await app.client.getRenderProcessLogs())
+      if (process.platform === "win32") {
+        // TODO: Not ideal but sheetjs outputs slightly different file on linux
+        await compareBinary(xlsxName, './test/refdata/selection_save_multi.xlsx')
+      }
+    })
+
+    it('save selection xlsx single', async function () {
+      let xlsxName = './tmp/selection_save_single.xlsx'
+      await fakeDialog.mock([{ method: 'showSaveDialogSync', value: xlsxName }])
+      await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      // Select single export
+      let sheetExportMulti = await app.client.$('#sheet_export_multi')
+      let multi = await sheetExportMulti.isSelected()
+      if (multi) {
+        await clickButton(app, '#sheet_export_multi')
+      }
+      await clickButton(app, '#sheet_export_ok')
+      await waitForOperation(app)
+      if (process.platform === "win32") {
+        // TODO: Not ideal but sheetjs outputs slightly different file on linux
+        await compareBinary(xlsxName, './test/refdata/selection_save_single.xlsx')
+      }
     })
 
     it('De-select unspecific', async function () {

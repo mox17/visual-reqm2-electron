@@ -3,6 +3,50 @@
 /** This is the settings object. Update or initialize with checkAndUpgradeSettings() */
 export let programSettings = null
 
+export const isFieldAList = {
+  id: false,
+  comment: false,
+  covstatus: false,
+  dependson: true, // list
+  description: false,
+  doctype: false,
+  fulfilledby: true, // list
+  furtherinfo: false,
+  linksto: true, // list
+  needsobj: true, // list
+  platform: true, // list
+  rationale: false,
+  safetyclass: false,
+  safetyrationale: false,
+  shortdesc: false,
+  source: false,
+  sourcefile: false,
+  sourceline: false,
+  sourcerevision: false,
+  creationdate: false,
+  category: false,
+  priority: false,
+  securityclass: false,
+  securityrationale: false,
+  verifymethods: true, // list
+  verifycond: false,
+  testin: false,
+  testexec: false,
+  testout: false,
+  testpasscrit: false,
+  releases: true, // list
+  conflicts: true, // list
+  status: false,
+  tags: true, // list
+  usecase: false,
+  verifycrit: false,
+  version: false,
+  violations: true, // list
+  errors: true, // list
+  ffberrors: true, // list
+  miscov: true // list
+}
+
 export const defaultProgramSettings = {
   compare_fields: {
     id: true,
@@ -11,7 +55,7 @@ export const defaultProgramSettings = {
     dependson: true, // list
     description: true,
     doctype: true,
-    fulfilledby: true,
+    fulfilledby: true, // list
     furtherinfo: true,
     linksto: true, // list
     needsobj: true, // list
@@ -47,7 +91,19 @@ export const defaultProgramSettings = {
     ffberrors: false, // list
     miscov: false // list
   },
-  max_calc_nodes: 1000,
+  export_fields: [
+    "id",
+    "doctype",
+    "status",
+    "version",
+    "violations",
+    "errors",
+    "ffberrors",
+    "miscov"
+  ],
+  export_ancestors: false,
+  export_multi: false,
+  max_calc_nodes: 0,
   show_coverage: true,
   top_doctypes: [],
   color_status: true,
@@ -64,7 +120,8 @@ export const defaultProgramSettings = {
     '^swintts.*>.*$', // swintts can cover anything (maybe?)
     '^swuts.*>.*$' // swuts can cover anything (maybe?)
   ],
-  search_language: 'vql'
+  search_language: 'vql',
+  no_rejects: true
 }
 
 /** These are data fields used from the specobject, plus a pseudo field (see below) */
@@ -82,6 +139,19 @@ export function checkAndUpgradeSettings (settData) {
     // New options are added here with default values when reading settings from previous version
     if (!('compare_fields' in programSettings)) {
       programSettings.compare_fields = defaultProgramSettings.compare_fields
+      modified = true
+    }
+    // second rule changes overrides the obsolete dict format with array of fields (in output order)
+    if (!('export_fields' in programSettings) || (programSettings.export_fields.constructor == Object)) {
+      programSettings.export_fields = defaultProgramSettings.export_fields
+      modified = true
+    }
+    if (!('export_ancestors' in programSettings)) {
+      programSettings.export_ancestors = defaultProgramSettings.export_ancestors
+      modified = true
+    }
+    if (!('export_multi' in programSettings)) {
+      programSettings.export_multi = defaultProgramSettings.export_multi
       modified = true
     }
     if (!('max_calc_nodes' in programSettings)) {
@@ -114,6 +184,10 @@ export function checkAndUpgradeSettings (settData) {
     }
     if (!('search_language' in programSettings)) {
       programSettings.search_language = defaultProgramSettings.search_language
+      modified = true
+    }
+    if (!('no_rejects' in programSettings)) {
+      programSettings.no_rejects = defaultProgramSettings.no_rejects
       modified = true
     }
   } else {

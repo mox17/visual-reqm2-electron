@@ -165,6 +165,12 @@ prev and next">
                 Licensed under BSD License<br/>
                 <a href="https://github.com/kpdecker/jsdiff" target="_blank">https://github.com/kpdecker/jsdiff</a><br/>
               </p>
+              <p>
+                xlsx v0.18.1<br/>
+                Copyright (C) 2012-present   SheetJS LLC<br/>
+                Licensed under the Apache License, Version 2.0<br/>
+                <a href="https://github.com/SheetJS/sheetjs" target="_blank">https://github.com/SheetJS/sheetjs</a><br/>
+              </p>
           </p>
         </div>
         <div class="column">
@@ -262,6 +268,34 @@ prev and next">
         </div>
         <button type="button" id="sett_ok" >OK</button>
         <button type="button" id="sett_cancel" >Cancel</button>
+      </div>
+    </div>
+
+    <!-- Spreadsheet export dialog -->
+    <div id="sheetExportPopup" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content row">
+        <span id="sheetExportPopupClose" class="close">&times;</span>
+        <hr>
+        <div class="row">
+          <h2>Spreadsheet Export Parameters</h2>
+          <div class="column3" id="sheet_not_exported" style="overflow-y: auto; height:600px; ">
+            <h4>Available fields for export</h4>
+            <div id="export_fields_available"></div>
+          </div>
+          <div class="column3" id="sheet_export_list" style="overflow-y: auto; height:600px; ">
+            <h4>Exported Fields</h4>
+            <div id="export_fields_selected"></div>
+        </div>
+        <div class="column3">
+            <h4>Export rows per specobject</h4><br/>
+            <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Each error on separate row</button><br/>
+            <p/>
+          </div>
+        </div>
+        <p/>
+        <button type="button" id="sheet_export_ok" >Export...</button>
+        <button type="button" id="sheet_export_cancel" >Cancel</button>
       </div>
     </div>
 

@@ -37,7 +37,9 @@ const cmdQueue = []
     if (args.exclIds !== undefined) {
       document.getElementById('excluded_ids').value = args.exclIds.replaceAll(',', '\n')
     }
-    document.getElementById('no_rejects').checked = !args.inclRejected
+    if (args.inclRejected !== undefined) {
+      document.getElementById('no_rejects').checked = !args.inclRejected
+    }
     if (args.exclDoctypes !== undefined) {
       setExcludedDoctypes(args.exclDoctypes.split(','))
     }

@@ -5,7 +5,7 @@ import { remote } from 'electron'
 
 let logTiming = false
 
-export function enableTiming(val) {
+export function enableTiming (val) {
   logTiming = val
 }
 
@@ -13,7 +13,7 @@ export function enableTiming(val) {
  * Get current time
  * @returns {integer} current time in microseconds
  */
-export function getTimeNow() {
+export function getTimeNow () {
     return performance.now()
 }
 
@@ -22,7 +22,7 @@ export function getTimeNow() {
  * @param {integer} startTime in microseconds
  * @returns {integer} elapsed time in microseconds
  */
-export function getDeltaTime(startTime) {
+export function getDeltaTime (startTime) {
     return performance.now() - startTime
 }
 
@@ -32,7 +32,7 @@ export function getDeltaTime(startTime) {
  * @param {string} legend headline for measurement
  * @returns integer time now
  */
-export function logTimeSpent(startTime, legend="elapsed time") {
+export function logTimeSpent (startTime, legend="elapsed time") {
     if (logTiming) {
       console.log(`Time in "${legend}": ${getDeltaTime(startTime).toFixed(3)} millisec`)
     }
@@ -44,7 +44,7 @@ export function logTimeSpent(startTime, legend="elapsed time") {
  * @param {string} msg Details of the alert
  * @param {string} title Optional title
  */
-export function showAlert(msg, title="Error") {
+export function showAlert (msg, title="Error") {
   remote.dialog.showMessageBoxSync(
     {
       type: 'error',

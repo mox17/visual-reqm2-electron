@@ -14,7 +14,7 @@ describe('Settings tests', function () {
   it('New settings', function () {
     // Force settings to default
     settings.checkAndUpgradeSettings(settings.defaultProgramSettings)
-    assert.strictEqual(settings.programSettings.max_calc_nodes, 1000)
+    assert.strictEqual(settings.programSettings.max_calc_nodes, 0)
 
     const ignoredFields = settings.getIgnoredFields()
     // console.log(ignoredFields);
@@ -33,7 +33,7 @@ describe('Settings tests', function () {
     delete newSettings.compare_fields
 
     settings.checkAndUpgradeSettings(newSettings)
-    assert.strictEqual(settings.programSettings.max_calc_nodes, 1000)
+    assert.strictEqual(settings.programSettings.max_calc_nodes, 0)
     assert.strictEqual(settings.programSettings.show_coverage, true)
     assert.strictEqual(settings.programSettings.compare_fields.id, true)
 

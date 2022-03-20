@@ -262,7 +262,7 @@
     width: 50%;
   }
 
-  /* Create two equal columns that floats next to each other */
+  /* Create three equal columns that floats next to each other */
   .column3 {
     float: left;
     width: 33%;
@@ -478,6 +478,41 @@ input.small_checkbox {
   transform: scale(0.8);
   /*width: 20px;
   height: 20px;*/
+}
+
+/* export sheet field dialog */
+.export-field-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  margin-right: 10px;
+  background: #eee;
+  padding: 5px;
+  /*width: 143px;*/
+  min-height: 1.1em;
+  font-size: 0.85em;
+  cursor: move;
+}
+.export-field-list li {
+  margin: 5px;
+  padding: 5px;
+  font-size: 0.85em;
+  /*width: 120px;*/
+}
+.export-field-list li.placeholder {
+  height: 1.1em
+}
+.export-field {
+  border: 1px solid #bbb;
+  background-color: #fafafa;
+  cursor: move;
+}
+.export-field.ui-sortable-helper {
+  opacity: 0.5;
+}
+.placeholder {
+  border: 2px solid orange;
+  background-color: #fffffd;
 }
 
 /* auto update notification */

@@ -290,7 +290,7 @@ app.on('ready', () => {
       vql: { type: 'boolean', alias: 'q', desc: 'VQL Search', default: undefined },
       limitDepth: { type: 'boolean', alias: '1', desc: 'Limit reachable nodes to 1 level', default: false }, //rq: ->(rq_limited_walk_cl)
       exclIds: { type: 'string', alias: 'e', desc: 'Excluded ids, comma separated', default: undefined },
-      inclRejected: { type: 'boolean', alias: 'R', desc: 'Include rejected specobjects', default: false },
+      inclRejected: { type: 'boolean', alias: 'R', desc: 'Include rejected specobjects', default: undefined },
       exclDoctypes: { type: 'string', alias: 'T', desc: 'Excluded doctypes, comma separated', default: undefined },
       format: { type: 'string', alias: 'f', desc: 'svg, png or dot graph', default: 'svg' },
       output: { type: 'string', alias: 'o', desc: 'Name of output file (extension .svg, .png or .dot will be added)', default: undefined },
