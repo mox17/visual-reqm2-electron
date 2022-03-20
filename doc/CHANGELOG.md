@@ -2,6 +2,7 @@
 
 ## 2.6.0
 * Use SheetJS to export selected specobjects as xlsx files
+* Removed .csv export of selected specobjects.
 * Added dialog with drag-and-drop to configure fields exported to xlsx files
 * Make "exclude rejected" a setting
 

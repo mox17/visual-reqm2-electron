@@ -667,8 +667,7 @@ function updateSettingsFromContext (ctx) {
 
     const saveOptions = {
       filters: [
-        { name: 'Spreadsheet (xlsx)', extensions: ['xlsx'] },
-        { name: 'Text file (csv)', extensions: ['csv'] }
+        { name: 'Spreadsheet (xlsx)', extensions: ['xlsx'] }
       ],
       properties: ['openFile'],
       defaultPath: defPath,
@@ -679,58 +678,9 @@ function updateSettingsFromContext (ctx) {
     const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
     // istanbul ignore else
     if (typeof (savePath) !== 'undefined') {
-      if (savePath.endsWith('.xlsx')) {
-        saveDiagramSelectionAsSpreadsheet(savePath)
-      } else {
-        saveDiagramSelection(savePath)
-      }
+      saveDiagramSelectionAsSpreadsheet(savePath)
     }
   }
-}
-
-/**
- * Get the system list separator, which is needed for csv files (on this machine)
- * @returns separator, i.e. ';' for some european locales or ','
- */
-function getListSeparator () {
-  const list = ['a', 'b'];
-  const s = list.toLocaleString();
-  const sep = s[1];
-  return sep
-}
-
-function saveDiagramSelection (pathname) {
-  // List of selected nodes
-  const comma = getListSeparator()
-  let output = `"sel_id"${comma}"sel_dt"${comma}"sel_status"${comma}"errors"${comma}"ancestor_id"${comma}"ancestor_dt"${comma}"ancestor_status"\n`
-  for (let s of oreqmMain.subset) {
-    let ancestors = oreqmMain.getAncestors(s, new Set())
-    let rec = oreqmMain.requirements.get(s)
-    let selDt = rec.doctype
-    let errSet = new Set()
-    for (let m of rec.miscov) {
-      errSet.add(`Missing coverage from doctype ${m}`)
-    }
-    for (let e of rec.errors) {
-      errSet.add(`${e.trim()}`)
-    }
-    for (let f of rec.ffberrors) {
-      errSet.add(`${f.trim()}`)
-    }
-    for (let v of rec.violations) {
-      errSet.add(`${v.trim()}`)
-    }
-    for (let err of errSet) {
-      if (ancestors.size > 0) {
-        for (let a of ancestors) {
-          output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}"${a.id}"${comma}"${a.doctype}"${comma}"${a.status}"\n`
-        }
-      } else {
-        output += `"${s}"${comma}"${selDt}"${comma}"${rec.status}"${comma}"${err}"${comma}${comma}\n`
-      }
-    }
-  }
-  fs.writeFileSync(pathname, output, 'utf8')
 }
 
 /**
@@ -812,7 +762,7 @@ document.getElementById('sheetExportPopupClose').addEventListener('click', funct
  * Notice that different categories of errors are all merged into the 'errors' column
  * @returns string[] 1st row labels
  */
-function calcHeadLine() {
+function calcHeadLine () {
   let errCol = ''
   let headLine = []
   for (let f of programSettings.export_fields) {
@@ -834,6 +784,10 @@ function calcHeadLine() {
   return headLine
 }
 
+/**
+ * Save selected specobjects as xlsx file, with the fields specified in export dialog
+ * @param {String} pathname
+ */
 function saveDiagramSelectionAsSpreadsheet (pathname) {
   // Determine what fields are exported
   const headLine = calcHeadLine()
@@ -873,12 +827,14 @@ function saveDiagramSelectionAsSpreadsheet (pathname) {
     // Fill row with specobject data
     for (const field of headLine) {
       switch (field) {
+        // These fields will be looped over - put placeholder for now
         case 'errors':
         case 'ancestor_id':
         case 'ancestor_dt':
         case 'ancestor_status':
           row.push('')
           break;
+
         default:
           if (isFieldAList[field]) {
             row.push(rec[field].join('\n'))
@@ -888,6 +844,7 @@ function saveDiagramSelectionAsSpreadsheet (pathname) {
         }
     }
     if (programSettings.export_multi) {
+      // Each error and ancestor combo gets a separate row
       if (errSet.size) {
         for (const err of errSet) {
           row[errCol] = err
@@ -965,7 +922,7 @@ function saveDiagramSelectionAsSpreadsheet (pathname) {
  * @param {array} sheetArray
  * @returns witdth[]
  */
-function calcAutoWidth(sheetArray) {
+function calcAutoWidth (sheetArray) {
   let objectMaxLength = new Array(sheetArray[0].length).fill(0)
   sheetArray.forEach(arr => {
     arr.forEach((value, key) => {
@@ -1901,11 +1858,11 @@ window.addEventListener('unload', function(_event) {
 })
 
 // istanbul ignore next
-function showReadme() {
+function showReadme () {
   open('https://github.com/mox17/visual-reqm2-electron#readme')
 }
 
 // istanbul ignore next
-function showVqlHelp() {
+function showVqlHelp () {
   open('https://github.com/mox17/visual-reqm2-electron/blob/master/doc/VQL.md')
 }
