@@ -131,7 +131,7 @@ export function clearDiagram () {
   }
 }
 
-function showHtmlTable() {
+function showHtmlTable () {
   //rq: ->(rq_table_view)
   let ids = selectedSpecobjects ? selectedSpecobjects : oreqmMain.getIdList()
   if (!htmlElement) {
@@ -259,7 +259,7 @@ function updateSvgOutput (graph) {
   })
 }
 
-function svgKeyboardShortcutEvent(e) {
+function svgKeyboardShortcutEvent (e) {
   //rq: ->(rq_navigate_sel)
   switch (e.key) {
     case 'n':

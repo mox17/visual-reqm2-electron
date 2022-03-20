@@ -75,7 +75,7 @@ function _colorRandomReset () {
  * @param  {number} padding amount leading zeroes
  * @return {string} hexadecimal string
  */
-function _decimalToHex(d, padding) {
+function _decimalToHex (d, padding) {
   return  ("00000000"+(Number(d).toString(16))).slice(-padding).toUpperCase()
 }
 

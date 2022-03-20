@@ -154,7 +154,7 @@ function settingsDialogResults () {
 /**
  * Save settings in file
  */
-export function saveProgramSettings() {
+export function saveProgramSettings () {
   electronSettings.setSync('program_settings', programSettings)
 }
 /**

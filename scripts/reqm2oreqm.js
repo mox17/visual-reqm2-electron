@@ -12,7 +12,7 @@ const INFINITE_DEPTH = 100
 
 let localAlert = showAlert
 
-export function setAlert(alert) {
+export function setAlert (alert) {
   localAlert = alert
 }
 

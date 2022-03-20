@@ -21,7 +21,7 @@ export function setSearchLanguage (lang) {
   searchLanguage = lang
 }
 
-function searchValidate(str) {
+function searchValidate (str) {
   switch(searchLanguage) {
     case 'ids':
     case 'reg':
@@ -44,7 +44,7 @@ function searchValidate(str) {
  * @param {DOM object} field
  * @returns true if field OK
  */
- export function searchRegexValidate(field) {
+ export function searchRegexValidate (field) {
   let text = field.value
   let validationError = searchValidate(text)
   if (text && validationError) {
@@ -77,7 +77,7 @@ function searchValidate(str) {
   return !(text && validationError)
 }
 
-export function setSearchLanguageHints(lang) {
+export function setSearchLanguageHints (lang) {
   let input = document.getElementById('search_regex')
   switch (lang) {
     case 'vql':
