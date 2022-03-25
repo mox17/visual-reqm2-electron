@@ -1296,7 +1296,7 @@ document.getElementById('nodeSelect').addEventListener('change', function () {
   // Select node from drop-down
   setSelectedIndex(document.getElementById('nodeSelect').selectedIndex)
   if (document.getElementById('single_select').checked) {
-    //rq: ->(rg_single_view)
+    //rq: ->(rq_single_view)
     // Generate new diagram with *single* selected node
     graphResults([selectedNodes[selectedIndex]], false)
     updateDiagram(selectedFormat)
