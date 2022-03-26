@@ -1043,29 +1043,77 @@ export class ReqM2Specobjects {
   }
 
   /**
-   * Return an unordered collection of "downstream" specobjects
-   * @param {Set} reqIds Starting nodes to find children from
-   * @param {Set} children This is a set of <id>
+   * Return an unordered collection of "parent" specobjects
+   * @param {string} reqId
+   * @returns {Set} This is a set of { id: <id>, doctype: <doctype>, status: <status> }
    */
-  getChildren (reqIds, children= new Set())
+   getParents (reqId) {
+     let parents = new Set()
+    if (this.linksto.has(reqId)) {
+      for (const parent of this.linksto.get(reqId)) {
+        parents.add( {id: parent, doctype: this.requirements.get(reqId).doctype, status: this.requirements.get(reqId).status})
+      }
+    }
+    return parents
+  }
+
+  /**
+   * Return an unordered collection of parents from set of ids
+   * @param {Set} reqIds Set of 'children' to find parents of
+   */
+   getParentsSet (reqIds) {
+    let result = new Set()
+    for (const r of reqIds) {
+      let a = this.getParents(r)
+      for (const x of a) {
+        result.add(x.id)
+      }
+    }
+    return result
+  }
+
+
+  /**
+   * Return an unordered collection of "downstream" specobjects
+   * @param {Set} reqIds Starting nodes to find descendants from
+   * @param {Set} descendants This is a set of <id>
+   */
+  getDescendants (reqIds, descendants= new Set())
   {
     for (let id of reqIds) {
       if (this.linkstoRev.has(id)) {
         let generation = new Set()
         for (const child of this.linkstoRev.get(id)) {
-          children.add(child)
+          descendants.add(child)
           generation.add(child)
         }
-        let grandchildren = this.getChildren(generation, children)
+        let grandchildren = this.getDescendants(generation, descendants)
         for (let g of grandchildren) {
-          children.add(g)
+          descendants.add(g)
         }
       }
     }
-    return children
+    return descendants
   }
 
   /**
+   * Return an unordered collection of "children" specobjects
+   * @param {Set} reqIds Starting nodes to find descendants from
+   */
+   getChildrenSet (reqIds)
+   {
+     let children = new Set()
+     for (let id of reqIds) {
+       if (this.linkstoRev.has(id)) {
+         for (const child of this.linkstoRev.get(id)) {
+           children.add(child)
+         }
+       }
+     }
+     return children
+   }
+
+   /**
    * Extract execution timestamp from oreqm report
    * @return {string} time
    */
