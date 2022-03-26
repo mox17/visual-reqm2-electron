@@ -687,6 +687,7 @@ function updateSettingsFromContext (ctx) {
  * Populate the sheetExportPopup dialog with the fields selected for export and other related settings
  */
 function prepareSheetExportDialog () {
+  //rq: ->(rq_spreadsheet_export_cfg)
   const exportFieldsAvailable = document.getElementById('export_fields_available')
   const exportFieldsSelected = document.getElementById('export_fields_selected')
 
@@ -789,6 +790,7 @@ function calcHeadLine () {
  * @param {String} pathname
  */
 function saveDiagramSelectionAsSpreadsheet (pathname) {
+  //rq: ->(rq_spreadsheet_export)
   // Determine what fields are exported
   const headLine = calcHeadLine()
   const errCol = headLine.indexOf('errors')

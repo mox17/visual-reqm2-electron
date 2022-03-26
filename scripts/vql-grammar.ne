@@ -22,10 +22,18 @@ function escStr (str) {
 function checkAndOr (s) {
   let t = s.toUpperCase()
   let reserved = ['AND', 'OR', 'NOT', '(', ')', ','].includes(t) ||
-                 s.startsWith('ao(') ||
-                 s.startsWith('co(') ||
+                 s.startsWith('an(') ||
                  s.startsWith('ancestors_of(') ||
-                 s.startsWith('children_of(')
+                 s.startsWith('ancestors(') ||
+                 s.startsWith('ao(') ||
+                 s.startsWith('ch(') ||
+                 s.startsWith('children_of(') ||
+                 s.startsWith('children(') ||
+                 s.startsWith('co(') ||
+                 s.startsWith('de(') ||
+                 s.startsWith('decendants(') ||
+                 s.startsWith('pa(') ||
+                 s.startsWith('parents(')
   return reserved
 }
 
@@ -54,7 +62,11 @@ function qualifier  (str, find_substring) {
 
 function checkAoCo (s) {
   if (s === 'ancestors_of') return 'ao'
+  if (s === 'ancestors') return 'an'
   if (s === 'children_of') return 'co'
+  if (s === 'children') return 'ch'
+  if (s === 'descendants') return 'de'|
+  if (s === 'parents') return 'pa'
   return s
 }
 
@@ -90,7 +102,10 @@ not_term -> "NOT"i __ term                                  {% (d) => { return {
           | term                                            {% id %}
 
 # Simple function concept ancestors_of and children_of to give a subset of nodes for second search term
-term -> ("ao"|"co"|"children_of"|"ancestors_of") _ "(" _ or_term _ "," _ or_term _ ")"
+# TODO: clean up this with extra rule
+term -> ("ao"|"co"|"ch"|"pa"|"de"|"an"|
+         "children_of"|"ancestors_of"|"children"|
+         "parents"|"descendants"|"ancestors") _ "(" _ or_term _ "," _ or_term _ ")"
                                                             {%
                                                               (d) => { return {op: `${checkAoCo(d[0].join(""))}`, arg1: d[4], arg2: d[8] } }
                                                             %}

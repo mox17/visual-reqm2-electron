@@ -95,10 +95,16 @@ function vqlEval (inputNodes, searchAst) {
       return andSearch(inputNodes, searchAst.arg1, searchAst.arg2)
     case 'OR':
       return orSearch(inputNodes, searchAst.arg1, searchAst.arg2)
-    case 'co':
+    case 'co': // 'co'/'children_of' deprecated
+    case 'de': //rq: ->(rq_vql_descendants)
       return coSearch(inputNodes, searchAst.arg1, searchAst.arg2)
-    case 'ao':
+    case 'ao': // 'ao'/'ancestors_of' deprecated
+    case 'an': //rq: ->(rq_vql_ancestors)
       return aoSearch(inputNodes, searchAst.arg1, searchAst.arg2)
+    case 'ch': //rq: ->(rq_vql_children)
+      return chSearch(inputNodes, searchAst.arg1, searchAst.arg2)
+    case 'pa': //rq: ->(rq_vql_parents)
+      return paSearch(inputNodes, searchAst.arg1, searchAst.arg2)
     case 'd':
       return dSearch(inputNodes, searchAst)
     case 'NOT': {
@@ -154,7 +160,7 @@ function orSearch (nodes, a1, a2) {
  */
 function coSearch (nodes, t1, t2) {
   let parents = vqlEval(nodes, t1)
-  return vqlEval(oreqm.getChildren(parents), t2)
+  return vqlEval(oreqm.getDescendants(parents), t2)
 }
 
 /**
@@ -168,6 +174,32 @@ function aoSearch (nodes, t1, t2) {
   let children = vqlEval(nodes, t1)
   let ancestors = oreqm.getAncestorsSet(children)
   return vqlEval(ancestors, t2)
+}
+
+/**
+ * Parents of matches to 't1' filtered by 't2'
+ * @param {Set} nodes input to match against
+ * @param {Object} t1 'children' are defined by this term
+ * @param {Object} t2 'parents' are filtered by this term
+ * @returns {Set} Filtered set of ancestors
+ */
+ function paSearch (nodes, t1, t2) {
+  let children = vqlEval(nodes, t1)
+  let parents = oreqm.getParentsSet(children)
+  return vqlEval(parents, t2)
+}
+
+/**
+ * Children of matches to 't1' filtered by 't2'
+ * @param {Set} nodes input to match against
+ * @param {Object} t1 'current nodes (parents)' are defined by this term
+ * @param {Object} t2 'children' are filtered by this term
+ * @returns {Set} Filtered set of ancestors
+ */
+ function chSearch (nodes, t1, t2) {
+  let children = vqlEval(nodes, t1)
+  let parents = oreqm.getChildrenSet(children)
+  return vqlEval(parents, t2)
 }
 
 /**

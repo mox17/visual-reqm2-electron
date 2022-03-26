@@ -24,10 +24,18 @@ function escStr (str) {
 function checkAndOr (s) {
   let t = s.toUpperCase()
   let reserved = ['AND', 'OR', 'NOT', '(', ')', ','].includes(t) ||
-                 s.startsWith('ao(') ||
-                 s.startsWith('co(') ||
+                 s.startsWith('an(') ||
                  s.startsWith('ancestors_of(') ||
-                 s.startsWith('children_of(')
+                 s.startsWith('ancestors(') ||
+                 s.startsWith('ao(') ||
+                 s.startsWith('ch(') ||
+                 s.startsWith('children_of(') ||
+                 s.startsWith('children(') ||
+                 s.startsWith('co(') ||
+                 s.startsWith('de(') ||
+                 s.startsWith('decendants(') ||
+                 s.startsWith('pa(') ||
+                 s.startsWith('parents(')
   return reserved
 }
 
@@ -56,7 +64,11 @@ function qualifier  (str, find_substring) {
 
 function checkAoCo (s) {
   if (s === 'ancestors_of') return 'ao'
+  if (s === 'ancestors') return 'an'
   if (s === 'children_of') return 'co'
+  if (s === 'children') return 'ch'
+  if (s === 'descendants') return 'de'
+  if (s === 'parents') return 'pa'
   return s
 }
 
@@ -102,10 +114,26 @@ var grammar = {
     {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$1"]},
     {"name": "term$subexpression$1$string$2", "symbols": [{"literal":"c"}, {"literal":"o"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$2"]},
-    {"name": "term$subexpression$1$string$3", "symbols": [{"literal":"c"}, {"literal":"h"}, {"literal":"i"}, {"literal":"l"}, {"literal":"d"}, {"literal":"r"}, {"literal":"e"}, {"literal":"n"}, {"literal":"_"}, {"literal":"o"}, {"literal":"f"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1$string$3", "symbols": [{"literal":"c"}, {"literal":"h"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$3"]},
-    {"name": "term$subexpression$1$string$4", "symbols": [{"literal":"a"}, {"literal":"n"}, {"literal":"c"}, {"literal":"e"}, {"literal":"s"}, {"literal":"t"}, {"literal":"o"}, {"literal":"r"}, {"literal":"s"}, {"literal":"_"}, {"literal":"o"}, {"literal":"f"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1$string$4", "symbols": [{"literal":"p"}, {"literal":"a"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$4"]},
+    {"name": "term$subexpression$1$string$5", "symbols": [{"literal":"d"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$5"]},
+    {"name": "term$subexpression$1$string$6", "symbols": [{"literal":"a"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$6"]},
+    {"name": "term$subexpression$1$string$7", "symbols": [{"literal":"c"}, {"literal":"h"}, {"literal":"i"}, {"literal":"l"}, {"literal":"d"}, {"literal":"r"}, {"literal":"e"}, {"literal":"n"}, {"literal":"_"}, {"literal":"o"}, {"literal":"f"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$7"]},
+    {"name": "term$subexpression$1$string$8", "symbols": [{"literal":"a"}, {"literal":"n"}, {"literal":"c"}, {"literal":"e"}, {"literal":"s"}, {"literal":"t"}, {"literal":"o"}, {"literal":"r"}, {"literal":"s"}, {"literal":"_"}, {"literal":"o"}, {"literal":"f"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$8"]},
+    {"name": "term$subexpression$1$string$9", "symbols": [{"literal":"c"}, {"literal":"h"}, {"literal":"i"}, {"literal":"l"}, {"literal":"d"}, {"literal":"r"}, {"literal":"e"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$9"]},
+    {"name": "term$subexpression$1$string$10", "symbols": [{"literal":"p"}, {"literal":"a"}, {"literal":"r"}, {"literal":"e"}, {"literal":"n"}, {"literal":"t"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$10"]},
+    {"name": "term$subexpression$1$string$11", "symbols": [{"literal":"d"}, {"literal":"e"}, {"literal":"s"}, {"literal":"c"}, {"literal":"e"}, {"literal":"n"}, {"literal":"d"}, {"literal":"a"}, {"literal":"n"}, {"literal":"t"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$11"]},
+    {"name": "term$subexpression$1$string$12", "symbols": [{"literal":"a"}, {"literal":"n"}, {"literal":"c"}, {"literal":"e"}, {"literal":"s"}, {"literal":"t"}, {"literal":"o"}, {"literal":"r"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "term$subexpression$1", "symbols": ["term$subexpression$1$string$12"]},
     {"name": "term", "symbols": ["term$subexpression$1", "_", {"literal":"("}, "_", "or_term", "_", {"literal":","}, "_", "or_term", "_", {"literal":")"}], "postprocess": 
         (d) => { return {op: `${checkAoCo(d[0].join(""))}`, arg1: d[4], arg2: d[8] } }
                                                                     },

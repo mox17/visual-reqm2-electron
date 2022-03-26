@@ -233,38 +233,3 @@ function updateDoctypeColors (colors) {
 
 
 // spreadsheet export settings handling
-
-/**
- * The list of fields to ignore is dynamically defined as a list of tags.
- * Add checkboxes for each of these tags.
- */
- function addFieldsToSpreadSheetDialog () {
-  const fieldDiv = document.getElementById('export_fields')
-  let fields = ''
-  for (const fName of definedSpecobjectFields) {
-    const row = `  <input type="checkbox" id="export_field_${fName}" title="Export value of ${fName}"> ${fName}</button><br/>\n`
-    fields += row
-  }
-  fieldDiv.innerHTML = fields
-}
-
-/**
- * Update html elements to reflect the values of the settings
- */
- function sheetExportDialogPrepare () {
-  // Add the needed checkboxes
-  addFieldsToSpreadSheetDialog()
-  // Set the checkboxes to reflect programSettings.export_fields object
-  for (const field of definedSpecobjectFields) {
-    const domId = `export_field_${field}`
-    const box = document.getElementById(domId)
-    // console.log(field, dom_id, box, programSettings.export_fields[field])
-    if (box && (typeof (programSettings.export_fields[field]) !== 'undefined')) {
-      box.checked = !programSettings.export_fields[field]
-    }
-  }
-  document.getElementById('sett_show_coverage').checked = programSettings.show_coverage
-  document.getElementById('sett_color_status').checked = programSettings.color_status
-  document.getElementById('sett_show_errors').checked = programSettings.show_errors
-  document.getElementById('sett_check_for_updates').checked = programSettings.check_for_updates
-}
