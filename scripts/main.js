@@ -370,6 +370,17 @@ app.on('activate', function () {
   }
 })
 
+// workaround for security alert "Renderers can obtain access to random bluetooth device without permission in Electron"
+// istanbul ignore next
+app.on('web-contents-created', (event, webContents) => {
+  webContents.on('select-bluetooth-device', (event, devices, callback) => {
+    // Prevent default behavior
+    event.preventDefault();
+    // Cancel the request
+    callback('');
+  });
+});
+
 // istanbul ignore next
 ipcMain.on('cmd_quit', (_evt, _arg) => {
   app.quit()
