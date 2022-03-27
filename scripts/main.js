@@ -451,6 +451,29 @@ ipcMain.on('pbar_stop', (_evt) => {
   }
 })
 
+ipcMain.handle('settingsSetSync', async (_event, key, value) => {
+  console.log('settingsSetSync', key, value)
+  electronSettings.setSync(key, value)
+})
+
+ipcMain.handle('settingsGetSync', async (_event, key) => {
+  let res = electronSettings.getSync(key)
+  console.log('settingsGetSync', key, res)
+  return res
+})
+
+ipcMain.handle('settingsHasSync', async (_event, key) => {
+  let res = electronSettings.hasSync(key)
+  console.log('settingsHasSync', key, res)
+  return res
+})
+
+ipcMain.handle('settingsFile', async (_event) => {
+  let res = electronSettings.file()
+  console.log('settingsFile', res)
+  return res
+})
+
 // Handle automatic updates
 // istanbul ignore next
 autoUpdater.on('update-available', () => {

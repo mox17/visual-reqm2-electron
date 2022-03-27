@@ -238,70 +238,70 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   // console.log("ipcRenderer.on('argv'")
   // console.dir(args)
   setLimitReporter(reportLimitAsToast)
-  handleSettings(settingsUpdated, args)
-  setSearchLanguageButtons(programSettings.search_language)
+  handleSettings(settingsUpdated, args).then( async () => {
+    setSearchLanguageButtons(programSettings.search_language)
 
-  document.getElementById('search_tooltip').innerHTML = searchTooltip(searchLanguage)
-  document.getElementById('no_rejects').checked = programSettings.no_rejects
+    document.getElementById('search_tooltip').innerHTML = searchTooltip(searchLanguage)
+    document.getElementById('no_rejects').checked = programSettings.no_rejects
 
-  // istanbul ignore else
-  if ((args.newVer !== false) && (args.newVer === true || programSettings.check_for_updates)) {
-    checkNewerReleaseAvailable()
-  }
-  cmdLineParameters(args)
-  if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
-    //rq: ->(rq_one_oreqm_cmd_line)
-    const checkMain = findFile(args.oreqm_main)
     // istanbul ignore else
-    if (checkMain.length) {
-      args.oreqm_main = checkMain
+    if ((args.newVer !== false) && (args.newVer === true || programSettings.check_for_updates)) {
+      checkNewerReleaseAvailable()
     }
-    const mainStat = fs.existsSync(args.oreqm_main) ? fs.statSync(args.oreqm_main) : null
-    if (mainStat && mainStat.isFile()) {
-      main = true
-    } else {
-      // Log to stderr as these are command line options
-      process.stderr.write(`Not a file: ${args.oreqm_main}\n`)
-      process.stderr.write(`Curr dir: ${process.cwd()}\n`)
-      //console.log(`Not a file: ${args.oreqm_main}`)
-      ok = false
+    cmdLineParameters(args)
+    if (args.oreqm_main !== undefined && args.oreqm_main.length > 0) {
+      //rq: ->(rq_one_oreqm_cmd_line)
+      const checkMain = findFile(args.oreqm_main)
+      // istanbul ignore else
+      if (checkMain.length) {
+        args.oreqm_main = checkMain
+      }
+      const mainStat = fs.existsSync(args.oreqm_main) ? fs.statSync(args.oreqm_main) : null
+      if (mainStat && mainStat.isFile()) {
+        main = true
+      } else {
+        // Log to stderr as these are command line options
+        process.stderr.write(`Not a file: ${args.oreqm_main}\n`)
+        process.stderr.write(`Curr dir: ${process.cwd()}\n`)
+        //console.log(`Not a file: ${args.oreqm_main}`)
+        ok = false
+      }
     }
-  }
-  if (args.oreqm_ref !== undefined && args.oreqm_ref.length > 0) {
-    //rq: ->(rq_two_oreqm_cmd_line)
-    const checkRef = findFile(args.oreqm_ref)
-    // istanbul ignore else
-    if (checkRef.length) {
-      args.oreqm_ref = checkRef
+    if (args.oreqm_ref !== undefined && args.oreqm_ref.length > 0) {
+      //rq: ->(rq_two_oreqm_cmd_line)
+      const checkRef = findFile(args.oreqm_ref)
+      // istanbul ignore else
+      if (checkRef.length) {
+        args.oreqm_ref = checkRef
+      }
+      const refStat = fs.existsSync(args.oreqm_ref) ? fs.statSync(args.oreqm_ref) : null
+      if (refStat && refStat.isFile()) {
+        // console.log(args.oreqm_ref, refStat);
+        ref = true
+      } else {
+        process.stderr.write(`Not a file: ${args.oreqm_ref}\n`)
+        //console.log('Not a file.', args.oreqm_ref)
+        ok = false
+      }
     }
-    const refStat = fs.existsSync(args.oreqm_ref) ? fs.statSync(args.oreqm_ref) : null
-    if (refStat && refStat.isFile()) {
-      // console.log(args.oreqm_ref, refStat);
-      ref = true
-    } else {
-      process.stderr.write(`Not a file: ${args.oreqm_ref}\n`)
-      //console.log('Not a file.', args.oreqm_ref)
-      ok = false
+    if (ok && main) {
+      // console.log("render files:", args.oreqm_main, args.oreqm_ref)
+      loadFileMainFs(args.oreqm_main, ref ? args.oreqm_ref : null)
+    } else if (args.context !== undefined && args.context.length > 0) {
+      // Check for context file (exclusive with oreqm_main & oreqm_ref)
+      const checkContext = findFile(args.context)
+      // console.log("render context:", args.context)
+      // istanbul ignore else
+      if (checkContext.length) {
+        args.context = checkContext
+      }
+      const ctxStat = fs.existsSync(args.context) ? fs.statSync(args.context) : null
+      if (ctxStat && ctxStat.isFile()) {
+        loadDiagramContext(args.context)
+      }
     }
-  }
-  if (ok && main) {
-    // console.log("render files:", args.oreqm_main, args.oreqm_ref)
-    loadFileMainFs(args.oreqm_main, ref ? args.oreqm_ref : null)
-  } else if (args.context !== undefined && args.context.length > 0) {
-    // Check for context file (exclusive with oreqm_main & oreqm_ref)
-    const checkContext = findFile(args.context)
-    // console.log("render context:", args.context)
-    // istanbul ignore else
-    if (checkContext.length) {
-      args.context = checkContext
-    }
-    const ctxStat = fs.existsSync(args.context) ? fs.statSync(args.context) : null
-    if (ctxStat && ctxStat.isFile()) {
-      loadDiagramContext(args.context)
-    }
-  }
+  })
 })
-
 /**
  * The steps of the cmd-line processing are handled through the process queue.
  * The request for next operation is sent to main process, which echoes it back.
