@@ -133,7 +133,6 @@ export const definedSpecobjectFields = Object.keys(defaultProgramSettings.compar
  * @return {boolean} true: settings were modified, false: no modification
  */
 export function checkAndUpgradeSettings (settData) {
-  console.log('checkAndUpgradeSettings', settData)
   let modified = false
   if (settData && (typeof settData === 'object')) {
     programSettings = settData

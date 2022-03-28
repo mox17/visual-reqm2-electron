@@ -915,7 +915,6 @@ function saveDiagramSelectionAsSpreadsheet (pathname) {
   let maxRow = sheetArray.length
   workSheet['!autofilter'] = { ref:`A1:${maxCol}${maxRow}`}
 
-  console.log(workBook)
   XLSX.writeFile(workBook, pathname)
 }
 

@@ -1461,7 +1461,6 @@ export class ReqM2Specobjects {
       }
     } catch (err) {
       const msg = `Selection criteria error:\n${err.message}`
-      console.log(msg)
       localAlert(msg)
     }
     return matches
@@ -1493,7 +1492,6 @@ export class ReqM2Specobjects {
       }
     } catch (err) {
       const msg = `Selection criteria error:\n${err.message}`
-      console.log(msg)
       localAlert(msg)
     }
     return matches
