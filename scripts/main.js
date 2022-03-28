@@ -469,6 +469,14 @@ ipcMain.handle('settingsFile', async (_event) => {
   return res
 })
 
+ipcMain.handle('dialog.showSaveDialogSync', async (_event, win, options) => {
+  return dialog.showSaveDialogSync(win, options)
+})
+
+ipcMain.handle('dialog.showOpenDialogSync', async (_event, options) => {
+  return dialog.showOpenDialogSync(options)
+})
+
 // Handle automatic updates
 // istanbul ignore next
 autoUpdater.on('update-available', () => {

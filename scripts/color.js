@@ -1,7 +1,7 @@
 'use strict'
 // eslint-disable-next-line no-redeclare
 /* global localStorage */
-import { remote } from 'electron'
+import { ipcRenderer } from 'electron'
 import fs from 'fs'
 
 /**
@@ -131,14 +131,22 @@ export function getColor (key) {
   return color
 }
 
+async function showSaveDialogSync (win, opts) {
+  return await ipcRenderer.invoke('dialog.showSaveDialogSync', win, opts)
+}
+
+async function showOpenDialogSync (opts) {
+  return await ipcRenderer.invoke('dialog.showOpenDialogSync', opts)
+}
+
 /**
  * Prompt user for save location and save color palette as external file.
  */
-export function saveColorsFs (path = null) {
+export async function saveColorsFs (path = null) {
   //rq: ->(rq_doctype_color_export)
   let SavePath
   if (path === null) {
-    SavePath = remote.dialog.showSaveDialogSync(null,
+    SavePath = await showSaveDialogSync(null,
       {
         filters: [{ name: 'JSON files', extensions: ['json'] }],
         properties: ['openFile']
@@ -158,11 +166,11 @@ export function saveColorsFs (path = null) {
  * @param {function} updateFunction someFunction()
  * @param {string|null} path  path to color scheme json file
  */
-export function loadColorsFs (updateFunction, path = null) {
+export async function loadColorsFs (updateFunction, path = null) {
   //rq: ->(rq_doctype_color_import)
   let LoadPath = null
   if (path === null) {
-    LoadPath = remote.dialog.showOpenDialogSync(
+    LoadPath = await showOpenDialogSync(
       {
         filters: [{ name: 'JSON files', extensions: ['json'] }],
         properties: ['openFile']
