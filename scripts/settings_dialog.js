@@ -33,8 +33,8 @@ export async function handleSettings (settingsUpdatedCallback, args) {
   }
   // console.log(programSettings);
 
-  document.getElementById('sett_ok').addEventListener('click', function () {
-    if (settingsDialogResults()) {
+  document.getElementById('sett_ok').addEventListener('click', async function () {
+    if (await settingsDialogResults()) {
       settingsUpdatedCallback()
       settingsPopup.style.display = 'none'
     } else {
