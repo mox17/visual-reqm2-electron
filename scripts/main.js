@@ -477,6 +477,10 @@ ipcMain.handle('dialog.showOpenDialogSync', async (_event, options) => {
   return dialog.showOpenDialogSync(options)
 })
 
+ipcMain.handle('window.focus', async (_event) => {
+  app.focus()
+})
+
 // Handle automatic updates
 // istanbul ignore next
 autoUpdater.on('update-available', () => {

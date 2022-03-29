@@ -1,6 +1,6 @@
 'use strict'
 import { oreqmMain } from "./main_data"
-import { remote } from "electron"
+import { ipcRenderer } from "electron"
 import fs from 'fs'
 
 
@@ -16,10 +16,10 @@ export function setIssueCount () {
   document.getElementById('issueCount').innerHTML = count
 }
 
-export function saveProblems () {
+export async function saveProblems () {
   //rq: ->(rq_issues_file_export)
   const problems = oreqmMain.getProblems()
-  const SavePath = remote.dialog.showSaveDialogSync(null, {
+  const SavePath = await ipcRenderer.invoke('dialog.showSaveDialogSync', null, {
     filters: [{ name: 'TXT files', extensions: ['txt'] }],
     properties: ['openFile']
   })

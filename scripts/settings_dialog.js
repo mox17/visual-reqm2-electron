@@ -1,6 +1,6 @@
 'use strict'
 // eslint-disable-next-line no-redeclare
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
 import { definedSpecobjectFields, programSettings, checkAndUpgradeSettings } from './settings.js'
 import { updateColorSettings } from './color.js'
 import fs from 'fs'
@@ -140,7 +140,7 @@ async function settingsDialogResults () {
     document.getElementById('regex_error').innerHTML = e
     // alert(e)
   }
-  remote.getCurrentWindow().focus()
+  await ipcRenderer.invoke('window.focus')
   // document.getElementById('safety_rules').readOnly = "false"
   return false
 }
@@ -154,9 +154,9 @@ export async function saveProgramSettings () {
 /**
  * User file selector for 'safety' rules, possibly showing alert
  */
-export function loadSafetyRulesFs () {
+export async function loadSafetyRulesFs () {
   //rq: ->(rq_safety_rules_import)
-  const LoadPath = remote.dialog.showOpenDialogSync(
+  const LoadPath = await ipcRenderer.invoke('dialog.showOpenDialogSync',
     {
       filters: [{ name: 'JSON files', extensions: ['json'] }],
       properties: ['openFile']

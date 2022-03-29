@@ -26,7 +26,7 @@ import { setIssueCount, saveProblems } from './issues'
 import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showInternal,
          nodeSource, showSource } from './context-menu.js'
 import { progressbarStart, progressbarUpdate, progressbarStop } from './progressbar.js'
-import { round, set } from 'lodash'
+//import { round, set } from 'lodash'
 import Sortable from 'sortablejs'
 const open = require('open')
 const XLSX = require('xlsx');
