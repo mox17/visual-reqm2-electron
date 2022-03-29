@@ -3,7 +3,7 @@ import { setLimitReporter, xmlEscape } from './diagrams.js'
 import { getColor, saveColorsFs, loadColorsFs } from './color.js'
 import { handleSettings, loadSafetyRulesFs, openSettings, saveProgramSettings } from './settings_dialog.js'
 import { getIgnoredFields, programSettings, isFieldAList } from './settings.js'
-import { ipcRenderer, remote, shell, clipboard } from 'electron'
+import { ipcRenderer, shell, clipboard } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
@@ -30,8 +30,6 @@ import { progressbarStart, progressbarUpdate, progressbarStop } from './progress
 import Sortable from 'sortablejs'
 const open = require('open')
 const XLSX = require('xlsx');
-
-const mainWindow = remote.getCurrentWindow()
 
 const beforeUnloadMessage = null
 
@@ -245,6 +243,9 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   handleSettings(settingsUpdated, args).then( async () => {
     setSearchLanguageButtons(programSettings.search_language)
 
+    document.getElementById('prog_version').innerHTML = await ipcRenderer.invoke('app.getVersion')
+    document.getElementById('auto_update').checked = autoUpdate
+
     document.getElementById('search_tooltip').innerHTML = searchTooltip(searchLanguage)
     document.getElementById('no_rejects').checked = programSettings.no_rejects
 
@@ -335,9 +336,6 @@ ipcRenderer.on('file_updated', (_evt, title, path)  => {
   }
 })
 
-document.getElementById('prog_version').innerHTML = remote.app.getVersion()
-document.getElementById('auto_update').checked = autoUpdate
-
 window.addEventListener('beforeunload', function () {
   return beforeUnloadMessage
 })
@@ -374,7 +372,7 @@ document.getElementById('menu_save_as').addEventListener('click', function () {
   menuSaveAs()
 })
 
-function menuSaveAs () {
+async function menuSaveAs () {
   const saveOptions = {
     filters: [
       { name: 'SVG files', extensions: ['svg'] }, //rq: ->(rq_save_svg_file)
@@ -383,7 +381,7 @@ function menuSaveAs () {
     ],
     properties: ['openFile']
   }
-  const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
+  const savePath = await ipcRenderer.invoke('dialog.showSaveDialogSync', null, saveOptions)
   // istanbul ignore else
   if (typeof (savePath) !== 'undefined') {
     saveDiagramFile(savePath)
@@ -398,7 +396,7 @@ function menuSaveAs () {
  * Also save the settings in the json file.
  *
  */
-function saveDiagramCtx () {
+async function saveDiagramCtx () {
   let defPath = ""
   // istanbul ignore else
   if (oreqmMain) {
@@ -418,7 +416,7 @@ function saveDiagramCtx () {
 
     }
     // Suggest to save in same directory as oreqm_main
-    const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
+    const savePath = await ipcRenderer.invoke('dialog.showSaveDialogSync', null, saveOptions)
     // istanbul ignore else
     if (typeof (savePath) !== 'undefined') {
       saveDiagramContext(savePath)
@@ -440,8 +438,8 @@ function saveDiagramCtx () {
  * revert to 'normal' settings, and how to explain this behavior.
  * For now we 'solve' this by ignoring the problem.
  */
-function loadDiagramCtx () {
-  let LoadPath = remote.dialog.showOpenDialogSync(
+async function loadDiagramCtx () {
+  let LoadPath = await ipcRenderer.invoke('dialog.showOpenDialogSync',
     {
       filters: [{ name: 'ReqM2 context files', extensions: ['vr2x'] }],
       properties: ['openFile'],
@@ -659,7 +657,7 @@ function updateSettingsFromContext (ctx) {
  * the ids and doctypes of the selected nodes and the set of ancestors
  * (also id and doctype) from the current diagram.
  */
- function saveDiagramSel () {
+ async function saveDiagramSel () {
   let defPath = ""
   // istanbul ignore else
   if (oreqmMain) {
@@ -679,7 +677,7 @@ function updateSettingsFromContext (ctx) {
     }
 
     // Suggest to save in same directory as oreqmMain
-    const savePath = remote.dialog.showSaveDialogSync(null, saveOptions)
+    const savePath = await ipcRenderer.invoke('dialog.showSaveDialogSync', null, saveOptions)
     // istanbul ignore else
     if (typeof (savePath) !== 'undefined') {
       saveDiagramSelectionAsSpreadsheet(savePath)
@@ -793,7 +791,7 @@ function calcHeadLine () {
  * Save selected specobjects as xlsx file, with the fields specified in export dialog
  * @param {String} pathname
  */
-function saveDiagramSelectionAsSpreadsheet (pathname) {
+async function saveDiagramSelectionAsSpreadsheet (pathname) {
   //rq: ->(rq_spreadsheet_export)
   // Determine what fields are exported
   const headLine = calcHeadLine()
@@ -894,7 +892,7 @@ function saveDiagramSelectionAsSpreadsheet (pathname) {
     }
   }
   let workBook = XLSX.utils.book_new()
-  let titleArray = [['Export from Visual ReqM2', remote.app.getVersion()],
+  let titleArray = [['Export from Visual ReqM2', await ipcRenderer.invoke('app.getVersion')],
                     [],
                     ['Input oreqm file', oreqmMain.filename],
                     ['timestamp', oreqmMain.timestamp], // A4
@@ -1136,7 +1134,7 @@ function processDataMain (name, data, update) {
  */
 function setWindowTitle (extra) {
   const title = `Visual ReqM2 - ${extra}`
-  mainWindow.setTitle(title)
+  document.getElementById('vrm2_win_title').innerHTML = title
 }
 
 /**
@@ -1186,8 +1184,8 @@ document.getElementById('get_main_oreqm_file').addEventListener('click', functio
   getMainOreqmFile() //rq: ->(rq_filesel_main_oreqm)
 })
 
-function getMainOreqmFile () {
-  const filePath = remote.dialog.showOpenDialogSync(
+async function getMainOreqmFile () {
+  const filePath = await ipcRenderer.invoke('dialog.showOpenDialogSync',
     {
       filters: [{ name: 'OREQM files', extensions: ['oreqm'] }],
       properties: ['openFile']
@@ -1258,9 +1256,9 @@ document.getElementById('get_ref_oreqm_file').addEventListener('click', function
 /**
  * Interactive selection of input file
  */
-function getRefOreqmFile () {
+async function getRefOreqmFile () {
   //rq: ->(rq_filesel_ref_oreqm)
-  const filePath = remote.dialog.showOpenDialogSync(
+  const filePath = await ipcRenderer.invoke('dialog.showOpenDialogSync',
     {
       filters: [{ name: 'OREQM files', extensions: ['oreqm'] }],
       properties: ['openFile']
@@ -1822,16 +1820,16 @@ function checkNewerReleaseAvailable () {
       data += chunk
     })
 
-    resp.on('end', () => {
+    resp.on('end', async () => {
       const latestRel = JSON.parse(data)
       // console.log(latest_rel.explanation);
       latestVersion = latestRel.name
       // console.log(latest_version);
-      if (latestVersion !== remote.app.getVersion()) {
+      if (latestVersion !== await ipcRenderer.invoke('app.getVersion')) {
         aboutButton.style.background = '#00FF00'
       }
       document.getElementById('latest_release').innerHTML = ` available for download is ${latestVersion}`
-      if (latestVersion > remote.app.getVersion()) {
+      if (latestVersion > await ipcRenderer.invoke('app.getVersion')) {
         myShowToast(`A newer version ${latestVersion} is available for download</br>Open <b>[About]</b> for more information`)
       }
     })

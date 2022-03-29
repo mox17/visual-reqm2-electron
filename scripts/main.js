@@ -481,6 +481,14 @@ ipcMain.handle('window.focus', async (_event) => {
   app.focus()
 })
 
+ipcMain.handle('dialog.showMessageBoxSync', async (_event, options) => {
+  return dialog.showMessageBoxSync(options)
+})
+
+ipcMain.handle('app.getVersion', async (_event) => {
+  return app.getVersion()
+})
+
 // Handle automatic updates
 // istanbul ignore next
 autoUpdater.on('update-available', () => {

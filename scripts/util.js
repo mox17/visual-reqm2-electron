@@ -1,7 +1,7 @@
 
 'use strict'
 import { performance } from 'perf_hooks'
-import { remote } from 'electron'
+import { ipcRenderer } from 'electron'
 
 let logTiming = false
 
@@ -45,7 +45,7 @@ export function logTimeSpent (startTime, legend="elapsed time") {
  * @param {string} title Optional title
  */
 export function showAlert (msg, title="Error") {
-  remote.dialog.showMessageBoxSync(
+  ipcRenderer.invoke('dialog.showMessageBoxSync',
     {
       type: 'error',
       buttons: ['Dismiss'],
