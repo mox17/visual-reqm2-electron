@@ -6,9 +6,10 @@
   * `parents()`  (alias to `pa()` ). One level reference to specobjects.
   * `descendants()` (alias to `de()`, `co()` and `children_of()` ). Multi-level reference to specobjects.
   * `ancestors()` (alias to `an()`, `ao()` and `ancestors_of()` ). Multi-level reference to specobjects.
-
-The function names `co()`, `children_of()`, `ao()` and `ancestors_of()` are deprecated and
-will be removed in a future release.
+  * The function names `co()`, `children_of()`, `ao()` and `ancestors_of()` are deprecated and will be removed in a future release.
+* remove usage of deprecated internal module `remote`.
+  * This is necessary to upgrade to newer version of electron.
+  * refactor code to use other ipc mechanisms
 
 ## 2.6.0
 * Use SheetJS to export selected specobjects as xlsx files

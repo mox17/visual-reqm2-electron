@@ -192,10 +192,6 @@ ipcRenderer.on('filter_graph', () => {
   }
 })
 
-export async function showSaveDialogSync (win, opts) {
-  return await ipcRenderer.invoke('dialog.showSaveDialogSync', win, opts)
-}
-
 /**
  * This function will check for the existence of a file.
  * When running as a portable app on Windows, the PWD changes,
