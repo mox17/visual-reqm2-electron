@@ -210,9 +210,7 @@ describe('Application launch', function () {
     it('should open about modal', async function () {
       await app.client.waitUntilWindowLoaded()
       const aboutpane = await app.client.$('#aboutPane')
-      const style = await aboutpane.getAttribute('style')
-      // console.log(typeof style, style);
-      assert.ok(!style.includes('block'))
+      expect(aboutpane.getAttribute('style')).to.eventually.not.include('block')
       await clickButton(app, '#aboutButton')
       expect(aboutpane.getAttribute('style')).to.eventually.include('block')
     })
@@ -406,13 +404,13 @@ describe('Application launch', function () {
       assert.property(png, 'toPNG') //rq: ->(rq_ctx_copy_png)
 
       const doctypeShownTotals = await app.client.$('#doctype_shown_totals')
-      assert.strictEqual(await doctypeShownTotals.getAttribute('innerHTML'), '26') //rq: ->(rq_dt_shown_stat)
+      expect(doctypeShownTotals.getAttribute('innerHTML')).to.eventually.equal('26') //rq: ->(rq_dt_shown_stat)
 
       const doctypeSelectTotals = await app.client.$('#doctype_select_totals')
-      assert.strictEqual(await doctypeSelectTotals.getAttribute('innerHTML'), '0') //rq: ->(rq_dt_sel_stat)
+      expect(doctypeSelectTotals.getAttribute('innerHTML')).to.eventually.equal('0') //rq: ->(rq_dt_sel_stat)
 
       const doctypeTotals = await app.client.$('#doctype_totals')
-      assert.strictEqual(await doctypeTotals.getAttribute('innerHTML'), '26') //rq: ->(rq_totals_stat)
+      expect(doctypeTotals.getAttribute('innerHTML')).to.eventually.equal('26') //rq: ->(rq_totals_stat)
     })
 
     it('Cancel context menu', async function () {
