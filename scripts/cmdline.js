@@ -80,7 +80,7 @@ const cmdQueue = []
       // istanbul ignore next
       cmdQueue.push('quit')
     }
-    // console.log("queue:", cmd_queue);
+    // console.log("queue:", cmdQueue);
     if (!cmdQueue.length) {
       // Nothing to do - helps test scripts
       document.getElementById('vrm2_batch').innerHTML = 'done'
@@ -93,10 +93,10 @@ const cmdQueue = []
  * The next step is triggered via the main process.
  */
 export function checkCmdLineSteps () {
-  // console.log("Check queue:", cmd_queue);
+  // console.log("Check queue:", cmdQueue);
   if (cmdQueue.length) {
     const nextOperation = cmdQueue.shift()
-    // console.log(`Next operation '${next_operation}'`);
+    // console.log(`Next operation '${nextOperation}'`);
     const filename = outputFilename
     let diagramFile = ''
     let problems = ''
