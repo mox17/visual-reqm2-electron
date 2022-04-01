@@ -1,46 +1,40 @@
 'use strict'
 // eslint-disable-next-line no-redeclare
-import { remote } from 'electron'
+import { ipcRenderer } from 'electron'
 import { definedSpecobjectFields, programSettings, checkAndUpgradeSettings } from './settings.js'
 import { updateColorSettings } from './color.js'
 import fs from 'fs'
-import { settingsConfigure } from './settings_helper.js'
 import { showAlert } from './util.js'
-const electronSettings = require('electron-settings')
 
 /**
  * Read setting from electron-settings interface and check for data elements.
  * @param {function} settingsUpdatedCallback callback to put new settings into effect
  */
-export function handleSettings (settingsUpdatedCallback, args) {
+export async function handleSettings (settingsUpdatedCallback, args) {
   //rq: ->(rq_settings_file,rq_cl_settings_file)
-  // console.log("Settings default file:", electron_settings.file())
-  settingsConfigure(electronSettings, args.settDir, args.settFile)
-  const settingsFile = electronSettings.file()
+  const settingsFile = await ipcRenderer.invoke('settingsFile')
   const settingsPopup = document.getElementById('settingsPopup')
 
   document.getElementById('settings_file_path').innerHTML = settingsFile
 
   let doctypeColors = null
-  // console.dir(settings)
-  if (electronSettings.hasSync('doctype_colors')) {
-    doctypeColors = electronSettings.getSync('doctype_colors')
+  if (await ipcRenderer.invoke('settingsHasSync', 'doctype_colors')) {
+    doctypeColors = await ipcRenderer.invoke('settingsGetSync', 'doctype_colors')
   }
   updateColorSettings(doctypeColors, updateDoctypeColors)
   let progSettings = null
-  if (electronSettings.hasSync('program_settings')) {
+  if (await ipcRenderer.invoke('settingsHasSync', 'program_settings')) {
     // Upgrade settings to add new values
-    // console.log(settings._getSettingsFilePath());
-    progSettings = electronSettings.getSync('program_settings')
+    progSettings = await ipcRenderer.invoke('settingsGetSync', 'program_settings')
   }
   const updated = checkAndUpgradeSettings(progSettings)
   if (updated) {
-    electronSettings.setSync('program_settings', programSettings)
+    await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
   }
   // console.log(programSettings);
 
-  document.getElementById('sett_ok').addEventListener('click', function () {
-    if (settingsDialogResults()) {
+  document.getElementById('sett_ok').addEventListener('click', async function () {
+    if (await settingsDialogResults()) {
       settingsUpdatedCallback()
       settingsPopup.style.display = 'none'
     } else {
@@ -113,7 +107,7 @@ function settingsDialogPrepare () {
  * Check if new settings are valid
  * @return {boolean} true if valid
  */
-function settingsDialogResults () {
+async function settingsDialogResults () {
   // Set programSettings.compare_fields object according to the checkboxes
   document.getElementById('regex_error').innerHTML = ''
   for (const field of definedSpecobjectFields) {
@@ -136,7 +130,7 @@ function settingsDialogResults () {
     const result = processRuleSet(newSafetyRules)
     if (result.pass) {
       programSettings.safety_link_rules = newSafetyRules
-      electronSettings.setSync('program_settings', programSettings)
+      await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
       return true
     } else {
       document.getElementById('regex_error').innerHTML = result.error
@@ -146,7 +140,7 @@ function settingsDialogResults () {
     document.getElementById('regex_error').innerHTML = e
     // alert(e)
   }
-  remote.getCurrentWindow().focus()
+  await ipcRenderer.invoke('window.focus')
   // document.getElementById('safety_rules').readOnly = "false"
   return false
 }
@@ -154,15 +148,15 @@ function settingsDialogResults () {
 /**
  * Save settings in file
  */
-export function saveProgramSettings () {
-  electronSettings.setSync('program_settings', programSettings)
+export async function saveProgramSettings () {
+  await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
 }
 /**
  * User file selector for 'safety' rules, possibly showing alert
  */
-export function loadSafetyRulesFs () {
+export async function loadSafetyRulesFs () {
   //rq: ->(rq_safety_rules_import)
-  const LoadPath = remote.dialog.showOpenDialogSync(
+  const LoadPath = await ipcRenderer.invoke('dialog.showOpenDialogSync',
     {
       filters: [{ name: 'JSON files', extensions: ['json'] }],
       properties: ['openFile']
@@ -226,9 +220,9 @@ export function processRuleSet (newRules) {
  * Callback function to update doctype color mappings
  * @param {dict} colors mapping from doctypes to colors
  */
-function updateDoctypeColors (colors) {
+async function updateDoctypeColors (colors) {
   //rq: ->(rq_doctype_color_sett)
-  electronSettings.setSync('doctype_colors', colors)
+  await ipcRenderer.invoke('settingsSetSync', 'doctype_colors', colors)
 }
 
 
