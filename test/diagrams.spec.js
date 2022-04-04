@@ -1,5 +1,6 @@
 'use strict'
 
+const { test, expect } = require('@playwright/test');
 const settings = _interopRequireDefault(require('../lib/settings.js'))
 const ReqM2Oreqm = _interopRequireDefault(require('../lib/diagrams.js'))
 const color = _interopRequireDefault(require('../lib/color.js'))
@@ -16,37 +17,26 @@ function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }
 }
 
-const chai = require('chai')
-const assert = chai.assert // Using Assert style
-const expect = chai.expect // Using Expect style
-// var should = chai.should(); // Using Should style
-
 function alert (txt) {
   console.log(txt)
 }
 
 global.alert = alert
-const describe = global.describe
-const it = global.it
-const before = global.before
-// const after = global.after;
-const beforeEach = global.beforeEach
-// const afterEach = global.afterEach;
 
 function selectAll (_nodeId, rec, _nodeColor) {
   // Select all - no need to inspect input
   return rec.status !== 'rejected'
 }
 
-before(function () {
+test.beforeAll(async () => {
   mkdirp.sync('./tmp')
 })
 
-beforeEach(function () {
+test.beforeEach(async () => {
   color.loadColorsFs(null, './test/refdata/test_suite_palette.json')
 })
 
-describe('ReqM2Oreqm tests', function () {
+test.describe('ReqM2Oreqm tests', () => {
   // force default settings
   settings.checkAndUpgradeSettings(settings.defaultProgramSettings)
 
@@ -59,30 +49,30 @@ describe('ReqM2Oreqm tests', function () {
     []
   )
 
-  it('Verify no doctypes blocked', function () {
+  test('Verify no doctypes blocked', async () => {
     // console.log(oreqm.excludedDoctypes);
-    assert.strictEqual(oreqm.filename, testOreqmFileName)
+    expect(oreqm.filename).toBe(testOreqmFileName)
   })
 
-  it('Create instance', function () {
-    assert.ok(oreqm.getExcludedDoctypes().length === 0)
+  test('Create instance', async () => {
+    expect(oreqm.getExcludedDoctypes().length === 0).toBeTruthy()
   })
 
-  it('Finds reqs', function () {
+  test('Finds reqs', async () => {
     const matches = oreqm.findReqsWithText('maze')
     // console.log(matches)
     //rq: ->(rq_sel_txt)
-    assert.ok(matches.includes('cc.game.location.maze.1'))
-    assert.ok(matches.includes('cc.game.location.maze.2'))
-    assert.ok(matches.includes('cc.game.location.maze.3'))
-    assert.ok(matches.includes('cc.game.location.maze.4'))
-    assert.ok(matches.includes('cc.game.location.maze.5'))
-    assert.ok(matches.includes('cc.game.location.maze.7'))
-    assert.ok(matches.includes('cc.game.location.maze.8'))
-    assert.ok(matches.includes('cc.game.location.maze.9'))
+    expect(matches.includes('cc.game.location.maze.1')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.2')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.3')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.4')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.5')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.7')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.8')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.9')).toBeTruthy()
   })
 
-  it('Create dot graph', function () {
+  test('Create dot graph', async () => {
     const graph = oreqm.createGraph(
       selectAll,
       [],
@@ -93,14 +83,14 @@ describe('ReqM2Oreqm tests', function () {
       true
     )
     // console.log(graph);
-    assert.ok(
+    expect(
       graph.doctypeDict.get('swrs').includes('cc.game.location.westlands')
     )
-    assert.strictEqual(graph.nodeCount, 26)
-    assert.strictEqual(graph.edgeCount, 25)
+    expect(graph.nodeCount).toBe(26)
+    expect(graph.edgeCount).toBe(25)
   })
 
-  it('Check generated dot string', function () {
+  test('Check generated dot string', async () => {
     const dotStr = eol.auto(oreqm.getDot())
     fs.writeFileSync('tmp/dot_file_1_test.dot', dotStr, {
       encoding: 'utf8',
@@ -110,36 +100,31 @@ describe('ReqM2Oreqm tests', function () {
     const dotRef = eol.auto(
       fs.readFileSync('./test/refdata/dot_file_1_test.dot', 'utf8')
     )
-    expect(dotStr).to.equal(dotRef) //rq: ->(rq_dot,rq_no_sel_show_all,rq_show_dot)
+    expect(dotStr).toBe(dotRef) //rq: ->(rq_dot,rq_no_sel_show_all,rq_show_dot)
   })
 
-  it('check pseudo needsobj for fulfilledby', function () {
+  test('check pseudo needsobj for fulfilledby', async () => {
     const dotStr = eol.auto(oreqm.getDot())
-    assert.ok(dotStr.includes('vaporware*')) //rq: ->(rq_ffb_needsobj)
+    expect(dotStr.includes('vaporware*')).toBeTruthy() //rq: ->(rq_ffb_needsobj)
   })
 
-  it('doctype filtering', function () {
+  test('doctype filtering', async () => {
     const matches = oreqm.findReqsWithText('PLACEHOLDER')
-    assert.ok(matches.includes('zork.game.location.frobozz'))
+    expect(matches.includes('zork.game.location.frobozz'))
     //rq: ->(rq_ffb_placeholder)
-    assert.strictEqual(
-      oreqm.requirements.get('zork.game.location.frobozz').doctype,
-      'vaporware'
-    )
+    expect(oreqm.requirements.get('zork.game.location.frobozz').doctype).toBe('vaporware')
     // Now exclude this doctype
     oreqm.setExcludedDoctypes(['vaporware'])
     oreqm.createGraph(selectAll, [], 'A test title', [], 1000, true, true)
     //rq: ->(rq_sel_doctype)
-    assert.strictEqual(
-      oreqm.getDot().indexOf('zork.game.location.frobozz'),
-      -1
-    ) // node id absent from file
+    expect(oreqm.getDot().indexOf('zork.game.location.frobozz')).toBe(-1)
+    // node id absent from file
     oreqm.setExcludedDoctypes([])
   })
 
-  it('Create hierarchy diagram', function () {
+  test('Create hierarchy diagram', async () => {
     const hierarchy = eol.auto(oreqm.scanDoctypes(false))
-    assert.ok(hierarchy.includes('digraph'))
+    expect(hierarchy.includes('digraph')).toBeTruthy()
 
     fs.writeFileSync('tmp/dot_file_hierarchy_test.dot', hierarchy, {
       encoding: 'utf8',
@@ -148,12 +133,12 @@ describe('ReqM2Oreqm tests', function () {
     const dotRef = eol.auto(
       fs.readFileSync('./test/refdata/dot_file_hierarchy_test.dot', 'utf8')
     )
-    expect(hierarchy).to.equal(dotRef)
+    expect(hierarchy).toBe(dotRef)
   })
 
-  it('Create safety diagram', function () {
+  test('Create safety diagram', async () => {
     const safety = eol.auto(oreqm.scanDoctypes(true))
-    assert.ok(safety.includes('digraph'))
+    expect(safety.includes('digraph')).toBeTruthy()
 
     fs.writeFileSync('tmp/dot_file_safety_test.dot', safety, {
       encoding: 'utf8',
@@ -162,6 +147,7 @@ describe('ReqM2Oreqm tests', function () {
     const dotRef = eol.auto(
       fs.readFileSync('./test/refdata/dot_file_safety_test.dot', 'utf8')
     )
-    expect(safety).to.equal(dotRef)
+    expect(safety).toBe(dotRef)
   })
+
 })

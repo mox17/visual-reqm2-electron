@@ -237,6 +237,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   // console.dir(args)
   setLimitReporter(reportLimitAsToast)
   handleSettings(settingsUpdated, args).then( async () => {
+    document.getElementById('vrm2_batch').innerHTML = 'init'
     setSearchLanguageButtons(programSettings.search_language)
 
     document.getElementById('prog_version').innerHTML = await ipcRenderer.invoke('app.getVersion')
@@ -510,7 +511,7 @@ function saveDiagramContext (ctxPath) {
       }
     }
     let jsonCtx = JSON.stringify(diagCtx, null, 2)
-    console.log(jsonCtx)
+    //console.log(jsonCtx)
     fs.writeFileSync(ctxPath, jsonCtx, 'utf8')
   }
 }

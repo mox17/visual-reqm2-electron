@@ -1,24 +1,19 @@
-const chai = require('chai')
+const { test, expect } = require('@playwright/test');
 const settings = _interopRequireDefault(require('../lib/settings.js'))
-
-// const assert = require('assert')
-const assert = chai.assert // Using Assert style
-const describe = global.describe
-const it = global.it
 
 function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }
 }
 
-describe('Settings tests', function () {
-  it('New settings', function () {
+test.describe('Settings tests', () => {
+  test('New settings', async () => {
     // Force settings to default
     settings.checkAndUpgradeSettings(settings.defaultProgramSettings)
-    assert.strictEqual(settings.programSettings.max_calc_nodes, 0)
+    expect(settings.programSettings.max_calc_nodes).toBe(0)
 
     const ignoredFields = settings.getIgnoredFields()
     // console.log(ignoredFields);
-    assert.ok(ignoredFields.includes('violations'))
+    expect(ignoredFields.includes('violations')).toBeTruthy()
 
     let newSettings = {}
     newSettings = Object.assign(newSettings, settings.programSettings)
@@ -33,14 +28,14 @@ describe('Settings tests', function () {
     delete newSettings.compare_fields
 
     settings.checkAndUpgradeSettings(newSettings)
-    assert.strictEqual(settings.programSettings.max_calc_nodes, 0)
-    assert.strictEqual(settings.programSettings.show_coverage, true)
-    assert.strictEqual(settings.programSettings.compare_fields.id, true)
+    expect(settings.programSettings.max_calc_nodes).toBe(0)
+    expect(settings.programSettings.show_coverage).toBe(true)
+    expect(settings.programSettings.compare_fields.id).toBe(true)
 
     // console.dir(newSettings.safety_link_rules);
     // console.dir(JSON.stringify(newSettings.safety_link_rules, null, 2));
     newSettings.color_status = 7
     settings.checkAndUpgradeSettings(newSettings)
-    assert.strictEqual(settings.programSettings.color_status, true)
+    expect(settings.programSettings.color_status).toBe(true)
   })
 })

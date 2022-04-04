@@ -1,31 +1,29 @@
 'use strict'
 
+const { test, expect } = require('@playwright/test');
 const ReqM2Specobjects = _interopRequireDefault(
   require('../lib/reqm2oreqm.js')
 )
-const assert = require('assert')
 const fs = require('fs')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom
 global.DOMParser = new JSDOM().window.DOMParser
-
-const describe = global.describe
-const it = global.it
+global.__myAlertMsg = ''
 
 function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }
 }
 
-let alertMsg = ''
+global.__myAlertMsg = ''
 function simpleAlert (msg) {
   //console.log('simpleAlert:', msg, '\nend simpleAlert')
-  alertMsg = msg.toString()
+  global.__myAlertMsg = msg.toString()
 }
 
 // Override popup alert
 global.alert = simpleAlert
 
-describe('ReqM2Specobjects tests', function () {
+test.describe('ReqM2Specobjects tests', () => {
   const testOreqmFileName = './testdata/oreqm_testdata_del_movement.oreqm'
   const oreqmTxt = fs.readFileSync(testOreqmFileName)
   const oreqm = new ReqM2Specobjects.ReqM2Specobjects(
@@ -35,24 +33,24 @@ describe('ReqM2Specobjects tests', function () {
     []
   )
 
-  it('Create instance', function () {
-    assert.strictEqual(oreqm.filename, testOreqmFileName)
+  test('Create instance', async () => {
+    expect(oreqm.filename).toBe(testOreqmFileName)
   })
 
-  it('Finds reqs', function () {
+  test('Finds reqs', async () => {
     const matches = oreqm.findReqsWithText('maze')
     // console.log(matches)
-    assert.ok(matches.includes('cc.game.location.maze.1'))
-    assert.ok(matches.includes('cc.game.location.maze.2'))
-    assert.ok(matches.includes('cc.game.location.maze.3'))
-    assert.ok(matches.includes('cc.game.location.maze.4'))
-    assert.ok(matches.includes('cc.game.location.maze.5'))
+    expect(matches.includes('cc.game.location.maze.1')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.2')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.3')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.4')).toBeTruthy()
+    expect(matches.includes('cc.game.location.maze.5')).toBeTruthy()
   })
 })
 
-describe('Bad oreqm file', function () {
-  it('Load bad oreqm file', async function () {
-    alertMsg = ''
+test.describe('Bad oreqm file', () => {
+  test('Load bad oreqm file', async () => {
+    global.__myAlertMsg = ''
     ReqM2Specobjects.setAlert(simpleAlert)
     const filename = './testdata/bad_file.oreqm'
     const oreqmTxt = fs.readFileSync(filename)
@@ -62,8 +60,8 @@ describe('Bad oreqm file', function () {
       [],
       []
     )
-    assert.ok(!oreqm.getErrorStatusOK())
-    assert.ok(oreqm.getErrorMsg().length > 0)
+    expect(!oreqm.getErrorStatusOK()).toBeTruthy()
+    expect(oreqm.getErrorMsg().length > 0).toBeTruthy()
     //console.log("error message:", oreqm.getErrorMsg())
   })
 })

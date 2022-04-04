@@ -1,17 +1,14 @@
-const chai = require('chai')
+'use strict'
+
+const { test, expect } = require('@playwright/test');
 const color = _interopRequireDefault(require('../lib/color.js'))
 const fs = require('fs')
-const assert = chai.assert
 
 function _interopRequireDefault (obj) { return obj && obj.__esModule ? obj : { default: obj } }
 
-const after = global.after
-const describe = global.describe
-const it = global.it
-
 const palFile = 'tmp/test_palette.json'
 
-after(function () {
+test.afterEach(async () => {
   color.updateColorSettings({ none: '#FFFFFF' }, null)
 })
 
@@ -21,38 +18,39 @@ function colorSettingsUpdate (_palette) {
   colorCallback = true
 }
 
-describe('Color palette tests', function () {
-  it('Set palette', function () {
+test.describe('Color palette tests', () => {
+  test('Set palette', async () => {
     const mapping = { xyzzy: '#223344' }
 
     color.updateColorSettings(mapping, null)
     const xyzzy = color.getColor('xyzzy')
-    assert.strictEqual('#223344', xyzzy)
+    expect(xyzzy).toBe('#223344')
   })
 
-  it('Generate colors', function () {
+  test('Generate colors', async () => {
     for (let count = 0; count < 100; count += 1) {
       const rgb = color.getColor('foobar' + count.toString())
-      assert.ok(rgb.length === 7)
-      assert.ok(rgb[0] === '#')
+      expect(rgb.length).toBe(7)
+      expect(rgb[0]).toBe('#')
     }
     if (fs.existsSync(palFile)) {
       fs.unlinkSync(palFile)
     }
     color.saveColorsFs(palFile)
-    assert.ok(fs.existsSync(palFile))
+    expect(fs.existsSync(palFile)).toBeTruthy()
     const fileContent = fs.readFileSync(palFile, 'utf8')
     // console.log(fileContent);
-    assert.ok(fileContent.includes('"foobar0"'), true) //rq: ->(rq_doctype_color_gen,rq_doctype_color_export)
+    expect(fileContent.includes('"foobar0"')).toBeTruthy() //rq: ->(rq_doctype_color_gen,rq_doctype_color_export)
   })
 
-  it('Load palette', function () {
+  test('Load palette', async () => {
     const mapping = { xyzzy: '#123456' }
     color.updateColorSettings(mapping, colorSettingsUpdate)
-    assert.strictEqual('#123456', color.getColor('xyzzy')) // Set different color
+    expect(color.getColor('xyzzy')).toBe('#123456')
+    // Set different color
     color.loadColorsFs(null, palFile)
     // xyzzy definition overwritten by import
-    assert.notEqual('#123456', color.getColor('xyzzy')) //rq: ->(rq_doctype_color_import)
-    assert.ok(colorCallback)
+    expect(color.getColor('xyzzy')).not.toBe('#123456') //rq: ->(rq_doctype_color_import)
+    expect(colorCallback).toBeTruthy()
   })
 })
