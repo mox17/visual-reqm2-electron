@@ -8,6 +8,8 @@ const mkdirp = require('mkdirp')
 const fs = require('fs')
 const eol = require('eol')
 const crypto = require('crypto');
+const v8toIstanbul = require('v8-to-istanbul');
+const v4 = require('uuid')
 
 let window, app
 
@@ -125,8 +127,6 @@ async function contextMenuClick (app, node, item) {
 
 async function clickButton (app, id) {
   await app.locator(id).click()
-  //const button = await app.client.$(id)
-  //await button.click()
 }
 
 async function clickMenuItemById (electronApp, id) {
@@ -139,15 +139,6 @@ async function clickMenuItemById (electronApp, id) {
       throw new Error(`Menu item with id ${menuId} not found`)
     }
   }, id)
-}
-
-async function menuClick (app, item) {
-  await clickMenuItemById(app, item)
-  // await app.evaluate(async ({app, menu, item}) => {
-  //   const appMenu = app.applicationMenu.getMenuItemById(menu);
-  //   const appMenuItem = appMenu.submenu.getMenuItemById(item);
-  //   appMenuItem.click()
-  // })
 }
 
 /**
@@ -167,6 +158,18 @@ async function waitVrm2Status (status) {
   await expect(vrm2_working).toHaveText(status, {timeout: 4000})
 }
 
+test.afterAll(async () => {
+  const coverage = await window.coverage.stopJSCoverage();
+  for (const entry of coverage) {
+    //let name = `.nyc_output/${v4()}.json`
+    const converter = new v8toIstanbul('', 0, { source: entry.source });
+    await converter.load();
+    converter.applyCoverage(entry.functions);
+    //console.log('electron.spec', name)
+    //fs.writeFileSync(name, JSON.stringify(JSON.stringify(converter.toIstanbul())));
+  }
+})
+
 test.describe('Application launch', () => {
 
   test.describe.configure({ mode: 'serial' });
@@ -179,6 +182,7 @@ test.describe('Application launch', () => {
       args: ['lib/main.js', '-D', './tmp', '-F', 'settings.json', '--regex'] //rq: ->(rq_cl_settings_file,rq_settings_file)
     })
     window = await app.firstWindow();
+    await window.coverage.startJSCoverage();
 
     window.on('console', async (msg) => {
       const values = [];
@@ -197,11 +201,6 @@ test.describe('Application launch', () => {
   //     }
   //   }
   // }
-
-  test.afterAll(async () => {
-    //filterLog('Render', await app.client.getRenderProcessLogs())
-    //await app.close()
-  })
 
   test('launches the application', async () => {
     const title = await window.title()
@@ -228,7 +227,7 @@ test.describe('Application launch', () => {
   test.describe('Settings dialog', () => {
     test('open modal', async () => {
       await window.waitForLoadState('domcontentloaded');
-      await menuClick(app, 'menu_settings')
+      await clickMenuItemById(app, 'menu_settings')
       await window.locator('#settingsPopup').waitFor()
       await screenshot(window, 'sett-1')
       // This is the list of fields that can be compared. Keep coordinated with settings.js
@@ -252,13 +251,12 @@ test.describe('Application launch', () => {
     test('close settings with OK', async () => {
       await clickButton(window, '#sett_ok')
       let style = await window.locator('#settingsPopup').getAttribute('style')
-      //console.dir(style)
       expect(style.includes('none')).toBeTruthy()
     })
 
     test('Reopen settings', async () => {
       const settingsMenu = window.locator('#settingsPopup')
-      await menuClick(app, 'menu_settings')
+      await clickMenuItemById(app, 'menu_settings')
       const style = String(await settingsMenu.getAttribute('style'))
       //console.dir(style)
       expect(style.includes('block')).toBeTruthy()
@@ -284,8 +282,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check1)
       await clickButton(window, '#sett_ok')
-      let style = await settingsMenu.getAttribute('style')
-      expect(style.includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -293,8 +290,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check2)
       await clickButton(window, '#sett_ok')
-      style = await settingsMenu.getAttribute('style')
-      expect(style.includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -302,8 +298,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check3)
       await clickButton(window, '#sett_ok')
-      style = await settingsMenu.getAttribute('style')
-      expect(style.includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -311,8 +306,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check4)
       await clickButton(window, '#sett_ok')
-      style = await settingsMenu.getAttribute('style')
-      expect(style.includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -320,8 +314,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check5)
       await clickButton(window, '#sett_ok')
-      style = await settingsMenu.getAttribute('style')
-      expect(style.includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
     })
@@ -329,9 +322,7 @@ test.describe('Application launch', () => {
     test('cancel settings', async () => {
       const settingsMenu = await window.locator('#settingsPopup')
       await clickButton(window, '#sett_cancel')
-      let style = await settingsMenu.getAttribute('style')
-      //console.log('style', style)
-      expect(style.includes('block')).toBeFalsy()
+      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeFalsy()
       //assert.ok(!style.includes('block;'))
     })
   })
@@ -339,18 +330,16 @@ test.describe('Application launch', () => {
   test.describe('Issues dialog', () => {
     test('open issues modal', async () => {
       await window.waitForLoadState('domcontentloaded');
-      await menuClick(app, 'show_issues')
+      await clickMenuItemById(app, 'menu_show_issues')
       const issuesModal = await window.locator('#problemPopup')
-      const style = await issuesModal.getAttribute('style')
-      expect(style.includes('block')).toBeTruthy() //rq: ->(rq_issues_log)
+      expect((await issuesModal.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_issues_log)
       //assert.ok(style.includes('block')) //rq: ->(rq_issues_log)
     })
 
     test('close issues modal', async () => {
       await clickButton(window, '#problemPopupClose')
       const issuesModal = await window.locator('#problemPopup')
-      const style = await issuesModal.getAttribute('style')
-      expect(style.includes('block')).toBeFalsy()
+      expect((await issuesModal.getAttribute('style')).includes('block')).toBeFalsy()
       //assert.ok(!style.includes('block'))
     })
   })
@@ -365,9 +354,8 @@ test.describe('Application launch', () => {
   test.describe('Import doctype colors', () => {
     test('color palette', async () => {
       const colorsFilename = './test/refdata/test_suite_palette.json'
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [colorsFilename] }])
       await mock(app, [ { method: 'showOpenDialogSync', value: [colorsFilename] } ])
-      await menuClick(app, 'load_color_scheme') //rq: ->(rq_doctype_color_import)
+      await clickMenuItemById(app, 'menu_load_color_scheme') //rq: ->(rq_doctype_color_import)
     })
   })
 
@@ -397,7 +385,6 @@ test.describe('Application launch', () => {
   test.describe('Load files', () => {
     test('main oreqm', async () => {
       //await app.client.waitUntilWindowLoaded()
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] }])
       await mock(app, [ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]) //rq: ->(rq_filesel_main_oreqm)
       await clickButton(window, '#get_main_oreqm_file')
 
@@ -460,10 +447,8 @@ test.describe('Application launch', () => {
     test('save main as dot', async () => {
       const dotFilename = './tmp/main_1.dot'
       removeFile(dotFilename)
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
       await mock(app, [{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       const mainTxt = await compareFiles(dotFilename, './test/refdata/main_1.dot') //rq: ->(rq_edge_pcov_ffb)
       expect(mainTxt.includes('BGCOLOR="#')).toBeTruthy() //rq: ->(rq_doctype_color)
@@ -472,7 +457,6 @@ test.describe('Application launch', () => {
     test('select node', async () => {
       const dotFilename = './tmp/main_select_1.dot'
       removeFile(dotFilename)
-      // console.dir(await app.client.getRenderProcessLogs())
       await contextMenuClick(app, 'cc.game.locations', '#menu_select') //rq: ->(rq_ctx_add_selection)
       await waitForOperation(app)
       const searchRegex = await window.locator('#search_regex')
@@ -485,9 +469,7 @@ test.describe('Application launch', () => {
       expect(val1).toBe(val2)
       await screenshot(window, 'select_game_locations')
       await mock(app, [{ method: 'showSaveDialogSync', value: dotFilename }])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       const txt = await compareFiles(dotFilename, './test/refdata/main_select_1.dot') //rq: ->(rq_calc_shown_graph)
       expect(txt.includes('subgraph "cluster_cc.game.locations"')).toBeTruthy() //rq: ->(rq_highlight_sel)
@@ -499,9 +481,7 @@ test.describe('Application launch', () => {
       await waitForOperation(app)
       await screenshot(window, 'exclude_frobozz')
       await mock(app, [{ method: 'showSaveDialogSync', value: dotFilename }])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/main_exclude_1.dot') //rq: ->(rq_excl_id)
     })
@@ -512,9 +492,7 @@ test.describe('Application launch', () => {
       await waitForOperation(app)
       await screenshot(window, 'deselect_locations')
       await mock(app, [{ method: 'showSaveDialogSync', value: dotFilename }])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/main_deselect_1.dot')
       await clickButton(window, '#clear_excluded_ids')
@@ -528,8 +506,6 @@ test.describe('Application launch', () => {
       await contextMenuClick(app, 'cc.game.location.witt', '#menu_select')
       await waitForOperation(app)
       const searchRegex = await window.locator('#search_regex')
-      //let val1 = await searchRegex.inputValue()
-      // console.log(val1)
       expect(await searchRegex.inputValue()).toBe('cc.game.locations$\n|cc.game.location.witt$')
     })
 
@@ -537,7 +513,6 @@ test.describe('Application launch', () => {
       await clickButton(window, '#clear_excluded_ids')
       await clickButton(window, '#clear_search_regex')
       await mock(app, [{ method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] }])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_del_movement.oreqm'] }])
       await clickButton(window, '#get_ref_oreqm_file') //rq: ->(rq_filesel_ref_oreqm)
       await waitForOperation(app)
       await screenshot(window, 'ref-oreqm')
@@ -548,20 +523,17 @@ test.describe('Application launch', () => {
     //rq: ->(rq_watch_files)
     test('Touch main file - ignore', async () => {
       await mock(app, [ { method: 'showMessageBoxSync', value: 0 } ])
-      //await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
       touchFile('./testdata/oreqm_testdata_no_ogre.oreqm')
     })
 
     test('Touch ref file - ignore', async () => {
       await mock(app, [ { method: 'showMessageBoxSync', value: 0 } ])
-      //await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
       touchFile('./testdata/oreqm_testdata_del_movement.oreqm')
     })
 
     test('Touch main file - reload', async () => {
       await sleep(2000)
       await mock(app, [ { method: 'showMessageBoxSync', value: 1 } ])
-      //await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 1 }])
       touchFile('./testdata/oreqm_testdata_no_ogre.oreqm')
       await sleep(1000)
       await waitForOperation(app)
@@ -569,7 +541,6 @@ test.describe('Application launch', () => {
 
     test('Touch ref file - reload', async () => {
       await mock(app, [ { method: 'showMessageBoxSync', value: 1 } ])
-      //await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 1 }])
       touchFile('./testdata/oreqm_testdata_del_movement.oreqm')
       await sleep(1000)
       await waitForOperation(app)
@@ -581,11 +552,8 @@ test.describe('Application launch', () => {
       const dotFilename = './tmp/main_ref_1.dot'
       removeFile(dotFilename)
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
-      //expect(file(dotFilename)).to.exist
       await compareFiles(dotFilename, './test/refdata/main_ref_1.dot') //rq: ->(rq_oreqm_diff_calc,rq_req_diff_show)
     })
 
@@ -593,9 +561,7 @@ test.describe('Application launch', () => {
       const pngFilename = './tmp/main_ref_1.png'
       removeFile(pngFilename)
       await mock(app, [ { method: 'showSaveDialogSync', value: pngFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: pngFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       expect(fs.existsSync(pngFilename)).toBeTruthy() //rq: ->(rq_save_png_file)
     })
@@ -604,9 +570,7 @@ test.describe('Application launch', () => {
       const contextFilename = './tmp/main_ref_1.vr2x'
       removeFile(contextFilename)
       await mock(app, [ { method: 'showSaveDialogSync', value: contextFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: contextFilename }])
-      await menuClick(app, 'save_diagram_context')
-      //await fakeMenu.clickMenu('File', 'Save diagram context...')
+      await clickMenuItemById(app, 'menu_save_diagram_context')
       await waitForOperation(app)
       expect(fs.existsSync(contextFilename)).toBeTruthy()
       await compareFiles(contextFilename, './test/refdata/main_ref_1.vr2x')
@@ -616,7 +580,6 @@ test.describe('Application launch', () => {
       const svgFilename = './tmp/main_ref_1.svg'
       removeFile(svgFilename)
       await mock(app, [ { method: 'showSaveDialogSync', value: svgFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: svgFilename }])
       await contextMenuClick(app, 'cc.game.characters', '#menu_save_as')
       await waitForOperation(app)
       await compareFiles(svgFilename, './test/refdata/main_ref_1.svg') //rq: ->(rq_save_svg_file)
@@ -627,7 +590,6 @@ test.describe('Application launch', () => {
       await contextMenuClick(app, 'cc.game.characters', '#menu_xml_txt')
       const nodeSource = await window.locator('#nodeSource')
       expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
-      //await nodeSource.waitForDisplayed(5000, false, "Source not shown", 100)
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
       expect(req_src_html.includes('<h2>XML format (changed specobject)</h2>')).toBeTruthy()
@@ -683,8 +645,8 @@ test.describe('Application launch', () => {
       await formatSelect.selectOption({value: 'html-table'})
       await waitForOperation(app)
       await screenshot(window, 'table-format')
-      const doctypeTotals = await window.locator('#html_table')
-      const table = await doctypeTotals.innerHTML()
+      const htmlTable = await window.locator('#html_table')
+      const table = await htmlTable.innerHTML()
       const htmlFilename = './tmp/table-1.html'
       fs.writeFileSync(htmlFilename, table)
       await compareFiles(htmlFilename, './test/refdata/table-1.html')
@@ -704,7 +666,6 @@ test.describe('Application launch', () => {
     test('jump between selected nodes', async () => {
       await clickButton(window, '#next_selected') //rq: ->(rq_navigate_sel)
       await waitVrm2Status('centered')
-      //await app.client.waitUntilTextExists('#vrm2_working', 'centered')
       await clickButton(window, '#next_selected')
       await waitVrm2Status('centered')
       await clickButton(window, '#next_selected')
@@ -739,9 +700,7 @@ test.describe('Application launch', () => {
       const dotFilename = './tmp/single_select_1.dot'
       removeFile(dotFilename)
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       //rq: ->(rq_diagram_legend)
       await compareFiles(dotFilename, './test/refdata/single_select_1.dot')
@@ -786,11 +745,8 @@ test.describe('Application launch', () => {
   test.describe('Menu operations', () => {
     test('Open about from menu', async () => {
       const aboutpane = await window.locator('#aboutPane')
-      await menuClick(app, 'menu_help_about')
-      //await fakeMenu.clickMenu('Help', 'About')
+      await clickMenuItemById(app, 'menu_help_about')
       expect(String(await aboutpane.getAttribute('style')).includes('block')).toBeTruthy()
-      //expect(aboutpane.getAttribute('style')).to.eventually.include('block')
-      
       await waitForOperation(app)
     })
 
@@ -798,35 +754,27 @@ test.describe('Application launch', () => {
       const aboutpane = await window.locator('#aboutPane')
       await clickButton(window, '#aboutPaneClose')
       expect(String(await aboutpane.getAttribute('style')).includes('block')).toBeFalsy()
-      //expect(aboutpane.getAttribute('style')).to.eventually.not.include('block')
       await waitForOperation(app)
     })
 
     test('Load too many safety rules', async () => {
       await mock(app, [ { method: 'showOpenDialogSync', value: ['abc', 'xyz'] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: ['abc', 'xyz'] }])
-      await menuClick(app, 'load_coverage_rules')
-      //await fakeMenu.clickMenu('File', 'Load coverage rules...')
+      await clickMenuItemById(app, 'menu_load_coverage_rules')
       await waitForOperation(app)
     })
 
     test('Load bad safety rules', async () => {
       const safetyRulesFilename = './testdata/sample_safety_rules-broken.json'
       await mock(app, [ { method: 'showOpenDialogSync', value: [safetyRulesFilename] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safetyRulesFilename] }])
       await mock(app, [ { method: 'showMessageBoxSync', value: 0 } ])
-      //await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
-      await menuClick(app, 'load_coverage_rules')
-      //await fakeMenu.clickMenu('File', 'Load coverage rules...')
+      await clickMenuItemById(app, 'menu_load_coverage_rules')
       await waitForOperation(app)
     })
 
     test('Load safety rules', async () => {
       const safetyRulesFilename = './testdata/sample_safety_rules.json'
       await mock(app, [ { method: 'showOpenDialogSync', value: [safetyRulesFilename] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [safetyRulesFilename] }])
-      await menuClick(app, 'load_coverage_rules')
-      //await fakeMenu.clickMenu('File', 'Load coverage rules...')
+      await clickMenuItemById(app, 'menu_load_coverage_rules')
       await waitForOperation(app)
       //rq: ->(rq_safety_rules_import)
       // TODO: add asserts
@@ -834,19 +782,14 @@ test.describe('Application launch', () => {
 
     test('Save issues file - cancel', async () => {
       await mock(app, [ { method: 'showSaveDialogSync', value: undefined } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: undefined }])
-      await menuClick(app, 'save_issues_as')
-      //await fakeMenu.clickMenu('File', 'Save issues as...')
+      await clickMenuItemById(app, 'menu_save_issues_as')
       await waitForOperation(app)
     })
 
     test('Save issues file', async () => {
       const issuesFilename = './tmp/my_issues.txt'
       await mock(app, [ { method: 'showSaveDialogSync', value: issuesFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: issuesFilename }])
-      await menuClick(app, 'save_issues_as')
-      //await fakeMenu.clickMenu('File', 'Save issues as...')
-      //await holdBeforeFileExists(issuesFilename, 6000)
+      await clickMenuItemById(app, 'menu_save_issues_as')
       await waitForOperation(app)
       await compareFiles(issuesFilename, './test/refdata/my_issues.txt') //rq: ->(rq_issues_file_export)
     })
@@ -863,9 +806,7 @@ test.describe('Application launch', () => {
       const dotFilename = './tmp/doctypes_1.dot'
       removeFile(dotFilename)
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/doctypes_1.dot') //rq: ->(rq_doctype_hierarchy)
     })
@@ -880,9 +821,7 @@ test.describe('Application launch', () => {
       const dotFilename = './tmp/safety_1.dot'
       removeFile(dotFilename)
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/safety_1.dot') //rq: ->(rq_doctype_aggr_safety)
     })
@@ -916,7 +855,6 @@ test.describe('Application launch', () => {
 
     test('Back to regex filter', async () => {
       await clickButton(window, '#regex_radio_input')
-      //let searchRegex = await window.locator('#search_regex')
       await clickButton(window, '#filter_graph')
       await waitForOperation(app)
     })
@@ -951,7 +889,6 @@ test.describe('Application launch', () => {
     test('Load main oreqm with absolute path', async () => {
       let oPath = path.join(process.cwd(), './testdata/oreqm_testdata_no_ogre.oreqm')
       await mock(app, [ { method: 'showOpenDialogSync', value: [oPath] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oPath] }])
       await clickButton(window, '#get_main_oreqm_file')
       await waitForOperation(app)
       let searchRegex = await window.locator('#search_regex')
@@ -966,9 +903,7 @@ test.describe('Application launch', () => {
       await clickButton(window, '#clear_ref_oreqm')
       await waitForOperation(app)
       await mock(app, [ { method: 'showSaveDialogSync', value: contextFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: contextFilename }])
-      await menuClick(app, 'save_diagram_context')
-      //await fakeMenu.clickMenu('File', 'Save diagram context...')
+      await clickMenuItemById(app, 'menu_save_diagram_context')
       await waitForOperation(app)
       expect(fs.existsSync(contextFilename)).toBeTruthy()
       await compareFiles(contextFilename, './test/refdata/main_ref_2.vr2x')
@@ -985,7 +920,6 @@ test.describe('Application launch', () => {
       await clickButton(window, '#problemPopupClose')
       const oreqmName = './test/sample_oreqm/0007_violations.oreqm'
       await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmName] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmName] }])
       await clickButton(window, '#get_main_oreqm_file')
       await waitForOperation(app)
       await clickButton(window, '#issuesButton')
@@ -995,9 +929,7 @@ test.describe('Application launch', () => {
       await clickButton(window, '#problemPopupClose')
       const dotFilename = './tmp/0007_violations.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/0007_violations.dot') //rq: ->(rq_dup_req)
     })
@@ -1009,7 +941,6 @@ test.describe('Application launch', () => {
       await clickButton(window, '#problemPopupClose')
       const oreqmName = './test/sample_oreqm/0007_dup-same-version.oreqm'
       await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmName] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmName] }])
       await clickButton(window, '#get_main_oreqm_file')
       await waitForOperation(app)
       await clickButton(window, '#issuesButton')
@@ -1020,15 +951,12 @@ test.describe('Application launch', () => {
       await clickButton(window, '#problemPopupClose')
       const dotFilename = './tmp/0007_dup-same-version.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/0007_dup-same-version.dot') //rq: ->(rq_dup_req_display,rq_dup_id_ver_disp,rq_edge_probs)
       await clickButton(window, '#issuesButton')
       const issueFile = './tmp/0007_dup-same-version.txt'
       await mock(app, [ { method: 'showSaveDialogSync', value: issueFile } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: issueFile }])
       await clickButton(window, '#save_problems')
       await clickButton(window, '#clear_problems')
       await clickButton(window, '#problemPopupClose')
@@ -1044,9 +972,7 @@ test.describe('Application launch', () => {
       await screenshot(window, 'search-for-dups')
       const dotFilename = './tmp/search_for_dups.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/search_for_dups.dot') //rq: ->(rq_dup_req_search,rq_node_probs)
       await clickButton(window, '#clear_search_regex')
@@ -1057,9 +983,7 @@ test.describe('Application launch', () => {
     test('color palette export', async () => {
       const colorsFilename = './tmp/test_suite_palette.json'
       await mock(app, [ { method: 'showSaveDialogSync', value: colorsFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: colorsFilename }])
-      await menuClick(app, 'save_color_scheme_as')
-      //await fakeMenu.clickMenu('File', 'Save color scheme as...')
+      await clickMenuItemById(app, 'menu_save_color_scheme_as')
       await holdBeforeFileExists(colorsFilename, 5000)
       expect(fs.existsSync(colorsFilename)).toBeTruthy() //rq: ->(rq_doctype_color_export)
     })
@@ -1086,15 +1010,12 @@ test.describe('Application launch', () => {
     test('Load ffb test 1', async () => {
       const oreqmMain = './testdata/ffbtest_3.oreqm'
       await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmMain] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmMain] }])
       await clickButton(window, '#get_main_oreqm_file')
       await waitForOperation(app)
       const dotFilename = './tmp/ffbtest_3.dot'
       const refFile = './test/refdata/ffbtest_3.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, refFile)
       //rq: ->(rq_limited_walk)
@@ -1103,23 +1024,17 @@ test.describe('Application launch', () => {
     test('Load ffb test 2', async () => {
       const oreqmMain = './testdata/ffbtest_2.oreqm'
       await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmMain] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmMain] }])
       await clickButton(window, '#get_main_oreqm_file')
       await waitForOperation(app)
       await clickButton(window, '#limit_depth_input')
       const oreqmRef = './testdata/ffbtest_1.oreqm'
       await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmRef] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmRef] }])
-      //await clickButton(window, '#get_ref_oreqm_file')
-      await menuClick(app, 'load-ref-oreqm')
-      //await fakeMenu.clickMenu('File', 'Load reference oreqm file...')
+      await clickMenuItemById(app, 'menu_load_ref_oreqm')
       await waitForOperation(app)
       const dotFilename = './tmp/ffb_diff.dot'
       const refFile = './test/refdata/ffb_diff.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, refFile)
     })
@@ -1129,8 +1044,7 @@ test.describe('Application launch', () => {
     test('Clear options - ', async () => {
       //rq: ->(rq_status_color,rq_cov_color)
       const settingsMenu = await window.locator('#settingsPopup')
-      await menuClick(app, 'menu_settings')
-      //await fakeMenu.clickMenu('Edit', 'Settings...')
+      await clickMenuItemById(app, 'menu_settings')
       const style = await settingsMenu.getAttribute('style')
       expect(style.includes('block')).toBeTruthy()
 
@@ -1139,16 +1053,8 @@ test.describe('Application launch', () => {
       await clickButton(window, '#sett_show_errors')
 
       expect(await window.locator('#sett_show_coverage')).not.toBeChecked()
-      //let sett_show_coverage = await window.locator('#sett_show_coverage')
-      //expect(! await sett_show_coverage.isSelected()).toBeTruthy()
- 
       expect(await window.locator('#sett_color_status')).not.toBeChecked()
-      //let sett_color_status = await window.locator('#sett_color_status')
-      //expect(! await sett_color_status.isSelected()).toBeTruthy()
-
       expect(await window.locator('#sett_show_errors')).not.toBeChecked()
-      //let sett_show_errors = await window.locator('#sett_show_errors')
-      //expect(! await sett_show_errors.isSelected()).toBeTruthy()
 
       await clickButton(window, '#sett_ok')
       await waitForOperation(app)
@@ -1158,33 +1064,22 @@ test.describe('Application launch', () => {
       const dotFilename = './tmp/ffb_diff_2.dot'
       const refFile = './test/refdata/ffb_diff_2.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, refFile)
     })
 
     test('Set options - ', async () => {
       const settingsMenu = await window.locator('#settingsPopup')
-      await menuClick(app, 'menu_settings')
-      //await fakeMenu.clickMenu('Edit', 'Settings...')
-      //const style = await settingsMenu.getAttribute('style')
-      //assert.ok(style.includes('block'))
+      await clickMenuItemById(app, 'menu_settings')
       expect(String(await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy()
       await clickButton(window, '#sett_show_coverage')
       await clickButton(window, '#sett_color_status')
       await clickButton(window, '#sett_show_errors')
 
       expect(await window.locator('#sett_show_coverage')).toBeChecked()
-      //let sett_show_coverage = await window.locator('#sett_show_coverage')
-      //expect(await sett_show_coverage.isSelected()).toBeTruthy()
       expect(await window.locator('#sett_color_status')).toBeChecked()
-      //let sett_color_status = await window.locator('#sett_color_status')
-      //expect(await sett_color_status.isSelected()).toBeTruthy()
       expect(await window.locator('#sett_show_errors')).toBeChecked()
-      //let sett_show_errors = await window.locator('#sett_show_errors')
-      //expect(await sett_show_errors.isSelected()).toBeTruthy()
 
       await clickButton(window, '#sett_ok')
       await waitForOperation(app)
@@ -1208,15 +1103,12 @@ test.describe('Application launch', () => {
     test('allReqmTags', async () => {
       const oreqmMain = './testdata/0002_allReqmTags.oreqm'
       await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmMain] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmMain] }])
       await clickButton(window, '#get_main_oreqm_file')
       await waitForOperation(app)
       const dotFilename = './tmp/0002_allReqmTags.dot'
       const refFile = './test/refdata/0002_allReqmTags.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, refFile)
     })
@@ -1236,7 +1128,6 @@ test.describe('Application launch', () => {
             const oreqmName = `${sampleDir}/${filename}`
             // console.log('        loading:', oreqmName)
             await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmName] } ])
-            //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmName] }])
             await clickButton(window, '#get_main_oreqm_file')
             await waitForOperation(app)
             // await clickButton(window, '#filter_graph');
@@ -1248,9 +1139,7 @@ test.describe('Application launch', () => {
             await screenshot(window, basename)
             removeFile(dotFilename)
             await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-            //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-            await menuClick(app, 'save_diagram_as')
-            //await fakeMenu.clickMenu('File', 'Save diagram as...')
+            await clickMenuItemById(app, 'menu_save_diagram_as')
             await waitForOperation(app)
             // console.log('        saving: ', dotFilename)
             expect(fs.existsSync(dotFilename)).toBeTruthy()
@@ -1269,14 +1158,12 @@ test.describe('Application launch', () => {
     test('Load diagram context w. id', async () => {
       const contextFilename = './testdata/bird-id-context.vr2x'
       await mock(app, [ { method: 'showOpenDialogSync', value: [contextFilename] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [contextFilename] }])
-      await menuClick(app, 'load_diagram_context')
-      //await fakeMenu.clickMenu('File', 'Load diagram context...')
+      await clickMenuItemById(app, 'menu_load_diagram_context')
       await waitForOperation(app)
-
-      // This context file is using <id> search - check status
-      //let id_radio = await window.locator('#id_radio_input')
-      expect(await window.locator('#id_radio_input')).toBeChecked()
+      await screenshot(window, 'load-context-bird')
+      // This context file is using <id> search - check status was set
+      //expect(await window.locator('#id_radio_input')).toBeChecked()
+      expect(await window.locator('#search_regex').inputValue()).toBe('bird')
     })
 
     /**
@@ -1290,15 +1177,11 @@ test.describe('Application launch', () => {
       removeFile(dotFilename)
 
       await mock(app, [ { method: 'showOpenDialogSync', value: [contextFilename] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [contextFilename] }])
-      await menuClick(app, 'load_diagram_context')
-      //await fakeMenu.clickMenu('File', 'Load diagram context...')
+      await clickMenuItemById(app, 'menu_load_diagram_context')
       await waitForOperation(app)
 
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: dotFilename }])
-      await menuClick(app, 'save_diagram_as')
-      //await fakeMenu.clickMenu('File', 'Save diagram as...')
+      await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       await compareFiles(dotFilename, './test/refdata/main_ref_1.dot')
     })
@@ -1382,9 +1265,7 @@ test.describe('Application launch', () => {
       const oreqmMain = './test/sample_oreqm/0007_dup-same-version.oreqm'
       const searchRegex = await window.locator('#search_regex')
       await mock(app, [ { method: 'showOpenDialogSync', value: [oreqmMain] } ])
-      //await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [oreqmMain] }])
-      await menuClick(app, 'load_main_oreqm_file')
-      //await fakeMenu.clickMenu('File', 'Load main oreqm file...')
+      await clickMenuItemById(app, 'menu_load_main_oreqm_file')
       await waitForOperation(app)
 
       await clickButton(window, '#clear_search_regex')
@@ -1424,9 +1305,7 @@ test.describe('Application launch', () => {
     test('save selection xlsx multi', async () => {
       let xlsxName = './tmp/selection_save_multi.xlsx'
       await mock(app, [ { method: 'showSaveDialogSync', value: xlsxName } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: xlsxName }])
-      await menuClick(app, 'save_diagram_selection')
-      //await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      await clickMenuItemById(app, 'menu_save_diagram_selection')
       // Select multi export
       let sheetExportMulti = await window.locator('#sheet_export_multi')
       let multi = await sheetExportMulti.isChecked()
@@ -1444,9 +1323,7 @@ test.describe('Application launch', () => {
     test('save selection xlsx single', async () => {
       let xlsxName = './tmp/selection_save_single.xlsx'
       await mock(app, [ { method: 'showSaveDialogSync', value: xlsxName } ])
-      //await fakeDialog.mock([{ method: 'showSaveDialogSync', value: xlsxName }])
-      await menuClick(app, 'save_diagram_selection')
-      //await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      await clickMenuItemById(app, 'menu_save_diagram_selection')
       // Select single export
       let sheetExportMulti = await window.locator('#sheet_export_multi')
       let multi = await sheetExportMulti.isChecked()
@@ -1464,7 +1341,6 @@ test.describe('Application launch', () => {
     test('De-select unspecific', async () => {
       const searchRegex = await window.locator('#search_regex')
       await mock(app, [ { method: 'showMessageBoxSync', value: 0 } ])
-      //await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
       await contextMenuClick(app, 'DemoSpec.Object001', '#menu_deselect')
       await waitForOperation(app)
       let search = await searchRegex.inputValue()

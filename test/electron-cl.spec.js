@@ -98,7 +98,7 @@ test.describe('command line processing', () => {
     });
     //console.log(appPath);
     */
-   
+
     // Get the first window that the app opens, wait if necessary.
     window = await app.firstWindow();
 
