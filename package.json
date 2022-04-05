@@ -122,7 +122,6 @@
       "artifactName": "${productName}-${version}.${ext}"
     },
     "appImage": {
-      "systemIntegration": "doNotAsk"
     },
     "nsis": {
       "shortcutName": "Visual ReqM2",

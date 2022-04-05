@@ -182,7 +182,7 @@ test.describe('Application launch', () => {
       args: ['lib/main.js', '-D', './tmp', '-F', 'settings.json', '--regex'] //rq: ->(rq_cl_settings_file,rq_settings_file)
     })
     window = await app.firstWindow();
-    await window.coverage.startJSCoverage();
+    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
 
     window.on('console', async (msg) => {
       const values = [];
