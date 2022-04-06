@@ -610,6 +610,8 @@ test.describe('Application launch', () => {
 
     test('show xml new', async () => {
       await contextMenuClick(app, 'cc.game.movement', '#menu_xml_txt')
+      const nodeSource = await window.locator('#nodeSource')
+      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
       expect(req_src_html.includes('<h2>XML format (new specobject)</h2>')).toBeTruthy()
@@ -618,6 +620,8 @@ test.describe('Application launch', () => {
 
     test('show xml normal', async () => {
       await contextMenuClick(app, 'cc.game.overview', '#menu_xml_txt')
+      const nodeSource = await window.locator('#nodeSource')
+      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
       expect(req_src_html.includes('<h2>XML format</h2>')).toBeTruthy()
@@ -627,6 +631,8 @@ test.describe('Application launch', () => {
 
     test('show tagged search text', async () => {
       await contextMenuClick(app, 'cc.game.characters', '#menu_search_txt')
+      const nodeSource = await window.locator('#nodeSource')
+      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
       expect(req_src_html.includes('<h2>Internal tagged \'search\' format</h2>')).toBeTruthy()

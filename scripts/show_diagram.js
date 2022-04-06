@@ -133,6 +133,7 @@ export function clearDiagram () {
 
 function showHtmlTable () {
   //rq: ->(rq_table_view)
+  actionBusy()
   let ids = selectedSpecobjects ? selectedSpecobjects : oreqmMain.getIdList()
   if (!htmlElement) {
     // Create table 1st time
@@ -151,6 +152,7 @@ function showHtmlTable () {
     }
   }
   htmlElement.style.display = 'block'
+  actionDone();
 }
 
 /**
