@@ -1863,5 +1863,5 @@ function showReadme () {
 
 // istanbul ignore next
 function showVqlHelp () {
-  open('https://github.com/mox17/visual-reqm2-electron/blob/master/doc/VQL.md')
+  open('https://github.com/mox17/visual-reqm2-electron/blob/main/doc/VQL.md')
 }

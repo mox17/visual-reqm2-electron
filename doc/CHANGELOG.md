@@ -265,7 +265,7 @@ Options:
  * Save diagram in `.dot` format is a new option.
  * Automated tests are added. run `npm install && npm test` to see them in action. A folder `./tmp/` is generated,
    which contains a variety of generated artifacts, screenshots etc.
- * Integration of **Travis CI**. Tests are run on every push to github and status is reflected in README.md.  [![Build Status](https://travis-ci.com/mox17/visual-reqm2-electron.svg?branch=master)](https://travis-ci.com/mox17/visual-reqm2-electron)
+ * Integration of **Travis CI**. Tests are run on every push to github and status is reflected in README.md.  [![Build Status](https://travis-ci.com/mox17/visual-reqm2-electron.svg?branch=main)](https://travis-ci.com/mox17/visual-reqm2-electron)
  * Requirements have been added. The file `./docs/requirements.xlsx` contain current set of requirements.
  * Requirements tracing has been added. Should you happen to have a ReqM2 installation available,
    the script `run_reqm2.sh` will generate a requirements trace in `./reqm2`. Be aware that ReqM2 appears to have
