@@ -48,13 +48,27 @@ async function compareFiles (mainFile, refFile) {
 
 async function waitVrm2Ready () {
   const vrm2_batch = window.locator('id=vrm2_batch')
-  await expect(vrm2_batch).not.toHaveText('btc', {timeout: 2000})
+  await expect(vrm2_batch).not.toHaveText('btc', {timeout: 4000})
 }
 
 async function waitVrm2Done () {
   const vrm2_batch = window.locator('id=vrm2_batch')
-  await expect(vrm2_batch).toHaveText('done', {timeout: 2000})
+  await expect(vrm2_batch).toHaveText('done', {timeout: 4000})
 }
+
+test.afterAll(async () => {
+  // console.log('afterAll')
+  // const coverage = await window.coverage.stopJSCoverage();
+  // for (const entry of coverage) {
+  //   console.dir(entry)
+  //   //let name = `.nyc_output/${v4()}.json`
+  //   //const converter = new v8toIstanbul('', 0, { source: entry.source });
+  //   //await converter.load();
+  //   //converter.applyCoverage(entry.functions);
+  //   //console.log('electron.spec', name)
+  //   //fs.writeFileSync(name, JSON.stringify(JSON.stringify(converter.toIstanbul())));
+  // }
+})
 
 test.describe('command line processing', () => {
 

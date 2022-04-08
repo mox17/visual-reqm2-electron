@@ -49,8 +49,9 @@ Split(['#oreqm_div', '#graph'], {
 })
 
 // Handlers for menu operations triggered via RPC
-ipcRenderer.on('about', (_item, _window, _key_ev) => {
+ipcRenderer.on('about', async (_item, _window, _key_ev) => {
   showAbout()
+  await saveCoverage()
 })
 
 // istanbul ignore next
@@ -190,6 +191,10 @@ ipcRenderer.on('filter_graph', () => {
   if (document.getElementById('svg_output')) {
     filterGraph()
   }
+})
+
+ipcRenderer.on('save_coverage_and_quit', async () => {
+  await saveCoverageAndQuit()
 })
 
 /**
@@ -332,6 +337,24 @@ ipcRenderer.on('file_updated', (_evt, title, path)  => {
     loadFileRefFs(path)
   }
 })
+
+async function saveCoverage() {
+  if (process.env.NODE_V8_COVERAGE) {
+    console.dir(window)
+    console.log('Saving coverage')
+    const coverage = await window.coverage.stopJSCoverage();
+    for (const entry of coverage) {
+      let name = `${process.env.NODE_V8_COVERAGE}/saved-${uuidv4()}.json`
+      console.log(`Found coverage report, writing to ${name}`);
+      fs.writeFileSync(name, JSON.stringify(entry.source));
+    }
+  }
+}
+
+async function saveCoverageAndQuit () {
+  await saveCoverage()
+  ipcRenderer.send('cmd_quit')
+}
 
 window.addEventListener('beforeunload', function () {
   return beforeUnloadMessage
@@ -1840,21 +1863,21 @@ function checkNewerReleaseAvailable () {
  */
 window.addEventListener('unload', function(_event) {
   // istanbul ignore else
-  if (window.__coverage__) {
-    let name = '.nyc_output/coverage.json'
-    //fs.writeFileSync('xyz.json', process.env.NYC_CONFIG);
-    // istanbul ignore else
-    if (process.env.NYC_CONFIG) {
-      let cfg = JSON.parse(process.env.NYC_CONFIG)
-      // istanbul ignore else
-      if (cfg.tempDir !== undefined) {
-        // Use uuid as name to allow for several runs to coexist in same coverage report
-        name = `${cfg.tempDir}/${uuidv4()}.json`
-      }
-    }
-    console.log(`Found coverage report, writing to ${name}`);
-    fs.writeFileSync(name, JSON.stringify(window.__coverage__));
-  }
+  // if (window.__coverage__) {
+  //   let name = '.nyc_output/coverage.json'
+  //   //fs.writeFileSync('xyz.json', process.env.NYC_CONFIG);
+  //   // istanbul ignore else
+  //   if (process.env.NYC_CONFIG) {
+  //     let cfg = JSON.parse(process.env.NYC_CONFIG)
+  //     // istanbul ignore else
+  //     if (cfg.tempDir !== undefined) {
+  //       // Use uuid as name to allow for several runs to coexist in same coverage report
+  //       name = `${cfg.tempDir}/${uuidv4()}.json`
+  //     }
+  //   }
+  //   console.log(`Found coverage report, writing to ${name}`);
+  //   fs.writeFileSync(name, JSON.stringify(window.__coverage__));
+  // }
 })
 
 // istanbul ignore next

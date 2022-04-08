@@ -148,7 +148,12 @@ function createWindow () {
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_sel') }
         },
         { type: 'separator' },
-        { role: 'quit' }
+        //{ role: 'quit' }
+        {
+          id: 'menu_quit',
+          label: 'quit',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_coverage_and_quit') }
+        }
       ]
     },
     {

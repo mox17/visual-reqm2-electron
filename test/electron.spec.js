@@ -8,8 +8,6 @@ const mkdirp = require('mkdirp')
 const fs = require('fs')
 const eol = require('eol')
 const crypto = require('crypto');
-const v8toIstanbul = require('v8-to-istanbul');
-const v4 = require('uuid')
 
 let window, app
 
@@ -102,11 +100,11 @@ async function compareBinary (mainFile, refFile) {
 async function getSvgNodeMap (app, domClass = 'node') {
   const idMap = new Map()
   const svgElements = await window.$$(`.${domClass}`)
-  //console.log(svgElements)
   for (const element of svgElements) {
     const id = await element.getAttribute('id')
     idMap.set(id, element)
   }
+  //console.log(idMap.keys())
   return idMap
 }
 
@@ -148,33 +146,24 @@ async function clickMenuItemById (electronApp, id) {
  * @param {Object} app The reder process
  */
 async function waitForOperation (_app) {
-  //await app.client.waitUntilTextExists('#vrm2_working', 'done')
   const vrm2_working = window.locator('id=vrm2_working')
-  await expect(vrm2_working).toHaveText('done', {timeout: 4000})
+  await expect(vrm2_working).toHaveText('done', {timeout: 10000})
 }
 
 async function waitVrm2Status (status) {
   const vrm2_working = window.locator('id=vrm2_working')
-  await expect(vrm2_working).toHaveText(status, {timeout: 4000})
+  await expect(vrm2_working).toHaveText(status, {timeout: 10000})
 }
 
 test.afterAll(async () => {
-  const coverage = await window.coverage.stopJSCoverage();
-  for (const entry of coverage) {
-    //let name = `.nyc_output/${v4()}.json`
-    const converter = new v8toIstanbul('', 0, { source: entry.source });
-    await converter.load();
-    converter.applyCoverage(entry.functions);
-    //console.log('electron.spec', name)
-    //fs.writeFileSync(name, JSON.stringify(JSON.stringify(converter.toIstanbul())));
-  }
+  //console.log('afterAll')
 })
 
 test.describe('Application launch', () => {
 
   test.describe.configure({ mode: 'serial' });
 
-  test('before', async () => {
+  test('Launch Visual ReqM2', async () => {
     mkdirp.sync('./tmp')
     removeFile('./tmp/settings.json')
     app = await electron.launch({
@@ -187,7 +176,11 @@ test.describe('Application launch', () => {
     window.on('console', async (msg) => {
       const values = [];
       for (const arg of msg.args()) {
-        values.push(await arg.jsonValue());
+        try {
+          values.push(await arg.jsonValue());
+        } catch (err) {
+          console.log("error copying log messages: ", err)
+        }
       }
       console.dir(...values);
     })
@@ -598,6 +591,7 @@ test.describe('Application launch', () => {
     })
 
     test('show xml removed', async () => {
+      await screenshot(window, 'show xml removed')
       await contextMenuClick(app, 'cc.game.character.ogre', '#menu_xml_txt')
       const nodeSource = await window.locator('#nodeSource')
       expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
@@ -646,13 +640,22 @@ test.describe('Application launch', () => {
       await screenshot(window, 'png-format') //rq: ->(rq_show_png)
     })
 
+    test('Verify cc.game.character.ogre in nodeSelect', async () => {
+      let nodeSelect = await window.locator('#nodeSelect')
+      let str = await nodeSelect.innerHTML()
+      expect(str.includes('cc.game.character.ogre')).toBeTruthy()
+    })
+
     test('show diagram as table', async () => {
       const formatSelect = await window.$('#format_select')
       await formatSelect.selectOption({value: 'html-table'})
       await waitForOperation(app)
       await screenshot(window, 'table-format')
       const htmlTable = await window.locator('#html_table')
+      await screenshot(window, 'table-format')
       const table = await htmlTable.innerHTML()
+      await screenshot(window, 'table-format')
+      expect(table.includes('spec_cc.game.character.ogre')).toBeTruthy()
       const htmlFilename = './tmp/table-1.html'
       fs.writeFileSync(htmlFilename, table)
       await compareFiles(htmlFilename, './test/refdata/table-1.html')
