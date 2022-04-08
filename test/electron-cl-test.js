@@ -200,7 +200,8 @@ describe('command line processing', function () {
       args: [path.join(__dirname, '..'),
         '--settDir', './tmp',
         '--settFile', 'cl-settings.json',
-        '--context', './testdata/thisdoesnotexist.vr2x'
+        '--context', './testdata/thisdoesnotexist.vr2x',
+        '--inclRejected'
       ],
       chromeDriverLogPath: path.join(__dirname, '..', './tmp/chromedriver-cl.log')
     })
