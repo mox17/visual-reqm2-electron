@@ -1165,6 +1165,18 @@ describe('Application launch', function () {
   })
 
   describe('Load context', function () {
+
+    it('Load diagram context w. bad oreqm refs', async function () {
+      const contextFilename = './testdata/test_context_missing_oreqm.vr2x'
+      await fakeDialog.mock([
+        { method: 'showOpenDialogSync', value: [contextFilename] },
+        { method: 'showErrorBox', value: 0 }
+      ])
+      await fakeMenu.clickMenu('File', 'Load diagram context...')
+      await waitForOperation(app)
+      // TODO: check that messagebox was shown
+    })
+
     it('Load diagram context w. id', async function () {
       const contextFilename = './testdata/bird-id-context.vr2x'
       await fakeDialog.mock([{ method: 'showOpenDialogSync', value: [contextFilename] }])
