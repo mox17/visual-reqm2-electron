@@ -1164,6 +1164,29 @@ test.describe('Application launch', () => {
   })
 
   test.describe('Load context', () => {
+
+    test('Load diagram context w. bad oreqm refs', async () => {
+      const contextFilename = './testdata/test_context_missing_oreqm.vr2x'
+      await mock(app, [
+        { method: 'showOpenDialogSync', value: [contextFilename] },
+        { method: 'showErrorBox', value: 0 }
+      ])
+      await clickMenuItemById(app, 'menu_load_diagram_context')
+      await waitForOperation(app)
+      // TODO: check that messagebox was shown
+    })
+
+    test('Load diagram context w. bad oreqm refs2', async () => {
+      const contextFilename = './testdata/test_context_missing_oreqm2.vr2x'
+      await mock(app, [
+        { method: 'showOpenDialogSync', value: [contextFilename] },
+        { method: 'showErrorBox', value: 0 }
+      ])
+      await clickMenuItemById(app, 'menu_load_diagram_context')
+      await waitForOperation(app)
+      // TODO: check that messagebox was shown
+    })
+
     test('Load diagram context w. id', async () => {
       const contextFilename = './testdata/bird-id-context.vr2x'
       await mock(app, [ { method: 'showOpenDialogSync', value: [contextFilename] } ])
