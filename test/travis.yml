@@ -38,7 +38,7 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 
-# on PRs and merges to master and prod run tests and build the app
+# on PRs and merges to main and prod run tests and build the app
 script:
   - npm test
     
@@ -46,7 +46,7 @@ before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
 
 # only run this script on pull requests and merges into 
-# the 'master' branch
+# the 'main' branch
 branches:
   only:
-  - master
+  - main
