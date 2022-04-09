@@ -92,57 +92,71 @@ function createWindow () {
       label: 'File',
       submenu: [
         {
+          id: 'menu_load_main_oreqm_file',
           label: 'Load main oreqm file...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_main_oreqm') }
         },
         {
+          id: 'menu_load_ref_oreqm',
           label: 'Load reference oreqm file...',
-          id: 'load-ref-oreqm',
           enabled: false,
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_ref_oreqm') }
         },
         { type: 'separator' },
         {
+          id: 'menu_save_color_scheme_as',
           label: 'Save color scheme as...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_colors') }
         },
         {
+          id: 'menu_load_color_scheme',
           label: 'Load color scheme...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_colors') }
         },
         { type: 'separator' },
         {
+          id: 'menu_load_coverage_rules',
           label: 'Load coverage rules...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_safety') }
         },
         { type: 'separator' },
         {
+          id: 'menu_save_issues_as',
           label: 'Save issues as...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_issues_as') }
         },
         {
+          id: 'menu_save_diagram_as',
           label: 'Save diagram as...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_as') }
         },
         { type: 'separator' },
         {
+          id: 'menu_save_diagram_context',
           label: 'Save diagram context...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_ctx') }
         },
         {
+          id: 'menu_load_diagram_context',
           label: 'Load diagram context...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('load_diagram_ctx') }
         },
         { type: 'separator' },
         {
+          id: 'menu_save_diagram_selection',
           label: 'Save diagram selection...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_sel') }
         },
         { type: 'separator' },
-        { role: 'quit' }
+        {
+          id: 'menu_quit',
+          label: 'quit',
+          role: 'quit'
+        }
       ]
     },
     {
+      id: 'menu_edit',
       label: 'Edit',
       submenu: [
         { role: 'undo' },
@@ -163,6 +177,7 @@ function createWindow () {
       label: 'View',
       submenu: [
         {
+          id: 'menu_show_issues',
           label: 'Show issues',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('show_issues') }
         },
@@ -198,6 +213,7 @@ function createWindow () {
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('vql_help') }
         },
         {
+          id: 'menu_help_about',
           label: 'About',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('about') }
         }
@@ -395,7 +411,7 @@ ipcMain.on('cmd_show_error', (_evt, title, msg) => {
 })
 
 ipcMain.on('menu_load_ref', (_evt, enable) => {
-  Menu.getApplicationMenu().getMenuItemById('load-ref-oreqm').enabled = enable
+  Menu.getApplicationMenu().getMenuItemById('menu_load_ref_oreqm').enabled = enable
 })
 
 /**

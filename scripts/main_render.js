@@ -237,6 +237,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   // console.dir(args)
   setLimitReporter(reportLimitAsToast)
   handleSettings(settingsUpdated, args).then( async () => {
+    document.getElementById('vrm2_batch').innerHTML = 'init'
     setSearchLanguageButtons(programSettings.search_language)
 
     document.getElementById('prog_version').innerHTML = await ipcRenderer.invoke('app.getVersion')
@@ -467,14 +468,14 @@ function calcAbsPath (filename) {
  * Create json object which specifies absolute and relative paths
  * to input oreqm files as well as the applied parameters.
  *
- * @param {string} contextFilePath file path to store json context
+ * @param {string} ctxPath file path to store json context
  */
-function saveDiagramContext (contextFilePath) {
+function saveDiagramContext (ctxPath) {
   // istanbul ignore else
   if (oreqmMain) {
     let absPathMain = calcAbsPath(oreqmMain.filename)
     // Make context file relative paths portable between Linux and Windows
-    let relPath = path.relative(path.dirname(contextFilePath), absPathMain).replaceAll('\\', '/')
+    let relPath = path.relative(path.dirname(ctxPath), absPathMain).replaceAll('\\', '/')
     // istanbul ignore next
     if (relPath[0] !== '.') {
       relPath = './' + relPath
@@ -483,7 +484,7 @@ function saveDiagramContext (contextFilePath) {
     let relPathRef = ""
     if (oreqmRef) {
       absPathRef = calcAbsPath(oreqmRef.filename)
-      relPathRef = path.relative(path.dirname(contextFilePath), absPathRef).replaceAll('\\', '/')
+      relPathRef = path.relative(path.dirname(ctxPath), absPathRef).replaceAll('\\', '/')
       // istanbul ignore next
       if (relPathRef[0] !== '.') {
         relPathRef = './' + relPathRef
@@ -511,7 +512,7 @@ function saveDiagramContext (contextFilePath) {
     }
     let jsonCtx = JSON.stringify(diagCtx, null, 2)
     //console.log(jsonCtx)
-    fs.writeFileSync(contextFilePath, jsonCtx, 'utf8')
+    fs.writeFileSync(ctxPath, jsonCtx, 'utf8')
   }
 }
 
@@ -524,20 +525,20 @@ function saveDiagramContext (contextFilePath) {
  * 4) Update selection data
  * 5) load file(s)
  *
- * @param {string} contextFilePath
+ * @param {string} ctxPath
  */
-function loadDiagramContext (contextFilePath) {
+function loadDiagramContext (ctxPath) {
   // suppress display updates while loading context
   let saveAuto = autoUpdate
   setAutoUpdate(false)
-  let diagCtx = JSON.parse(fs.readFileSync(contextFilePath, { encoding: 'utf8', flag: 'r' }))
-  let contextFileDirectory = path.dirname(contextFilePath)
-  let mainFilePath = path.join(contextFileDirectory, diagCtx.main_oreqm_rel).replaceAll('\\', '/')
-  let refFilePath = null
+  let diagCtx = JSON.parse(fs.readFileSync(ctxPath, { encoding: 'utf8', flag: 'r' }))
+  let ctxDir = path.dirname(ctxPath)
+  let mainRelPath = path.join(ctxDir, diagCtx.main_oreqm_rel).replaceAll('\\', '/')
+  let refRelPath = null
 
-  let mainContextFileExists = fs.existsSync(mainFilePath)
-  let referenceFileDefined = diagCtx.ref_oreqm_rel !== ""
-  let refContextFileExists = false
+  let mainRel = fs.existsSync(mainRelPath)
+  let loadRef = diagCtx.ref_oreqm_rel !== ""
+  let refRel = false
   // Set up async handler for context load
   vr2xHandler = vr2xHandlerFunc
   // Set up a handler to restore parameters when load of oreqm file(s) complete
@@ -545,31 +546,31 @@ function loadDiagramContext (contextFilePath) {
     diagCtx: diagCtx,
     auto_update: saveAuto
   }
-  if (!path.isAbsolute(mainFilePath) && mainFilePath[0] !== '.') {
-    // Make sure relative paths start with ./
-    mainFilePath = './' + mainFilePath
+  if (!path.isAbsolute(mainRelPath) && mainRelPath[0] !== '.') {
+    mainRelPath = './' + mainRelPath
   }
-  if (referenceFileDefined) {
-    refFilePath = path.join(contextFileDirectory, diagCtx.ref_oreqm_rel).replaceAll('\\', '/')
-    refContextFileExists = fs.existsSync(refFilePath)
-    if (refContextFileExists && !path.isAbsolute(refFilePath) && refFilePath[0] !== '.') {
-      // Make sure relative paths start with ./
-      refFilePath = './' + refFilePath
+  if (loadRef) {
+    refRelPath = path.join(ctxDir, diagCtx.ref_oreqm_rel).replaceAll('\\', '/')
+    refRel = fs.existsSync(refRelPath)
+    if (refRel && !path.isAbsolute(refRelPath) && refRelPath[0] !== '.') {
+      refRelPath = './' + refRelPath
     }
   }
-  if (mainContextFileExists && referenceFileDefined && refContextFileExists) {
+  if (mainRel && loadRef && refRel) {
     // both relative paths OK
-    loadFileMainFs(mainFilePath, refFilePath)
-  } else if (mainContextFileExists && !referenceFileDefined) {
+    loadFileMainFs(mainRelPath, refRelPath)
+  } else if (mainRel && !loadRef) {
     // main rel only
-    loadFileMainFs(mainFilePath, null)
+    loadFileMainFs(mainRelPath, null)
   } else {
     setAutoUpdate(saveAuto)
     // display error message
     let msg = "Could not open:\n"
-    msg += mainContextFileExists ? "" : mainFilePath + '\n'
-    if (referenceFileDefined) {
-      msg += refContextFileExists ? "" : refFilePath + '\n'
+    if (loadRef) {
+      msg += mainRel ? "" : mainRelPath + '\n'
+      msg += refRel ? "" : refRelPath + '\n'
+    } else {
+      msg += mainRelPath + '\n'
     }
     msg = msg.replace(/([^\n]{35,400}?(\/|\\))/g, '$1\n  ')
     ipcRenderer.send('cmd_show_error', "ReqM2 Context file", msg)
