@@ -99,6 +99,7 @@ async function compareBinary (mainFile, refFile) {
  */
 async function getSvgNodeMap (app, domClass = 'node') {
   const idMap = new Map()
+  expect((await window.$$(`.${domClass}`)).length > 0).toBeTruthy()
   const svgElements = await window.$$(`.${domClass}`)
   for (const element of svgElements) {
     const id = await element.getAttribute('id')
@@ -643,13 +644,16 @@ test.describe('Application launch', () => {
     })
 
     test('show diagram as table', async () => {
-      const formatSelect = await window.$('#format_select')
-      await formatSelect.selectOption({value: 'html-table'})
-      await waitForOperation(app)
-      await screenshot(window, 'table-format')
       const htmlTable = await window.locator('#html_table')
       await screenshot(window, 'table-format')
+      const formatSelect = await window.$('#format_select')
+      await screenshot(window, 'table-format')
+      await formatSelect.selectOption({value: 'html-table'})
+      await screenshot(window, 'table-format')
+      await waitForOperation(app)
+      await screenshot(window, 'table-format')
       await expect((await htmlTable.innerHTML()).includes('spec_cc.game.character.ogre')).toBeTruthy()
+      await screenshot(window, 'table-format')
       const table = await htmlTable.innerHTML()
       const htmlFilename = './tmp/table-1.html'
       fs.writeFileSync(htmlFilename, table)

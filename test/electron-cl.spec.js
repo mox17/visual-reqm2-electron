@@ -79,10 +79,11 @@ test.afterEach(async ({page}, testInfo) => {
   //   console.dir(entry.functions)
   //   fs.writeFileSync(name, JSON.stringify(entry.functions));
   // }
-  await page.close()
 })
 
 test.describe('command line processing', () => {
+
+  test.describe.configure({ mode: 'serial' });
 
   test.beforeAll(async () => {
     mkdirp.sync('./tmp')
@@ -139,6 +140,7 @@ test.describe('command line processing', () => {
     await expect(await window.locator('id=name').innerHTML()).toBe('')
     // Check empty ref file (file not found)
     await expect(await window.locator('#ref_name').innerHTML()).toBe('')
+    await app.close({runBeforeUnload: true})
   })
 
   test('launch the application', async () => {
@@ -176,6 +178,7 @@ test.describe('command line processing', () => {
     await compareFiles('./tmp/cl-test-doctypes.svg', './test/refdata/cl-test-doctypes.svg')
     // test('Check safetyclass diagram', async () => {
     await compareFiles('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
+    await app.close({runBeforeUnload: true})
   })
 
   test('Open vr2x file from cmd line', async () => {
@@ -198,6 +201,7 @@ test.describe('command line processing', () => {
     await expect((await window.locator('id=name').innerHTML()).includes('oreqm_testdata_no_ogre')).toBe(true)
     // Check ref file
     await expect((await window.locator('id=ref_name').innerHTML()).includes('oreqm_testdata_del_movement')).toBe(true)
+    await app.close({runBeforeUnload: true})
   })
 
   test('Open non-existing vr2x file from cmd line', async () => {
@@ -217,6 +221,7 @@ test.describe('command line processing', () => {
     await expect(await window.locator('id=name').innerHTML()).toBe('')
     // Check ref file
     await expect(await window.locator('id=ref_name').innerHTML()).toBe('')
+    await app.close({runBeforeUnload: true})
   })
 
   test('Select vql from cmd line', async () => {
@@ -235,6 +240,7 @@ test.describe('command line processing', () => {
     await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     await expect(window.locator('#vql_radio_input')).toBeChecked()
+    await app.close({runBeforeUnload: true})
   })
 
   test('Select idOnly from cmd line', async () => {
@@ -252,6 +258,7 @@ test.describe('command line processing', () => {
     await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     await expect(window.locator('#id_radio_input')).toBeChecked()
+    await app.close({runBeforeUnload: true})
   })
 
 })
