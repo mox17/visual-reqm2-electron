@@ -31,7 +31,7 @@
 * `-q` `--vql` command line option for VQL search. Mutually exclusive with `-i` `--idOnly` and `-x` `--regex` options.
 * `-x` `--regex` command line option for Regex search. Mutually exclusive with `-i` `--idOnly` and `-q` `--vql` options.
 * Radio-button choice to select between search 'languages'. Options are `<id>`, `regex` and `VQL`.
-* In the doctype table, the 'select' column now also show counts for **excluded** doctypes. 
+* In the doctype table, the 'select' column now also show counts for **excluded** doctypes.
   The 'shown' count is of course still zero. This indicates if a query finds specobjects, even if nothing is
   displayed because of excluded doctypes.
 * Added links to README.md and VQL.md in 'help' menu. These are github hosted documents.
