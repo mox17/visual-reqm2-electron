@@ -10,6 +10,8 @@
 * remove usage of deprecated internal module `remote`.
   * This is necessary to upgrade to newer version of electron.
   * refactor code to use other ipc mechanisms
+* Add double-click selection of fields for xlsx export
+* Cosmetic changes to modal dialogs (settings and selection of exported fields)
 
 ## 2.6.0
 * Use SheetJS to export selected specobjects as xlsx files
