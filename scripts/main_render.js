@@ -340,7 +340,7 @@ ipcRenderer.on('file_updated', (_evt, title, path)  => {
 
 async function saveCoverage() {
   if (process.env.NODE_V8_COVERAGE) {
-    console.dir(window)
+    //console.dir(window)
     console.log('Saving coverage')
     const coverage = await window.coverage.stopJSCoverage();
     for (const entry of coverage) {

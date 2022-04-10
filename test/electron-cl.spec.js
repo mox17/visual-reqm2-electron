@@ -2,10 +2,10 @@
 const { _electron: electron } = require('playwright');
 const { test, expect } = require('@playwright/test');
 const electronPath = require('electron')
-//const path = require('path')
 const mkdirp = require('mkdirp')
 const fs = require('fs')
 const eol = require('eol')
+const v4 = require('uuid')
 
 let window, app
 
@@ -42,18 +42,18 @@ async function compareFiles (mainFile, refFile) {
   holdBeforeFileExists(mainFile, 10000)
   const mainTxt = eol.auto(fs.readFileSync(mainFile, 'utf8'))
   const refTxt = eol.auto(fs.readFileSync(refFile, 'utf8'))
-  expect(mainTxt).toBe(refTxt)
+  await expect(mainTxt).toBe(refTxt)
   return mainTxt
 }
 
 async function waitVrm2Ready () {
   const vrm2_batch = window.locator('id=vrm2_batch')
-  await expect(vrm2_batch).not.toHaveText('btc', {timeout: 4000})
+  await expect(vrm2_batch).not.toHaveText('btc', {timeout: 8000})
 }
 
 async function waitVrm2Done () {
   const vrm2_batch = window.locator('id=vrm2_batch')
-  await expect(vrm2_batch).toHaveText('done', {timeout: 4000})
+  await expect(vrm2_batch).toHaveText('done', {timeout: 8000})
 }
 
 test.afterAll(async () => {
@@ -68,6 +68,18 @@ test.afterAll(async () => {
   //   //console.log('electron.spec', name)
   //   //fs.writeFileSync(name, JSON.stringify(JSON.stringify(converter.toIstanbul())));
   // }
+})
+
+test.afterEach(async ({page}, testInfo) => {
+  // console.log(`closing ${testInfo.title}`)
+  // const coverage = await window.coverage.stopJSCoverage();
+  // for (const entry of coverage) {
+  //   let name = `.nyc_output/cl-${v4()}.json`
+  //   console.log('electron.spec', name)
+  //   console.dir(entry.functions)
+  //   fs.writeFileSync(name, JSON.stringify(entry.functions));
+  // }
+  await page.close()
 })
 
 test.describe('command line processing', () => {
@@ -115,18 +127,18 @@ test.describe('command line processing', () => {
 
     // Get the first window that the app opens, wait if necessary.
     window = await app.firstWindow();
+    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
 
     // Check cmd line parameters have been read
     await waitVrm2Ready()
     let exclids = await window.locator('id=excluded_ids').inputValue()
-    expect(exclids.includes('some_id')).toBeTruthy()
-    expect(exclids.includes('some_other_id')).toBeTruthy()
+    await expect(exclids.includes('some_id')).toBeTruthy()
+    await expect(exclids.includes('some_other_id')).toBeTruthy()
 
     // Check empty main file (file not found)
-    expect(await window.locator('id=name').innerHTML()).toBe('')
+    await expect(await window.locator('id=name').innerHTML()).toBe('')
     // Check empty ref file (file not found)
-    expect(await window.locator('#ref_name').innerHTML()).toBe('')
-    await app.close()
+    await expect(await window.locator('#ref_name').innerHTML()).toBe('')
   })
 
   test('launch the application', async () => {
@@ -150,25 +162,19 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
+    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Ready()
     // Check main file
-    expect((await window.locator('id=name').innerHTML()).includes('./testdata/oreqm_testdata_del_movement.oreqm')).toBe(true)
+    await expect((await window.locator('id=name').innerHTML()).includes('./testdata/oreqm_testdata_del_movement.oreqm')).toBe(true)
     // Check ref file
-    expect((await window.locator('#ref_name').innerHTML())).toBe('./testdata/oreqm_testdata_no_ogre.oreqm')
+    await expect((await window.locator('#ref_name').innerHTML())).toBe('./testdata/oreqm_testdata_no_ogre.oreqm')
     // Wait for operations from command line to complete
     await waitVrm2Done()
-    await app.close()
-  })
-
-  test('Check specobject diagram', async () => {
+    //test('Check specobject diagram', async () => {
     await compareFiles('./tmp/cl-test-diagram.svg', './test/refdata/cl-test-diagram.svg') //rq: ->(rq_automatic_diagram)
-  })
-
-  test('Check hierarchy diagram', async () => {
+    //test('Check hierarchy diagram', async () => {
     await compareFiles('./tmp/cl-test-doctypes.svg', './test/refdata/cl-test-doctypes.svg')
-  })
-
-  test('Check safetyclass diagram', async () => {
+    // test('Check safetyclass diagram', async () => {
     await compareFiles('./tmp/cl-test-safety.svg', './test/refdata/cl-test-safety.svg')
   })
 
@@ -186,12 +192,12 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
+    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     // Check main file
-    expect((await window.locator('id=name').innerHTML()).includes('oreqm_testdata_no_ogre')).toBe(true)
+    await expect((await window.locator('id=name').innerHTML()).includes('oreqm_testdata_no_ogre')).toBe(true)
     // Check ref file
-    expect((await window.locator('id=ref_name').innerHTML()).includes('oreqm_testdata_del_movement')).toBe(true)
-    await app.close()
+    await expect((await window.locator('id=ref_name').innerHTML()).includes('oreqm_testdata_del_movement')).toBe(true)
   })
 
   test('Open non-existing vr2x file from cmd line', async () => {
@@ -205,12 +211,12 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
+    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     // Check main file
-    expect(await window.locator('id=name').innerHTML()).toBe('')
+    await expect(await window.locator('id=name').innerHTML()).toBe('')
     // Check ref file
-    expect(await window.locator('id=ref_name').innerHTML()).toBe('')
-    await app.close()
+    await expect(await window.locator('id=ref_name').innerHTML()).toBe('')
   })
 
   test('Select vql from cmd line', async () => {
@@ -226,9 +232,9 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
+    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     await expect(window.locator('#vql_radio_input')).toBeChecked()
-    await app.close()
   })
 
   test('Select idOnly from cmd line', async () => {
@@ -243,9 +249,9 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
+    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     await expect(window.locator('#id_radio_input')).toBeChecked()
-    await app.close()
   })
 
 })

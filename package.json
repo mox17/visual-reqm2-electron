@@ -43,7 +43,8 @@
     "playwright": "^1.20.1",
     "playwright-fake-dialog": "^0.2.0",
     "shx": "^0.3.3",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "v8-to-istanbul": "^8.1.1"
   },
   "dependencies": {
     "blob-util": "^2.0.2",
@@ -67,8 +68,12 @@
   },
   "c8": {
     "all": true,
-    "src": ["./lib"],
-    "reporter": ["html"]
+    "src": [
+      "./lib"
+    ],
+    "reporter": [
+      "html"
+    ]
   },
   "build": {
     "appId": "com.mox17.visualreqm2",

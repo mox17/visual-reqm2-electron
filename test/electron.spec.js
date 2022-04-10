@@ -78,14 +78,14 @@ async function compareFiles (mainFile, refFile) {
   await holdBeforeFileExists(mainFile, 10000)
   const mainTxt = eol.auto(fs.readFileSync(mainFile, 'utf8'))
   const refTxt = eol.auto(fs.readFileSync(refFile, 'utf8'))
-  expect(mainTxt).toBe(refTxt)
+  await expect(mainTxt).toBe(refTxt)
   return mainTxt
 }
 
 async function compareBinary (mainFile, refFile) {
   var mainHash = crypto.createHash('sha1').update(fs.readFileSync(mainFile)).digest('hex');
   var refHash = crypto.createHash('sha1').update(fs.readFileSync(refFile)).digest('hex');
-  expect(mainHash).toBe(refHash)
+  await expect(mainHash).toBe(refHash)
 }
 
 /**
@@ -197,7 +197,7 @@ test.describe('Application launch', () => {
 
   test('launches the application', async () => {
     const title = await window.title()
-    expect(title).toBe('Visual ReqM2')
+    await expect(title).toBe('Visual ReqM2')
   })
 
   test.describe('Click about button', () => {
@@ -237,14 +237,14 @@ test.describe('Application launch', () => {
         // console.dir(checkbox)
         let slicedField = String(checkbox).slice(21)
         //console.log(slicedField)
-        expect(fields.includes(slicedField)).toBe(true) //rq: ->(rq_tag_ignore_diff)
+        await expect(fields.includes(slicedField)).toBe(true) //rq: ->(rq_tag_ignore_diff)
       }
     })
 
     test('close settings with OK', async () => {
       await clickButton(window, '#sett_ok')
       let style = await window.locator('#settingsPopup').getAttribute('style')
-      expect(style.includes('none')).toBeTruthy()
+      await expect(style.includes('none')).toBeTruthy()
     })
 
     test('Reopen settings', async () => {
@@ -252,7 +252,7 @@ test.describe('Application launch', () => {
       await clickMenuItemById(app, 'menu_settings')
       const style = String(await settingsMenu.getAttribute('style'))
       //console.dir(style)
-      expect(style.includes('block')).toBeTruthy()
+      await expect(style.includes('block')).toBeTruthy()
     })
 
     test('Safety rules validation', async () => {
@@ -263,7 +263,7 @@ test.describe('Application launch', () => {
       await safetyRules.fill('Not a [ valid( regex')
       await clickButton(window, '#sett_ok')
       let style = String(await settingsMenu.getAttribute('style'))
-      expect(style.includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      await expect(style.includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
     })
 
@@ -275,7 +275,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check1)
       await clickButton(window, '#sett_ok')
-      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      await expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -283,7 +283,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check2)
       await clickButton(window, '#sett_ok')
-      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      await expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -291,7 +291,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check3)
       await clickButton(window, '#sett_ok')
-      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      await expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -299,7 +299,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check4)
       await clickButton(window, '#sett_ok')
-      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      await expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
 
@@ -307,7 +307,7 @@ test.describe('Application launch', () => {
 
       await safetyRules.fill(check5)
       await clickButton(window, '#sett_ok')
-      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
+      await expect((await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_safety_rules_config)
       //assert.ok(style.includes('display: block;')) //rq: ->(rq_safety_rules_config)
       await screenshot(window, 'bad_settings')
     })
@@ -315,7 +315,7 @@ test.describe('Application launch', () => {
     test('cancel settings', async () => {
       const settingsMenu = await window.locator('#settingsPopup')
       await clickButton(window, '#sett_cancel')
-      expect((await settingsMenu.getAttribute('style')).includes('block')).toBeFalsy()
+      await expect((await settingsMenu.getAttribute('style')).includes('block')).toBeFalsy()
       //assert.ok(!style.includes('block;'))
     })
   })
@@ -325,14 +325,14 @@ test.describe('Application launch', () => {
       await window.waitForLoadState('domcontentloaded');
       await clickMenuItemById(app, 'menu_show_issues')
       const issuesModal = await window.locator('#problemPopup')
-      expect((await issuesModal.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_issues_log)
+      await expect((await issuesModal.getAttribute('style')).includes('block')).toBeTruthy() //rq: ->(rq_issues_log)
       //assert.ok(style.includes('block')) //rq: ->(rq_issues_log)
     })
 
     test('close issues modal', async () => {
       await clickButton(window, '#problemPopupClose')
       const issuesModal = await window.locator('#problemPopup')
-      expect((await issuesModal.getAttribute('style')).includes('block')).toBeFalsy()
+      await expect((await issuesModal.getAttribute('style')).includes('block')).toBeFalsy()
       //assert.ok(!style.includes('block'))
     })
   })
@@ -359,9 +359,6 @@ test.describe('Application launch', () => {
     })
 
     test('easter egg diagram', async () => {
-      // const formatSelect = await window.locator('#format_select')
-      // await formatSelect.selectByAttribute('value', 'dot-source')
-      // await formatSelect.selectByAttribute('value', 'svg')
       const dropdown = await window.$('#format_select')
       await dropdown.selectOption({value: 'dot-source'})
       await dropdown.selectOption({value: 'svg'})
@@ -377,7 +374,6 @@ test.describe('Application launch', () => {
 
   test.describe('Load files', () => {
     test('main oreqm', async () => {
-      //await app.client.waitUntilWindowLoaded()
       await mock(app, [ { method: 'showOpenDialogSync', value: ['./testdata/oreqm_testdata_no_ogre.oreqm'] } ]) //rq: ->(rq_filesel_main_oreqm)
       await clickButton(window, '#get_main_oreqm_file')
 
@@ -386,30 +382,30 @@ test.describe('Application launch', () => {
       await clickButton(window, '#auto_update')
       await waitForOperation(app)
       const panZoom = await window.locator('.svg-pan-zoom_viewport #graph0')
-      expect(panZoom !== undefined).toBeTruthy() //rq: ->(rq_svg_pan_zoom)
+      await expect(panZoom !== undefined).toBeTruthy() //rq: ->(rq_svg_pan_zoom)
 
       await contextMenuClick(app, 'cc.game.overview', '#menu_copy_id')
       //console.log('clipboard', await readClipboardText())
-      expect(await readClipboardText()).toBe('cc.game.overview') //rq: ->(rq_ctx_copy_id,rq_svg_context_menu,rq_show_svg,rq_filesel_main_oreqm)
+      await expect(await readClipboardText()).toBe('cc.game.overview') //rq: ->(rq_ctx_copy_id,rq_svg_context_menu,rq_show_svg,rq_filesel_main_oreqm)
 
       await contextMenuClick(app, 'cc.game.overview', '#menu_copy_ffb')
-      expect(await readClipboardText()).toBe('cc.game.overview:fea:1') //rq: ->(rq_ctx_copy_id_dt_ver)
+      await expect(await readClipboardText()).toBe('cc.game.overview:fea:1') //rq: ->(rq_ctx_copy_id_dt_ver)
 
       await contextMenuClick(app, 'cc.game.overview', '#menu_copy_png')
       await waitForOperation(app)
       //sleep(3000)
       const png = await readClipboardImage()
       //console.dir(png)
-      expect(Object.keys(png).includes('toPNG')).toBeTruthy() //rq: ->(rq_ctx_copy_png)
+      await expect(Object.keys(png).includes('toPNG')).toBeTruthy() //rq: ->(rq_ctx_copy_png)
       await screenshot(window, 'qwerty')
       const doctypeShownTotals = await window.locator('#doctype_shown_totals')
-      expect(await doctypeShownTotals.innerHTML()).toBe('26') //rq: ->(rq_dt_shown_stat)
+      await expect(await doctypeShownTotals.innerHTML()).toBe('26') //rq: ->(rq_dt_shown_stat)
 
       const doctypeSelectTotals = await window.locator('#doctype_select_totals')
-      expect(await doctypeSelectTotals.innerHTML()).toBe('0') //rq: ->(rq_dt_sel_stat)
+      await expect(await doctypeSelectTotals.innerHTML()).toBe('0') //rq: ->(rq_dt_sel_stat)
 
       const doctypeTotals = await window.locator('#doctype_totals')
-      expect(await doctypeTotals.innerHTML()).toBe('26') //rq: ->(rq_totals_stat)
+      await expect(await doctypeTotals.innerHTML()).toBe('26') //rq: ->(rq_totals_stat)
     })
 
     test('Cancel context menu', async () => {
@@ -444,7 +440,7 @@ test.describe('Application launch', () => {
       await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       const mainTxt = await compareFiles(dotFilename, './test/refdata/main_1.dot') //rq: ->(rq_edge_pcov_ffb)
-      expect(mainTxt.includes('BGCOLOR="#')).toBeTruthy() //rq: ->(rq_doctype_color)
+      await expect(mainTxt.includes('BGCOLOR="#')).toBeTruthy() //rq: ->(rq_doctype_color)
     })
 
     test('select node', async () => {
@@ -459,13 +455,13 @@ test.describe('Application launch', () => {
       await waitForOperation(app)
       const val2 = await searchRegex.inputValue()
       // console.log(val1, val2)
-      expect(val1).toBe(val2)
+      await expect(val1).toBe(val2)
       await screenshot(window, 'select_game_locations')
       await mock(app, [{ method: 'showSaveDialogSync', value: dotFilename }])
       await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
       const txt = await compareFiles(dotFilename, './test/refdata/main_select_1.dot') //rq: ->(rq_calc_shown_graph)
-      expect(txt.includes('subgraph "cluster_cc.game.locations"')).toBeTruthy() //rq: ->(rq_highlight_sel)
+      await expect(txt.includes('subgraph "cluster_cc.game.locations"')).toBeTruthy() //rq: ->(rq_highlight_sel)
     })
 
     test('exclude node', async () => {
@@ -499,7 +495,7 @@ test.describe('Application launch', () => {
       await contextMenuClick(app, 'cc.game.location.witt', '#menu_select')
       await waitForOperation(app)
       const searchRegex = await window.locator('#search_regex')
-      expect(await searchRegex.inputValue()).toBe('cc.game.locations$\n|cc.game.location.witt$')
+      await expect(await searchRegex.inputValue()).toBe('cc.game.locations$\n|cc.game.location.witt$')
     })
 
     test('ref oreqm', async () => {
@@ -556,7 +552,7 @@ test.describe('Application launch', () => {
       await mock(app, [ { method: 'showSaveDialogSync', value: pngFilename } ])
       await clickMenuItemById(app, 'menu_save_diagram_as')
       await waitForOperation(app)
-      expect(fs.existsSync(pngFilename)).toBeTruthy() //rq: ->(rq_save_png_file)
+      await expect(fs.existsSync(pngFilename)).toBeTruthy() //rq: ->(rq_save_png_file)
     })
 
     test('save diagram context', async () => {
@@ -565,7 +561,7 @@ test.describe('Application launch', () => {
       await mock(app, [ { method: 'showSaveDialogSync', value: contextFilename } ])
       await clickMenuItemById(app, 'menu_save_diagram_context')
       await waitForOperation(app)
-      expect(fs.existsSync(contextFilename)).toBeTruthy()
+      await expect(fs.existsSync(contextFilename)).toBeTruthy()
       await compareFiles(contextFilename, './test/refdata/main_ref_1.vr2x')
     })
 
@@ -582,10 +578,10 @@ test.describe('Application launch', () => {
       //rq: ->(rq_ctx_show_xml)
       await contextMenuClick(app, 'cc.game.characters', '#menu_xml_txt')
       const nodeSource = await window.locator('#nodeSource')
-      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
+      await expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
-      expect(req_src_html.includes('<h2>XML format (changed specobject)</h2>')).toBeTruthy()
+      await expect(req_src_html.includes('<h2>XML format (changed specobject)</h2>')).toBeTruthy()
       await clickButton(window, '#nodeSourceClose') //rq: ->(rq_ctx_show_diff)
       await waitForOperation(app)
     })
@@ -594,10 +590,10 @@ test.describe('Application launch', () => {
       await screenshot(window, 'show xml removed')
       await contextMenuClick(app, 'cc.game.character.ogre', '#menu_xml_txt')
       const nodeSource = await window.locator('#nodeSource')
-      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
+      await expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
-      expect(req_src_html.includes('<h2>XML format (removed specobject)</h2>')).toBeTruthy()
+      await expect(req_src_html.includes('<h2>XML format (removed specobject)</h2>')).toBeTruthy()
       await clickButton(window, '#nodeSourceClose')
       await waitForOperation(app)
     })
@@ -605,20 +601,20 @@ test.describe('Application launch', () => {
     test('show xml new', async () => {
       await contextMenuClick(app, 'cc.game.movement', '#menu_xml_txt')
       const nodeSource = await window.locator('#nodeSource')
-      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
+      await expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
-      expect(req_src_html.includes('<h2>XML format (new specobject)</h2>')).toBeTruthy()
+      await expect(req_src_html.includes('<h2>XML format (new specobject)</h2>')).toBeTruthy()
       await clickButton(window, '#nodeSourceClose')
     })
 
     test('show xml normal', async () => {
       await contextMenuClick(app, 'cc.game.overview', '#menu_xml_txt')
       const nodeSource = await window.locator('#nodeSource')
-      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
+      await expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
-      expect(req_src_html.includes('<h2>XML format</h2>')).toBeTruthy()
+      await expect(req_src_html.includes('<h2>XML format</h2>')).toBeTruthy()
       await clickButton(window, '#nodeSourceClose')
       await waitForOperation(app)
     })
@@ -626,10 +622,10 @@ test.describe('Application launch', () => {
     test('show tagged search text', async () => {
       await contextMenuClick(app, 'cc.game.characters', '#menu_search_txt')
       const nodeSource = await window.locator('#nodeSource')
-      expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
+      await expect(String(await nodeSource.getAttribute('style')).includes('block')).toBeTruthy()
       let req_src = await window.locator('#req_src')
       let req_src_html = await req_src.innerHTML()
-      expect(req_src_html.includes('<h2>Internal tagged \'search\' format</h2>')).toBeTruthy()
+      await expect(req_src_html.includes('<h2>Internal tagged \'search\' format</h2>')).toBeTruthy()
       await clickButton(window, '#nodeSourceClose')
     })
 
@@ -643,7 +639,7 @@ test.describe('Application launch', () => {
     test('Verify cc.game.character.ogre in nodeSelect', async () => {
       let nodeSelect = await window.locator('#nodeSelect')
       let str = await nodeSelect.innerHTML()
-      expect(str.includes('cc.game.character.ogre')).toBeTruthy()
+      await expect(str.includes('cc.game.character.ogre')).toBeTruthy()
     })
 
     test('show diagram as table', async () => {
@@ -653,9 +649,8 @@ test.describe('Application launch', () => {
       await screenshot(window, 'table-format')
       const htmlTable = await window.locator('#html_table')
       await screenshot(window, 'table-format')
+      await expect((await htmlTable.innerHTML()).includes('spec_cc.game.character.ogre')).toBeTruthy()
       const table = await htmlTable.innerHTML()
-      await screenshot(window, 'table-format')
-      expect(table.includes('spec_cc.game.character.ogre')).toBeTruthy()
       const htmlFilename = './tmp/table-1.html'
       fs.writeFileSync(htmlFilename, table)
       await compareFiles(htmlFilename, './test/refdata/table-1.html')
@@ -755,14 +750,14 @@ test.describe('Application launch', () => {
     test('Open about from menu', async () => {
       const aboutpane = await window.locator('#aboutPane')
       await clickMenuItemById(app, 'menu_help_about')
-      expect(String(await aboutpane.getAttribute('style')).includes('block')).toBeTruthy()
+      await expect(String(await aboutpane.getAttribute('style')).includes('block')).toBeTruthy()
       await waitForOperation(app)
     })
 
     test('close about once more', async () => {
       const aboutpane = await window.locator('#aboutPane')
       await clickButton(window, '#aboutPaneClose')
-      expect(String(await aboutpane.getAttribute('style')).includes('block')).toBeFalsy()
+      await expect(String(await aboutpane.getAttribute('style')).includes('block')).toBeFalsy()
       await waitForOperation(app)
     })
 
@@ -850,15 +845,15 @@ test.describe('Application launch', () => {
       await clickButton(window, '#copy_selected')
       let selected = await readClipboardText()
       //rq: ->(rq_selected_clipboard)
-      expect(selected.includes('cc.game.location.maze.9\n')).toBeTruthy()
-      expect(selected.includes('cc.game.location.maze\n')).toBeTruthy()
+      await expect(selected.includes('cc.game.location.maze.9\n')).toBeTruthy()
+      await expect(selected.includes('cc.game.location.maze\n')).toBeTruthy()
       let excludeIds = await window.locator('#excluded_ids')
       await excludeIds.fill('cc.game.location.maze.9')
       await clickButton(window, '#filter_graph')
       await waitForOperation(app)
       await clickButton(window, '#copy_selected')
       selected = await readClipboardText()
-      expect(!selected.includes('cc.game.location.maze.9\n')).toBeTruthy()
+      await expect(!selected.includes('cc.game.location.maze.9\n')).toBeTruthy()
       await clickButton(window, '#clear_excluded_ids')
     })
 
@@ -914,7 +909,7 @@ test.describe('Application launch', () => {
       await mock(app, [ { method: 'showSaveDialogSync', value: contextFilename } ])
       await clickMenuItemById(app, 'menu_save_diagram_context')
       await waitForOperation(app)
-      expect(fs.existsSync(contextFilename)).toBeTruthy()
+      await expect(fs.existsSync(contextFilename)).toBeTruthy()
       await compareFiles(contextFilename, './test/refdata/main_ref_2.vr2x')
     })
   })
@@ -934,7 +929,7 @@ test.describe('Application launch', () => {
       await clickButton(window, '#issuesButton')
       const problemDiv = await window.locator('#raw_problems')
       const problemTxt = await problemDiv.innerHTML()
-      expect(!problemTxt.includes('duplicated')).toBeTruthy()
+      await expect(!problemTxt.includes('duplicated')).toBeTruthy()
       await clickButton(window, '#problemPopupClose')
       const dotFilename = './tmp/0007_violations.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
@@ -956,7 +951,7 @@ test.describe('Application launch', () => {
       const problemDiv = await window.locator('#raw_problems')
       const problemTxt = await problemDiv.innerHTML()
       // console.log(problemTxt);
-      expect(problemTxt.includes('duplicated')).toBeTruthy() //rq: ->(rq_dup_same_version)
+      await expect(problemTxt.includes('duplicated')).toBeTruthy() //rq: ->(rq_dup_same_version)
       await clickButton(window, '#problemPopupClose')
       const dotFilename = './tmp/0007_dup-same-version.dot'
       await mock(app, [ { method: 'showSaveDialogSync', value: dotFilename } ])
@@ -970,7 +965,7 @@ test.describe('Application launch', () => {
       await clickButton(window, '#clear_problems')
       await clickButton(window, '#problemPopupClose')
       await waitForOperation(app)
-      expect(fs.existsSync(issueFile)).toBeTruthy() //rq: ->(rq_issues_file_export)
+      await expect(fs.existsSync(issueFile)).toBeTruthy() //rq: ->(rq_issues_file_export)
     })
 
     test('Search for duplicates', async () => {
@@ -994,7 +989,7 @@ test.describe('Application launch', () => {
       await mock(app, [ { method: 'showSaveDialogSync', value: colorsFilename } ])
       await clickMenuItemById(app, 'menu_save_color_scheme_as')
       await holdBeforeFileExists(colorsFilename, 5000)
-      expect(fs.existsSync(colorsFilename)).toBeTruthy() //rq: ->(rq_doctype_color_export)
+      await expect(fs.existsSync(colorsFilename)).toBeTruthy() //rq: ->(rq_doctype_color_export)
     })
   })
 
@@ -1055,15 +1050,15 @@ test.describe('Application launch', () => {
       const settingsMenu = await window.locator('#settingsPopup')
       await clickMenuItemById(app, 'menu_settings')
       const style = await settingsMenu.getAttribute('style')
-      expect(style.includes('block')).toBeTruthy()
+      await expect(style.includes('block')).toBeTruthy()
 
       await clickButton(window, '#sett_show_coverage')
       await clickButton(window, '#sett_color_status')
       await clickButton(window, '#sett_show_errors')
 
-      expect(await window.locator('#sett_show_coverage')).not.toBeChecked()
-      expect(await window.locator('#sett_color_status')).not.toBeChecked()
-      expect(await window.locator('#sett_show_errors')).not.toBeChecked()
+      await expect(await window.locator('#sett_show_coverage')).not.toBeChecked()
+      await expect(await window.locator('#sett_color_status')).not.toBeChecked()
+      await expect(await window.locator('#sett_show_errors')).not.toBeChecked()
 
       await clickButton(window, '#sett_ok')
       await waitForOperation(app)
@@ -1081,14 +1076,14 @@ test.describe('Application launch', () => {
     test('Set options - ', async () => {
       const settingsMenu = await window.locator('#settingsPopup')
       await clickMenuItemById(app, 'menu_settings')
-      expect(String(await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy()
+      await expect(String(await settingsMenu.getAttribute('style')).includes('block')).toBeTruthy()
       await clickButton(window, '#sett_show_coverage')
       await clickButton(window, '#sett_color_status')
       await clickButton(window, '#sett_show_errors')
 
-      expect(await window.locator('#sett_show_coverage')).toBeChecked()
-      expect(await window.locator('#sett_color_status')).toBeChecked()
-      expect(await window.locator('#sett_show_errors')).toBeChecked()
+      await expect(await window.locator('#sett_show_coverage')).toBeChecked()
+      await expect(await window.locator('#sett_color_status')).toBeChecked()
+      await expect(await window.locator('#sett_show_errors')).toBeChecked()
 
       await clickButton(window, '#sett_ok')
       await waitForOperation(app)
@@ -1125,7 +1120,6 @@ test.describe('Application launch', () => {
 
   test.describe('Load and verify a directory of oreqm files', () => {
     test('main oreqm', async () => {
-      //await app.client.waitUntilWindowLoaded()
       await clickButton(window, '#clear_search_regex')
       await clickButton(window, '#clear_ref_oreqm')
       const sampleDir = './test/sample_oreqm'
@@ -1151,7 +1145,7 @@ test.describe('Application launch', () => {
             await clickMenuItemById(app, 'menu_save_diagram_as')
             await waitForOperation(app)
             // console.log('        saving: ', dotFilename)
-            expect(fs.existsSync(dotFilename)).toBeTruthy()
+            await expect(fs.existsSync(dotFilename)).toBeTruthy()
             if (fs.existsSync(refFile)) {
               // console.log(`        Checking: ${refFile}`)
               await waitForOperation(app)
@@ -1195,7 +1189,7 @@ test.describe('Application launch', () => {
       await screenshot(window, 'load-context-bird')
       // This context file is using <id> search - check status was set
       //expect(await window.locator('#id_radio_input')).toBeChecked()
-      expect(await window.locator('#search_regex').inputValue()).toBe('bird')
+      await expect(await window.locator('#search_regex').inputValue()).toBe('bird')
     })
 
     /**
@@ -1205,7 +1199,7 @@ test.describe('Application launch', () => {
      test('Load diagram context', async () => {
       const contextFilename = './tmp/main_ref_1.vr2x'
       const dotFilename = './tmp/context.dot'
-      expect(fs.existsSync(contextFilename)).toBeTruthy()
+      await expect(fs.existsSync(contextFilename)).toBeTruthy()
       removeFile(dotFilename)
 
       await mock(app, [ { method: 'showOpenDialogSync', value: [contextFilename] } ])
@@ -1235,7 +1229,7 @@ test.describe('Application launch', () => {
       // Verify result by the selected node ids
       await clickButton(window, '#copy_selected')
       let selected = await readClipboardText()
-      expect(selected).toBe('cc.game.location.maze\ncc.game.locations\ncc.game.overview\n')
+      await expect(selected).toBe('cc.game.location.maze\ncc.game.locations\ncc.game.overview\n')
     })
 
     test('VQL ancestors_of', async () => {
@@ -1249,7 +1243,7 @@ test.describe('Application launch', () => {
       // Verify result by the selected node ids
       await clickButton(window, '#copy_selected')
       let selected = await readClipboardText()
-      expect(selected).toBe('cc.game.location.maze\ncc.game.locations\ncc.game.overview\n')
+      await expect(selected).toBe('cc.game.location.maze\ncc.game.locations\ncc.game.overview\n')
     })
 
     test('VQL children_of', async () => {
@@ -1262,7 +1256,7 @@ test.describe('Application launch', () => {
       // Verify result by the selected node ids
       await clickButton(window, '#copy_selected')
       let selected = await readClipboardText()
-      expect(selected).toBe(
+      await expect(selected).toBe(
         'cc.game.location.maze.2\ncc.game.location.maze.5\ncc.game.location.maze.6\ncc.game.location.maze.8\ncc.game.location.maze.9\n')
       // again with long form of children_of
       await clickButton(window, '#clear_search_regex')
@@ -1273,7 +1267,7 @@ test.describe('Application launch', () => {
       // Verify result by the selected node ids
       await clickButton(window, '#copy_selected')
       selected = await readClipboardText()
-      expect(selected).toBe(
+      await expect(selected).toBe(
         'cc.game.location.maze.2\ncc.game.location.maze.5\ncc.game.location.maze.6\ncc.game.location.maze.8\ncc.game.location.maze.9\n')
     })
 
@@ -1305,7 +1299,7 @@ test.describe('Application launch', () => {
       await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_select')
       await waitForOperation(app)
       let search = await searchRegex.inputValue()
-      expect(search).toBe('@id:TestDemoSpec.Object004$')
+      await expect(search).toBe('@id:TestDemoSpec.Object004$')
 
       await clickButton(window, '#clear_search_regex')
       await searchRegex.fill('demo')
@@ -1319,7 +1313,7 @@ test.describe('Application launch', () => {
       await waitForOperation(app)
       search = await searchRegex.inputValue()
       //console.log("search:", search)
-      expect(search).toBe('demo\nor @id:TestDemoSpec.Object004$')
+      await expect(search).toBe('demo\nor @id:TestDemoSpec.Object004$')
       await contextMenuClick(app, 'TestDemoSpec.Object004:1', '#menu_select')
       await waitForOperation(app)
     })
@@ -1331,7 +1325,7 @@ test.describe('Application launch', () => {
       await waitForOperation(app)
       let search = await searchRegex.inputValue()
       //console.log("search:", search)
-      expect(search).toBe('demo')
+      await expect(search).toBe('demo')
     })
 
     test('save selection xlsx multi', async () => {
@@ -1377,7 +1371,7 @@ test.describe('Application launch', () => {
       await waitForOperation(app)
       let search = await searchRegex.inputValue()
       //console.log("search:", search)
-      expect(search).toBe('demo')
+      await expect(search).toBe('demo')
     })
 
     test('De-select two specobject - VQL syntax', async () => {
@@ -1389,18 +1383,18 @@ test.describe('Application launch', () => {
       await contextMenuClick(app, 'DemoSpec.Object001a', '#menu_select')
       await waitForOperation(app)
       let search = await searchRegex.inputValue()
-      expect(search).toBe('@id:TestDemoSpec.Object004$\nor @id:DemoSpec.Object001a$')
+      await expect(search).toBe('@id:TestDemoSpec.Object004$\nor @id:DemoSpec.Object001a$')
 
       await contextMenuClick(app, 'TestDemoSpec.Object004', '#menu_deselect')
       await waitForOperation(app)
       search = await searchRegex.inputValue()
-      expect(search).toBe('@id:DemoSpec.Object001a$')
+      await expect(search).toBe('@id:DemoSpec.Object001a$')
 
       // remove last entry
       await contextMenuClick(app, 'DemoSpec.Object001a', '#menu_deselect')
       await waitForOperation(app)
       search = await searchRegex.inputValue()
-      expect(search).toBe('')
+      await expect(search).toBe('')
     })
 
     test('De-select two specobject - regex syntax', async () => {
@@ -1414,12 +1408,12 @@ test.describe('Application launch', () => {
       await contextMenuClick(app, 'DemoSpec.Object001a', '#menu_select')
       await waitForOperation(app)
       let search = await searchRegex.inputValue()
-      expect(search).toBe('TestDemoSpec.Object004$\n|DemoSpec.Object001a$')
+      await expect(search).toBe('TestDemoSpec.Object004$\n|DemoSpec.Object001a$')
 
       await contextMenuClick(app, 'TestDemoSpec.Object004', '#menu_deselect')
       await waitForOperation(app)
       search = await searchRegex.inputValue()
-      expect(search).toBe('DemoSpec.Object001a$')
+      await expect(search).toBe('DemoSpec.Object001a$')
     })
 
     test('Exclude two specobjects', async () => {
@@ -1431,7 +1425,7 @@ test.describe('Application launch', () => {
       await contextMenuClick(app, 'TestDemoSpec.Object003', '#menu_exclude')
       await waitForOperation(app)
       let excl = await exclIds.inputValue()
-      expect(excl).toBe('TestDemoSpec.Object002\nTestDemoSpec.Object003')
+      await expect(excl).toBe('TestDemoSpec.Object002\nTestDemoSpec.Object003')
     })
   })
 })
