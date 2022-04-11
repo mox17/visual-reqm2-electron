@@ -695,7 +695,7 @@ function prepareSheetExportDialog () {
   // Create ul of selected fields
   let ulExported = '<ul id="sheet_ul_exported" class="export-field-list col">\n'
   programSettings.export_fields.forEach(function (field) {
-    ulExported += ` <li class="export-field">${field}</li>\n`
+    ulExported += ` <li class="export-field" id="export_field_${field}">${field}</li>\n`
   })
   ulExported += '</ul>\n'
   exportFieldsSelected.innerHTML = ulExported
@@ -709,12 +709,28 @@ function prepareSheetExportDialog () {
   for (const field of fieldList) {
     if (programSettings.export_fields.indexOf(field) < 0) {
       // Not an exported field, add to this list
-      ulNotExported += `  <li class="export-field">${field}</li>\n`
+      ulNotExported += `  <li class="export-field" id="export_field_${field}">${field}</li>\n`
     }
   }
   ulNotExported += '</ul>\n'
   exportFieldsAvailable.innerHTML = ulNotExported
 
+  // Set up double-click transfer between lists
+  for (const fieldName of fieldList) {
+    const fieldId = `export_field_${fieldName}`
+    const fieldNode = document.getElementById(fieldId)
+    if (fieldNode) {
+      fieldNode.ondblclick = () => {
+        const node = document.getElementById(fieldId)
+        const otherParent = (node.parentElement.id === "sheet_ul_exported") ?
+          document.getElementById('sheet_ul_not_exported') :
+          document.getElementById('sheet_ul_exported')
+        node.parentElement.removeChild(node)
+        otherParent.appendChild(node)
+      }
+    }
+  }
+  
   new Sortable(document.getElementById('sheet_ul_exported'), {
     group: 'export_tags',
     animation: 150,

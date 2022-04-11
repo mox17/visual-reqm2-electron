@@ -236,9 +236,9 @@ prev and next">
         <div class="row">
           <h2>Settings</h2>
           <div><small>Settings file: <span id="settings_file_path"></span></small></div>
-          <div class="column3" id="settings_list" style="overflow-y: auto; height:600px; ">
-              <h4>Fields to ignore in comparisons between oreqm files</h4><br/>
-              <div id="ignore_fields"></div>
+          <div class="column3" id="settings_list">
+              <h4>Fields to ignore in comparisons between oreqm files</h4>
+              <div id="ignore_fields" style="overflow-y: auto; height:600px; margin-right: 50px; margin-bottom: 30px;"></div>
           </div>
           <div class="column3">
             <h4>Coverage settings</h4><br/>
@@ -246,7 +246,7 @@ prev and next">
             <input type="checkbox" id="sett_color_status" title="Color code &lt;status&gt; &#13;proposed -> yellow&#13;draft -> red"> Color &lt;status&gt;</button><br/>
             <input type="checkbox" id="sett_show_errors" title="Show link errors"> Show link errors</button><br/>
             <p/>
-            Safety rules - accepted <b>doctype:safetyclass>doctype:safetyclass</b> pairs<br/>
+            Safety rules - accepted <b>doctype:safetyclass>doctype:safetyclass</b> pairs
             <textarea class="search_terms" id="safety_rules" rows="12" cols="34"
             wrap="off" placeholder="safety rules array of regex"
             spellcheck="false"></textarea>
@@ -254,16 +254,18 @@ prev and next">
             <div><p id="regex_error" style="color:red"></p></div>
           </div>
           <div class="column3">
-            <h4>UI settings</h4><br/>
-            <label for="sett_max_calc_nodes">Max number of calculated nodes (default 1000):</label>
-            <input type="number" id="sett_max_calc_nodes" name="sett_max_calc_nodes" min="500" max="5000" title="Max # of nodes in diagram."><br/>
-            <p/>
-            <label for="top_doctypes">Top doctype(s) in hierarchy:</label>
-            <p/>
-            <input type="text" id="top_doctypes" name="top_doctypes" maxlength="30" spellcheck="false"
-            title="Comma separated list of optional doctypes&#13;to connect to common top (controls layout)"><br/>
-            <p/>
-            <input type="checkbox" id="sett_check_for_updates" title="Check latest github release"> Check for updates at startup</button><br/>
+            <div style="margin-left: 50px">
+              <h4>UI settings</h4><br/>
+              <label for="sett_max_calc_nodes">Max number of calculated nodes (default 1000):</label>
+              <input type="number" id="sett_max_calc_nodes" name="sett_max_calc_nodes" min="500" max="5000" title="Max # of nodes in diagram."><br/>
+              <p/>
+              <label for="top_doctypes">Top doctype(s) in hierarchy:</label>
+              <p/>
+              <input type="text" id="top_doctypes" name="top_doctypes" maxlength="30" spellcheck="false"
+              title="Comma separated list of optional doctypes&#13;to connect to common top (controls layout)"><br/>
+              <p/>
+              <input type="checkbox" id="sett_check_for_updates" title="Check latest github release"> Check for updates at startup</button><br/>
+            </div>
           </div>
         </div>
         <button type="button" id="sett_ok" >OK</button>
@@ -279,18 +281,27 @@ prev and next">
         <hr>
         <div class="row">
           <h2>Spreadsheet Export Parameters</h2>
-          <div class="column3" id="sheet_not_exported" style="overflow-y: auto; height:600px; ">
+          <p>Drag or double-click items to move between lists. Drag items to change order.</p>
+          <div class="column3" id="sheet_not_exported">
             <h4>Available fields for export</h4>
-            <div id="export_fields_available"></div>
+            <div id="export_fields_available" style="overflow-y: auto; height:600px; margin-right: 50px;"></div>
           </div>
-          <div class="column3" id="sheet_export_list" style="overflow-y: auto; height:600px; ">
+          <div class="column3" id="sheet_export_list">
             <h4>Exported Fields</h4>
-            <div id="export_fields_selected"></div>
+            <div id="export_fields_selected" style="overflow-y: auto; height:600px; margin-right: 50px;"></div>
         </div>
         <div class="column3">
             <h4>Export rows per specobject</h4><br/>
             <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Each error on separate row</button><br/>
             <p/>
+            <p>Exporting any of the fields
+              <ul>
+                <li>ancestor_id</li>
+                <li>ancestor_dt</li>
+                <li>ancestor_status</li>
+              </ul>
+              may cause additional rows to be exported.
+              One row will be exported for each ancestor specobject of any selected specobject</p>
           </div>
         </div>
         <p/>
