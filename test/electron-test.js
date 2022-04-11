@@ -1334,6 +1334,37 @@ describe('Application launch', function () {
       assert.strictEqual(search, 'demo')
     })
 
+    it('open and close save selection field', async function () {
+      await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      const sheetExportPopup = await app.client.$('#sheetExportPopup')
+      let style = await sheetExportPopup.getAttribute('style')
+      assert.ok(style.includes('block'))
+      // cancel dialog with upper-right close button
+      await clickButton(app, '#sheetExportPopupClose')
+      style = await sheetExportPopup.getAttribute('style')
+      assert.ok(!style.includes('block'))
+    })
+
+    it('save selection field chooser', async function () {
+      await fakeMenu.clickMenu('File', 'Save diagram selection...')
+      // de-select 'miscov' field
+      const sheetUlExported = await app.client.$('#sheet_ul_exported')
+      const miscov = await sheetUlExported.$('#export_field_miscov')
+      assert.ok(miscov)
+      // Move to bottom of other list with double click
+      await miscov.doubleClick()
+      const sheetUlNotExported = await app.client.$('#sheet_ul_not_exported')
+      const miscovMoved = await sheetUlNotExported.$('#export_field_miscov')
+      await screenshot(app, 'miscov-moved')
+      assert.ok(miscovMoved)
+      await miscovMoved.doubleClick()
+      const miscovBack = await sheetUlExported.$('#export_field_miscov')
+      assert.ok(miscovBack)
+      await screenshot(app, 'miscov-moved-back')
+      // cancel dialog
+      await clickButton(app, '#sheet_export_cancel')
+    })
+
     it('save selection xlsx multi', async function () {
       let xlsxName = './tmp/selection_save_multi.xlsx'
       await fakeDialog.mock([{ method: 'showSaveDialogSync', value: xlsxName }])
