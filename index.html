@@ -232,7 +232,6 @@ prev and next">
       <!-- Modal content -->
       <div class="modal-content row">
         <span id="settingsPopupClose" class="close">&times;</span>
-        <hr>
         <div class="row">
           <h2>Settings</h2>
           <div><small>Settings file: <span id="settings_file_path"></span></small></div>
@@ -268,8 +267,8 @@ prev and next">
             </div>
           </div>
         </div>
-        <button type="button" id="sett_ok" >OK</button>
-        <button type="button" id="sett_cancel" >Cancel</button>
+        <button type="button" id="sett_ok" class="dialog-button">OK</button>
+        <button type="button" id="sett_cancel" class="dialog-button">Cancel</button>
       </div>
     </div>
 
@@ -278,7 +277,6 @@ prev and next">
       <!-- Modal content -->
       <div class="modal-content row">
         <span id="sheetExportPopupClose" class="close">&times;</span>
-        <hr>
         <div class="row">
           <h2>Spreadsheet Export Parameters</h2>
           <p>Drag or double-click items to move between lists. Drag items to change order.</p>
@@ -292,7 +290,7 @@ prev and next">
         </div>
         <div class="column3">
             <h4>Export rows per specobject</h4><br/>
-            <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Each error on separate row</button><br/>
+            <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Each error on separate row</input><br/>
             <p/>
             <p>Exporting any of the fields
               <ul>
@@ -305,8 +303,38 @@ prev and next">
           </div>
         </div>
         <p/>
-        <button type="button" id="sheet_export_ok" >Export...</button>
-        <button type="button" id="sheet_export_cancel" >Cancel</button>
+        <button type="button" id="sheet_export_ok" class="dialog-button">Export...</button>
+        <button type="button" id="sheet_export_cancel" class="dialog-button">Cancel</button>
+      </div>
+    </div>
+
+    <!-- doctype color and clustering dialog -->
+    <div id="doctypeColorDialog" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content row">
+        <span id="doctypeColorDialogClose" class="close">&times;</span>
+        <div class="row">
+          <h2>Doctype colors and clustering</h2>
+          <div class="column">
+            <h4>Doctypes</h4>
+            <div id="doctypeColorDialogTable" style="overflow-y: auto; height:600px; margin-right: 50px;"></div>
+          </div>
+          <div class="column">
+            <p>Click the color picker in a row to change the doctype color.</p>
+            <p>The layout of the 'hierarchy' and 'safety' diagrams can be affected by the
+              ordering of the doctypes. Move more 'abstract' doctypes to the top by dragging them.
+            </p>
+            <p>The doctypes can be clustered into the 'design' or
+              'test' side of the V-model, or left unclustered (which is the default).
+            </p>
+            <p>The selection will be saved as part of the settings.</p>
+            <input type="checkbox" id="doctype_clusters" title="Cluster according to V-model 'design' or 'test' side"> group doctypes in hierarchy view</input><br/>
+            <input type="checkbox" id="hide_unused_doctypes" title="Hide doctypes not used in current oreqm"> hide unused doctypes</input><br/>
+          </div>
+        </div>
+        <p/>
+        <button type="button" id="doctypeColorDialogOk" class="dialog-button">OK</button>
+        <button type="button" id="doctypeColorDialogCancel" class="dialog-button">Cancel</button>
       </div>
     </div>
 

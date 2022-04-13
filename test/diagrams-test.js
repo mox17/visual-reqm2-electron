@@ -48,7 +48,7 @@ beforeEach(function () {
 
 describe('ReqM2Oreqm tests', function () {
   // force default settings
-  settings.checkAndUpgradeSettings(settings.defaultProgramSettings)
+  settings.checkAndUpgradeSettings(settings.defaultProgramSettings, null)
 
   const testOreqmFileName = './testdata/oreqm_testdata_del_movement.oreqm'
   const oreqmTxt = fs.readFileSync(testOreqmFileName) //rq: ->(rq_read_oreqm)

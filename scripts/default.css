@@ -515,6 +515,43 @@ input.small_checkbox {
   background-color: #fffffd;
 }
 
+.dialog-button {
+  float: right;
+  margin-right: 30px;
+}
+
+/* doctype attributes dialog */
+.doctype-attr-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  margin-right: 10px;
+  background: #eee;
+  padding: 2px;
+  /*width: 143px;*/
+  min-height: 1.1em;
+  /*font-size: 0.85em;*/
+  cursor: move;
+}
+.doctype-attr-list li {
+  margin: 1px;
+  padding: 1px;
+  /*font-size: 0.85em;*/
+  /*width: 120px;*/
+}
+.doctype-attr-list li.placeholder {
+  height: 1.1em
+}
+.doctype-attr {
+  border: 1px solid #bbb;
+  background-color: #fafafa;
+  cursor: move;
+}
+.export-field.ui-sortable-helper {
+  opacity: 0.5;
+}
+
+
 /* auto update notification */
 #notification {
   position: fixed;

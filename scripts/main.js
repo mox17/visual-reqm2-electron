@@ -167,8 +167,13 @@ function createWindow () {
         { role: 'paste' },
         { type: 'separator' },
         {
-          label: 'Settings...',
+          id: 'menu_doctype_attributes',
+          label: 'Doctypes...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('open_doctypes') }
+        },
+        {
           id: 'menu_settings',
+          label: 'Settings...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('open_settings') }
         }
       ]
@@ -477,6 +482,11 @@ ipcMain.handle('settingsGetSync', async (_event, key) => {
 
 ipcMain.handle('settingsHasSync', async (_event, key) => {
   let res = electronSettings.hasSync(key)
+  return res
+})
+
+ipcMain.handle('settingsUnsetSync', async (_event, key) => {
+  let res = electronSettings.unsetSync(key)
   return res
 })
 

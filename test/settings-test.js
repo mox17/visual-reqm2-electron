@@ -13,7 +13,7 @@ function _interopRequireDefault (obj) {
 describe('Settings tests', function () {
   it('New settings', function () {
     // Force settings to default
-    settings.checkAndUpgradeSettings(settings.defaultProgramSettings)
+    settings.checkAndUpgradeSettings(settings.defaultProgramSettings, null)
     assert.strictEqual(settings.programSettings.max_calc_nodes, 0)
 
     const ignoredFields = settings.getIgnoredFields()
@@ -32,7 +32,7 @@ describe('Settings tests', function () {
     delete newSettings.safety_link_rules
     delete newSettings.compare_fields
 
-    settings.checkAndUpgradeSettings(newSettings)
+    settings.checkAndUpgradeSettings(newSettings, null)
     assert.strictEqual(settings.programSettings.max_calc_nodes, 0)
     assert.strictEqual(settings.programSettings.show_coverage, true)
     assert.strictEqual(settings.programSettings.compare_fields.id, true)
@@ -40,7 +40,7 @@ describe('Settings tests', function () {
     // console.dir(newSettings.safety_link_rules);
     // console.dir(JSON.stringify(newSettings.safety_link_rules, null, 2));
     newSettings.color_status = 7
-    settings.checkAndUpgradeSettings(newSettings)
+    settings.checkAndUpgradeSettings(newSettings, null)
     assert.strictEqual(settings.programSettings.color_status, true)
   })
 })
