@@ -1377,7 +1377,7 @@ describe('Application launch', function () {
       }
       await clickButton(app, '#sheet_export_ok')
       await waitForOperation(app)
-      if (process.platform === "win32") {
+      if (process.platform === "__win32") {
         // TODO: Not ideal but sheetjs outputs slightly different file on linux
         await compareBinary(xlsxName, './test/refdata/selection_save_multi.xlsx')
       }
@@ -1395,7 +1395,7 @@ describe('Application launch', function () {
       }
       await clickButton(app, '#sheet_export_ok')
       await waitForOperation(app)
-      if (process.platform === "win32") {
+      if (process.platform === "__win32") {
         // TODO: Not ideal but sheetjs outputs slightly different file on linux
         await compareBinary(xlsxName, './test/refdata/selection_save_single.xlsx')
       }
