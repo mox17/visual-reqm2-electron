@@ -999,6 +999,58 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
     return result.pass
   }
 
+
+  /**
+   * Generate doctype clustering hints
+   * @returns string dot language fragment for clustering doctypes
+   */
+  buildVModelHints () {
+    let hints = ''
+    let testCount = 0
+    let designCount = 0
+    const activeDoctypes = new Set(this.doctypes.keys())
+    if (programSettings.doctype_clusters && programSettings.doctype_attributes.length > 0) {
+      let designHints = '\n      subgraph cluster_vmodel_design { label="design" style="rounded" color="grey"\n'
+      let testHints =  '\n      subgraph cluster_vmodel_test { label="test" style="rounded" color="grey"\n'
+      let testRank = '\n      '
+      // loop over doctypes in descending order of abstraction
+      for (let dt of programSettings.doctype_attributes) {
+        if (activeDoctypes.has(dt.doctype)) {
+          switch (dt.cluster) {
+          case 'test':
+            testHints += `        ${dt.doctype}\n`
+            if (testCount === 0) {
+              testRank += dt.doctype
+            } else {
+              testRank += ' -> ' + dt.doctype
+            }
+            testCount += 1
+            break
+
+          case 'design':
+            designHints += `        ${dt.doctype}\n`
+            designCount += 1
+            break
+          }
+        }
+      }
+      designHints += '      };\n'
+      testHints += '      };\n'
+      testRank += ' [color="white"]; # invisible edges to get ranking of test doctypes in layout\n\n'
+      if (testCount < 2) {
+        testRank = ''
+      }
+      if (designCount) {
+        hints += designHints
+      }
+      if (testCount) {
+        hints += testHints + testRank
+      }
+      //console.log(hints)
+    }
+    return hints
+  }
+
   /**
    * Scan all requirements and summarize the relationships between doctypes
    * with counts of instances and relations (needsobj, linksto, fulfilledby)
@@ -1020,6 +1072,7 @@ export class ReqM2Oreqm extends ReqM2Specobjects {
       rankdir="${doctypeSafety ? 'BT' : 'TD'}"
       node [shape=plaintext fontname="Arial" fontsize=16]
       edge [color="black" dir="forward" arrowhead="normal" arrowtail="normal" fontname="Arial" fontsize=11];\n\n`
+    graph += this.buildVModelHints()
     // Define the doctype nodes - the order affects the layout
     const doctypeArray = Array.from(this.doctypeClusters.keys())
     for (const doctype of doctypeArray) {
