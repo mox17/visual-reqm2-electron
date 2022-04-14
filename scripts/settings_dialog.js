@@ -22,7 +22,6 @@ export async function handleSettings (settingsUpdatedCallback) {
   if (await ipcRenderer.invoke('settingsHasSync', 'doctype_colors')) {
     doctypeColors = await ipcRenderer.invoke('settingsGetSync', 'doctype_colors')
   }
-  updateColorSettings(doctypeColors, updateDoctypeColors)
   let progSettings = null
   if (await ipcRenderer.invoke('settingsHasSync', 'program_settings')) {
     // Upgrade settings to add new values
@@ -37,6 +36,12 @@ export async function handleSettings (settingsUpdatedCallback) {
     await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
   }
   // console.log(programSettings);
+  let palette = {}
+  for (const dt of programSettings.doctype_attributes) {
+    palette[dt.doctype] = dt.color
+  }
+  // Update with colors from settings
+  updateColorSettings(palette, updateDoctypeColors)
 
   document.getElementById('sett_ok').addEventListener('click', async function () {
     if (await settingsDialogResults()) {
@@ -227,7 +232,23 @@ export function processRuleSet (newRules) {
  */
 async function updateDoctypeColors (colors) {
   //rq: ->(rq_doctype_color_sett)
-  await ipcRenderer.invoke('settingsSetSync', 'doctype_colors', colors)
+  for (const dt in colors) {
+    let found = false
+    for (let i=0; i < programSettings.doctype_attributes.length; i++) {
+      if (programSettings.doctype_attributes[i].doctype === dt) {
+        if (programSettings.doctype_attributes[i].color !== colors[dt]) {
+          console.log('color mismatch', programSettings.doctype_attributes[i], colors[dt])
+        } else {
+          found = true
+        }
+      }
+    }
+    if (!found) {
+      programSettings.doctype_attributes.push({doctype: dt, color: colors[dt], cluster: ''})
+      console.log('new color', programSettings.doctype_attributes)
+    }
+  }
+  //await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
 }
 
 
@@ -254,7 +275,8 @@ document.getElementById('doctypeColorDialogClose').addEventListener('click', fun
   // save set for later use when saving
   document.__activeDoctypes__ = activeDoctypes
   const doctypesPopup = document.getElementById('doctypeColorDialog')
-  const hideUnknown = true
+  // Do not hide inactive doctypes in dialog when there is no oreqm data
+  const hideUnknown = activeDoctypes.size ? true : false
   doctypesDialogPrepare(activeDoctypes, hideUnknown)
   document.getElementById('hide_unused_doctypes').onclick = () => {
     const hide = document.getElementById('hide_unused_doctypes').checked
@@ -278,17 +300,18 @@ document.getElementById('doctypeColorDialogClose').addEventListener('click', fun
       continue
     }
     table += `\
-  <li data-doctype="${dt.doctype}">
+  <li data-doctype="${dt.doctype}" id="li_${dt.doctype}">
     <div id="dt_attr_${dt.doctype}" style="background-color:${dt.color}; display: inline-block; width:100%">
       <span style="width:30%;float:left;">&nbsp;${dt.doctype}</span>
       <span style="width:10%">
         <label for="color_${dt.doctype}">color:</label>
-        <input type="color" id="color_${dt.doctype}" value="${dt.color}"></input>
+        <input type="color" id="color_${dt.doctype}" value="${dt.color}" title="Select doctype color"></input>
       </span>
       <span style="float:right;">
-        <input type="radio" name="v-model_${dt.doctype}" id="dt_dsgn_${dt.doctype}" value="design">design</input>
-        <input type="radio" name="v-model_${dt.doctype}" id="dt_none_${dt.doctype}" value=""      >none</input>
-        <input type="radio" name="v-model_${dt.doctype}" id="dt_test_${dt.doctype}" value="test"  >test&nbsp;</input>
+        <button id="delete_${dt.doctype}" style="font-size:18px;padding:0;" title="Delete doctype">&#x1f5d1;</button>
+        <input type="radio" name="v-model_${dt.doctype}" id="dt_dsgn_${dt.doctype}" value="design" title="Cluster on design side">design</input>
+        <input type="radio" name="v-model_${dt.doctype}" id="dt_none_${dt.doctype}" value=""       title="No clustering"    >none</input>
+        <input type="radio" name="v-model_${dt.doctype}" id="dt_test_${dt.doctype}" value="test"   title="Cluster on test side"  >test&nbsp;</input>
       </span>
     </div>
   </li>\n`
@@ -302,7 +325,7 @@ document.getElementById('doctypeColorDialogClose').addEventListener('click', fun
     ghostClass: "placeholder"
   })
 
-  // Update the elements using script
+  // Update the elements with js
   for (const dt of programSettings.doctype_attributes) {
     // Check if list is filtered - doctype might not be shown
     if (!document.getElementById(`color_${dt.doctype}`)) {
@@ -311,22 +334,41 @@ document.getElementById('doctypeColorDialogClose').addEventListener('click', fun
     document.getElementById(`color_${dt.doctype}`).onchange = () => {
       document.getElementById(`dt_attr_${dt.doctype}`).style.backgroundColor = document.getElementById(`color_${dt.doctype}`).value
     }
+    if (activeDoctypes.has(dt.doctype)) {
+      // hide delete button for active doctypes
+      document.getElementById(`delete_${dt.doctype}`).style.display = 'none'
+    } else if (!filter) {
+      // Set up delete handler
+      document.getElementById(`delete_${dt.doctype}`).onclick = async () => {
+        const confirm = await ipcRenderer.invoke('dialog.showMessageBoxSync',
+        {
+          type: 'question',
+          buttons: ['Cancel', 'Delete'],
+          defaultId: 0,
+          message: `Delete attributes for doctype "${dt.doctype}"?`
+        })
+        //console.log(confirm)
+        if (confirm === 1) {
+          const parent = document.getElementById('doctype_attributes')
+          parent.removeChild(document.getElementById(`li_${dt.doctype}`))
+        }
+      }
+    }
     switch (dt.cluster) {
     case "design":
       document.getElementById(`dt_dsgn_${dt.doctype}`).checked = true
       break
 
-      case "test":
+    case "test":
       document.getElementById(`dt_test_${dt.doctype}`).checked = true
       break
 
-      case "":
+    case "":
     default:
       document.getElementById(`dt_none_${dt.doctype}`).checked = true
       break
     }
   }
-
 }
 
 /**
@@ -363,8 +405,8 @@ function nextOfSetIndex (activeDoctypes, startIndex) {
 /**
  * Get content of dialog and update settings
  */
-function doctypesDialogSave () {
-  console.log('Before:', programSettings.doctype_attributes)
+async function doctypesDialogSave () {
+  //console.log('Before:', programSettings.doctype_attributes)
   // is this a partial or complete edit of the doctype_attributes
   const ul = document.getElementById('doctype_attributes')
   const items = ul.getElementsByTagName("li")
@@ -380,17 +422,20 @@ function doctypesDialogSave () {
       doctypeIndex = nextOfSetIndex(document.__activeDoctypes__, doctypeIndex)
     }
   } else {
-    // All elements in doctype_attributes are replaced
+    // All elements in doctype_attributes array are replaced
+    programSettings.doctype_attributes = []
     for (let i = 0; i < items.length; ++i) {
       // do something with items[i], which is a <li> element
       const doctype = items[i].getAttribute('data-doctype')
-      programSettings.doctype_attributes[i].doctype = doctype
-      programSettings.doctype_attributes[i].color = document.getElementById(`color_${doctype}`).value
-      programSettings.doctype_attributes[i].cluster = document.querySelector(`input[name="v-model_${doctype}"]:checked`).value
+      programSettings.doctype_attributes.push({
+        doctype: doctype,
+        color: document.getElementById(`color_${doctype}`).value,
+        cluster: document.querySelector(`input[name="v-model_${doctype}"]:checked`).value
+      })
     }
   }
   programSettings.doctype_clusters = document.getElementById('doctype_clusters').checked
-  console.log('After:', programSettings.doctype_attributes)
-  // TODO: save settings and trigger redraw?
+  //console.log('After:', programSettings.doctype_attributes)
+  await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
 }
 

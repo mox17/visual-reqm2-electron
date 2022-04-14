@@ -24,7 +24,7 @@ autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
 // end optional logging
 
-let debug = /--debug/.test(process.argv[2])
+let debug = false
 let runAutoupdater = false
 
 // Keep a global reference of the window object, if you don't, the window will

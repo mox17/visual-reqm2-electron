@@ -100,7 +100,7 @@ ipcRenderer.on('open_settings', (_item, _window, _key_ev) => {
 })
 
 ipcRenderer.on('open_doctypes', (_item, _window, _key_ev) => {
-  const usedDoctypes = oreqmMain ? new Set(oreqmMain.getDoctypes().keys()) : null
+  const usedDoctypes = oreqmMain ? new Set(oreqmMain.getDoctypes().keys()) : new Set()
   openDoctypes(usedDoctypes)
 })
 

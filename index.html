@@ -329,7 +329,12 @@ prev and next">
             </p>
             <p>The selection will be saved as part of the settings.</p>
             <input type="checkbox" id="doctype_clusters" title="Cluster according to V-model 'design' or 'test' side"> group doctypes in hierarchy view</input><br/>
-            <input type="checkbox" id="hide_unused_doctypes" title="Hide doctypes not used in current oreqm"> hide unused doctypes</input><br/>
+            <p>Visual ReqM2 keeps track of all used doctypes in the settings. It is possible to show only the active doctypes
+              or the full set of stored doctypes with the 'hide unused doctypes' selection.</p>
+            <input type="checkbox" id="hide_unused_doctypes" title="Hide doctypes not used in current oreqm"> hide unused doctypes</input>
+            <p>It is possible to delete attributes for unused doctypes. This just means that next time the doctype is encountered, a random color will
+            assigned to it.</p>
+            <br/>
           </div>
         </div>
         <p/>
@@ -358,7 +363,7 @@ prev and next">
       <button id="close-button">
         Close
       </button>
-      <button id="restart-button" onClick="restartApp()" class="hidden">
+      <button id="restart-button" onclick="restartApp()" class="hidden">
         Restart
       </button>
     </div>
