@@ -1293,6 +1293,29 @@ describe('Application launch', function () {
 */
   })
 
+  describe('doctype dialog', function () {
+    it('doctype dialog close', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await clickButton(app, '#doctypeColorDialogClose')
+      await waitForOperation(app)
+    })
+
+    it('doctype dialog cancel', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await clickButton(app, '#doctypeColorDialogCancel')
+      await waitForOperation(app)
+    })
+
+    it('doctype dialog save', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await screenshot(app, 'doctype_dialog')
+      await clickButton(app, '#hide_unused_doctypes')
+      await screenshot(app, 'doctype_dialog')
+      await clickButton(app, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+    })
+  })
+
   describe('Select duplicate', function () {
     it('load file and select', async function () {
       const oreqmMain = './test/sample_oreqm/0007_dup-same-version.oreqm'
