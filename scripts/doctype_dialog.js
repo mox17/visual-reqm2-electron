@@ -88,7 +88,7 @@ document.getElementById('doctypeColorDialogClose').addEventListener('click', fun
     if (activeDoctypes.has(dt.doctype)) {
       // hide delete button for active doctypes
       document.getElementById(`delete_${dt.doctype}`).style.display = 'none'
-    } else if (!filter) {
+    } else {
       // Set up delete handler
       document.getElementById(`delete_${dt.doctype}`).onclick = async () => {
         const confirm = await ipcRenderer.invoke('dialog.showMessageBoxSync',
@@ -134,7 +134,8 @@ document.getElementById('doctypeColorDialogClose').addEventListener('click', fun
       return index
     }
   }
-  return -1
+  // istanbul ignore next
+  return undefined
 }
 
 /**
@@ -150,7 +151,7 @@ function nextOfSetIndex (activeDoctypes, startIndex) {
       return index
     }
   }
-  return -1
+  return undefined
 }
 
 /**
