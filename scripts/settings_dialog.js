@@ -235,10 +235,10 @@ async function updateDoctypeColors (colors) {
     for (let i=0; i < programSettings.doctype_attributes.length; i++) {
       if (programSettings.doctype_attributes[i].doctype === dt) {
         if (programSettings.doctype_attributes[i].color !== colors[dt]) {
-          console.log('color mismatch', programSettings.doctype_attributes[i], colors[dt])
-        } else {
-          found = true
+          console.log('color updated', programSettings.doctype_attributes[i], colors[dt])
         }
+        programSettings.doctype_attributes[i].color = colors[dt]
+        found = true
       }
     }
     if (!found) {
@@ -246,7 +246,7 @@ async function updateDoctypeColors (colors) {
       console.log('new color', programSettings.doctype_attributes)
     }
   }
-  //await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
+  await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
 }
 
 
