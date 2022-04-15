@@ -127,6 +127,8 @@ export function getColor (key) {
     color = _myPalette[key]
   } else {
     color = _addColor(_myPalette, key)
+    // save new color in settings
+    _storeColors(_myPalette)
   }
   return color
 }

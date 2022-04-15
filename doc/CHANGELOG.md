@@ -1,6 +1,6 @@
 ### Changelog
 
-## 2.6.1
+## 2.7.0
 * Update VQL with more graph selection functions and tidy up naming of functions:
   * `children()` (alias to `ch()` ). One level reference to specobjects.
   * `parents()`  (alias to `pa()` ). One level reference to specobjects.
@@ -10,6 +10,7 @@
 * remove usage of deprecated internal module `remote`.
   * This is necessary to upgrade to newer version of electron.
   * refactor code to use other ipc mechanisms
+* Add dialog to edit doctype colors
 
 ## 2.6.0
 * Use SheetJS to export selected specobjects as xlsx files
@@ -31,7 +32,7 @@
 * `-q` `--vql` command line option for VQL search. Mutually exclusive with `-i` `--idOnly` and `-x` `--regex` options.
 * `-x` `--regex` command line option for Regex search. Mutually exclusive with `-i` `--idOnly` and `-q` `--vql` options.
 * Radio-button choice to select between search 'languages'. Options are `<id>`, `regex` and `VQL`.
-* In the doctype table, the 'select' column now also show counts for **excluded** doctypes. 
+* In the doctype table, the 'select' column now also show counts for **excluded** doctypes.
   The 'shown' count is of course still zero. This indicates if a query finds specobjects, even if nothing is
   displayed because of excluded doctypes.
 * Added links to README.md and VQL.md in 'help' menu. These are github hosted documents.

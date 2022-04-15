@@ -1,7 +1,8 @@
 'use strict'
 import { setLimitReporter, xmlEscape } from './diagrams.js'
 import { getColor, saveColorsFs, loadColorsFs } from './color.js'
-import { handleSettings, loadSafetyRulesFs, openSettings, saveProgramSettings } from './settings_dialog.js'
+import { handleSettings, loadSafetyRulesFs, openSettings, saveProgramSettings } from './settings_dialog'
+import { openDoctypes } from './doctype_dialog'
 import { getIgnoredFields, programSettings, isFieldAList } from './settings.js'
 import { ipcRenderer, shell, clipboard } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
@@ -97,6 +98,11 @@ ipcRenderer.on('show_issues', (_item, _window, _key_ev) => {
 
 ipcRenderer.on('open_settings', (_item, _window, _key_ev) => {
   openSettings()
+})
+
+ipcRenderer.on('open_doctypes', (_item, _window, _key_ev) => {
+  const usedDoctypes = oreqmMain ? new Set(oreqmMain.getDoctypes().keys()) : new Set()
+  openDoctypes(usedDoctypes)
 })
 
 ipcRenderer.on('save_diagram_ctx', (_item, _window, _key_ev) => {
@@ -236,7 +242,7 @@ ipcRenderer.on('argv', (event, parameters, args) => {
   // console.log("ipcRenderer.on('argv'")
   // console.dir(args)
   setLimitReporter(reportLimitAsToast)
-  handleSettings(settingsUpdated, args).then( async () => {
+  handleSettings(settingsUpdated).then( async () => {
     document.getElementById('vrm2_batch').innerHTML = 'init'
     setSearchLanguageButtons(programSettings.search_language)
 
@@ -730,7 +736,7 @@ function prepareSheetExportDialog () {
       }
     }
   }
-  
+
   new Sortable(document.getElementById('sheet_ul_exported'), {
     group: 'export_tags',
     animation: 150,

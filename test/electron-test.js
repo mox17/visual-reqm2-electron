@@ -1293,6 +1293,110 @@ describe('Application launch', function () {
 */
   })
 
+  describe('doctype dialog', function () {
+    it('doctype dialog close', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await clickButton(app, '#doctypeColorDialogClose')
+      await waitForOperation(app)
+    })
+
+    it('doctype dialog cancel', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      let fea = await app.client.$('#color_fea')
+      await fea.setValue('#E000C0')
+      await screenshot(app, 'doctype_dialog_fea_color')
+      await clickButton(app, '#doctypeColorDialogCancel')
+      await waitForOperation(app)
+    })
+
+    it('doctype dialog delete entry cancel', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 0 }])
+      await clickButton(app, '#hide_unused_doctypes')
+      await clickButton(app, '#delete_demospec1')
+      await clickButton(app, '#doctypeColorDialogCancel')
+      await waitForOperation(app)
+    })
+
+    it('doctype dialog delete entry', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await fakeDialog.mock([{ method: 'showMessageBoxSync', value: 1 }])
+      const doctypeColorDialog = await app.client.$('#doctypeColorDialog')
+      const style = await doctypeColorDialog.getAttribute('style')
+      assert.ok(style.includes('block'))
+      await clickButton(app, '#hide_unused_doctypes')
+      await screenshot(app, 'doctype_dialog_del')
+      await clickButton(app, '#delete_demospec1')
+      await screenshot(app, 'doctype_dialog_del')
+      await clickButton(app, '#doctypeColorDialogCancel')
+      await waitForOperation(app)
+    })
+
+    it('doctype dialog save all', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await clickButton(app, '#hide_unused_doctypes')
+      await clickButton(app, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+    })
+
+    it('doctype dialog save 2 test', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await screenshot(app, 'doctype_dialog')
+      await clickButton(app, '#hide_unused_doctypes')
+      await screenshot(app, 'doctype_dialog')
+      await clickButton(app, '#hide_unused_doctypes')
+
+      // make some design and test selections
+      await clickButton(app, '#dt_dsgn_fea')
+      await clickButton(app, '#dt_dsgn_swdd')
+      await clickButton(app, '#dt_test_swrs')
+      await clickButton(app, '#dt_test_vaporware')
+
+      await clickButton(app, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+
+      await clickButton(app, '#show_doctypes')
+      await waitForOperation(app)
+      await screenshot(app, 'doctype_dialog')
+    })
+
+    it('doctype dialog save 1 test', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+      await screenshot(app, 'doctype_dialog')
+
+      // make some design and test selections
+      await clickButton(app, '#dt_dsgn_fea')
+      await clickButton(app, '#dt_dsgn_swdd')
+      await clickButton(app, '#dt_test_swrs')
+      await clickButton(app, '#dt_none_vaporware')
+
+      await clickButton(app, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+
+      await clickButton(app, '#show_doctypes')
+      await waitForOperation(app)
+      await screenshot(app, 'doctype_dialog')
+    })
+
+    it('doctype dialog reset v-model', async function () {
+      await fakeMenu.clickMenu('Edit', 'Doctypes...')
+
+      // make some design and test selections
+      await clickButton(app, '#dt_none_fea')
+      await clickButton(app, '#dt_none_swdd')
+      await clickButton(app, '#dt_none_swrs')
+      await clickButton(app, '#dt_none_vaporware')
+
+      await clickButton(app, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+
+      await clickButton(app, '#show_doctypes')
+      await waitForOperation(app)
+      await screenshot(app, 'doctype_dialog')
+    })
+
+  })
+
   describe('Select duplicate', function () {
     it('load file and select', async function () {
       const oreqmMain = './test/sample_oreqm/0007_dup-same-version.oreqm'
@@ -1377,7 +1481,7 @@ describe('Application launch', function () {
       }
       await clickButton(app, '#sheet_export_ok')
       await waitForOperation(app)
-      if (process.platform === "win32") {
+      if (process.platform === "__win32") {
         // TODO: Not ideal but sheetjs outputs slightly different file on linux
         await compareBinary(xlsxName, './test/refdata/selection_save_multi.xlsx')
       }
@@ -1395,7 +1499,7 @@ describe('Application launch', function () {
       }
       await clickButton(app, '#sheet_export_ok')
       await waitForOperation(app)
-      if (process.platform === "win32") {
+      if (process.platform === "__win32") {
         // TODO: Not ideal but sheetjs outputs slightly different file on linux
         await compareBinary(xlsxName, './test/refdata/selection_save_single.xlsx')
       }

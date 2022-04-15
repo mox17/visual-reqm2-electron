@@ -1,5 +1,4 @@
 'use strict'
-// eslint-disable-next-line no-redeclare
 import { ipcRenderer } from 'electron'
 import { definedSpecobjectFields, programSettings, checkAndUpgradeSettings } from './settings.js'
 import { updateColorSettings } from './color.js'
@@ -10,7 +9,7 @@ import { showAlert } from './util.js'
  * Read setting from electron-settings interface and check for data elements.
  * @param {function} settingsUpdatedCallback callback to put new settings into effect
  */
-export async function handleSettings (settingsUpdatedCallback, args) {
+export async function handleSettings (settingsUpdatedCallback) {
   //rq: ->(rq_settings_file,rq_cl_settings_file)
   const settingsFile = await ipcRenderer.invoke('settingsFile')
   const settingsPopup = document.getElementById('settingsPopup')
@@ -21,17 +20,26 @@ export async function handleSettings (settingsUpdatedCallback, args) {
   if (await ipcRenderer.invoke('settingsHasSync', 'doctype_colors')) {
     doctypeColors = await ipcRenderer.invoke('settingsGetSync', 'doctype_colors')
   }
-  updateColorSettings(doctypeColors, updateDoctypeColors)
   let progSettings = null
   if (await ipcRenderer.invoke('settingsHasSync', 'program_settings')) {
     // Upgrade settings to add new values
     progSettings = await ipcRenderer.invoke('settingsGetSync', 'program_settings')
   }
-  const updated = checkAndUpgradeSettings(progSettings)
+  const updated = checkAndUpgradeSettings(progSettings, doctypeColors)
+  if (doctypeColors) {
+    // doctype_colors have been migrated to doctype_attributes in program_settings
+    await ipcRenderer.invoke('settingsUnsetSync', 'doctype_colors')
+  }
   if (updated) {
     await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
   }
   // console.log(programSettings);
+  let palette = {}
+  for (const dt of programSettings.doctype_attributes) {
+    palette[dt.doctype] = dt.color
+  }
+  // Update with colors from settings
+  updateColorSettings(palette, updateDoctypeColors)
 
   document.getElementById('sett_ok').addEventListener('click', async function () {
     if (await settingsDialogResults()) {
@@ -222,8 +230,23 @@ export function processRuleSet (newRules) {
  */
 async function updateDoctypeColors (colors) {
   //rq: ->(rq_doctype_color_sett)
-  await ipcRenderer.invoke('settingsSetSync', 'doctype_colors', colors)
+  for (const dt in colors) {
+    let found = false
+    for (let i=0; i < programSettings.doctype_attributes.length; i++) {
+      if (programSettings.doctype_attributes[i].doctype === dt) {
+        if (programSettings.doctype_attributes[i].color !== colors[dt]) {
+          console.log('color updated', programSettings.doctype_attributes[i], colors[dt])
+        }
+        programSettings.doctype_attributes[i].color = colors[dt]
+        found = true
+      }
+    }
+    if (!found) {
+      programSettings.doctype_attributes.push({doctype: dt, color: colors[dt], cluster: ''})
+      console.log('new color', programSettings.doctype_attributes)
+    }
+  }
+  await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
 }
 
 
-// spreadsheet export settings handling
