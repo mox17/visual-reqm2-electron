@@ -51,7 +51,7 @@
             <label for="regex_radio_input">RegEx</label>
             <input type="radio" id="vql_radio_input"   name="search_lang" title="Visual ReqM2 Query Language
 AND, OR, NOT operators
-CO(t, t) AO(t, t) hierarchy">
+de(t, t) an(t, t) hierarchy">
             <label for="vql_radio_input">VQL</label><br>
             <input type="checkbox" class="small_checkbox" id="limit_depth_input" title="Only immediate neighbors are reachable">
             <label for="limit_depth_input">depth=1</label>
@@ -325,9 +325,9 @@ prev and next">
               ordering of the doctypes. Move more 'abstract' doctypes to the top by dragging them.
             </p>
             <p>The doctypes can be clustered into the 'design' or
-              'test' side of the V-model, or left unclustered (which is the default).
-            </p>
-            <p>The selection will be saved as part of the settings.</p>
+              'test' side of the V-model, or left unclustered (which is the default).</p>
+            <p>The ordering and clustering may improve the automatic layout in these diagrams.</p>
+            <p>The selections will be saved as part of the settings.</p>
             <input type="checkbox" id="doctype_clusters" title="Cluster according to V-model 'design' or 'test' side"> group doctypes in hierarchy view</input><br/>
             <p>Visual ReqM2 keeps track of all used doctypes in the settings. It is possible to show only the active doctypes
               or the full set of stored doctypes with the 'hide unused doctypes' selection.</p>
@@ -338,7 +338,7 @@ prev and next">
           </div>
         </div>
         <p/>
-        <button type="button" id="doctypeColorDialogOk" class="dialog-button">OK</button>
+        <button type="button" id="doctypeColorDialogOk" class="dialog-button">Save</button>
         <button type="button" id="doctypeColorDialogCancel" class="dialog-button">Cancel</button>
       </div>
     </div>

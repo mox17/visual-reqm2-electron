@@ -81,7 +81,7 @@ export function setSearchLanguageHints (lang) {
   let input = document.getElementById('search_regex')
   switch (lang) {
     case 'vql':
-      input.placeholder = "VQL search\nrem: or chg: or new: select changes\nAND, OR, NOT and ( ) operators\nand ao() co() selections supported"
+      input.placeholder = "VQL search\nrem: or chg: or new: select changes\nAND, OR, NOT and ( ) operators\nan() pa() de() ch() selections"
       break
     case 'reg':
     case 'ids':
