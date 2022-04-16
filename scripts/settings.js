@@ -121,7 +121,9 @@ export const defaultProgramSettings = {
     '^swuts.*>.*$' // swuts can cover anything (maybe?)
   ],
   search_language: 'vql',
-  no_rejects: true
+  no_rejects: true,
+  doctype_clusters: true,
+  doctype_attributes: []
 }
 
 /** These are data fields used from the specobject, plus a pseudo field (see below) */
@@ -132,7 +134,7 @@ export const definedSpecobjectFields = Object.keys(defaultProgramSettings.compar
  * @param {object} settData Initial settings, typically extracted from storage or provided from test harness
  * @return {boolean} true: settings were modified, false: no modification
  */
-export function checkAndUpgradeSettings (settData) {
+export function checkAndUpgradeSettings (settData, oldPalette) {
   let modified = false
   if (settData && (typeof settData === 'object')) {
     programSettings = settData
@@ -189,6 +191,25 @@ export function checkAndUpgradeSettings (settData) {
     if (!('no_rejects' in programSettings)) {
       programSettings.no_rejects = defaultProgramSettings.no_rejects
       modified = true
+    }
+    if (!('doctype_clusters' in programSettings)) {
+      programSettings.doctype_clusters = defaultProgramSettings.doctype_clusters
+      modified = true
+    }
+    if (!('doctype_attributes' in programSettings)) {
+      programSettings.doctype_attributes = defaultProgramSettings.doctype_attributes
+      modified = true
+      console.log(oldPalette)
+      if (oldPalette) {
+        for (const doctype in oldPalette) {
+          let dtAttribute = {
+            doctype: doctype,
+            color: oldPalette[doctype],
+            cluster: "" // possible values "", "design", "test"
+          }
+          programSettings.doctype_attributes.push(dtAttribute)
+        }
+      }
     }
   } else {
     // Establish default settings

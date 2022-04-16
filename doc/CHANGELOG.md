@@ -1,6 +1,6 @@
 ### Changelog
 
-## 2.6.1
+## 2.7.0
 * Update VQL with more graph selection functions and tidy up naming of functions:
   * `children()` (alias to `ch()` ). One level reference to specobjects.
   * `parents()`  (alias to `pa()` ). One level reference to specobjects.
@@ -12,6 +12,7 @@
   * refactor code to use other ipc mechanisms
 * Add double-click selection of fields for xlsx export
 * Cosmetic changes to modal dialogs (settings and selection of exported fields)
+* Add dialog to edit doctype colors
 
 ## 2.6.0
 * Use SheetJS to export selected specobjects as xlsx files

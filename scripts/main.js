@@ -24,7 +24,7 @@ autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
 // end optional logging
 
-let debug = /--debug/.test(process.argv[2])
+let debug = false
 let runAutoupdater = false
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -148,11 +148,10 @@ function createWindow () {
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_diagram_sel') }
         },
         { type: 'separator' },
-        //{ role: 'quit' }
         {
           id: 'menu_quit',
           label: 'quit',
-          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('save_coverage_and_quit') }
+          role: 'quit'
         }
       ]
     },
@@ -168,8 +167,13 @@ function createWindow () {
         { role: 'paste' },
         { type: 'separator' },
         {
-          label: 'Settings...',
+          id: 'menu_doctype_attributes',
+          label: 'Doctypes...',
+          click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('open_doctypes') }
+        },
+        {
           id: 'menu_settings',
+          label: 'Settings...',
           click (_item, _focusedWindow, _ev) { mainWindow.webContents.send('open_settings') }
         }
       ]
@@ -478,6 +482,11 @@ ipcMain.handle('settingsGetSync', async (_event, key) => {
 
 ipcMain.handle('settingsHasSync', async (_event, key) => {
   let res = electronSettings.hasSync(key)
+  return res
+})
+
+ipcMain.handle('settingsUnsetSync', async (_event, key) => {
+  let res = electronSettings.unsetSync(key)
   return res
 })
 

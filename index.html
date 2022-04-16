@@ -51,7 +51,7 @@
             <label for="regex_radio_input">RegEx</label>
             <input type="radio" id="vql_radio_input"   name="search_lang" title="Visual ReqM2 Query Language
 AND, OR, NOT operators
-CO(t, t) AO(t, t) hierarchy">
+de(t, t) an(t, t) hierarchy">
             <label for="vql_radio_input">VQL</label><br>
             <input type="checkbox" class="small_checkbox" id="limit_depth_input" title="Only immediate neighbors are reachable">
             <label for="limit_depth_input">depth=1</label>
@@ -232,7 +232,6 @@ prev and next">
       <!-- Modal content -->
       <div class="modal-content row">
         <span id="settingsPopupClose" class="close">&times;</span>
-        <hr>
         <div class="row">
           <h2>Settings</h2>
           <div><small>Settings file: <span id="settings_file_path"></span></small></div>
@@ -268,8 +267,8 @@ prev and next">
             </div>
           </div>
         </div>
-        <button type="button" id="sett_ok" >OK</button>
-        <button type="button" id="sett_cancel" >Cancel</button>
+        <button type="button" id="sett_ok" class="dialog-button">OK</button>
+        <button type="button" id="sett_cancel" class="dialog-button">Cancel</button>
       </div>
     </div>
 
@@ -278,7 +277,6 @@ prev and next">
       <!-- Modal content -->
       <div class="modal-content row">
         <span id="sheetExportPopupClose" class="close">&times;</span>
-        <hr>
         <div class="row">
           <h2>Spreadsheet Export Parameters</h2>
           <p>Drag or double-click items to move between lists. Drag items to change order.</p>
@@ -292,7 +290,7 @@ prev and next">
         </div>
         <div class="column3">
             <h4>Export rows per specobject</h4><br/>
-            <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Each error on separate row</button><br/>
+            <input type="checkbox" id="sheet_export_multi" title="Separate row for each error/ancestor combo"> Each error on separate row</input><br/>
             <p/>
             <p>Exporting any of the fields
               <ul>
@@ -305,8 +303,43 @@ prev and next">
           </div>
         </div>
         <p/>
-        <button type="button" id="sheet_export_ok" >Export...</button>
-        <button type="button" id="sheet_export_cancel" >Cancel</button>
+        <button type="button" id="sheet_export_ok" class="dialog-button">Export...</button>
+        <button type="button" id="sheet_export_cancel" class="dialog-button">Cancel</button>
+      </div>
+    </div>
+
+    <!-- doctype color and clustering dialog -->
+    <div id="doctypeColorDialog" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content row">
+        <span id="doctypeColorDialogClose" class="close">&times;</span>
+        <div class="row">
+          <h2>Doctype colors and clustering</h2>
+          <div class="column">
+            <h4>Doctypes</h4>
+            <div id="doctypeColorDialogTable" style="overflow-y: auto; height:600px; margin-right: 50px;"></div>
+          </div>
+          <div class="column">
+            <p>Click the color picker in a row to change the doctype color.</p>
+            <p>The layout of the 'hierarchy' and 'safety' diagrams can be affected by the
+              ordering of the doctypes. Move more 'abstract' doctypes to the top by dragging them.
+            </p>
+            <p>The doctypes can be clustered into the 'design' or
+              'test' side of the V-model, or left unclustered (which is the default).</p>
+            <p>The ordering and clustering may improve the automatic layout in these diagrams.</p>
+            <p>The selections will be saved as part of the settings.</p>
+            <input type="checkbox" id="doctype_clusters" title="Cluster according to V-model 'design' or 'test' side"> group doctypes in hierarchy view</input><br/>
+            <p>Visual ReqM2 keeps track of all used doctypes in the settings. It is possible to show only the active doctypes
+              or the full set of stored doctypes with the 'hide unused doctypes' selection.</p>
+            <input type="checkbox" id="hide_unused_doctypes" title="Hide doctypes not used in current oreqm"> hide unused doctypes</input>
+            <p>It is possible to delete attributes for unused doctypes. This just means that next time the doctype is encountered, a random color will
+            assigned to it.</p>
+            <br/>
+          </div>
+        </div>
+        <p/>
+        <button type="button" id="doctypeColorDialogOk" class="dialog-button">Save</button>
+        <button type="button" id="doctypeColorDialogCancel" class="dialog-button">Cancel</button>
       </div>
     </div>
 
@@ -330,7 +363,7 @@ prev and next">
       <button id="close-button">
         Close
       </button>
-      <button id="restart-button" onClick="restartApp()" class="hidden">
+      <button id="restart-button" onclick="restartApp()" class="hidden">
         Restart
       </button>
     </div>

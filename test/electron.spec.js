@@ -1290,6 +1290,110 @@ test.describe('Application launch', () => {
 */
   })
 
+  test.describe('doctype dialog', () => {
+    test('doctype dialog close', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+      await clickButton(window, '#doctypeColorDialogClose')
+      await waitForOperation(app)
+    })
+
+    test('doctype dialog cancel', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+      let fea = await window.locator('#color_fea')
+      await fea.fill('#e000c0')
+      await screenshot(window, 'doctype_dialog_fea_color')
+      await clickButton(window, '#doctypeColorDialogCancel')
+      await waitForOperation(app)
+    })
+
+    test('doctype dialog delete entry cancel', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+      await mock(app, [{ method: 'showMessageBoxSync', value: 0 }])
+      await clickButton(window, '#hide_unused_doctypes')
+      await clickButton(window, '#delete_demospec1')
+      await clickButton(window, '#doctypeColorDialogCancel')
+      await waitForOperation(app)
+    })
+
+    test('doctype dialog delete entry', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+      await mock(app, [{ method: 'showMessageBoxSync', value: 1 }])
+      const doctypeColorDialog = await window.locator('#doctypeColorDialog')
+      const style = await doctypeColorDialog.getAttribute('style')
+      expect(style.includes('block')).toBeTruthy()
+      await clickButton(window, '#hide_unused_doctypes')
+      await screenshot(window, 'doctype_dialog_del')
+      await clickButton(window, '#delete_demospec1')
+      await screenshot(window, 'doctype_dialog_del')
+      await clickButton(window, '#doctypeColorDialogCancel')
+      await waitForOperation(app)
+    })
+
+    test('doctype dialog save all', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+      await clickButton(window, '#hide_unused_doctypes')
+      await clickButton(window, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+    })
+
+    test('doctype dialog save 2 test', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+      await screenshot(window, 'doctype_dialog')
+      await clickButton(window, '#hide_unused_doctypes')
+      await screenshot(window, 'doctype_dialog')
+      await clickButton(window, '#hide_unused_doctypes')
+
+      // make some design and test selections
+      await clickButton(window, '#dt_dsgn_fea')
+      await clickButton(window, '#dt_dsgn_swdd')
+      await clickButton(window, '#dt_test_swrs')
+      await clickButton(window, '#dt_test_vaporware')
+
+      await clickButton(window, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+
+      await clickButton(window, '#show_doctypes')
+      await waitForOperation(app)
+      await screenshot(window, 'doctype_dialog')
+    })
+
+    test('doctype dialog save 1 test', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+      await screenshot(window, 'doctype_dialog')
+
+      // make some design and test selections
+      await clickButton(window, '#dt_dsgn_fea')
+      await clickButton(window, '#dt_dsgn_swdd')
+      await clickButton(window, '#dt_test_swrs')
+      await clickButton(window, '#dt_none_vaporware')
+
+      await clickButton(window, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+
+      await clickButton(window, '#show_doctypes')
+      await waitForOperation(app)
+      await screenshot(window, 'doctype_dialog')
+    })
+
+    test('doctype dialog reset v-model', async () => {
+      await clickMenuItemById(app, 'menu_doctype_attributes')
+
+      // make some design and test selections
+      await clickButton(window, '#dt_none_fea')
+      await clickButton(window, '#dt_none_swdd')
+      await clickButton(window, '#dt_none_swrs')
+      await clickButton(window, '#dt_none_vaporware')
+
+      await clickButton(window, '#doctypeColorDialogOk')
+      await waitForOperation(app)
+
+      await clickButton(window, '#show_doctypes')
+      await waitForOperation(app)
+      await screenshot(window, 'doctype_dialog')
+    })
+
+  })
+
   test.describe('Select duplicate', () => {
     test('load file and select', async () => {
       const oreqmMain = './test/sample_oreqm/0007_dup-same-version.oreqm'
