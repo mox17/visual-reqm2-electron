@@ -1,11 +1,7 @@
 'use strict'
 
-const { assert } = require('chai')
-
+const { test, expect } = require('@playwright/test');
 const util = _interopRequireDefault(require('../lib/util.js'))
-
-const describe = global.describe
-const it = global.it
 
 function _interopRequireDefault (obj) {
   return obj && obj.__esModule ? obj : { default: obj }
@@ -23,20 +19,20 @@ function sleep (ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-describe('util tests', function () {
-  it('enable timing', function () {
+test.describe('util tests', () => {
+  test('enable timing', async () => {
     util.enableTiming(true)
   })
 
-  it('util log time', async function () {
+  test('util log time', async () => {
     let now = util.getTimeNow()
     await sleep(50)
     let then = util.logTimeSpent(now)
-    assert(then > now)
-    assert((then-now) >= 50)
+    expect(then > now).toBeTruthy()
+    expect((then-now) >= 50).toBeTruthy()
   })
 
-  it('disable timing', function () {
+  test('disable timing', async () => {
     util.enableTiming(false)
   })
 })

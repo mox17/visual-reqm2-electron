@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - '14.9.0'
+  - '17.8.0'
 
 # Always run two parallel builds: one on mac and one on linux
 # the linux build will use wine to be able to build windows and
@@ -31,6 +31,7 @@ before_install:
       mkdir -p /tmp/git-lfs && curl -L https://github.com/github/git-lfs/releases/download/v2.3.1/git-lfs-$([ "$TRAVIS_OS_NAME" == "linux" ] && echo "linux" || echo "darwin")-amd64-2.3.1.tar.gz | tar -xz -C /tmp/git-lfs --strip-components 1
       export PATH="/tmp/git-lfs:$PATH"
     fi
+    export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 before_script:
   - git lfs pull
@@ -41,11 +42,11 @@ before_script:
 # on PRs and merges to main and prod run tests and build the app
 script:
   - npm test
-    
+
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
 
-# only run this script on pull requests and merges into 
+# only run this script on pull requests and merges into
 # the 'main' branch
 branches:
   only:
