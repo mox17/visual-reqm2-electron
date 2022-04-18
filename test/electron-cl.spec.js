@@ -97,8 +97,9 @@ test.describe('command line processing', () => {
   test('bad filenames', async () => {
     //rq: ->(rq_cl_settings_file)
     app = await electron.launch({
-      path: electronPath,
-      args: ['lib/main.js',
+      executablePath: electronPath,
+      args: [
+        'lib/main.js',
         '--settDir', './tmp',
         '--settFile', 'cl-settings.json',
         '--regex',

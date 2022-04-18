@@ -168,8 +168,13 @@ test.describe('Application launch', () => {
     mkdirp.sync('./tmp')
     removeFile('./tmp/settings.json')
     app = await electron.launch({
-      path: electronPath,
-      args: ['lib/main.js', '-D', './tmp', '-F', 'settings.json', '--regex'] //rq: ->(rq_cl_settings_file,rq_settings_file)
+      executablePath: electronPath,
+      args: [
+        'lib/main.js',
+        '-D', './tmp',
+        '-F', 'settings.json',
+        '--regex'
+      ] //rq: ->(rq_cl_settings_file,rq_settings_file)
     })
     window = await app.firstWindow();
     await window.coverage.startJSCoverage({reportAnonymousScripts: true});
