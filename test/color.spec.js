@@ -3,10 +3,15 @@
 const { test, expect } = require('@playwright/test');
 const color = _interopRequireDefault(require('../lib/color.js'))
 const fs = require('fs')
+const mkdirp = require('mkdirp')
 
 function _interopRequireDefault (obj) { return obj && obj.__esModule ? obj : { default: obj } }
 
 const palFile = 'tmp/test_palette.json'
+
+test.beforeAll(async () => {
+  mkdirp.sync('./tmp')
+})
 
 test.afterEach(async () => {
   color.updateColorSettings({ none: '#FFFFFF' }, null)
