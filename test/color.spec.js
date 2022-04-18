@@ -36,7 +36,7 @@ test.describe('Color palette tests', () => {
     if (fs.existsSync(palFile)) {
       fs.unlinkSync(palFile)
     }
-    color.saveColorsFs(palFile)
+    await color.saveColorsFs(palFile)
     expect(fs.existsSync(palFile)).toBeTruthy()
     const fileContent = fs.readFileSync(palFile, 'utf8')
     // console.log(fileContent);
@@ -48,7 +48,7 @@ test.describe('Color palette tests', () => {
     color.updateColorSettings(mapping, colorSettingsUpdate)
     expect(color.getColor('xyzzy')).toBe('#123456')
     // Set different color
-    color.loadColorsFs(null, palFile)
+    await color.loadColorsFs(null, palFile)
     // xyzzy definition overwritten by import
     expect(color.getColor('xyzzy')).not.toBe('#123456') //rq: ->(rq_doctype_color_import)
     expect(colorCallback).toBeTruthy()

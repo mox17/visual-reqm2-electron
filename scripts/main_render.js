@@ -65,32 +65,32 @@ ipcRenderer.on('vql_help', (_item, _window, _key_ev) => {
   showVqlHelp()
 })
 
-ipcRenderer.on('load_main_oreqm', (_item, _window, _key_ev) => {
-  getMainOreqmFile()
+ipcRenderer.on('load_main_oreqm', async (_item, _window, _key_ev) => {
+  await getMainOreqmFile()
 })
 
-ipcRenderer.on('load_ref_oreqm', (_item, _window, _key_ev) => {
-  getRefOreqmFile()
+ipcRenderer.on('load_ref_oreqm', async (_item, _window, _key_ev) => {
+  await getRefOreqmFile()
 })
 
-ipcRenderer.on('save_colors', (_item, _window, _key_ev) => {
-  saveColorsFs()
+ipcRenderer.on('save_colors', async (_item, _window, _key_ev) => {
+  await saveColorsFs()
 })
 
-ipcRenderer.on('load_colors', (_item, _window, _key_ev) => {
-  loadColorsFs(updateDoctypeTable)
+ipcRenderer.on('load_colors', async (_item, _window, _key_ev) => {
+  await loadColorsFs(updateDoctypeTable)
 })
 
-ipcRenderer.on('load_safety', (_item, _window, _key_ev) => {
-  loadSafetyRulesFs()
+ipcRenderer.on('load_safety', async (_item, _window, _key_ev) => {
+  await loadSafetyRulesFs()
 })
 
-ipcRenderer.on('save_diagram_as', (_item, _window, _key_ev) => {
-  menuSaveAs()
+ipcRenderer.on('save_diagram_as', async (_item, _window, _key_ev) => {
+  await menuSaveAs()
 })
 
-ipcRenderer.on('save_issues_as', (_item, _window, _key_ev) => {
-  saveProblems()
+ipcRenderer.on('save_issues_as', async (_item, _window, _key_ev) => {
+  await saveProblems()
 })
 
 ipcRenderer.on('show_issues', (_item, _window, _key_ev) => {
@@ -106,12 +106,12 @@ ipcRenderer.on('open_doctypes', (_item, _window, _key_ev) => {
   openDoctypes(usedDoctypes)
 })
 
-ipcRenderer.on('save_diagram_ctx', (_item, _window, _key_ev) => {
-  saveDiagramCtx()
+ipcRenderer.on('save_diagram_ctx', async (_item, _window, _key_ev) => {
+  await saveDiagramCtx()
 })
 
-ipcRenderer.on('load_diagram_ctx', (_item, _window, _key_ev) => {
-  loadDiagramCtx()
+ipcRenderer.on('load_diagram_ctx', async (_item, _window, _key_ev) => {
+  await loadDiagramCtx()
 })
 
 ipcRenderer.on('save_diagram_sel', (_item, _window, _key_ev) => {
@@ -394,8 +394,8 @@ document.getElementById('menu_copy_png').addEventListener('click', function () {
 })
 
 /** context menu handler - save diagram as */
-document.getElementById('menu_save_as').addEventListener('click', function () {
-  menuSaveAs()
+document.getElementById('menu_save_as').addEventListener('click', async function () {
+  await menuSaveAs()
 })
 
 async function menuSaveAs () {
@@ -706,7 +706,7 @@ function updateSettingsFromContext (ctx) {
     const savePath = await ipcRenderer.invoke('dialog.showSaveDialogSync', null, saveOptions)
     // istanbul ignore else
     if (typeof (savePath) !== 'undefined') {
-      saveDiagramSelectionAsSpreadsheet(savePath)
+      await saveDiagramSelectionAsSpreadsheet(savePath)
     }
   }
 }
@@ -773,14 +773,14 @@ function prepareSheetExportDialog () {
   })
 }
 
-function saveSheetExportDialogChoices () {
+async function saveSheetExportDialogChoices () {
   // extract list of fields and save
   let exList = document.getElementById('sheet_ul_exported')
   let exportList = exList.getElementsByTagName('li')
   programSettings.export_fields = Array.from(exportList).map(r => r.innerHTML)
   programSettings.export_multi = document.getElementById('sheet_export_multi').checked
   //console.log(programSettings.export_fields)
-  saveProgramSettings()
+  await saveProgramSettings()
 }
 
 function openSheetExportDialog () {
@@ -788,10 +788,10 @@ function openSheetExportDialog () {
   document.getElementById('sheetExportPopup').style.display = 'block'
 }
 
-document.getElementById('sheet_export_ok').addEventListener('click', function () {
+document.getElementById('sheet_export_ok').addEventListener('click', async function () {
   saveSheetExportDialogChoices()
   document.getElementById('sheetExportPopup').style.display = 'none'
-  saveDiagramSel()
+  await saveDiagramSel()
 })
 
 document.getElementById('sheet_export_cancel').addEventListener('click', function () {
@@ -1116,11 +1116,11 @@ document.getElementById('excluded_ids').addEventListener('change', function () {
  * Handle UI selection of search language
  * @param {string} lang 'ids', 'req' or 'vql' selected in UI
  */
-function selectSearchLanguage (lang) {
+async function selectSearchLanguage (lang) {
   setSearchLanguageHints(lang)
   setSearchLanguage(lang)
   programSettings.search_language = searchLanguage
-  saveProgramSettings()
+  await saveProgramSettings()
   filterChange()
 }
 
@@ -1222,8 +1222,8 @@ function loadFileMainFs (file, refFile) {
 }
 
 /** Handle button click for interactive load of main oreqm via file selector */
-document.getElementById('get_main_oreqm_file').addEventListener('click', function () {
-  getMainOreqmFile() //rq: ->(rq_filesel_main_oreqm)
+document.getElementById('get_main_oreqm_file').addEventListener('click', async function () {
+  await getMainOreqmFile() //rq: ->(rq_filesel_main_oreqm)
 })
 
 async function getMainOreqmFile () {
@@ -1291,8 +1291,8 @@ function loadFileRefFs (file) {
   }
 }
 
-document.getElementById('get_ref_oreqm_file').addEventListener('click', function () {
-  getRefOreqmFile()
+document.getElementById('get_ref_oreqm_file').addEventListener('click', async function () {
+  await getRefOreqmFile()
 })
 
 /**
@@ -1704,8 +1704,8 @@ document.getElementById('menu_search_txt').addEventListener('click', function ()
   showInternal()
 })
 
-document.getElementById('save_problems').addEventListener('click', function () {
-  saveProblems()
+document.getElementById('save_problems').addEventListener('click', async function () {
+  await saveProblems()
 })
 
 document.getElementById('clear_problems').addEventListener('click', function () {

@@ -5,9 +5,9 @@ import Sortable from 'sortablejs'
 
 // doctypes settings handling
 
-document.getElementById('doctypeColorDialogOk').addEventListener('click', function () {
+document.getElementById('doctypeColorDialogOk').addEventListener('click', async function () {
   document.getElementById('doctypeColorDialog').style.display = 'none'
-  doctypesDialogSave()
+  await doctypesDialogSave()
 })
 
 document.getElementById('doctypeColorDialogCancel').addEventListener('click', function () {

@@ -33,7 +33,7 @@ test.beforeAll(async () => {
 })
 
 test.beforeEach(async () => {
-  color.loadColorsFs(null, './test/refdata/test_suite_palette.json')
+  await color.loadColorsFs(null, './test/refdata/test_suite_palette.json')
 })
 
 test.describe('ReqM2Oreqm tests', () => {
