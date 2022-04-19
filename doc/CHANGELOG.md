@@ -1,5 +1,9 @@
 ### Changelog
 
+## 2.7.1
+* Fixed bug where spurious xml tags inside `<sourceline>` made dot graph invalid.
+* Display more detailed error messages from graphviz. 
+
 ## 2.7.0
 * Update VQL with more graph selection functions and tidy up naming of functions:
   * `children()` (alias to `ch()` ). One level reference to specobjects.

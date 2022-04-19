@@ -83,7 +83,7 @@ const reEmptyLines = /<BR ALIGN="LEFT"\/>(\s*&nbsp;<BR ALIGN="LEFT"\/>)+/m
  * @param {string} txt Text with various markup (for example docbook)
  * @return {string} 'dot' html table friendly text.
  */
-export function dotFormat (txt) {
+export function dotFormat (txt, addNewline=true) {
   //rq: ->(rq_markup_remove)
   let txt2
   let newTxt = ''
@@ -117,7 +117,7 @@ export function dotFormat (txt) {
     newTxt = newTxt.replace(/^(\s*(&nbsp;)*<BR ALIGN="LEFT"\/>)+/, '') // remove blank leading lines
     newTxt = newTxt.replace(reEmptyLines, '<BR ALIGN="LEFT"/>&nbsp;<BR ALIGN="LEFT"/>') // Limit empty lines
     newTxt = newTxt.replace(/\r/, '') // no cr
-    if (!newTxt.endsWith('<BR ALIGN="LEFT"/>')) {
+    if (addNewline && !newTxt.endsWith('<BR ALIGN="LEFT"/>')) {
       newTxt += '<BR ALIGN="LEFT"/>'
     }
   }
@@ -212,7 +212,7 @@ function dependsConflicts (rec) {
 function securityRationaleClass (rec) {
   let secRatCls = ''
   let secRat = rec.securityrationale ? `sec_rat: ${dotFormat(rec.securityrationale)}` : ''
-  let secClass = rec.securityclass ? `sec_cls: ${rec.securityclass}` : ''
+  let secClass = rec.securityclass ? `sec_cls: ${dotFormat(rec.securityclass, false)}` : ''
   if (secRat.length || secClass.length) {
     secRatCls = `        <TR><TD COLSPAN="2" ALIGN="LEFT">${secRat}</TD><TD>${secClass}</TD></TR>\n`
   }
@@ -222,7 +222,7 @@ function securityRationaleClass (rec) {
 function verifyMetCond (rec) {
   let verMetCon = ''
   let verMet = rec.verifymethods.length ? `ver_m: ${dotFormat(rec.verifymethods.join('\n'))}` : ''
-  let verCond = rec.verifycond ? `ver_c: ${rec.verifycond}` : ''
+  let verCond = rec.verifycond ? `ver_c: ${dotFormat(rec.verifycond, false)}` : ''
   if (verMet.length || verCond.length) {
     verMetCon = `        <TR><TD COLSPAN="2" ALIGN="LEFT">${verMet}</TD><TD>${verCond}</TD></TR>\n`
   }
@@ -233,7 +233,7 @@ function srcRevDate (rec) {
   let row = ''
   let src = rec.source ? dotFormat(rec.source) : ''
   let rev = rec.sourcerevision ? dotFormat(rec.sourcerevision) : ''
-  let date = rec.creationdate ? rec.creationdate : ''
+  let date = rec.creationdate ?  dotFormat(rec.creationdate, false) : ''
   if (src.length || rec.length || date.length ) {
     row = `        <TR><TD>${src}</TD><TD>${rev}</TD><TD>${date}</TD></TR>\n`
   }
@@ -242,12 +242,11 @@ function srcRevDate (rec) {
 
 function sourceFileLine (rec) {
   let row = ''
-  let file = rec.sourcefile ? rec.sourcefile : ''
-  let line = rec.sourceline ? rec.sourceline : ''
+  let file = rec.sourcefile ? dotFormat(rec.sourcefile, false) : ''
+  let line = rec.sourceline ? dotFormat(rec.sourceline) : ''
   if (file.length || line.length) {
     row = `        <TR><TD COLSPAN="3" ALIGN="LEFT">src file: ${
-      file.replace( /([^\n]{70,500}?(\\|\/))/g,
-                    '$1<BR ALIGN="LEFT"/>')}:${line}<BR ALIGN="LEFT"/></TD></TR>\n`
+      file}:${line}</TD></TR>\n`
   }
   return row
 }
