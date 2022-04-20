@@ -160,7 +160,7 @@ function orSearch (nodes, a1, a2) {
  */
 function coSearch (nodes, t1, t2) {
   let parents = vqlEval(nodes, t1)
-  return vqlEval(oreqm.getDescendants(parents), t2)
+  return vqlEval(filterExistingIds(oreqm.getDescendants(parents)), t2)
 }
 
 /**
@@ -173,7 +173,7 @@ function coSearch (nodes, t1, t2) {
 function aoSearch (nodes, t1, t2) {
   let children = vqlEval(nodes, t1)
   let ancestors = oreqm.getAncestorsSet(children)
-  return vqlEval(ancestors, t2)
+  return vqlEval(filterExistingIds(ancestors), t2)
 }
 
 /**
@@ -186,7 +186,7 @@ function aoSearch (nodes, t1, t2) {
  function paSearch (nodes, t1, t2) {
   let children = vqlEval(nodes, t1)
   let parents = oreqm.getParentsSet(children)
-  return vqlEval(parents, t2)
+  return vqlEval(filterExistingIds(parents), t2)
 }
 
 /**
@@ -199,7 +199,24 @@ function aoSearch (nodes, t1, t2) {
  function chSearch (nodes, t1, t2) {
   let children = vqlEval(nodes, t1)
   let parents = oreqm.getChildrenSet(children)
-  return vqlEval(parents, t2)
+  return vqlEval(filterExistingIds(parents), t2)
+}
+
+/**
+ * Filter set of ids to the existing ones only
+ * @param {Set} idSet specobject ids which may exist
+ * @returns set of existing ids
+ */
+function filterExistingIds(idSet) {
+  let existingIds = new Set()
+  for (const p of idSet) {
+    if (oreqm.requirements.has(p)) {
+      existingIds.add(p)
+    } else  {
+      //console.log('non-existing ', p)
+    }
+  }
+  return existingIds
 }
 
 /**
