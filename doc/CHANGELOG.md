@@ -4,6 +4,7 @@
 * Fixed bug where spurious xml tags inside `<sourceline>` made dot graph invalid.
 * Display more detailed error messages from graphviz.
 * In VQL functions pa() ch() de() an() filter results to existing specobjects only (bugfix).
+* Redraw diagram when saving new doctype settings to show active colors.
 
 ## 2.7.0
 * Update VQL with more graph selection functions and tidy up naming of functions:
