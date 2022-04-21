@@ -34,8 +34,6 @@
     "c8": "^7.11.0",
     "electron": "^18.0.0",
     "electron-builder": "^22.14.13",
-    "electron-chromedriver": "^11.0.0",
-    "electron-icon-maker": "0.0.5",
     "eol": "^0.9.1",
     "eslint": "^7.20.0",
     "jsdom": "^16.4.0",
@@ -43,8 +41,7 @@
     "playwright": "^1.20.1",
     "playwright-fake-dialog": "^0.2.0",
     "shx": "^0.3.3",
-    "standard": "^16.0.3",
-    "v8-to-istanbul": "^8.1.1"
+    "standard": "^16.0.3"
   },
   "dependencies": {
     "blob-util": "^2.0.2",
