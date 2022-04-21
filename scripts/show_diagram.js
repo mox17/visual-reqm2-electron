@@ -31,6 +31,13 @@ export let selectedIndex = 0
 /** When true diagram is generated whenever selections or exclusions are updated */
 export let autoUpdate = true
 
+export const diagramTypeNone = 0
+export const diagramTypeSpecobjects = 1
+export const diagramTypeDoctypes = 2
+export const diagramTypeSafety = 3
+
+export let diagramType = diagramTypeNone
+
 // Manage selection highlight in diagram (extra bright red outline around selected specobject)
 /** The svg id of the rectangle around a selected specobject in diagram */
 let selectedPolygon = null
@@ -65,7 +72,13 @@ export function showDoctypesSafety () {
   if (oreqmMain) {
     oreqmMain.scanDoctypes(true)
     setIssueCount()
+    // doctypes cannot be shown as table, so switch format
+    if (selectedFormat === 'html-table') {
+      selectElement('format_select', 'svg')
+      selectedFormat = 'svg'
+    }
     updateDiagram(selectedFormat)
+    diagramType = diagramTypeSafety
   }
 }
 
@@ -75,8 +88,19 @@ export function showDoctypes () {
   if (oreqmMain) {
     oreqmMain.scanDoctypes(false)
     setIssueCount()
+    // doctypes cannot be shown as table, so switch format
+    if (selectedFormat === 'html-table') {
+      selectElement('format_select', 'svg')
+      selectedFormat = 'svg'
+    }
     updateDiagram(selectedFormat)
+    diagramType = diagramTypeDoctypes
   }
+}
+
+function selectElement(id, valueToSelect) {
+  let element = document.getElementById(id);
+  element.value = valueToSelect;
 }
 
 export function updateDiagram (selectedFormat) {
@@ -677,6 +701,7 @@ export function filterChange () {
       setIssueCount()
       updateDiagram(selectedFormat)
     }
+    diagramType = diagramTypeSpecobjects
   }
 }
 

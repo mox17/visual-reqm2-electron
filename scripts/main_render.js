@@ -22,7 +22,8 @@ import { showDoctypesSafety, showDoctypes, selectedFormat, clearHtmlTable, updat
          setSelectedIndex, graphResults, centerNode, setDoctypeCountShown, clearDoctypesTable,
          clearSelectionHighlight, filterChange, filterGraph, autoUpdate, setAutoUpdate,
          reportLimitAsToast, myShowToast, setExcludedDoctypeCheckboxes, toggleExclude,
-         doctypeFilterChange } from './show_diagram'
+         doctypeFilterChange, diagramType, diagramTypeNone, diagramTypeSpecobjects,
+         diagramTypeDoctypes, diagramTypeSafety } from './show_diagram'
 import { setIssueCount, saveProblems } from './issues'
 import { copyIdNode, menuDeselect, addNodeToSelection, excludeId, copyPng, showInternal,
          nodeSource, showSource } from './context-menu.js'
@@ -1720,7 +1721,20 @@ function updateDoctypeTable () {
   if (oreqmMain) {
     oreqmMain.clearCache()
     displayDoctypesWithCount(oreqmMain.doctypes)
-    filterChange()
+    // refresh the correct type of diagram
+    switch (diagramType) {
+    case diagramTypeSpecobjects:
+      filterChange()
+      break
+
+    case diagramTypeDoctypes:
+      showDoctypes()
+      break
+
+    case diagramTypeSafety:
+      showDoctypesSafety()
+      break
+    }
   }
 }
 

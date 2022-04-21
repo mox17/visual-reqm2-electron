@@ -5,6 +5,9 @@
 * Display more detailed error messages from graphviz.
 * In VQL functions pa() ch() de() an() filter results to existing specobjects only (bugfix).
 * Redraw diagram when saving new doctype settings to show active colors.
+* Update electron to 18.1.0
+* When doing hierarchy and safety diagrams, while in `table` format mode, switch to `svg` format.
+* Refresh the correct type of diagram (specobjects, hierarchy or safety) when updating after doctype color change.
 
 ## 2.7.0
 * Update VQL with more graph selection functions and tidy up naming of functions:
