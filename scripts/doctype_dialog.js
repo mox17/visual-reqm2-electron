@@ -1,13 +1,14 @@
 'use strict'
 import { ipcRenderer } from 'electron'
 import { programSettings } from './settings.js'
+import { updateColorSettings } from './color.js'
 import Sortable from 'sortablejs'
 
 // doctypes settings handling
 
-document.getElementById('doctypeColorDialogOk').addEventListener('click', function () {
+document.getElementById('doctypeColorDialogOk').addEventListener('click', async function () {
   document.getElementById('doctypeColorDialog').style.display = 'none'
-  doctypesDialogSave()
+  await doctypesDialogSave()
 })
 
 document.getElementById('doctypeColorDialogCancel').addEventListener('click', function () {
@@ -19,12 +20,18 @@ document.getElementById('doctypeColorDialogClose').addEventListener('click', fun
 })
 
 /**
+ * Pointer to callback when updating settings
+ */
+let doctypeSettingsCallback = null
+
+/**
  * Populate html and make settings modal visible
  * @param activeDoctypes set of doctypes used in current diagram
  */
- export function openDoctypes (activeDoctypes) {
+ export function openDoctypes (activeDoctypes, callbackOnSave) {
   // save set for later use when saving
   document.__activeDoctypes__ = activeDoctypes
+  doctypeSettingsCallback = callbackOnSave
   const doctypesPopup = document.getElementById('doctypeColorDialog')
   // Do not hide inactive doctypes in dialog when there is no oreqm data
   const hideUnknown = activeDoctypes.size ? true : false
@@ -189,5 +196,16 @@ async function doctypesDialogSave () {
   programSettings.doctype_clusters = document.getElementById('doctype_clusters').checked
   //console.log('After:', programSettings.doctype_attributes)
   await ipcRenderer.invoke('settingsSetSync', 'program_settings', programSettings)
+  if (doctypeSettingsCallback) {
+    // Update color module internal table TODO: refactor this double representation of colors
+    let palette = {}
+    for (const dt of programSettings.doctype_attributes) {
+      palette[dt.doctype] = dt.color
+    }
+    // Update with colors from settings
+    updateColorSettings(palette, null)
+    // Trigger updates with new colors
+    doctypeSettingsCallback()
+  }
 }
 

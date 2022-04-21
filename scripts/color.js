@@ -204,7 +204,9 @@ let colorSettingsUpdater = null
  * @param {function} updateFunction function to update settings with new color mappings
  */
 export function updateColorSettings (colorSettings, updateFunction) {
-  colorSettingsUpdater = updateFunction
+  if (updateFunction) {
+    colorSettingsUpdater = updateFunction
+  }
   if (colorSettings) {
     // Settings have preference
     _myPalette = colorSettings
