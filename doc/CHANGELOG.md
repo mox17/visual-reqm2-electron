@@ -3,7 +3,7 @@
 ## 2.7.1
 * Fixed bug where spurious xml tags inside `<sourceline>` made dot graph invalid.
 * Display more detailed error messages from graphviz.
-* In VQL functions pa() ch() de() an() filter results to existing specobjects only (bugfix).
+* In VQL functions `pa()` `ch()` `de()` and `an()` filter results to existing specobjects only (bugfix).
 * Redraw diagram when saving new doctype settings to show active colors.
 * Update electron to 18.1.0
 * When doing hierarchy and safety diagrams, while in `table` format mode, switch to `svg` format.
