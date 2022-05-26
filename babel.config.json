@@ -1,3 +1,15 @@
 {
-    "presets": [["@babel/preset-env", { "targets": { "electron": "18"} }]]
+    "presets": [["@babel/preset-env", { "targets": { "electron": "18"} }]],
+    "env": {
+      "test": {
+        "plugins": [
+          ["istanbul", {
+            "exclude": [
+              "**/*.spec.js",
+              "**/lib/*.js"
+            ]
+          }]
+        ]
+      }
+    }
 }

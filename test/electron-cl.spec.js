@@ -58,27 +58,10 @@ async function waitVrm2Done () {
 
 test.afterAll(async () => {
   // console.log('afterAll')
-  // const coverage = await window.coverage.stopJSCoverage();
-  // for (const entry of coverage) {
-  //   console.dir(entry)
-  //   //let name = `.nyc_output/${v4()}.json`
-  //   //const converter = new v8toIstanbul('', 0, { source: entry.source });
-  //   //await converter.load();
-  //   //converter.applyCoverage(entry.functions);
-  //   //console.log('electron.spec', name)
-  //   //fs.writeFileSync(name, JSON.stringify(JSON.stringify(converter.toIstanbul())));
-  // }
 })
 
 test.afterEach(async ({page}, testInfo) => {
   // console.log(`closing ${testInfo.title}`)
-  // const coverage = await window.coverage.stopJSCoverage();
-  // for (const entry of coverage) {
-  //   let name = `.nyc_output/cl-${v4()}.json`
-  //   console.log('electron.spec', name)
-  //   console.dir(entry.functions)
-  //   fs.writeFileSync(name, JSON.stringify(entry.functions));
-  // }
 })
 
 test.describe('command line processing', () => {
@@ -129,7 +112,6 @@ test.describe('command line processing', () => {
 
     // Get the first window that the app opens, wait if necessary.
     window = await app.firstWindow();
-    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
 
     // Check cmd line parameters have been read
     await waitVrm2Ready()
@@ -165,7 +147,6 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
-    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Ready()
     // Check main file
     await expect((await window.locator('id=name').innerHTML()).includes('./testdata/oreqm_testdata_del_movement.oreqm')).toBe(true)
@@ -196,7 +177,6 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
-    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     // Check main file
     await expect((await window.locator('id=name').innerHTML()).includes('oreqm_testdata_no_ogre')).toBe(true)
@@ -216,7 +196,6 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
-    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     // Check main file
     await expect(await window.locator('id=name').innerHTML()).toBe('')
@@ -238,7 +217,6 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
-    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     await expect(window.locator('#vql_radio_input')).toBeChecked()
     await app.close({runBeforeUnload: true})
@@ -256,7 +234,6 @@ test.describe('command line processing', () => {
     })
 
     window = await app.firstWindow();
-    await window.coverage.startJSCoverage({reportAnonymousScripts: true});
     await waitVrm2Done()
     await expect(window.locator('#id_radio_input')).toBeChecked()
     await app.close({runBeforeUnload: true})

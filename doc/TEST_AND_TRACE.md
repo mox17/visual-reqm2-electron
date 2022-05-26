@@ -2,7 +2,7 @@
 
 ## Requirements
 The features of Visual ReqM2 are summarized as requirements in [requirements.xlsx](./doc/requirements.xlsx).
-Various places in the implementation there are _magical_ comments, which link that part of the code as 
+Various places in the implementation there are _magical_ comments, which link that part of the code as
 an implementaion of a requirement.
 Likewise there are similar comments in test code, which indicate which requirement a test verifies.
 
@@ -18,16 +18,14 @@ If you want some introspection there is also a `./reqm2/visual_reqm2.oreqm` file
 
 ## Tests
 The tests are executed with `npm test` and will print a report to the console.
-Running `npm run-script test:cov` will generate a coverage report in [./coverage/index.html](./coverage/index.html).
+and will generate a coverage report in [./coverage/index.html](./coverage/index.html).
 
 In general it is a good idea to make sure all libraries are present before attempting a test.
 ```bash
 # Update all node packages
 npm install
-# Run NodeJS tests
-npm test
 # Run NodeJS tests with coverage
-npm run-script test:cov
+npm test
 ```
 
 ### Babel
