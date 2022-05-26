@@ -54,6 +54,7 @@ function searchValidate (str) {
       const top = rect.bottom;
       const width = field.clientWidth
       field.errorbox = document.createElement('div');
+      field.errorbox.id = "search_regex_error"
       field.errorbox.innerHTML = validationError
       field.errorbox.classList.add('search_terms')
       field.errorbox.setAttribute('style', `background: #f0a0a0;

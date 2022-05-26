@@ -1282,6 +1282,17 @@ test.describe('Application launch', () => {
         'cc.game.location.maze.2\ncc.game.location.maze.5\ncc.game.location.maze.6\ncc.game.location.maze.8\ncc.game.location.maze.9\n')
     })
 
+    test('VQL error', async () => {
+      //const searchRegex = await window.locator('#search_regex')
+      await clickButton(window, '#clear_search_regex')
+      let pane = await window.$('#search_regex')
+      await clickButton(window, '#search_regex')
+      await pane.type(')')
+      await screenshot(window, 'vql')
+      // check errorbox visible
+      await expect(window.locator('#search_regex_error')).toBeVisible()
+    })
+
     /*
     test('VQL multiple tagged terms', async () => {
       const searchRegex = await window.locator('#search_regex')
@@ -1572,6 +1583,15 @@ test.describe('Application launch', () => {
       await waitForOperation(app)
       let excl = await exclIds.inputValue()
       await expect(excl).toBe('TestDemoSpec.Object002\nTestDemoSpec.Object003')
+    })
+
+    test('Regex bad syntax', async () => {
+      let pane = await window.$('#search_regex')
+      await clickButton(window, '#search_regex')
+      await pane.type(')')
+      await screenshot(window, 'regex')
+      // check errorbox visible
+      await expect(window.locator('#search_regex_error')).toBeVisible()
     })
   })
 })
