@@ -34,7 +34,7 @@
     "@playwright/test": "^1.20.2",
     "babel-plugin-istanbul": "^6.1.1",
     "cross-env": "^7.0.3",
-    "electron": "^18.0.0",
+    "electron": "^18.3.7",
     "electron-builder": "^22.14.13",
     "eol": "^0.9.1",
     "eslint": "^7.20.0",
