@@ -1,3 +1,6 @@
+# Project maintained elsewhere
+Latest releases are available on git.\<company>.com/InnerSource/visual-reqm2
+
 # Visual ReqM2
 
 Visual ReqM2 is an electron app that generates visualizations of requirements hierarchies.
